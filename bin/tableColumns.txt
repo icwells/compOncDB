@@ -1,0 +1,51 @@
+# Patient
+ID INT
+Sex TEXT
+Age DECIMAL(6,2)
+Castrated SMALLINT
+taxa_id INT
+Species TEXT
+Date DATE
+Comments TEXT
+
+# Taxonomy
+taxa_id INT
+Kingdon TEXT
+Phylum TEXT
+Class TEXT
+Order TEXT
+Family TEXT
+Genus TEXT
+Species TEXT
+
+# Common
+taxa_id INT
+Name TEXT
+
+# Source
+ID INT
+service_name TEXT
+account_id INT
+submitter_name TEXT
+
+# Accounts
+account_id INT
+Name TEXT
+
+# Diagnosis
+ID INT
+masspresent SMALLINT
+metastasis_id INT
+
+# Tumor
+tumor_id INT
+Type TEXT
+primary SMALLINT
+
+# Tumor-relation
+ID INT
+tumor_id INT
+
+# Metastasis
+metastasis_id INT
+location TEXT
