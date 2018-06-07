@@ -31,7 +31,6 @@ func connect(DB string) *DB {
 func main() {
 	DB := "comparativeOncology"
 	var (
-		indir   = kingpin.Flag("i", "Path to input directory. Must include tag and target sequence fastas.").Required().String()
 		outfile = kingpin.Flag("o", "Name of output file.").Required().String()
 		cpu     = kingpin.Flag("t", "Number of threads (default = 1).").Default("1").Int()
 		n       = kingpin.Flag("n", "Number of generations to simulate (default = 20).").Default("20").Int()

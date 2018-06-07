@@ -6,8 +6,10 @@
 # Required programs:	Go 1.7+
 ##############################################################################
 
-DBS="dbsearch"
+DBI="dbIO"
 DR="github.com/go-sql-driver/mysql"
+IO="github.com/icwells/go-tools/iotools"
+SA="github.com/icwells/go-tools/strarray"
 
 # Get install location
 SYS=$(ls $GOPATH/pkg | head -1)
@@ -19,13 +21,15 @@ echo "GOPATH identified as $GOPATH"
 echo ""
 
 # Get mysql driver
-if [ ! -e "$GOPATH/src/$DR.a" ]; then
-	echo "Installing $DR..."
-	go get -u $DR
-fi
+for I in $DR $IO $SA; do
+	if [ ! -e "$GOPATH/src/$I.a" ]; then
+		echo "Installing $I..."
+		go get -u $I
+	fi
+done
 
-# Install dbsearch
-#if [ ! -e "$PDIR/$DBS.a" ]; then
-cp -R $DBS $GOPATH/src/gopkg.in/
-go install $DBS
+# Install dbIO
+#if [ ! -e "$PDIR/$DBI.a" ]; then
+cp -R $DBI $GOPATH/src/gopkg.in/
+go install $DBI
 #fi
