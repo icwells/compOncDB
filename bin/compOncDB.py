@@ -13,7 +13,7 @@ DB = "comparativeOncology"
 
 def backup():
 	# Backup database to local Linux machine
-	print(("\n\tBacking up {} database to loacl machine...").format(DB))
+	print(("\n\tBacking up {} database to local machine...").format(DB))
 	f = open(os.devnull, 'w')
 	sys.stdout = f
 	try:

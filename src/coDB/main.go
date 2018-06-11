@@ -8,15 +8,20 @@ import (
 	"fmt"
 	"github.com/go-sql-driver/mysql"
 	"github.com/icwells/go-tools/iotools"
+	"github.com/Songmu/prompter"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func connect(DB string) *DB {
+func connect(DB, user, pw string) *DB {
 	// Attempts to connect to sql database. Returns db instance.
-	db, err := sql.Open("mysql", DB)
+	if len(pw) <= 0 {
+		// Prompt for password
+		pw = prompter.Password("Enter MySQL password: ")
+	}
+	db, err := sql.Open("mysql", user + ":" + pw + "@/" + DB)
 	if err != nil {
 		fmt.Fprintf("\n\t[Error] Connecting to database: %v", err)
 		os.Exit(1)
@@ -31,12 +36,16 @@ func connect(DB string) *DB {
 func main() {
 	DB := "comparativeOncology"
 	var (
-		outfile = kingpin.Flag("o", "Name of output file.").Required().String()
-		cpu     = kingpin.Flag("t", "Number of threads (default = 1).").Default("1").Int()
-		n       = kingpin.Flag("n", "Number of generations to simulate (default = 20).").Default("20").Int()
+		user	= kingpin.Flag("u", "MySQL username").Required().String()
+		pw		= kingpin.Flag("p", "MySQL password").Default("").String()
+		New		= kingpin.Flag("new", "Initializes new tables in new database (database must be made manually).").Default("false").Boolean()
+		dump	= kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").Default("").String()
+		infile	= kingpin.Flag("i", "Path to input file.").Default("").String()
+		outfile = kingpin.Flag("o", "Name of output file.").Default("").String()
+		//cpu     = kingpin.Flag("t", "Number of threads (default = 1).").Default("1").Int()
 	)
 	kingpin.Parse()
-	db := connect(DB)
+	db := connect(DB, *user, *pw)
 	defer db.Close()
 
 }
