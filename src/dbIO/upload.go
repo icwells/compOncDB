@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func updateDB(db *DB, table, columns, values string) {
+func UpdateDB(db *DB, table, columns, values string) {
 	// Adds new rows to table
 	//(values must be formatted for single/multiple rows before calling function)
 	sql := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, column, values)
@@ -27,7 +27,7 @@ func updateDB(db *DB, table, columns, values string) {
 	return 1
 }
 
-func formatValues(v []string, n int) string {
+func FormatValues(v []string, n int) string {
 	// Organizes input data into n rows for upload
 	if len(v)%n != 0 {
 		fmt.Fprintf("\t[Error] Slice is not the correct length to fit into table: %v", v)
@@ -62,11 +62,11 @@ func formatValues(v []string, n int) string {
 	return values
 }
 
-func readColumns(types bool) map[string]string {
+func ReadColumns(infile string, types bool) map[string]string {
 	// Build map of column statements
 	var columns map[string]string
 	var table string
-	f := iotools.OpenFile("tableColumns.txt")
+	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
@@ -93,10 +93,10 @@ func readColumns(types bool) map[string]string {
 	return columns
 }
 
-func newTables(db *DB) {
+func NewTables(db *DB, infile string) {
 	// Initializes new tables
 	fmt.Println("\n\tInitializing new tables...")
-	columns := readColumns(true)
+	columns := readColumns(infile, true)
 	for k, v := range columns {
 		sql := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, column, values)
 		cmd := fmt.Sprintf("CREATE TABLE %s(%s);", k, v)

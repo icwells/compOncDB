@@ -10,7 +10,7 @@ import (
 	"golang.org/x/text/search"
 )
 
-func getRow(table, column, key string) string {
+func GetRow(table, column, key string) string {
 	// Returns row with key in column
 	var r string
 	sql := fmt.Sprintf("SELECT * FROM %s WHERE %s = %s;", table, column, key)
@@ -22,7 +22,7 @@ func getRow(table, column, key string) string {
 	return r
 }
 
-func getColumnInt(db *DB, table, column string) []int {
+func GetColumnInt(db *DB, table, column string) []int {
 	// Returns slice of all entries in column of integers
 	var col []int
 	sql := fmt.Sprintf("SELECT %s FROM %s;", column, table)
@@ -42,7 +42,7 @@ func getColumnInt(db *DB, table, column string) []int {
 	return col
 }
 
-func getColumnText(db *DB, table, column string) []string {
+func GetColumnText(db *DB, table, column string) []string {
 	// Returns slice of all entries in column of text
 	var col []string
 	sql := fmt.Sprintf("SELECT %s FROM %s;", column, table)
@@ -62,7 +62,7 @@ func getColumnText(db *DB, table, column string) []string {
 	return col
 }
 
-func getTable(db *DB, table string) []string {
+func GetTable(db *DB, table string) []string {
 	// Returns contents of table
 	var col []string
 	sql := fmt.Sprintf("SELECT * FROM %s ;", table)
