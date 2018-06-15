@@ -3,16 +3,13 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
+	"dbIO"
 	"fmt"
 	"github.com/Songmu/prompter"
 	"github.com/go-sql-driver/mysql"
-	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -20,7 +17,7 @@ func version() {
 	fmt.Println("\n\tCompOncDV v0.1 (~) is a package for managing the ASU comparative oncology database.")
 	fmt.Println("\n\tCopyright 2018 by Shawn Rupp, Maley Lab, Biodesign Institute, Arizona State University.")
 	fmt.Println("\tThis program comes with ABSOLUTELY NO WARRANTY.")
-	fmt.Prinln("\n\tThis is free software, and you are welcome to redistribute it under certain conditions.\n")
+	fmt.Println("\n\tThis is free software, and you are welcome to redistribute it under certain conditions.\n")
 	os.Exit(0)
 }
 
@@ -36,19 +33,15 @@ func version() {
 	}
 }*/
 
-func connect(DB, user, pw string) *DB {
+func connect(DB, user, pw string) *sql.DB {
 	// Attempts to connect to sql database. Returns db instance.
-	if pw == nil {
-		// Prompt for password
-		pw = prompter.Password("Enter MySQL password: ")
-	}
 	db, err := sql.Open("mysql", user+":"+pw+"@/"+DB)
 	if err != nil {
-		fmt.Fprintf("\n\t[Error] Connecting to database: %v", err)
+		fmt.Printf("\n\t[Error] Connecting to database: %v", err)
 		os.Exit(2)
 	}
 	if err = db.Ping(); err != nil {
-		fmt.Fprintf("\n\t[Error] Bad database connection: %v", err)
+		fmt.Printf("\n\t[Error] Bad database connection: %v", err)
 	}
 	return db
 }
@@ -63,12 +56,16 @@ func main() {
 		ver     = kingpin.Flag("v", "Print version info").Default("false").Bool()
 		bu      = kingpin.Flag("backup", "Backs up database to local machine").String()
 		New     = kingpin.Flag("new", "Initializes new tables in new database (database must be made manually).").Default("false").Bool()
-		dump    = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").Default("").String()
+		dump    = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").String()
 		infile  = kingpin.Flag("i", "Path to input file.").String()
 		outfile = kingpin.Flag("o", "Name of output file.").String()
 		//cpu     = kingpin.Flag("t", "Number of threads (default = 1).").Default("1").Int()
 	)
 	kingpin.Parse()
+	if pw == nil {
+		// Prompt for password
+		pw = *prompter.Password("Enter MySQL password: ")
+	}
 	db := connect(DB, *user, *pw)
 	defer db.Close()
 	if *bu == true {
@@ -83,7 +80,7 @@ func main() {
 		}
 		col := dbIO.ReadColumns(COL, false)
 		table := dbIO.GetTable(db, *dump)
-		printCSV(*outfile, col[*dump], table)
+		writeToCSV(*outfile, col[*dump], table)
 	} else if *infile != nil {
 		// Upload csv
 		col := dbIO.ReadColumns(COL, false)

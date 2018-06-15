@@ -3,14 +3,10 @@
 package main
 
 import (
-	"bufio"
-	"database/sql"
-	"fmt"
-	"github.com/go-sql-driver/mysql"
 	"github.com/icwells/go-tools/iotools"
-	"os"
-	"strconv"
-	"strings"
+	//"os"
+	//"strconv"
+	//"strings"
 )
 
 type Columns struct (
@@ -28,7 +24,7 @@ type Columns struct (
 	
 )
 
-func (c *Columns) getColumns(line) {
+/*func (c *Columns) getColumns(line) {
 	// Returns struct of column numbers with given fields
 
 }
@@ -36,7 +32,7 @@ func (c *Columns) getColumns(line) {
 func parseLine(db *DB, c Columns, line string) {
 	// Sorts data from line into appopriate tables
 
-}
+}*/
 
 func readCSV(db *DB, infile string) {
 	// Reads csv files and sends data to apprriate table

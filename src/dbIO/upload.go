@@ -7,55 +7,70 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
-	"golang.org/x/text/search"
 	"os"
 	"strings"
 )
 
-func UpdateDB(db *DB, table, columns, values string) {
+func UpdateDB(db *sql.DB, table, columns, values string) int {
 	// Adds new rows to table
 	//(values must be formatted for single/multiple rows before calling function)
-	sql := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, column, values)
+	sql := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values)
 	_, err := db.Exec(sql)
 	if err != nil {
-		fmt.Fprintf("\t[Error] uploading to %s: %v", table, err)
+		fmt.Printf("\t[Error] uploading to %s: %v", table, err)
 		return 0
 	}
 	return 1
 }
 
-func FormatValues(v []string, n int) string {
-	// Organizes input data into n rows for upload
-	if len(v)%n != 0 {
-		fmt.Fprintf("\t[Error] Slice is not the correct length to fit into table: %v", v)
-		return ""
-	}
-	buffer := bytes.NewBufferString("(")
-	l := len(v) / n
-	c := 0
-	// Iterate through in blocks of row length
-	for i := 0; i < len(v); i++ {
-		if c == 0 {
-			if i != 0 {
-				// Write preceding comma and new open field
-				buffer.WriteString(",(")
+func FormatMap(data map[string][]string) string {
+	// Formats a map of string slices for upload
+	buffer := bytes.NewBufferString("")
+	count := 0
+	length := len(data) - 1
+	for _, val := range data {
+		buffer.WriteString("(")
+		c := 0
+		l := len(val) - 1
+		for _, v := range val {
+			// Add row entries
+			buffer.WriteString(v)
+			if c != l {
+				buffer.WriteString(",")
 			}
+			c++
 		}
-		// Write entry
-		buffer.WriteString(v[i+c])
-		if c == l {
-			// Print close
-			buffer.WriteString(")")
-			// Reset counter
-			c = 0
-		} else {
-			// Print seprating comma
+		buffer.WriteString(")")
+		if count != length {
 			buffer.WriteString(",")
 		}
-		c++
+		count++
+	}
+	buffer.WriteString(";")
+	values := buffer.String()
+	return values
+}
+
+func FormatSlice(data [][]string) string {
+	// Organizes input data into n rows for upload
+	buffer := bytes.NewBufferString("")
+	length := len(data) - 1
+	for idx, row := range data {
+		buffer.WriteString("(")
+		l := len(row) - 1
+		for i, v := range row {
+			// Add row entries
+			buffer.WriteString(v)
+			if i != l {
+				buffer.WriteString(",")
+			}
+		}
+		buffer.WriteString(")")
+		if idx != length {
+			buffer.WriteString(",")
+		}
 	}
 	buffer.WriteString(";")
 	values := buffer.String()
@@ -93,16 +108,15 @@ func ReadColumns(infile string, types bool) map[string]string {
 	return columns
 }
 
-func NewTables(db *DB, infile string) {
+func NewTables(db *sql.DB, infile string) {
 	// Initializes new tables
 	fmt.Println("\n\tInitializing new tables...")
-	columns := readColumns(infile, true)
+	columns := ReadColumns(infile, true)
 	for k, v := range columns {
-		sql := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, column, values)
 		cmd := fmt.Sprintf("CREATE TABLE %s(%s);", k, v)
 		_, err := db.Exec(cmd)
 		if err == nil {
-			fmt.Fprintf("\t[Error] Creating table {}. Exiting.\n", k)
+			fmt.Printf("\t[Error] Creating table {}. Exiting.\n", k)
 			os.Exit(1)
 		}
 	}
