@@ -41,7 +41,7 @@ func connect(DB, user, pw string) *sql.DB {
 		os.Exit(2)
 	}
 	if err = db.Ping(); err != nil {
-		fmt.Printf("\n\t[Error] Bad database connection: %v", err)
+		fmt.Printf("\n\t[Error] Cannot connect to database: %v", err)
 	}
 	return db
 }

@@ -15,12 +15,12 @@ func printCSV(outfile, header []string, table [][]string) {
 	defer out.Close()
 	_, err := out.WriteString(strings.Join(header, ",") + "\n")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error writing header line: %v\n", err)
+		fmt.Fprintf(os.Stderr, "[Error] Writing header line: %v\n", err)
 	}
 	for _, i := range table {
 		_, err = out.WriteString(strings.Join(i, ",") + "\n")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing table data: %v\n", err)
+			fmt.Fprintf(os.Stderr, "[Error] Writing table data: %v\n", err)
 		}
 	}
 }
