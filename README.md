@@ -1,4 +1,4 @@
-# The compOncDB scripts are  
+# Go-based MySQL database CRUD program  
 This program is meant specifically for managing the comparative oncology database for the Maley lab at Arizona State University.  
 
 Copyright 2018 by Shawn Rupp
