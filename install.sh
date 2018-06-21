@@ -44,6 +44,7 @@ echo ""
 # lineageSimulator 
 echo "Building main..."
 go build src/$MAIN/*.go
+mv $MAIN bin/
 
 echo "Finished"
 echo ""
