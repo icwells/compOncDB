@@ -59,9 +59,9 @@ func GetColumnText(db *sql.DB, table, column string) []string {
 	return col
 }
 
-func GetTable(db *sql.DB, table string) []string {
+func GetTable(db *sql.DB, table string) [][]string {
 	// Returns contents of table
-	var col []string
+	var tbl [][]string
 	sql := fmt.Sprintf("SELECT * FROM %s ;", table)
 	rows, err := db.Query(sql)
 	if err != nil {
@@ -69,12 +69,12 @@ func GetTable(db *sql.DB, table string) []string {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var val string
+		var val []string
 		// Assign data to val while checking err
 		if err := rows.Scan(&val); err != nil {
 			fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
 		}
-		col = append(col, val)
+		tbl = append(tbl, val)
 	}
-	return col
+	return tbl
 }
