@@ -79,29 +79,31 @@ func FormatSlice(data [][]string) string {
 
 func ReadColumns(infile string, types bool) map[string]string {
 	// Build map of column statements
-	var columns map[string]string
+	columns := make(map[string]string)
 	var table string
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
 		line := string(input.Text())
-		if line[0] == '#' {
-			// Get table names
-			table = strings.TrimSpace(line[1:])
-		} else {
-			// Get columns for given table
-			var col string
-			if types == true {
-				col = strings.TrimSpace(line)
+		if len(line) >= 3 {
+			if line[0] == '#' {
+				// Get table names
+				table = strings.TrimSpace(line[1:])
 			} else {
-				c := strings.Split(line, " ")
-				col = c[0]
-			}
-			if strarray.InMapStr(columns, table) == true {
-				columns[table] = columns[table] + "," + col
-			} else {
-				columns[table] = col
+				// Get columns for given table
+				var col string
+				if types == true {
+					col = strings.TrimSpace(line)
+				} else {
+					c := strings.Split(line, " ")
+					col = c[0]
+				}
+				if strarray.InMapStr(columns, table) == true {
+					columns[table] = columns[table] + ", " + col
+				} else {
+					columns[table] = col
+				}
 			}
 		}
 	}
@@ -113,10 +115,11 @@ func NewTables(db *sql.DB, infile string) {
 	fmt.Println("\n\tInitializing new tables...")
 	columns := ReadColumns(infile, true)
 	for k, v := range columns {
-		cmd := fmt.Sprintf("CREATE TABLE %s(%s);", k, v)
+		cmd := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s(%s);", k, v)
 		_, err := db.Exec(cmd)
-		if err == nil {
-			fmt.Printf("\t[Error] Creating table {}. Exiting.\n", k)
+		if err != nil {
+			fmt.Printf("\n%s\n\n", cmd)
+			fmt.Printf("\t[Error] Creating table %s. %v\n\n", k, err)
 			os.Exit(1)
 		}
 	}

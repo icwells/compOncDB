@@ -14,7 +14,7 @@ taxa_id INT
 Kingdon TEXT
 Phylum TEXT
 Class TEXT
-Order TEXT
+Orders TEXT
 Family TEXT
 Genus TEXT
 Species TEXT
@@ -41,9 +41,9 @@ metastasis_id INT
 # Tumor
 tumor_id INT
 Type TEXT
-primary SMALLINT
+primary_tumor SMALLINT
 
-# Tumor-relation
+# Tumor_relation
 ID INT
 tumor_id INT
 
