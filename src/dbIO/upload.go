@@ -16,10 +16,12 @@ import (
 func UpdateDB(db *sql.DB, table, columns, values string) int {
 	// Adds new rows to table
 	//(values must be formatted for single/multiple rows before calling function)
-	sql := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values)
-	_, err := db.Exec(sql)
+	cmd := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values)
+	_, err := db.Exec(cmd)
 	if err != nil {
-		fmt.Printf("\t[Error] uploading to %s: %v", table, err)
+		fmt.Println(cmd)
+		os.Exit(3)
+		//fmt.Printf("\t[Error] Uploading to %s: %v", table, err)
 		return 0
 	}
 	return 1
@@ -28,53 +30,50 @@ func UpdateDB(db *sql.DB, table, columns, values string) int {
 func FormatMap(data map[string][]string) string {
 	// Formats a map of string slices for upload
 	buffer := bytes.NewBufferString("")
-	count := 0
-	length := len(data) - 1
+	first := true
 	for _, val := range data {
-		buffer.WriteString("(")
-		c := 0
-		l := len(val) - 1
+		f := true
+		if first == false {
+			// Add sepearating comma
+			buffer.WriteByte(',')
+		}
+		buffer.WriteByte('(')
 		for _, v := range val {
-			// Add row entries
-			buffer.WriteString(v)
-			if c != l {
-				buffer.WriteString(",")
+			if f == false {
+				buffer.WriteByte(',')
 			}
-			c++
+			// Wrap in back ticks to preserve spaces and reserved characters
+			buffer.WriteByte('`')
+			buffer.WriteString(v)
+			buffer.WriteByte('`')
+			f = false
 		}
-		buffer.WriteString(")")
-		if count != length {
-			buffer.WriteString(",")
-		}
-		count++
+		buffer.WriteByte(')')
+		first = false
 	}
-	buffer.WriteString(";")
-	values := buffer.String()
-	return values
+	return buffer.String()
 }
 
 func FormatSlice(data [][]string) string {
 	// Organizes input data into n rows for upload
 	buffer := bytes.NewBufferString("")
-	length := len(data) - 1
 	for idx, row := range data {
-		buffer.WriteString("(")
-		l := len(row) - 1
+		if idx != 0 {
+			buffer.WriteByte(',')
+		}
+		buffer.WriteByte('(')
 		for i, v := range row {
-			// Add row entries
-			buffer.WriteString(v)
-			if i != l {
-				buffer.WriteString(",")
+			if i != 0 {
+				buffer.WriteByte(',')
 			}
+			// Wrap in back ticks to preserve spaces and reserved characters
+			buffer.WriteByte('`')
+			buffer.WriteString(v)
+			buffer.WriteByte('`')
 		}
-		buffer.WriteString(")")
-		if idx != length {
-			buffer.WriteString(",")
-		}
+		buffer.WriteByte(')')
 	}
-	buffer.WriteString(";")
-	values := buffer.String()
-	return values
+	return buffer.String()
 }
 
 func ReadColumns(infile string, types bool) map[string]string {

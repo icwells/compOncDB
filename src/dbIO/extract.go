@@ -7,6 +7,35 @@ import (
 	"fmt"
 )
 
+func GetCount(db *sql.DB, table string) int {
+	// Returns number of rows from table
+	var n int
+	cmd := fmt.Sprintf("SELECT COUNT(*) FROM %s;", table)
+	val := db.QueryRow(cmd)
+	err := val.Scan(&n)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Determining number of rows from %s: %v\n\n", table, err)
+	}
+	return n
+}
+
+func GetMax(db *sql.DB, table, column string) int {
+	// Returns maximum number from given column
+	var m int
+	n := GetCount(db, table)
+	if n > 0 {
+		cmd := fmt.Sprintf("SELECT MAX(%s) FROM %s;", column, table)
+		val := db.QueryRow(cmd)
+		err := val.Scan(&m)
+		if err != nil {
+			fmt.Printf("\n\t[Error] Determining maximum value from %s in %s: %v\n\n", column, table, err)
+		}
+	} else {
+		m = n
+	}
+	return m
+}
+
 func GetRow(db *sql.DB, table, column, key string) string {
 	// Returns row with key in column
 	var r string

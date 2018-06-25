@@ -18,6 +18,7 @@ Orders TEXT
 Family TEXT
 Genus TEXT
 Species TEXT
+Source TEXT
 
 # Common
 taxa_id INT

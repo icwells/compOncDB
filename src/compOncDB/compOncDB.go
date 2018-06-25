@@ -57,9 +57,9 @@ func main() {
 		ver     = kingpin.Flag("v", "Print version info").Default("false").Bool()
 		bu      = kingpin.Flag("backup", "Backs up database to local machine").Default("false").Bool()
 		New     = kingpin.Flag("new", "Initializes new tables in new database (database must be made manually).").Default("false").Bool()
-		dump    = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").PlaceHolder("nil").String()
-		//infile  = kingpin.Flag("i", "Path to input file.").PlaceHolder("nil").String()
-		outfile = kingpin.Flag("o", "Name of output file.").PlaceHolder("nil").String()
+		//dump    = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").PlaceHolder("nil").String()
+		infile  = kingpin.Flag("i", "Path to input file.").PlaceHolder("nil").String()
+		//outfile = kingpin.Flag("o", "Name of output file.").PlaceHolder("nil").String()
 		//cpu     = kingpin.Flag("t", "Number of threads (default = 1).").Default("1").Int()
 	)
 	kingpin.Parse()
@@ -74,7 +74,7 @@ func main() {
 		backup(DB)
 	} else if *New == true {
 		dbIO.NewTables(db, COL)
-	} else if *dump != "nil" {
+	/*} else if *dump != "nil" {
 		// Extract entire table
 		if *outfile == "nil" {
 			fmt.Println("\n\t[Error] Please specify output file. Exiting.\n")
@@ -82,11 +82,11 @@ func main() {
 		}
 		col := dbIO.ReadColumns(COL, false)
 		table := dbIO.GetTable(db, *dump)
-		printCSV(*outfile, col[*dump], table)
-	/*} else if *infile != "nil" {
+		printCSV(*outfile, col[*dump], table)*/
+	} else if *infile != "nil" {
 		// Upload csv
 		col := dbIO.ReadColumns(COL, false)
-	*/
+		LoadTaxa(db, col, *infile)
 	}
 	fmt.Printf("\n\tFinished. Runtime: %s\n\n", time.Since(start))
 }
