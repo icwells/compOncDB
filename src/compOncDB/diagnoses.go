@@ -1,4 +1,4 @@
-// This srcipt will summarize diagnosis and account data from database files 
+// This srcipt will summarize diagnosis and account data from database files
 // and upload them the comparative oncology database
 
 package main
