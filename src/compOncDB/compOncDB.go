@@ -57,7 +57,8 @@ func main() {
 		bu        = kingpin.Flag("backup", "Backs up database to local machine.").Default("false").Bool()
 		New       = kingpin.Flag("new", "Initializes new tables in new database (database must be made manually).").Default("false").Bool()
 		taxa      = kingpin.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy and common name tables.").Default("false").Bool()
-		accounts  = kingpin.Flag("accounts", "Extract account info from input table and updates database.").Default("false").Bool()
+		accounts  = kingpin.Flag("accounts", "Extract account info from input file and updates database.").Default("false").Bool()
+		upload    = kingpin.Flag("upload", "Uploads patient info from input table to database.").Default("false").Bool()
 		//dump    = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short("d").PlaceHolder("nil").String()
 		infile = kingpin.Flag("infile", "Path to input file.").Short('i').PlaceHolder("nil").String()
 		//outfile = kingpin.Flag("outfile", "Name of output file.").Short('o').PlaceHolder("nil").String()
@@ -75,25 +76,28 @@ func main() {
 	defer db.Close()
 	if *bu == true {
 		backup(DB)
-	} else if *New == true {
-		dbIO.NewTables(db, COL)
-		/*} else if *dump != "nil" {
-		// Extract entire table
-		if *outfile == "nil" {
-			fmt.Println("\n\t[Error] Please specify output file. Exiting.\n")
-			os.Exit(1)
+	} else {
+		col := dbIO.ReadColumns(COL, false)
+		if *New == true {
+			dbIO.NewTables(db, COL)
+			/*} else if *dump != "nil" {
+			// Extract entire table
+			if *outfile == "nil" {
+				fmt.Println("\n\t[Error] Please specify output file. Exiting.\n")
+				os.Exit(1)
+			}
+			table := dbIO.GetTable(db, *dump)
+			printCSV(*outfile, col[*dump], table)*/
+		} else if *taxa == true {
+			// Upload taxonomy
+			LoadTaxa(db, col, *infile)
+		} else if *accounts == true {
+			// Upload account info
+			LoadAccounts(db, col, *infile)
+		} else if *upload == true {
+			// Upload patient data
+			LoadPatients(db, col, *infile)
 		}
-		col := dbIO.ReadColumns(COL, false)
-		table := dbIO.GetTable(db, *dump)
-		printCSV(*outfile, col[*dump], table)*/
-	} else if *taxa == true {
-		// Upload taxonomy
-		col := dbIO.ReadColumns(COL, false)
-		LoadTaxa(db, col, *infile)
-	} else if *accounts == true {
-		// Upload csv
-		col := dbIO.ReadColumns(COL, false)
-		LoadAccounts(db, col, *infile)
 	}
 	fmt.Printf("\n\tFinished. Runtime: %s\n\n", time.Since(start))
 }
