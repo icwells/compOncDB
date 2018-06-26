@@ -57,7 +57,7 @@ func main() {
 		bu        = kingpin.Flag("backup", "Backs up database to local machine.").Default("false").Bool()
 		New       = kingpin.Flag("new", "Initializes new tables in new database (database must be made manually).").Default("false").Bool()
 		taxa      = kingpin.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy and common name tables.").Default("false").Bool()
-		diagnosis = kingpin.Flag("diag", "Extract diagnosis and account info from input table and update database.").Default("false").Bool()
+		accounts  = kingpin.Flag("accounts", "Extract account info from input table and updates database.").Default("false").Bool()
 		//dump    = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short("d").PlaceHolder("nil").String()
 		infile = kingpin.Flag("infile", "Path to input file.").Short('i').PlaceHolder("nil").String()
 		//outfile = kingpin.Flag("outfile", "Name of output file.").Short('o').PlaceHolder("nil").String()
@@ -90,10 +90,10 @@ func main() {
 		// Upload taxonomy
 		col := dbIO.ReadColumns(COL, false)
 		LoadTaxa(db, col, *infile)
-	} else if *diagnosis == true {
+	} else if *accounts == true {
 		// Upload csv
 		col := dbIO.ReadColumns(COL, false)
-		LoadDiagnoses(db, col, *infile)
+		LoadAccounts(db, col, *infile)
 	}
 	fmt.Printf("\n\tFinished. Runtime: %s\n\n", time.Since(start))
 }
