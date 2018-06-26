@@ -53,13 +53,13 @@ func main() {
 	COL := "tableColumns.txt"
 	DB := "comparativeOncology"
 	var (
-		user    = kingpin.Flag("u", "MySQL username (default is root)").Default("root").String()
-		ver     = kingpin.Flag("v", "Print version info").Default("false").Bool()
-		bu      = kingpin.Flag("backup", "Backs up database to local machine").Default("false").Bool()
+		user    = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
+		ver     = kingpin.Flag("version", "Print version info and exit.").Short('v').Default("false").Bool()
+		bu      = kingpin.Flag("backup", "Backs up database to local machine.").Default("false").Bool()
 		New     = kingpin.Flag("new", "Initializes new tables in new database (database must be made manually).").Default("false").Bool()
-		//dump    = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").PlaceHolder("nil").String()
-		infile  = kingpin.Flag("i", "Path to input file.").PlaceHolder("nil").String()
-		//outfile = kingpin.Flag("o", "Name of output file.").PlaceHolder("nil").String()
+		//dump    = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short("d").PlaceHolder("nil").String()
+		infile  = kingpin.Flag("infile", "Path to input file.").Short('i').PlaceHolder("nil").String()
+		//outfile = kingpin.Flag("outfile", "Name of output file.").Short('o').PlaceHolder("nil").String()
 		//cpu     = kingpin.Flag("t", "Number of threads (default = 1).").Default("1").Int()
 	)
 	kingpin.Parse()
