@@ -14,6 +14,25 @@ import (
 )
 
 
+func uploadTable(db *sql.DB, col map[string]string, p Patient, d Diagnosis, t TumorRelation, s Source) {
+	// Uploads unique account entries with random ID number
+	var acc [][]string
+	for _, i := range accounts {
+		// Add unique taxa ID
+		count++
+		c := strconv.Itoa(count)
+		acc = append(acc, []string{c, i})
+	}
+	if len(acc) > 0 {
+		vals, l := dbIO.FormatSlice(acc)
+		dbIO.UpdateDB(db, "Accounts", col["Accounts"], vals, l)
+	}
+}
+
+func getCodes() int {
+	// Returns SMALLINT code type for true/false/NA/unspecified
+
+}
 
 func extractPatients(infile string, count int) {
 	// Assigns patient data to appropriate structs for sorting later
@@ -22,6 +41,7 @@ func extractPatients(infile string, count int) {
 	var d Diagnosis
 	var t TumorRelation
 	var s Source
+	var c Columns
 	var col int
 	fmt.Printf("\n\tExtracting accounts from %s\n", infile)
 	f := iotools.OpenFile(infile)
@@ -33,7 +53,10 @@ func extractPatients(infile string, count int) {
 			count++
 
 		} else {
-			
+			c.setIndeces(line)
+			first = false
+		}
+	}
 }
 
 func LoadPatients(db *sql.DB, col map[string]string, infile string) {
