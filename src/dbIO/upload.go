@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func UpdateDB(db *sql.DB, table, columns, values string) int {
+func UpdateDB(db *sql.DB, table, columns, values string, l int) int {
 	// Adds new rows to table
 	//(values must be formatted for single/multiple rows before calling function)
 	cmd := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values)
@@ -24,13 +24,15 @@ func UpdateDB(db *sql.DB, table, columns, values string) int {
 		//fmt.Printf("\t[Error] Uploading to %s: %v", table, err)
 		return 0
 	}
+	fmt.Printf("\tUploaded %d rows to %s.\n", l, table)
 	return 1
 }
 
-func FormatMap(data map[string][]string) string {
+func FormatMap(data map[string][]string) (string, int) {
 	// Formats a map of string slices for upload
 	buffer := bytes.NewBufferString("")
 	first := true
+	count := 0
 	for _, val := range data {
 		f := true
 		if first == false {
@@ -42,21 +44,23 @@ func FormatMap(data map[string][]string) string {
 			if f == false {
 				buffer.WriteByte(',')
 			}
-			// Wrap in back ticks to preserve spaces and reserved characters
-			buffer.WriteByte('`')
+			// Wrap in apostrophes to preserve spaces and reserved characters
+			buffer.WriteByte('\'')
 			buffer.WriteString(v)
-			buffer.WriteByte('`')
+			buffer.WriteByte('\'')
 			f = false
 		}
 		buffer.WriteByte(')')
 		first = false
+		count++
 	}
-	return buffer.String()
+	return buffer.String(), count
 }
 
-func FormatSlice(data [][]string) string {
+func FormatSlice(data [][]string) (string, int) {
 	// Organizes input data into n rows for upload
 	buffer := bytes.NewBufferString("")
+	count := 0
 	for idx, row := range data {
 		if idx != 0 {
 			buffer.WriteByte(',')
@@ -66,14 +70,15 @@ func FormatSlice(data [][]string) string {
 			if i != 0 {
 				buffer.WriteByte(',')
 			}
-			// Wrap in back ticks to preserve spaces and reserved characters
-			buffer.WriteByte('`')
+			// Wrap in apostrophes to preserve spaces and reserved characters
+			buffer.WriteByte('\'')
 			buffer.WriteString(v)
-			buffer.WriteByte('`')
+			buffer.WriteByte('\'')
 		}
 		buffer.WriteByte(')')
+		count++
 	}
-	return buffer.String()
+	return buffer.String(), count
 }
 
 func ReadColumns(infile string, types bool) map[string]string {

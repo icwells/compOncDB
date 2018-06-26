@@ -18,19 +18,24 @@ func uploadTable(db *sql.DB, col map[string]string, taxa, common map[string][]st
 	var com [][]string
 	for k, v := range taxa {
 		// Add unique taxa ID
-		taxa[k] = append([]string{strconv.Itoa(count)}, v...)
+		count++
+		c := strconv.Itoa(count)
+		taxa[k] = append([]string{c}, v...)
 		if strarray.InMapSli(common, k) == true {
 			// Join common names to taxa id in paired entries
 			for _, n := range common[k] {
-				com = append(com, []string{string(count), n})
+				com = append(com, []string{c, n})
 			}
 		}
-		count++
 	}
-	tvals := dbIO.FormatMap(taxa)
-	dbIO.UpdateDB(db, "Taxonomy", col["Taxonomy"], tvals)
-	cvals := dbIO.FormatSlice(com)
-	dbIO.UpdateDB(db, "Common", col["Common"], cvals)
+	if len(taxa) > 0 {
+		vals, l := dbIO.FormatMap(taxa)
+		dbIO.UpdateDB(db, "Taxonomy", col["Taxonomy"], vals, l)
+	}
+	if len(com) > 0 {
+		vals, l := dbIO.FormatSlice(com)
+		dbIO.UpdateDB(db, "Common", col["Common"], vals, l)
+	}
 }
 
 func extractTaxa(infile string, species, com []string) (map[string][]string, map[string][]string) {
@@ -38,6 +43,7 @@ func extractTaxa(infile string, species, com []string) (map[string][]string, map
 	first := true
 	taxa := make(map[string][]string)
 	common := make(map[string][]string)
+	fmt.Printf("\n\tExtracting taxa from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := bufio.NewScanner(f)
