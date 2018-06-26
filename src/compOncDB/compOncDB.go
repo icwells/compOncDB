@@ -49,7 +49,6 @@ func connect(DB, user, pw string) *sql.DB {
 }
 
 func main() {
-	start := time.Now()
 	COL := "tableColumns.txt"
 	DB := "comparativeOncology"
 	var (
@@ -68,6 +67,8 @@ func main() {
 	}
 	// Prompt for password
 	password := prompter.Password("\n\tEnter MySQL password")
+	// Begin recording time after password input
+	start := time.Now()
 	db := connect(DB, *user, password)
 	defer db.Close()
 	if *bu == true {
