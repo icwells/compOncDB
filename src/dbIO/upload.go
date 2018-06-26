@@ -19,13 +19,28 @@ func UpdateDB(db *sql.DB, table, columns, values string, l int) int {
 	cmd := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values)
 	_, err := db.Exec(cmd)
 	if err != nil {
-		fmt.Println(cmd)
-		os.Exit(3)
-		//fmt.Printf("\t[Error] Uploading to %s: %v", table, err)
+		fmt.Printf("\t[Error] Uploading to %s: %v", table, err)
 		return 0
 	}
 	fmt.Printf("\tUploaded %d rows to %s.\n", l, table)
 	return 1
+}
+
+func escapeChars(v string) string {
+	// Returns value with any reserved characters escaped
+	chars := []string{"'", "\"", "_"}
+	for _, i := range chars {
+		idx := 0
+		for strings.Contains(v[idx:], i) == true {
+			// Escape each occurance of a character
+			ind := strings.Index(v[idx:], i)
+			idx = idx + ind
+			v = v[:idx] + "\\" + v[idx:]
+			idx++
+			idx++
+		}
+	}
+	return v
 }
 
 func FormatMap(data map[string][]string) (string, int) {
@@ -41,6 +56,7 @@ func FormatMap(data map[string][]string) (string, int) {
 		}
 		buffer.WriteByte('(')
 		for _, v := range val {
+			v = escapeChars(v)
 			if f == false {
 				buffer.WriteByte(',')
 			}
@@ -67,6 +83,7 @@ func FormatSlice(data [][]string) (string, int) {
 		}
 		buffer.WriteByte('(')
 		for i, v := range row {
+			v = escapeChars(v)
 			if i != 0 {
 				buffer.WriteByte(',')
 			}
