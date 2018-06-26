@@ -88,6 +88,26 @@ func GetColumnText(db *sql.DB, table, column string) []string {
 	return col
 }
 
+func GetColumns(db *sql.DB, table, columns []string) []string {
+	// Returns slice of slices of all entries in given columns of text
+	var col [][]string
+	sql := fmt.Sprintf("SELECT %s FROM %s;", strings.Join(columns, ","), table)
+	rows, err := db.Query(sql)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Extracting columns from %s: %v", column, table, err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var val []string
+		// Assign data to val while checking err
+		if err := rows.Scan(&val); err != nil {
+			fmt.Printf("\n\t[Error] Reading %s from %s: %v", column, table, err)
+		}
+		col = append(col, val)
+	}
+	return col
+}
+
 func GetTable(db *sql.DB, table string) [][]string {
 	// Returns contents of table
 	var tbl [][]string
