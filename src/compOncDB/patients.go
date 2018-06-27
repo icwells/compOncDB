@@ -8,13 +8,13 @@ import (
 	"dbIO"
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
-	"github.com/icwells/go-tools/strarray"
+	//"github.com/icwells/go-tools/strarray"
 	"strconv"
-	"strings"
+	//"strings"
 )
 
 
-func uploadTable(db *sql.DB, col map[string]string, p Patient, d Diagnosis, t TumorRelation, s Source) {
+func uploadPatients(db *sql.DB, col map[string]string, p Patient, d Diagnosis, t TumorRelation, s Source) {
 	// Uploads unique account entries with random ID number
 	var acc [][]string
 	for _, i := range accounts {
@@ -68,5 +68,5 @@ func LoadPatients(db *sql.DB, col map[string]string, infile string) {
 	species := dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"})
 	p, d, t, s := extractPatients(infile, m)
 	p, d, t, s := sortPatients(p, d, t, s, tumor, acc, meta, species)
-	uploadAccounts(db, col, p, d, t, s)
+	uploadPatients(db, col, p, d, t, s)
 }
