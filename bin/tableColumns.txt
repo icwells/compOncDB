@@ -28,11 +28,11 @@ Name TEXT
 ID INT
 service_name TEXT
 account_id INT
-submitter_name TEXT
 
 # Accounts
 account_id INT
 Name TEXT
+submitter_name TEXT
 
 # Diagnosis
 ID INT

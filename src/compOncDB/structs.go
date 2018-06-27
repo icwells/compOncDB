@@ -92,18 +92,16 @@ func (t *TumorRelation) toSlice() []string {
 // Source --------------------------------------------------------------------
 
 type Source struct {
-	ID             int
-	service_name   string
-	account_id     int
-	submitter_name string
+	ID           int
+	service_name string
+	account_id   int
 }
 
-func (s *Source) setSource(id, aid int, service, submitter string) {
+func (s *Source) setSource(id, aid int, service string) {
 	// Sets source variables
 	s.ID = id
 	s.service_name = service
 	s.account_id = aid
-	s.submitter_name = submitter
 }
 
 func (s *Source) toSlice() []string {
@@ -124,7 +122,6 @@ type Columns struct {
 	location   int
 	tumor      int
 	metastasis int
-	service    int
 	submitter  int
 	account    int
 }
@@ -134,6 +131,30 @@ func (c *Columns) setIndeces(line []string) {
 	line = strings.ToLower(line)
 	s := strings.Split(line, ",")
 	for idx, i := range s {
-
+		if i == "access#" || i == "id" {
+			c.id = idx
+		} else if i == "sex" {
+			c.sex = idx
+		} else if i == "age" || i == "age(months)" {
+			c.age = idx
+		} else if i == "castrated" {
+			c.castrated = idx
+		} else if i == "scientificname" {
+			c.species = idx
+		} else if i == "date" {
+			c.date = idx
+		} else if i == "diagnosis" {
+			c.comments = idx
+		} else if i == "location" {
+			c.location = idx
+		} else if i == "cancertype" {
+			c.tumor = idx
+		} else if i == "metastasis" {
+			c.metastasis = idx
+		} else if i == "client" {
+			c.submitter = idx
+		} else if i == "account" {
+			c.account = idx
+		}
 	}
 }

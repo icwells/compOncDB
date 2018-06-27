@@ -34,6 +34,11 @@ func getCodes() int {
 
 }
 
+func getService(infile string) string {
+	// Extracts service name from input file
+
+}
+
 func extractPatients(infile string, count int) {
 	// Assigns patient data to appropriate structs for sorting later
 	first := true
@@ -51,7 +56,7 @@ func extractPatients(infile string, count int) {
 		line := string(input.Text())
 		if first == false {
 			count++
-
+			
 		} else {
 			c.setIndeces(line)
 			first = false
