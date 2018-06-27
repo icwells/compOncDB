@@ -25,7 +25,7 @@ echo "Preparing compOncDB package..."
 echo "GOPATH identified as $GOPATH"
 echo ""
 
-# Get mysql driver
+# Get dependencies
 for I in $DR $IO $KP $LAN $PR $SA $TS; do
 	if [ ! -e "$PDIR/$I.a" ]; then
 		echo "Installing $I..."
@@ -43,8 +43,7 @@ echo ""
 
 # lineageSimulator 
 echo "Building main..."
-go build src/$MAIN/*.go -o $MAIN
-mv $MAIN bin/
+go build -o bin/$MAIN src/$MAIN/*.go
 
 echo "Finished"
 echo ""
