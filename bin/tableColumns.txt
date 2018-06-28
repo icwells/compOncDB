@@ -42,11 +42,11 @@ metastasis_id INT
 # Tumor
 tumor_id INT
 Type TEXT
-primary_tumor SMALLINT
 
 # Tumor_relation
 ID INT
 tumor_id INT
+primary_tumor SMALLINT
 
 # Metastasis
 metastasis_id INT
