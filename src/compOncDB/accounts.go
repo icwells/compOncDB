@@ -22,27 +22,13 @@ func uploadAccounts(db *sql.DB, col map[string]string, accounts map[string][]str
 			// Add unique taxa ID
 			count++
 			c := strconv.Itoa(count)
-			acc = append(acc, []string{c, i})
+			acc = append(acc, []string{c, k, i})
 		}
 	}
 	if len(acc) > 0 {
 		vals, l := dbIO.FormatSlice(acc)
 		dbIO.UpdateDB(db, "Accounts", col["Accounts"], vals, l)
 	}
-}
-
-func getIndex(line string) (int, int) {
-	// Assigns column indeces to struct
-	var a, c int
-	s := strings.Split(line, ",")
-	for idx, i := range s {
-		if i == "Owner" || i == "Client" {
-			c = idx
-		} else if i == "Account" {
-			a = idx
-		}
-	}
-	return a, c
 }
 
 func tableToMap(t [][]string) map[string][]string {
@@ -65,7 +51,6 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	// Extracts accounts from input file
 	first := true
 	accounts := make(map[string][]string)
-	var col int
 	acc := tableToMap(table)
 	fmt.Printf("\n\tExtracting accounts from %s\n", infile)
 	f := iotools.OpenFile(infile)
@@ -73,11 +58,11 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	input := bufio.NewScanner(f)
 	for input.Scan() {
 		line := string(input.Text())
-		if first == false {
+		s := strings.Split(line, ",")
+		if first == false && len(s) == 15 {
 			pass := false
-			s := strings.Split(line, ",")
-			account := strings.Trim(s[a], " \n\t")
-			client := strings.Trim(s[c], " \n\t")
+			account := strings.Trim(s[13], " \n\t")
+			client := strings.Trim(s[14], " \n\t")
 			// Determine if entry is unique
 			rep := strarray.InMapSli(accounts, account)
 			if rep == false {
@@ -89,10 +74,9 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 			}
 			if pass == true {
 				// Add unique occurances
-				accounts = append(accounts, []string{account, client})
+				accounts[account] = append(accounts[account], client)
 			}
 		} else {
-			a, c = getIndex(line)
 			first = false
 		}
 	}

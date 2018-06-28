@@ -8,46 +8,37 @@ import (
 	"dbIO"
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
-	//"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/go-tools/strarray"
 	"strconv"
-	//"strings"
+	"strings"
 )
 
-
-func uploadPatients(db *sql.DB, col map[string]string, p Patient, d Diagnosis, t TumorRelation, s Source) {
-	// Uploads unique account entries with random ID number
-	var acc [][]string
-	for _, i := range accounts {
-		// Add unique taxa ID
-		count++
-		c := strconv.Itoa(count)
-		acc = append(acc, []string{c, i})
-	}
-	if len(acc) > 0 {
-		vals, l := dbIO.FormatSlice(acc)
-		dbIO.UpdateDB(db, "Accounts", col["Accounts"], vals, l)
-	}
+type Entries struct {
+	p [][]string
+	d [][]string
+	t [][]string
+	s [][]string
 }
 
-func getCodes() int {
-	// Returns SMALLINT code type for true/false/NA/unspecified
-
+func (e *Entries) update(p, d, t, s []string) {
+	// Appends new entries to appriate slice
+	e.p = append(e.p, p)
+	e.d = append(e.d, d)
+	e.t = append(e.t, t)
+	e.s = append(e.s, s)
 }
 
-func getService(infile string) string {
-	// Extracts service name from input file
-
+func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]string) {
+	// Uploads patient entries to db
+	fmt.Printf("\tUploading %s to database\n", table)
+	vals, l := dbIO.FormatSlice(list)
+	dbIO.UpdateDB(db, table, col[table], vals, l)
 }
 
-func extractPatients(infile string, count int) {
-	// Assigns patient data to appropriate structs for sorting later
+func extractPatients(infile string, count int, tumor, acc map[string]map[string]string, meta, species map[string]string) Entries {
+	// Assigns patient data to appropriate slices with unique entry IDs
 	first := true
-	var p Patient
-	var d Diagnosis
-	var t TumorRelation
-	var s Source
-	var c Columns
-	var col int
+	var entries Entries
 	fmt.Printf("\n\tExtracting accounts from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -55,23 +46,90 @@ func extractPatients(infile string, count int) {
 	for input.Scan() {
 		line := string(input.Text())
 		if first == false {
-			count++
-			
+			pass := false
+			spl := strings.Split(line, ",")
+			if len(spl) == 15 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[13]) == true {
+				// Skip entries without valid species and source data
+				if strarray.InMapStr(acc[spl[13]], spl[14]) == true {
+					count++
+					id := strconv.Itoa(count)
+					var d, t []string
+					// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
+					p := []string{id, spl[0], spl[1], spl[2], species[spl[4]], spl[3], spl[4], spl[5], spl[6]}
+					// ID, service, account_id
+					s := []string{id, spl[12], acc[spl[13]][spl[14]]}
+					// Diagnosis entry
+					if strarray.InMapStr(meta, spl[8]) == true {
+						// ID, masspresent, metastasis_id
+						d = []string{id, spl[7], meta[spl[8]]}
+					} else {
+						d = []string{id, spl[7], `\N`}
+					}
+					if strarray.InMapMapStr(tumor, spl[9]) == true {
+						// Tumor relation entry
+						if strarray.InMapStr(tumor[spl[9]], spl[10]) == true {
+							// ID, tumor_id, primary_tumor
+							t = []string{id, tumor[spl[9]][spl[10]], spl[11]}
+						} else {
+							t = []string{id, `\N`, spl[11]}
+						}
+					} else {
+						t = []string{id, `\N`, spl[11]}
+					}
+					entries.update(p, d, t, s)
+					pass = true
+				}
+			}
+			if pass == false {
+				fmt.Printf("\t[Error] Count not find taxa ID or source ID for %s.\n", spl[4])
+			}
 		} else {
-			c.setIndeces(line)
 			first = false
 		}
 	}
+	return entries
+}
+
+func mapOfMaps(t [][]string) map[string]map[string]string {
+	// Converts table to map of maps for easier searching
+	ret := make(map[string]map[string]string)
+	for _, row := range t {
+		if strarray.InMapMapStr(ret, row[1]) == true {
+			if strarray.InMapStr(ret[row[1]], row[2]) == false {
+				// Add to existing map
+				ret[row[1]][row[2]] = row[0]
+			}
+		} else {
+			// Make new sub-map
+			ret[row[1]] = make(map[string]string)
+			ret[row[1]][row[2]] = row[0]
+		}
+	}
+	return ret
+}
+
+func entryMap(t [][]string) map[string]string {
+	// Converts table to map for easier searching
+	m := make(map[string]string)
+	for _, i := range t {
+		if strarray.InMapStr(m, i[1]) == false {
+			m[i[1]] = i[0]
+		}
+	}
+	return m
 }
 
 func LoadPatients(db *sql.DB, col map[string]string, infile string) {
 	// Loads unique patient info to appropriate tables
 	m := dbIO.GetMax(db, "Patient", "ID")
-	tumor := dbIO.GetTable(db, "Tumor")
-	acc := dbIO.GetTable(db, "Accounts")
-	meta := dbIO.GetTable(db, "Metastasis")
-	species := dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"})
-	p, d, t, s := extractPatients(infile, m)
-	p, d, t, s := sortPatients(p, d, t, s, tumor, acc, meta, species)
-	uploadPatients(db, col, p, d, t, s)
+	tumor := mapOfMaps(dbIO.GetTable(db, "Tumor"))
+	acc := mapOfMaps(dbIO.GetTable(db, "Accounts"))
+	meta := entryMap(dbIO.GetTable(db, "Metastasis"))
+	species := entryMap(dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"}))
+	// Get entry slices and upload to db
+	entries := extractPatients(infile, m, tumor, acc, meta, species)
+	uploadPatients(db, "Patient", col, entries.p)
+	uploadPatients(db, "Diagnosis", col, entries.d)
+	uploadPatients(db, "Tumor_Relation", col, entries.t)
+	uploadPatients(db, "Source", col, entries.s)
 }

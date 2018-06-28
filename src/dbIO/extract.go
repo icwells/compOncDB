@@ -89,7 +89,7 @@ func GetColumnText(db *sql.DB, table, column string) []string {
 	return col
 }
 
-func GetColumns(db *sql.DB, table, columns []string) [][]string {
+func GetColumns(db *sql.DB, table string, columns []string) [][]string {
 	// Returns slice of slices of all entries in given columns of text
 	var col [][]string
 	sql := fmt.Sprintf("SELECT %s FROM %s;", strings.Join(columns, ","), table)
