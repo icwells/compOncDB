@@ -37,16 +37,24 @@ func GetMax(db *sql.DB, table, column string) int {
 	return m
 }
 
-func GetRow(db *sql.DB, table, column, key string) string {
-	// Returns row with key in column
-	var r string
+func GetRows(db *sql.DB, table, column, key string) [][]string {
+	// Returns rows with key in column
+	var ret [][]string
 	sql := fmt.Sprintf("SELECT * FROM %s WHERE %s = %s;", table, column, key)
-	row := db.QueryRow(sql)
-	err := row.Scan(&r)
+	rows := db.QueryRows(sql)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Reading %s where %s == %s: %v", table, column, key, err)
+		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
 	}
-	return r
+	defer rows.Close()
+	for rows.Next() {
+		var val []string
+		// Assign data to val while checking err
+		if err := rows.Scan(&val); err != nil {
+			fmt.Printf("\n\t[Error] Reading row from %s: %v", table, err)
+		}
+		ret = append(ret, val)
+	}
+	return ret
 }
 
 func GetColumnInt(db *sql.DB, table, column string) []int {
@@ -125,6 +133,26 @@ func GetTable(db *sql.DB, table string) [][]string {
 			fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
 		}
 		tbl = append(tbl, val)
+	}
+	return tbl
+}
+
+func GetTableMap(db *sql.DB, table string) map[string][]string {
+	// Returns table as a map with id as the key
+	tbl := make(map[int][]string)
+	sql := fmt.Sprintf("SELECT * FROM %s ;", table)
+	rows, err := db.Query(sql)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var val []string
+		// Assign data to val while checking err
+		if err := rows.Scan(&val); err != nil {
+			fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
+		}
+		tbl[val[0]] = val[1:]
 	}
 	return tbl
 }
