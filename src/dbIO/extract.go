@@ -37,11 +37,11 @@ func GetMax(db *sql.DB, table, column string) int {
 	return m
 }
 
-func GetRows(db *sql.DB, table, column, key string) [][]string {
-	// Returns rows with key in column
+func GetRows(db *sql.DB, table, column, key, target string) [][]string {
+	// Returns rows of target columns with key in column
 	var ret [][]string
-	sql := fmt.Sprintf("SELECT * FROM %s WHERE %s = %s;", table, column, key)
-	rows := db.QueryRows(sql)
+	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s = %s;", target, table, column, key)
+	rows, err := db.Query(cmd)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
 	}
@@ -139,7 +139,7 @@ func GetTable(db *sql.DB, table string) [][]string {
 
 func GetTableMap(db *sql.DB, table string) map[string][]string {
 	// Returns table as a map with id as the key
-	tbl := make(map[int][]string)
+	tbl := make(map[string][]string)
 	sql := fmt.Sprintf("SELECT * FROM %s ;", table)
 	rows, err := db.Query(sql)
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"golang.org/x/text/search"
 )
 
-func searchText(ch chan string, db *sql.DB, matcher *search.Matcher, col []string, table, column, term string) {
+func searchText(ch chan []string, db *sql.DB, matcher *search.Matcher, col []string, table, column, term string) {
 	// Searches slice for text match to single term
 	var key string
 	for _, i := range col {
@@ -17,14 +17,14 @@ func searchText(ch chan string, db *sql.DB, matcher *search.Matcher, col []strin
 			break
 		}
 	}
-	row := GetRow(db, table, column, key)
-	ch <- row
+	rows := GetRows(db, table, column, key)
+	ch <- rows[0]
 }
 
-func SearchColumnText(db *sql.DB, table, column string, terms []string) []string {
+func SearchColumnText(db *sql.DB, table, column string, terms []string) [][]string {
 	// Searches given table for a match to the term in the given column
-	var rows []string
-	ch := make(chan string)
+	var rows [][]string
+	ch := make(chan []string)
 	col := GetColumnText(db, table, column)
 	matcher := search.New(language.English)
 	for _, i := range terms {

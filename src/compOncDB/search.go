@@ -3,29 +3,27 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"dbIO"
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
-	"strconv"
 	"strings"
 )
 
-func getTumorRecords(ch chan [][]string, db *mysql.DB, id string, tumor [][]string, primary bool) {
+func getTumorRecords(ch chan [][]string, db *sql.DB, id string, tumor [][]string, primary bool) {
 	// Returns tumor information for given id
 	var loc []string
 	var typ []string	
-	rows := GetRows(db, "Tumor_Relation", "ID", id)
+	rows := dbIO.GetRows(db, "Tumor_Relation", "ID", id, "*")
 	for _, i := range rows {
 		if primary == false || primary == true && i[2] == "1" {
 			for _, j := range tumor {
 				if i[1] == j[0] {
 					if i[2] == "1" {
 						// Prepend primary tumor
-						typ = append(j[1], typ)
-						loc = append(j[2], loc)
+						typ = append([]string{j[1]}, typ...)
+						loc = append([]string{j[2]}, loc...)
 					} else {
 						// Append tumor type and location
 						typ = append(typ, j[1])
@@ -40,10 +38,11 @@ func getTumorRecords(ch chan [][]string, db *mysql.DB, id string, tumor [][]stri
 	ch <- diag
 }
 
-func getTumor(db *mysql.DB, ids []string, primary bool) map[string][]string {
+func getTumor(db *sql.DB, ids []string, primary bool) map[string][][]string {
 	// Returns map of tumor data from patient ids
 	ch := make(chan [][]string)
-	rec := make(map[string][]string)
+	// {id: [types], [locations]}
+	rec := make(map[string][][]string)
 	tumor := dbIO.GetTable(db, "Tumor")
 	for _, id := range ids {
 		// Get records for each patient concurrently
@@ -56,10 +55,10 @@ func getTumor(db *mysql.DB, ids []string, primary bool) map[string][]string {
 	return rec
 }
 
-func getMetastasis(ch chan []string, db *mysql.DB, id string, meta [][]string, mass bool) {
+func getMetastasis(ch chan []string, db *sql.DB, id string, meta [][]string, mass bool) {
 	// Returns diagnosis and metastasis data
 	var diag []string
-	rows := GetRows(db, "Diagnosis", "ID", id)
+	rows := dbIO.GetRows(db, "Diagnosis", "ID", id, "*")
 	for _, i := range rows {
 		if mass == false || mass == true && i[1] == "1" {
 			for _, j := range meta {
@@ -74,7 +73,7 @@ func getMetastasis(ch chan []string, db *mysql.DB, id string, meta [][]string, m
 	ch <- diag
 }
 
-func getDiagosis(db *mysql.DB, ids []string, mass bool) map[string][]string {
+func getDiagosis(db *sql.DB, ids []string, mass bool) map[string][]string {
 	// Returns metastatis info from patient ids
 	ch := make(chan []string)
 	diagnoses := make(map[string][]string)
@@ -90,20 +89,20 @@ func getDiagosis(db *mysql.DB, ids []string, mass bool) map[string][]string {
 	return diagnoses
 }
 
-func getRecords(db *mysql.DB, ids []string, mass, primary bool) map[string][]string {
+func getRecords(db *sql.DB, ids []string, mass, primary bool) map[string][]string {
 	// Gets diagnosis and metastasis data and formats values
 	fmt.Println("\tExtracting diagnosis information...")
 	diagnoses := make(map[string][]string)
 	meta := getDiagosis(db, ids, mass)
 	tumor := getTumor(db, ids, primary)
 	for _, i := range ids {
-		temp := []string{strings.Join(tumor[i][0], ";"), strings.Join(tumor[i][1]), strings.Join(meta[i], ";")}
+		temp := []string{strings.Join(tumor[i][0], ";"), strings.Join(tumor[i][1], ";"), strings.Join(meta[i], ";")}
 		diagnoses[i] = temp
 	}
 	return diagnoses
 }
 
-func getTaxonomy(db *mysql.DB, ids []string, source bool) map[string][]string {
+func getTaxonomy(db *sql.DB, ids []string, source bool) map[string][]string {
 	// Returns taxonomy as map with taxa id as key
 	taxa := make(map[string][]string)
 	fmt.Println("\tExtracting taxonomy information...")
@@ -121,7 +120,7 @@ func getTaxonomy(db *mysql.DB, ids []string, source bool) map[string][]string {
 	return taxa
 }
 
-func getPatients(db *mysql.DB, ids []string) (map[string][]string, map[string]string) {
+func getPatients(db *sql.DB, ids []string) (map[string][]string, map[string]string) {
 	// Returns map of target patient data (without id numbers) and map of taxa ids
 	patients := make(map[string][]string)
 	tids := make(map[string]string)
@@ -136,9 +135,9 @@ func getPatients(db *mysql.DB, ids []string) (map[string][]string, map[string]st
 	return patients, tids
 }
 
-func searchPatients(db *mysql.DB, col map[string]string, ids []string, outfile, header string) {
+func searchPatients(db *sql.DB, col map[string]string, ids []string, outfile, header string) {
 	// Extracs patient data using IDs
-	var records [][]string
+	var ret [][]string
 	var taxaids []string
 	fmt.Println("\tExtracting patient information...")
 	patients, tid := getPatients(db, ids)
@@ -151,20 +150,20 @@ func searchPatients(db *mysql.DB, col map[string]string, ids []string, outfile, 
 	for _, i := range ids {
 		rec := append(patients[i], records[i]...)
 		rec = append(rec, taxonomy[tid[i]]...)
-		records = append(records, rec)
+		ret = append(ret, rec)
 	}
-	iotools.WriteToCSV(outfile, header, records)
+	iotools.WriteToCSV(outfile, header, ret)
 }
 
-func getTaxa(db *mysql.DB, ids []string) map[string][]string {
+func getTaxa(db *sql.DB, ids []string) map[string][]string {
 	// Extracts patient data using taxa ids
 	patients := make(map[string][]string)
 	table := dbIO.GetTable(db, "Patient")
 	for _, i := range table {
 		for _, id := range ids {
 			if id == i[4] {
-				patients[id] = table[id][:3]
-				patients[id] = append(patients[id], table[id][5:]...)
+				patients[id] = i[:3]
+				patients[id] = append(patients[id], i[5:]...)
 				break
 			}
 		}
@@ -172,7 +171,7 @@ func getTaxa(db *mysql.DB, ids []string) map[string][]string {
 	return patients
 }
 
-func getTaxaIDs(db *mysql.DB, names []string, common bool) []string {
+func getTaxaIDs(db *sql.DB, names []string, common bool) []string {
 	// Returns taxa id from species name
 	var ids []string
 	var table [][]string
@@ -194,20 +193,23 @@ func getTaxaIDs(db *mysql.DB, names []string, common bool) []string {
 	return ids
 }
 
-func searchSpecies(db *mysql.DB, col map[string]string, names []string, outfile, header string, common bool) {
+func searchSpecies(db *sql.DB, col map[string]string, names []string, outfile, header string, common bool) {
 	// Extracts data using species names
-	var records [][]string
-	var tid []string
+	var ret [][]string
 	fmt.Println("\tExtracting patient information...")
 	ids := getTaxaIDs(db, names, common)
-	pat := getTaxa(db, ids)
+	patients := getTaxa(db, ids)
 	// Leaving primary tumor and mass present switches false for now
-	rec := getRecords(db, ids, false, false)
+	records := getRecords(db, ids, false, false)
 	taxonomy := getTaxonomy(db, ids, false)
 	for _, i := range ids {
 		rec := append(patients[i], records[i]...)
-		rec = append(rec, taxonomy[tid[i]]...)
-		records = append(records, rec)
+		rec = append(rec, taxonomy[i]...)
+		ret = append(ret, rec)
 	}
-	iotools.WriteToCSV(outfile, header, records)
+	iotools.WriteToCSV(outfile, header, ret)
 }
+
+func searchTaxa(db *sql.DB, col map[string]string, names []string, outfile, header string, common bool) {
+	// 
+
