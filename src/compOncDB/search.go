@@ -193,7 +193,7 @@ func getTaxaIDs(db *sql.DB, names []string, common bool) []string {
 	return ids
 }
 
-func searchSpecies(db *sql.DB, col map[string]string, names []string, outfile, header string, common bool) {
+func searchCommonNames(db *sql.DB, col map[string]string, names []string, outfile, header string, common bool) {
 	// Extracts data using species names
 	var ret [][]string
 	fmt.Println("\tExtracting patient information...")
@@ -210,6 +210,16 @@ func searchSpecies(db *sql.DB, col map[string]string, names []string, outfile, h
 	iotools.WriteToCSV(outfile, header, ret)
 }
 
-func searchTaxa(db *sql.DB, col map[string]string, names []string, outfile, header string, common bool) {
-	// 
+func searchTaxaRank(db *sql.DB, col map[string]string, target, column, outfile, header string) {
+	// Extracts ids from taxonomy table where target is present in column
+	var ids []string
+	tids := dbIO.GetRows(db, "Taxonomy", column, target, "taxa_id")
+	for _, i := range tids {
+		for _, j := range i {
+			// Convert ot slice of strings	
+			ids = append(ids, j)
+		}
+	}
+	patients := getTaxa(db, ids)
+	
 
