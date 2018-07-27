@@ -37,6 +37,7 @@ submitter_name TEXT
 # Diagnosis
 ID INT
 masspresent SMALLINT
+necropsy SMALLINT
 metastasis_id INT
 
 # Tumor
@@ -47,6 +48,7 @@ Type TEXT
 ID INT
 tumor_id INT
 primary_tumor SMALLINT
+malignant SMALLINT
 
 # Metastasis
 metastasis_id INT
