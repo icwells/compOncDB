@@ -17,7 +17,7 @@ func searchText(ch chan []string, db *sql.DB, matcher *search.Matcher, col []str
 			break
 		}
 	}
-	rows := GetRows(db, table, column, key)
+	rows := GetRows(db, table, column, key, "*")
 	ch <- rows[0]
 }
 

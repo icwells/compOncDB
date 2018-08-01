@@ -210,7 +210,7 @@ func searchCommonNames(db *sql.DB, col map[string]string, names []string, outfil
 	iotools.WriteToCSV(outfile, header, ret)
 }
 
-func searchTaxaRank(db *sql.DB, col map[string]string, target, column, outfile, header string) {
+/*func searchTaxaRank(db *sql.DB, col map[string]string, target, column, outfile, header string) {
 	// Extracts ids from taxonomy table where target is present in column
 	var ids []string
 	tids := dbIO.GetRows(db, "Taxonomy", column, target, "taxa_id")
@@ -222,4 +222,4 @@ func searchTaxaRank(db *sql.DB, col map[string]string, target, column, outfile, 
 	}
 	patients := getTaxa(db, ids)
 	
-
+}*/

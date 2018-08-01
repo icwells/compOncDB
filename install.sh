@@ -36,6 +36,7 @@ done
 
 # Install dbIO
 #if [ ! -e "$PDIR/$DBI.a" ]; then
+echo "Installing dbIO..."
 cp -R src/$DBI/ $GOPATH/src/
 go install $DBI
 echo ""

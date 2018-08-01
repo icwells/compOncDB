@@ -30,7 +30,7 @@ func escapeChars(v string) string {
 	// Returns value with any reserved characters escaped and NAs converted to Null
 	chars := []string{"'", "\"", "_"}
 	if strings.Contains(v, "NA") == true {
-		v = strings.replace(v, "NA", "NULL", -1)
+		v = strings.Replace(v, "NA", "NULL", -1)
 	}
 	for _, i := range chars {
 		idx := 0
