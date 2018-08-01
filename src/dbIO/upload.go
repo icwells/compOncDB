@@ -34,10 +34,10 @@ func UpdateDB(db *sql.DB, table, columns, values string, l int) int {
 func escapeChars(v string) string {
 	// Returns value with any reserved characters escaped and NAs converted to Null
 	chars := []string{"'", "\"", "_"}
-	na := []string{"NA", "Na", "N/A"}
+	na := []string{"Na", "N/A"}
 	for _, i := range na {
 		if v == i {
-			v = strings.Replace(v, i, `\N`, -1)
+			v = strings.Replace(v, i, "NA", -1)
 		}
 	}
 	for _, i := range chars {

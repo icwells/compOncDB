@@ -63,7 +63,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 						// ID, masspresent, necropsy, metastasis_id
 						d = []string{id, spl[7], spl[8], meta[spl[8]]}
 					} else {
-						d = []string{id, spl[7], `\N`}
+						d = []string{id, spl[7], "NA"}
 					}
 					if strarray.InMapMapStr(tumor, spl[10]) == true {
 						// Tumor relation entry
@@ -71,10 +71,10 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 							// ID, tumor_id, primary_tumor, malignant
 							t = []string{id, tumor[spl[10]][spl[11]], spl[12], spl[13]}
 						} else {
-							t = []string{id, `\N`, spl[12], spl[13]}
+							t = []string{id, "NA", spl[12], spl[13]}
 						}
 					} else {
-						t = []string{id, `\N`, spl[12], spl[13]}
+						t = []string{id, "NA", spl[12], spl[13]}
 					}
 					entries.update(p, d, t, s)
 					pass = true
