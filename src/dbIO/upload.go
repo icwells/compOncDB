@@ -16,8 +16,13 @@ import (
 func UpdateDB(db *sql.DB, table, columns, values string, l int) int {
 	// Adds new rows to table
 	//(values must be formatted for single/multiple rows before calling function)
-	cmd := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values)
-	_, err := db.Exec(cmd)
+	cmd, err := db.Prepare(fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values))
+	if err != nil {
+		fmt.Printf("\t[Error] Formatting command for upload to %s: %v", table, err)
+		return 0
+	}
+	_, err = cmd.Exec()
+	cmd.Close()
 	if err != nil {
 		fmt.Printf("\t[Error] Uploading to %s: %v", table, err)
 		return 0
@@ -29,8 +34,11 @@ func UpdateDB(db *sql.DB, table, columns, values string, l int) int {
 func escapeChars(v string) string {
 	// Returns value with any reserved characters escaped and NAs converted to Null
 	chars := []string{"'", "\"", "_"}
-	if strings.Contains(v, "NA") == true {
-		v = strings.Replace(v, "NA", "NULL", -1)
+	na := []string{"NA", "Na", "N/A"}
+	for _, i := range na {
+		if v == i {
+			v = strings.Replace(v, i, `\N`, -1)
+		}
 	}
 	for _, i := range chars {
 		idx := 0

@@ -48,33 +48,33 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 		if first == false {
 			pass := false
 			spl := strings.Split(line, ",")
-			if len(spl) == 15 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[13]) == true {
+			if len(spl) == 15 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[15]) == true {
 				// Skip entries without valid species and source data
-				if strarray.InMapStr(acc[spl[13]], spl[14]) == true {
+				if strarray.InMapStr(acc[spl[15]], spl[16]) == true {
 					count++
 					id := strconv.Itoa(count)
 					var d, t []string
 					// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
 					p := []string{id, spl[0], spl[1], spl[2], species[spl[4]], spl[3], spl[4], spl[5], spl[6]}
 					// ID, service, account_id
-					s := []string{id, spl[12], acc[spl[13]][spl[14]]}
+					s := []string{id, spl[14], acc[spl[15]][spl[16]]}
 					// Diagnosis entry
-					if strarray.InMapStr(meta, spl[8]) == true {
-						// ID, masspresent, metastasis_id
-						d = []string{id, spl[7], meta[spl[8]]}
+					if strarray.InMapStr(meta, spl[9]) == true {
+						// ID, masspresent, necropsy, metastasis_id
+						d = []string{id, spl[7], spl[8], meta[spl[8]]}
 					} else {
 						d = []string{id, spl[7], `\N`}
 					}
-					if strarray.InMapMapStr(tumor, spl[9]) == true {
+					if strarray.InMapMapStr(tumor, spl[10]) == true {
 						// Tumor relation entry
-						if strarray.InMapStr(tumor[spl[9]], spl[10]) == true {
-							// ID, tumor_id, primary_tumor
-							t = []string{id, tumor[spl[9]][spl[10]], spl[11]}
+						if strarray.InMapStr(tumor[spl[10]], spl[11]) == true {
+							// ID, tumor_id, primary_tumor, malignant
+							t = []string{id, tumor[spl[10]][spl[11]], spl[12], spl[13]}
 						} else {
-							t = []string{id, `\N`, spl[11]}
+							t = []string{id, `\N`, spl[12], spl[13]}
 						}
 					} else {
-						t = []string{id, `\N`, spl[11]}
+						t = []string{id, `\N`, spl[12], spl[13]}
 					}
 					entries.update(p, d, t, s)
 					pass = true

@@ -1,4 +1,4 @@
-// Contains functions for convertng splice of string slices to map
+// Contains functions for convertng slice of string slices to map
 
 package main
 

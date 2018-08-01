@@ -7,6 +7,7 @@ import (
 	"dbIO"
 	"fmt"
 	"github.com/Songmu/prompter"
+	"github.com/icwells/go-tools/iotools"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
@@ -87,7 +88,7 @@ func main() {
 				os.Exit(1)
 			}
 			table := dbIO.GetTable(db, *dump)
-			printCSV(*outfile, col[*dump], table)
+			iotools.WriteToCSV(*outfile, col[*dump], table)
 		} else if *taxa == true {
 			// Upload taxonomy
 			LoadTaxa(db, col, *infile)

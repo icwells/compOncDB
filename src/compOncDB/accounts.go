@@ -59,10 +59,10 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	for input.Scan() {
 		line := string(input.Text())
 		s := strings.Split(line, ",")
-		if first == false && len(s) == 15 {
+		if first == false && len(s) == 16 {
 			pass := false
-			account := strings.Trim(s[13], " \n\t")
-			client := strings.Trim(s[14], " \n\t")
+			account := strings.Trim(s[15], " \n\t")
+			client := strings.Trim(s[16], " \n\t")
 			// Determine if entry is unique
 			rep := strarray.InMapSli(accounts, account)
 			if rep == false {

@@ -53,17 +53,17 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []str
 	for input.Scan() {
 		line := string(input.Text())
 		s := strings.Split(line, ",")
-		if first == false && len(s) == 15 {
+		if first == false && len(s) == 16 {
 			// Determine if entry is unique
-			if strarray.InSliceStr(mts, s[8]) == false {
-				meta = append(meta, s[8])
+			if strarray.InSliceStr(mts, s[9]) == false {
+				meta = append(meta, s[9])
 			}
 			intmr := strarray.InMapMapStr(tmr, s[9])
-			if intmr == false || intmr == true && strarray.InMapStr(tmr[s[9]], s[10]) == false {
-				if strarray.InMapSli(tumor, s[9]) == true {
-					tumor[s[9]] = append(tumor[s[9]], s[10])
+			if intmr == false || intmr == true && strarray.InMapStr(tmr[s[10]], s[11]) == false {
+				if strarray.InMapSli(tumor, s[10]) == true {
+					tumor[s[10]] = append(tumor[s[10]], s[11])
 				} else {
-					tumor[s[9]] = []string{s[10]}
+					tumor[s[10]] = []string{s[11]}
 				}
 			}
 		} else {
