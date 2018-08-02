@@ -30,7 +30,7 @@ func backup(DB, pw string) {
 	dump := exec.Command("mysqldump", fmt.Sprintf("-u root -p %s --result-file=%s.%s.sql '%s'", pw, DB, datestamp, DB))
 	err := dump.Run()
 	if err == nil {
-		fmt.Println("\tBackup complete.\n")
+		fmt.Println("\tBackup complete.")
 	} else {
 		fmt.Printf("\tBackup failed. %v\n", err)
 	}

@@ -79,6 +79,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 			pass := false
 			spl := strings.Split(line, ",")
 			if strings.ToUpper(spl[4]) != "NA" {
+				fmt.Println(len(spl))
 				if len(spl) == 17 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[15]) == true {
 					// Skip entries without valid species and source data
 					if strarray.InMapStr(acc[spl[15]], spl[16]) == true {
