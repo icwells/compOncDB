@@ -28,11 +28,23 @@ func (e *Entries) update(p, d, t, s []string) {
 	e.s = append(e.s, s)
 }
 
-func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]string) {
+func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]string, split bool) {
 	// Uploads patient entries to db
 	fmt.Printf("\tUploading %s to database\n", table)
-	vals, l := dbIO.FormatSlice(list)
-	dbIO.UpdateDB(db, table, col[table], vals, l)
+	if split == false {
+		// Upload slice at once
+		vals, l := dbIO.FormatSlice(list)
+		dbIO.UpdateDB(db, table, col[table], vals, l)
+	} else {
+		// Upload in two chunks
+		idx := int(len(list)/2)
+		l1 := list[:idx]
+		ls := list[idx:]
+		for _, i := range [][][]string{l1, l2} {
+			vals, l := dbIO.FormatSlice(i)
+			dbIO.UpdateDB(db, table, col[table], vals, l)
+		}
+	}
 }
 
 func extractPatients(infile string, count int, tumor, acc map[string]map[string]string, meta, species map[string]string) Entries {
@@ -48,7 +60,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 		if first == false {
 			pass := false
 			spl := strings.Split(line, ",")
-			if len(spl) == 15 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[15]) == true {
+			if len(spl) == 17 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[15]) == true {
 				// Skip entries without valid species and source data
 				if strarray.InMapStr(acc[spl[15]], spl[16]) == true {
 					count++
@@ -99,8 +111,8 @@ func LoadPatients(db *sql.DB, col map[string]string, infile string) {
 	species := entryMap(dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"}))
 	// Get entry slices and upload to db
 	entries := extractPatients(infile, m, tumor, acc, meta, species)
-	uploadPatients(db, "Patient", col, entries.p)
-	uploadPatients(db, "Diagnosis", col, entries.d)
-	uploadPatients(db, "Tumor_Relation", col, entries.t)
-	uploadPatients(db, "Source", col, entries.s)
+	uploadPatients(db, "Patient", col, entries.p, true)
+	uploadPatients(db, "Diagnosis", col, entries.d, false)
+	uploadPatients(db, "Tumor_relation", col, entries.t, false)
+	uploadPatients(db, "Source", col, entries.s, false)
 }

@@ -18,13 +18,13 @@ func UpdateDB(db *sql.DB, table, columns, values string, l int) int {
 	//(values must be formatted for single/multiple rows before calling function)
 	cmd, err := db.Prepare(fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values))
 	if err != nil {
-		fmt.Printf("\t[Error] Formatting command for upload to %s: %v", table, err)
+		fmt.Printf("\t[Error] Formatting command for upload to %s: %v\n", table, err)
 		return 0
 	}
 	_, err = cmd.Exec()
 	cmd.Close()
 	if err != nil {
-		fmt.Printf("\t[Error] Uploading to %s: %v", table, err)
+		fmt.Printf("\t[Error] Uploading to %s: %v\n", table, err)
 		return 0
 	}
 	fmt.Printf("\tUploaded %d rows to %s.\n", l, table)
