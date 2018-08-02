@@ -43,47 +43,33 @@ func toSlice(rows *sql.Rows) [][]string {
 	columns, _ := rows.Columns()
 	count := len(columns)
 	values := make([]interface{}, count)
-	valuePtrs := make([]interface{}, count)
+	pointers := make([]interface{}, count)
 	for rows.Next() {
 		var r []string
 		for i, _ := range columns {
-			valuePtrs[i] = &values[i]
+			pointers[i] = &values[i]
 		}
-		rows.Scan(valuePtrs...)
-		for i, col := range columns {
-			*var v interface{}
-			val := values[i]
-			b, ok := val.([]byte)
-			if (ok) {
-				r = append(r, string(values[i]))
-			}
-			/*} else {
-				v = val
-			}
-			fmt.Println(col, v)*/
+		// Maps items to values via pointers
+		rows.Scan(pointers...)
+		for _, i := range values {
+			// Use Sprintf to convert interface to string
+			val := fmt.Sprintf("%s", i)
+			r = append(r, val)
 		}
+		ret = append(ret, r)
 	}
 	return ret
 }
 
 func GetRows(db *sql.DB, table, column, key, target string) [][]string {
 	// Returns rows of target columns with key in column
-	var ret [][]string
 	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s = %s;", target, table, column, key)
 	rows, err := db.Query(cmd)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
 	}
 	defer rows.Close()
-	for rows.Next() {
-		var val []string
-		// Assign data to val while checking err
-		if err := rows.Scan(&val); err != nil {
-			fmt.Printf("\n\t[Error] Reading row from %s: %v", table, err)
-		}
-		ret = append(ret, val)
-	}
-	return ret
+	return toSlice(rows)
 }
 
 func GetColumnInt(db *sql.DB, table, column string) []int {
@@ -128,61 +114,32 @@ func GetColumnText(db *sql.DB, table, column string) []string {
 
 func GetColumns(db *sql.DB, table string, columns []string) [][]string {
 	// Returns slice of slices of all entries in given columns of text
-	var col [][]string
 	sql := fmt.Sprintf("SELECT %s FROM %s;", strings.Join(columns, ","), table)
 	rows, err := db.Query(sql)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Extracting columns from %s: %v", table, err)
 	}
 	defer rows.Close()
-	for rows.Next() {
-		var val []string
-		// Assign data to val while checking err
-		if err := rows.Scan(&val); err != nil {
-			fmt.Printf("\n\t[Error] Reading row from %s: %v", table, err)
-		}
-		col = append(col, val)
-	}
-	return col
+	return toSlice(rows)
 }
 
 func GetTable(db *sql.DB, table string) [][]string {
 	// Returns contents of table
-	var tbl [][]string
 	sql := fmt.Sprintf("SELECT * FROM %s ;", table)
 	rows, err := db.Query(sql)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
 	}
 	defer rows.Close()
-	tbl = toSlice(rows)
-	for rows.Next() {
-		var val []string
-		// Assign data to val while checking err
-		if err := rows.Scan(&val); err != nil {
-			fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
-		}
-		tbl = append(tbl, val)
-	}
-	return tbl
+	return toSlice(rows)
 }
 
 func GetTableMap(db *sql.DB, table string) map[string][]string {
 	// Returns table as a map with id as the key
 	tbl := make(map[string][]string)
-	sql := fmt.Sprintf("SELECT * FROM %s ;", table)
-	rows, err := db.Query(sql)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var val []string
-		// Assign data to val while checking err
-		if err := rows.Scan(&val); err != nil {
-			fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
-		}
-		tbl[val[0]] = val[1:]
+	s := GetTable(db, table)
+	for _, i := range s {
+		tbl[i[0]] = i[1:]
 	}
 	return tbl
 }
