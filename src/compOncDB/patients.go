@@ -107,7 +107,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 					}
 				}
 				if pass == false {
-					fmt.Printf("\t[Error] Count not find taxa ID or source ID for %s.\n", spl[4])
+					fmt.Printf("\t[Warning] Count not find taxa ID or source ID for %s.\n", spl[4])
 				}
 			}
 		} else {

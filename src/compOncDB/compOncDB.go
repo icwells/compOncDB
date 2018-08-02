@@ -27,7 +27,9 @@ func backup(DB, pw string) {
 	// Backup database to local machine
 	fmt.Printf("\n\tBacking up %s database to local machine...\n", DB)
 	datestamp := time.Now().Format("2006-01-02")
-	dump := exec.Command("mysqldump", fmt.Sprintf("-u root -p %s --result-file=%s.%s.sql '%s'", pw, DB, datestamp, DB))
+	password := fmt.Sprintf("-p%s", pw)
+	res := fmt.Sprintf("--result-file=%s.%s.sql", DB, datestamp)
+	dump := exec.Command("mysqldump","-uroot", password, res, DB)
 	err := dump.Run()
 	if err == nil {
 		fmt.Println("\tBackup complete.")
@@ -55,7 +57,7 @@ func main() {
 	var (
 		user      = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 		ver       = kingpin.Flag("version", "Print version info and exit.").Short('v').Default("false").Bool()
-		bu        = kingpin.Flag("backup", "Backs up database to local machine.").Default("false").Bool()
+		bu        = kingpin.Flag("backup", "Backs up database to local machine (Must use root password).").Default("false").Bool()
 		New       = kingpin.Flag("new", "Initializes new tables in new database (database must be initialized manually).").Default("false").Bool()
 		taxa      = kingpin.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy and common name tables.").Default("false").Bool()
 		accounts  = kingpin.Flag("accounts", "Extract account info from input file and update database.").Default("false").Bool()
