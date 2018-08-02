@@ -43,6 +43,7 @@ metastasis_id INT
 # Tumor
 tumor_id INT
 Type TEXT
+Location TEXT
 
 # Tumor_relation
 ID INT
@@ -52,4 +53,4 @@ malignant SMALLINT
 
 # Metastasis
 metastasis_id INT
-location TEXT
+metastasis SMALLINT

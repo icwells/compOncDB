@@ -53,16 +53,20 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []str
 	for input.Scan() {
 		line := string(input.Text())
 		s := strings.Split(line, ",")
-		if first == false && len(s) == 16 {
+		if first == false && len(s) == 17 {
 			// Determine if entry is unique
-			if strarray.InSliceStr(mts, s[9]) == false {
+			if strarray.InSliceStr(mts, s[9]) == false && strarray.InSliceStr(meta, s[9]) == false {
+				// Skip entries present in database or already in map
 				meta = append(meta, s[9])
 			}
-			intmr := strarray.InMapMapStr(tmr, s[9])
+			intmr := strarray.InMapMapStr(tmr, s[10])
 			if intmr == false || intmr == true && strarray.InMapStr(tmr[s[10]], s[11]) == false {
-				if strarray.InMapSli(tumor, s[10]) == true {
+				// Skip entries present in database or already in map
+				if strarray.InMapSli(tumor, s[10]) == true && strarray.InSliceStr(tumor[s[10]], s[11]) == false {
+					// Add new location info
 					tumor[s[10]] = append(tumor[s[10]], s[11])
 				} else {
+					// Add new list
 					tumor[s[10]] = []string{s[11]}
 				}
 			}
@@ -78,7 +82,7 @@ func LoadDiagnoses(db *sql.DB, col map[string]string, infile string) {
 	t := dbIO.GetMax(db, "Tumor", "tumor_id")
 	m := dbIO.GetMax(db, "Metastasis", "metastasis_id")
 	tmr := mapOfMaps(dbIO.GetTable(db, "Tumor"))
-	mts := dbIO.GetColumnText(db, "Metastasis", "location")
+	mts := dbIO.GetColumnText(db, "Metastasis", "metastasis")
 	tumor, meta := extractDiagnosis(infile, tmr, mts)
 	uploadDiagnosis(db, col, tumor, meta, t, m)
 }

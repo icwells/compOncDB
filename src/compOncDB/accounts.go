@@ -31,22 +31,6 @@ func uploadAccounts(db *sql.DB, col map[string]string, accounts map[string][]str
 	}
 }
 
-func tableToMap(t [][]string) map[string][]string {
-	// Converts extracted table to map for easier sorting
-	m := make(map[string][]string)
-	for _, i := range t {
-		if strarray.InMapSli(m, i[0]) == true {
-			if strarray.InSliceStr(m[i[0]], i[1]) == false {
-				// Add new submitter name
-				m[i[0]] = append(m[i[0]], i[1])
-			}
-		} else {
-			m[i[0]] = []string{i[1]}
-		}
-	}
-	return m
-}
-
 func extractAccounts(infile string, table [][]string) map[string][]string {
 	// Extracts accounts from input file
 	first := true
@@ -59,7 +43,7 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	for input.Scan() {
 		line := string(input.Text())
 		s := strings.Split(line, ",")
-		if first == false && len(s) == 16 {
+		if first == false && len(s) == 17 {
 			pass := false
 			account := strings.Trim(s[15], " \n\t")
 			client := strings.Trim(s[16], " \n\t")

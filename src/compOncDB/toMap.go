@@ -6,6 +6,22 @@ import (
 	"github.com/icwells/go-tools/strarray"
 )
 
+func tableToMap(t [][]string) map[string][]string {
+	// Converts extracted table to map for easier sorting
+	m := make(map[string][]string)
+	for _, i := range t {
+		if strarray.InMapSli(m, i[0]) == true {
+			if strarray.InSliceStr(m[i[0]], i[1]) == false {
+				// Add new submitter name
+				m[i[0]] = append(m[i[0]], i[1])
+			}
+		} else {
+			m[i[0]] = []string{i[1]}
+		}
+	}
+	return m
+}
+
 func mapOfMaps(t [][]string) map[string]map[string]string {
 	// Converts table to map of maps for easier searching
 	ret := make(map[string]map[string]string)

@@ -37,6 +37,35 @@ func GetMax(db *sql.DB, table, column string) int {
 	return m
 }
 
+func toSlice(rows *sql.Rows) [][]string {
+	// Returns rows of uncertain length as slice of string slices
+	var ret [][]string
+	columns, _ := rows.Columns()
+	count := len(columns)
+	values := make([]interface{}, count)
+	valuePtrs := make([]interface{}, count)
+	for rows.Next() {
+		var r []string
+		for i, _ := range columns {
+			valuePtrs[i] = &values[i]
+		}
+		rows.Scan(valuePtrs...)
+		for i, col := range columns {
+			*var v interface{}
+			val := values[i]
+			b, ok := val.([]byte)
+			if (ok) {
+				r = append(r, string(values[i]))
+			}
+			/*} else {
+				v = val
+			}
+			fmt.Println(col, v)*/
+		}
+	}
+	return ret
+}
+
 func GetRows(db *sql.DB, table, column, key, target string) [][]string {
 	// Returns rows of target columns with key in column
 	var ret [][]string
@@ -126,6 +155,7 @@ func GetTable(db *sql.DB, table string) [][]string {
 		fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
 	}
 	defer rows.Close()
+	tbl = toSlice(rows)
 	for rows.Next() {
 		var val []string
 		// Assign data to val while checking err
