@@ -6,7 +6,7 @@ Castrated SMALLINT
 taxa_id INT
 source_id INT
 Species TEXT
-Date DATE
+Date TEXT
 Comments TEXT
 
 # Taxonomy
