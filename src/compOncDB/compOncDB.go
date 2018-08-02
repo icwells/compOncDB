@@ -23,16 +23,16 @@ func version() {
 	os.Exit(0)
 }
 
-func backup(DB string) {
+func backup(DB, pw string) {
 	// Backup database to local machine
-	fmt.Println("\n\tBacking up %s database to local machine...", DB)
+	fmt.Printf("\n\tBacking up %s database to local machine...\n", DB)
 	datestamp := time.Now().Format("2006-01-02")
-	dump := exec.Command("mysqldump", fmt.Sprintf("-u root -p --result-file=%s.%s.sql '%s'", DB, datestamp, DB))
+	dump := exec.Command("mysqldump", fmt.Sprintf("-u root -p %s --result-file=%s.%s.sql '%s'", pw, DB, datestamp, DB))
 	err := dump.Run()
 	if err == nil {
 		fmt.Println("\tBackup complete.\n")
 	} else {
-		fmt.Println("\tBackup failed.\n")
+		fmt.Printf("\tBackup failed. %v\n", err)
 	}
 }
 
@@ -76,7 +76,7 @@ func main() {
 	db := connect(DB, *user, password)
 	defer db.Close()
 	if *bu == true {
-		backup(DB)
+		backup(DB, password)
 	} else {
 		col := dbIO.ReadColumns(COL, false)
 		if *New == true {
