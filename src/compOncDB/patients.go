@@ -52,7 +52,7 @@ func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]st
 		for i := 0; i < den; i++ {
 			if ind + idx > l {
 				// Get last less than idx rows
-				idx = l - ind
+				idx = l - ind + 1
 			}
 			sub := list[ind:ind + idx]
 			set = append(set, sub)
@@ -79,7 +79,6 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 			pass := false
 			spl := strings.Split(line, ",")
 			if strings.ToUpper(spl[4]) != "NA" {
-				fmt.Println(len(spl))
 				if len(spl) == 17 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[15]) == true {
 					// Skip entries without valid species and source data
 					if strarray.InMapStr(acc[spl[15]], spl[16]) == true {
