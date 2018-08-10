@@ -54,3 +54,19 @@ malignant SMALLINT
 # Metastasis
 metastasis_id INT
 metastasis SMALLINT
+
+# Life_history
+taxa_id INT
+female_maturity INT
+male_maturity INT
+gestation INT
+weaning INT
+litter_size INT
+litters_year INT
+interbirth_interval INT
+birth_weight INT
+weaning_weight INT
+adult_weight INT
+growth_rate INT
+max_longevity INT
+metabolic_rate INT
