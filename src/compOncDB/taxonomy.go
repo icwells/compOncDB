@@ -39,7 +39,7 @@ func uploadTable(db *sql.DB, col map[string]string, taxa, common map[string][]st
 	}
 }
 
-func extractTaxa(infile string, species, com []string) (map[string][]string, map[string][]string) {
+func extractTaxa(infile string, species, com []string, commonNames bool) (map[string][]string, map[string][]string) {
 	// Extracts taxonomy from input file
 	first := true
 	taxa := make(map[string][]string)
@@ -71,7 +71,7 @@ func extractTaxa(infile string, species, com []string) (map[string][]string, map
 					taxa[s] = taxonomy
 				}
 			}
-			if strarray.InSliceStr(com, c) == false {
+			if commonNames == true && strarray.InSliceStr(com, c) == false {
 				// Add unique common name entries to slice
 				if strarray.InMapSli(common, s) == true {
 					if strarray.InSliceStr(common[s], c) == false {
@@ -88,12 +88,12 @@ func extractTaxa(infile string, species, com []string) (map[string][]string, map
 	return taxa, common
 }
 
-func LoadTaxa(db *sql.DB, col map[string]string, infile string) {
+func LoadTaxa(db *sql.DB, col map[string]string, infile string, commonNames bool) {
 	// Loads unique entries into comparative oncology taxonomy table
 	var taxa, common map[string][]string
 	m := dbIO.GetMax(db, "Taxonomy", "taxa_id")
 	species := dbIO.GetColumnText(db, "Taxonomy", "Species")
 	com := dbIO.GetColumnText(db, "Common", "Name")
-	taxa, common = extractTaxa(infile, species, com)
+	taxa, common = extractTaxa(infile, species, com, commonNames)
 	uploadTable(db, col, taxa, common, m)
 }
