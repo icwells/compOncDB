@@ -61,13 +61,15 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 					taxonomy := spl[2:9]
 					// Get first returned source
 					sources := spl[9:]
+					source := "NA"
 					for _, i := range sources {
 						if i != "NA" && len(i) >= 5 {
 							// Assumes at least "http:"
-							taxonomy = append(taxonomy, i)
+							source = i
 							break
 						}
 					}
+					taxonomy = append(taxonomy, source)
 					taxa[s] = taxonomy
 				}
 			}
