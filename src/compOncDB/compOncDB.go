@@ -60,6 +60,7 @@ func main() {
 		bu        = kingpin.Flag("backup", "Backs up database to local machine (Must use root password).").Default("false").Bool()
 		New       = kingpin.Flag("new", "Initializes new tables in new database (database must be initialized manually).").Default("false").Bool()
 		taxa      = kingpin.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy and common name tables.").Default("false").Bool()
+		lh        = kingpin.Flag("lh", "Extract life history info from merged life history table and update database.").Default("false").Bool()
 		accounts  = kingpin.Flag("accounts", "Extract account info from input file and update database.").Default("false").Bool()
 		diag      = kingpin.Flag("diagnosis", "Extract diagnosis info from input file and update database.").Default("false").Bool()
 		upload    = kingpin.Flag("upload", "Uploads patient info from input table to database.").Default("false").Bool()
@@ -94,6 +95,9 @@ func main() {
 		} else if *taxa == true {
 			// Upload taxonomy
 			LoadTaxa(db, col, *infile)
+		} else if *lh == true {
+			// Upload life history table
+			LoadLifeHistory(db, col, *infile)
 		} else if *accounts == true {
 			// Upload account info
 			LoadAccounts(db, col, *infile)
