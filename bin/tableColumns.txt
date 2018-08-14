@@ -36,8 +36,8 @@ submitter_name TEXT
 
 # Diagnosis
 ID INT
-masspresent SMALLINT
-necropsy SMALLINT
+Masspresent SMALLINT
+Necropsy SMALLINT
 metastasis_id INT
 
 # Tumor
@@ -49,18 +49,18 @@ Location TEXT
 ID INT
 tumor_id INT
 primary_tumor SMALLINT
-malignant SMALLINT
+Malignant SMALLINT
 
 # Metastasis
 metastasis_id INT
-metastasis SMALLINT
+Metastasis SMALLINT
 
 # Life_history
 taxa_id INT
 female_maturity INT
 male_maturity INT
-gestation INT
-weaning INT
+Gestation INT
+Weaning INT
 litter_size INT
 litters_year INT
 interbirth_interval INT
