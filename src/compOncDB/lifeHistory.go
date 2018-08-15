@@ -53,7 +53,7 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 	return traits
 }
 
-func LoadLifeHistory(db *sql.DB, col map[string]string, infile string) {
+func loadLifeHistory(db *sql.DB, col map[string]string, infile string) {
 	// Loads unique entries into comparative oncology taxonomy table
 	species := entryMap(dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"}))
 	ids := dbIO.GetColumnText(db, "Life_history", "taxa_id")

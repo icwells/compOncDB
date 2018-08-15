@@ -67,7 +67,7 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	return accounts
 }
 
-func LoadAccounts(db *sql.DB, col map[string]string, infile string) {
+func loadAccounts(db *sql.DB, col map[string]string, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
 	m := dbIO.GetMax(db, "Accounts", "account_id")
 	acc := dbIO.GetColumns(db, "Accounts", []string{"Name", "submitter_name"})

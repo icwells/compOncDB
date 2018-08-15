@@ -14,6 +14,7 @@ LAN="golang.org/x/text/language"
 MAIN="compOncDB"
 PR="github.com/Songmu/prompter"
 SA="github.com/icwells/go-tools/strarray"
+TM="textMatch"
 TS="golang.org/x/text/search"
 
 # Get install location
@@ -34,13 +35,15 @@ for I in $DR $IO $KP $LAN $PR $SA $TS; do
 	fi
 done
 
-# Install dbIO
-#if [ ! -e "$PDIR/$DBI.a" ]; then
-echo "Installing dbIO..."
-cp -R src/$DBI/ $GOPATH/src/
-go install $DBI
-echo ""
-#fi
+# Install dbIO and textMatch
+for I in $dbIO $TM; do
+	#if [ ! -e "$PDIR/$DBI.a" ]; then
+		echo "Installing $I..."
+		cp -R src/$I/ $GOPATH/src/
+		go install $I
+		echo ""
+	#fi
+done
 
 # lineageSimulator 
 echo "Building main..."

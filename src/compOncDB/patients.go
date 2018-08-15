@@ -118,7 +118,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 	return entries
 }
 
-func LoadPatients(db *sql.DB, col map[string]string, infile string) {
+func loadPatients(db *sql.DB, col map[string]string, infile string) {
 	// Loads unique patient info to appropriate tables
 	m := dbIO.GetMax(db, "Patient", "ID")
 	tumor := mapOfMaps(dbIO.GetTable(db, "Tumor"))

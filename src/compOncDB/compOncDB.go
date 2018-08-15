@@ -66,6 +66,7 @@ func main() {
 		diag      = kingpin.Flag("diagnosis", "Extract diagnosis info from input file and update database.").Default("false").Bool()
 		upload    = kingpin.Flag("upload", "Uploads patient info from input table to database.").Default("false").Bool()
 		dump      = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
+		gt        = kingpin.Flag("getTaxa", "Identifies taxa from Kestrel --extract output using taxonomy in database.").Default("false").Bool()
 		infile    = kingpin.Flag("infile", "Path to input file.").Short('i').Default("nil").String()
 		outfile   = kingpin.Flag("outfile", "Name of output file.").Short('o').Default("nil").String()
 	)
@@ -93,20 +94,23 @@ func main() {
 			}
 			table := dbIO.GetTable(db, *dump)
 			iotools.WriteToCSV(*outfile, col[*dump], table)
+		} else if *gt == true {
+			// Get taxonomy info from database
+			identifyTaxa(db, *infile, *outfile)
 		} else if *taxa == true {
 			// Upload taxonomy
-			LoadTaxa(db, col, *infile, *common)
+			loadTaxa(db, col, *infile, *common)
 		} else if *lh == true {
 			// Upload life history table
-			LoadLifeHistory(db, col, *infile)
+			loadLifeHistory(db, col, *infile)
 		} else if *accounts == true {
 			// Upload account info
-			LoadAccounts(db, col, *infile)
+			loadAccounts(db, col, *infile)
 		} else if *diag == true {
-			LoadDiagnoses(db, col, *infile)
+			loadDiagnoses(db, col, *infile)
 		} else if *upload == true {
 			// Upload patient data
-			LoadPatients(db, col, *infile)
+			loadPatients(db, col, *infile)
 		}
 	}
 	fmt.Printf("\n\tFinished. Runtime: %s\n\n", time.Since(start))

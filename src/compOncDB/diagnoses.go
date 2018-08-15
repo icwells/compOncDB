@@ -77,7 +77,7 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []str
 	return tumor, meta
 }
 
-func LoadDiagnoses(db *sql.DB, col map[string]string, infile string) {
+func loadDiagnoses(db *sql.DB, col map[string]string, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
 	t := dbIO.GetMax(db, "Tumor", "tumor_id")
 	m := dbIO.GetMax(db, "Metastasis", "metastasis_id")

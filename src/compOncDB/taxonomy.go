@@ -90,7 +90,7 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 	return taxa, common
 }
 
-func LoadTaxa(db *sql.DB, col map[string]string, infile string, commonNames bool) {
+func loadTaxa(db *sql.DB, col map[string]string, infile string, commonNames bool) {
 	// Loads unique entries into comparative oncology taxonomy table
 	var taxa, common map[string][]string
 	m := dbIO.GetMax(db, "Taxonomy", "taxa_id")
