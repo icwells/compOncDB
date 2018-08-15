@@ -6,8 +6,19 @@ import (
 	"github.com/icwells/go-tools/strarray"
 )
 
+func toMap(t [][]string) map[string][]string {
+	// Converts slice of string slices to map with first element as key
+	m := make(map[string][]string)
+	for _, i := range t {
+		if strarray.InMapSli(m, i[0]) == true {
+			m[i[0]] = i[1:]
+		}
+	}
+	return m
+}
+
 func tableToMap(t [][]string) map[string][]string {
-	// Converts extracted table to map for easier sorting
+	// Compresses extracted table to map for easier sorting
 	m := make(map[string][]string)
 	for _, i := range t {
 		if strarray.InMapSli(m, i[0]) == true {
@@ -41,7 +52,7 @@ func mapOfMaps(t [][]string) map[string]map[string]string {
 }
 
 func entryMap(t [][]string) map[string]string {
-	// Converts table to map for easier searching
+	// Converts pair of columns to map for easier searching
 	m := make(map[string]string)
 	for _, i := range t {
 		if strarray.InMapStr(m, i[1]) == false {

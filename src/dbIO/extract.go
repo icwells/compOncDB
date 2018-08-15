@@ -5,6 +5,7 @@ package dbIO
 import (
 	"database/sql"
 	"fmt"
+	"github.com/icwells/go-tools/strarray"
 	"strings"
 )
 
@@ -63,7 +64,13 @@ func toSlice(rows *sql.Rows) [][]string {
 
 func GetRows(db *sql.DB, table, column, key, target string) [][]string {
 	// Returns rows of target columns with key in column
-	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s = %s;", target, table, column, key)
+	var cmd string
+	if strings.Contains(key, ",") == true {
+		// Format for list
+		cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s IN (%s);", target, table, column, key)
+	} else {
+		cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s = %s;", target, table, column, key)
+	}
 	rows, err := db.Query(cmd)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
@@ -121,6 +128,21 @@ func GetColumns(db *sql.DB, table string, columns []string) [][]string {
 	}
 	defer rows.Close()
 	return toSlice(rows)
+}
+
+
+func GetNumOccurances(db *sql.DB, table, column string) map[string]int {
+	// Returns map with number of unique entries in column
+	occ := make(map[string]int)
+	entries := GetColumnText(db, table, column)
+	for _, i := range entries {
+		if strarray.InMapStrInt(occ, i) == true {
+			occ[i]++
+		} else {
+			occ[i] = 1
+		}
+	}
+	return occ
 }
 
 func GetTable(db *sql.DB, table string) [][]string {

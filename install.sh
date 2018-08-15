@@ -36,8 +36,8 @@ for I in $DR $IO $KP $LAN $PR $SA $TS; do
 done
 
 # Install dbIO and textMatch
-for I in $dbIO $TM; do
-	#if [ ! -e "$PDIR/$DBI.a" ]; then
+for I in $DBI $TM; do
+	#if [ ! -e "$PDIR/$I.a" ]; then
 		echo "Installing $I..."
 		cp -R src/$I/ $GOPATH/src/
 		go install $I
