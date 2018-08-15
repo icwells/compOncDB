@@ -7,12 +7,35 @@ import (
 	"dbIO"
 	"fmt"
 	"github.com/Songmu/prompter"
-	"github.com/icwells/go-tools/iotools"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"os/exec"
 	"time"
+)
+
+var (
+	// Global arguemnts
+	COL = "tableColumns.txt"
+	DB  = "comparativeOncology"
+)
+
+var (
+	// Kingpin arguments
+	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
+	ver      = kingpin.Flag("version", "Print version info and exit.").Short('v').Default("false").Bool()
+	bu       = kingpin.Flag("backup", "Backs up database to local machine (Must use root password).").Default("false").Bool()
+	New      = kingpin.Flag("new", "Initializes new tables in new database (database must be initialized manually).").Default("false").Bool()
+	common   = kingpin.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
+	taxa     = kingpin.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
+	lh       = kingpin.Flag("lh", "Extract life history info from merged life history table and update database.").Default("false").Bool()
+	accounts = kingpin.Flag("accounts", "Extract account info from input file and update database.").Default("false").Bool()
+	diag     = kingpin.Flag("diagnosis", "Extract diagnosis info from input file and update database.").Default("false").Bool()
+	upload   = kingpin.Flag("upload", "Uploads patient info from input table to database.").Default("false").Bool()
+	dump     = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
+	infile   = kingpin.Flag("infile", "Path to input file.").Short('i').Default("nil").String()
+	outfile  = kingpin.Flag("outfile", "Name of output file.").Short('o').Default("nil").String()
 )
 
 func version() {
@@ -23,13 +46,13 @@ func version() {
 	os.Exit(0)
 }
 
-func backup(DB, pw string) {
+func backup(pw string) {
 	// Backup database to local machine
 	fmt.Printf("\n\tBacking up %s database to local machine...\n", DB)
 	datestamp := time.Now().Format("2006-01-02")
 	password := fmt.Sprintf("-p%s", pw)
 	res := fmt.Sprintf("--result-file=%s.%s.sql", DB, datestamp)
-	dump := exec.Command("mysqldump","-uroot", password, res, DB)
+	dump := exec.Command("mysqldump", "-uroot", password, res, DB)
 	err := dump.Run()
 	if err == nil {
 		fmt.Println("\tBackup complete.")
@@ -38,7 +61,7 @@ func backup(DB, pw string) {
 	}
 }
 
-func connect(DB, user, pw string) *sql.DB {
+func connect(user, pw string) *sql.DB {
 	// Attempts to connect to sql database. Returns db instance.
 	db, err := sql.Open("mysql", user+":"+pw+"@/"+DB)
 	if err != nil {
@@ -51,26 +74,38 @@ func connect(DB, user, pw string) *sql.DB {
 	return db
 }
 
+func checkArgs() {
+	// Checks for errors in arguments
+	var checkin, checkout bool
+	if iotools.Exists(COL) == false {
+		fmt.Println("\n\t[Error] Table columns file not found. Exiting.\n")
+		os.Exit(2)
+	}
+	if *dump != "nil" {
+		checkout = true
+	} else if *taxa == true || *lh == true || *accounts == true || *diag == true || *upload == true {
+		checkin = true
+	}
+	if checkout == true {
+		if *outfile == "nil" {
+			fmt.Println("\n\t[Error] Please specify output file. Exiting.\n")
+			os.Exit(1)
+		}
+	}
+	if checkin == true {
+		if *infile == "nil" {
+			fmt.Println("\n\t[Error] Please specify input file. Exiting.\n")
+			os.Exit(1)
+		} else if iotools.Exists(*infile) == false {
+			fmt.Printf("\n\t[Error] %s not found. Exiting.\n\n", *infile)
+			os.Exit(2)
+		}
+	}
+}
+
 func main() {
-	COL := "tableColumns.txt"
-	DB := "comparativeOncology"
-	var (
-		user      = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
-		ver       = kingpin.Flag("version", "Print version info and exit.").Short('v').Default("false").Bool()
-		bu        = kingpin.Flag("backup", "Backs up database to local machine (Must use root password).").Default("false").Bool()
-		New       = kingpin.Flag("new", "Initializes new tables in new database (database must be initialized manually).").Default("false").Bool()
-		common    = kingpin.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
-		taxa      = kingpin.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
-		lh        = kingpin.Flag("lh", "Extract life history info from merged life history table and update database.").Default("false").Bool()
-		accounts  = kingpin.Flag("accounts", "Extract account info from input file and update database.").Default("false").Bool()
-		diag      = kingpin.Flag("diagnosis", "Extract diagnosis info from input file and update database.").Default("false").Bool()
-		upload    = kingpin.Flag("upload", "Uploads patient info from input table to database.").Default("false").Bool()
-		dump      = kingpin.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
-		gt        = kingpin.Flag("getTaxa", "Identifies taxa from Kestrel --extract output using taxonomy in database.").Default("false").Bool()
-		infile    = kingpin.Flag("infile", "Path to input file.").Short('i').Default("nil").String()
-		outfile   = kingpin.Flag("outfile", "Name of output file.").Short('o').Default("nil").String()
-	)
 	kingpin.Parse()
+	checkArgs()
 	if *ver == true {
 		version()
 	}
@@ -78,25 +113,18 @@ func main() {
 	password := prompter.Password("\n\tEnter MySQL password")
 	// Begin recording time after password input
 	start := time.Now()
-	db := connect(DB, *user, password)
+	db := connect(*user, password)
 	defer db.Close()
 	if *bu == true {
-		backup(DB, password)
+		backup(password)
 	} else {
 		col := dbIO.ReadColumns(COL, false)
 		if *New == true {
 			dbIO.NewTables(db, COL)
 		} else if *dump != "nil" {
 			// Extract entire table
-			if *outfile == "nil" {
-				fmt.Println("\n\t[Error] Please specify output file. Exiting.\n")
-				os.Exit(1)
-			}
 			table := dbIO.GetTable(db, *dump)
 			iotools.WriteToCSV(*outfile, col[*dump], table)
-		} else if *gt == true {
-			// Get taxonomy info from database
-			identifyTaxa(db, *infile, *outfile)
 		} else if *taxa == true {
 			// Upload taxonomy
 			loadTaxa(db, col, *infile, *common)

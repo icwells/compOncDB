@@ -44,9 +44,9 @@ func LevDist(s, t string) int {
 
 func ScoreMatch(query, target string) float64 {
 	// Calculates percent score
-	dist := float64(LevDist(query, i[idx]))
-	l := (len(query) + len(i[idx])) / 2.0
-	return (1.0 - (dist / l)
+	dist := float64(LevDist(query, target))
+	l := float64((len(query) + len(target)) / 2)
+	return (1.0 - (dist / l))
 }
 
 func matchSlice(ch chan []string, matcher *search.Matcher, query string, target [][]string, idx, ind int, score float64) {
@@ -59,7 +59,7 @@ func matchSlice(ch chan []string, matcher *search.Matcher, query string, target 
 			break
 		} else {
 			dist := LevDist(query, i[idx])
-			val := (1.0 - (dist / (len(query) + len(i[idx])) / 2.0))
+			val := float64((1 - (dist / (len(query) + len(i[idx])) / 2)))
 			if dist < min && val >= score {
 				ret = []string{query, i[ind]}
 				min = dist
@@ -76,7 +76,7 @@ func SearchSlice(query []string, target [][]string, idx, ind int, min float64) (
 	ch := make(chan []string)
 	matcher := search.New(language.English)
 	for _, i := range query {
-		go searchSlice(ch, mathcer, query[i], target, idx, ind, min)
+		go matchSlice(ch, matcher, i, target, idx, ind, min)
 		ret := <-ch
 		if len(ret) > 1 {
 			rows = append(rows, ret)
