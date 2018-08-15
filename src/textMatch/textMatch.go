@@ -1,7 +1,8 @@
 // This package will search a slice of strings for terms in a given slice and return matched pairs
 
+package textMatch
+
 import (
-	"github.com/icwells/go-tools/strarray"
 	"golang.org/x/text/language"
 	"golang.org/x/text/search"
 )
@@ -20,6 +21,7 @@ func LevDist(s, t string) int {
 	for j := range d[0] {
 		d[0][j] = j
 	}
+	// Score all possible matches
 	for j := 1; j <= len(t); j++ {
 		for i := 1; i <= len(s); i++ {
 			if s[i-1] == t[j-1] {
@@ -35,39 +37,53 @@ func LevDist(s, t string) int {
 				d[i][j] = min + 1
 			}
 		}
-
 	}
+	// Return minimum distance
 	return d[len(s)][len(t)]
 }
 
-func searchSlice(ch chan []string, matcher *search.Matcher, query string, target [][]string, idx, ind int) {
+func ScoreMatch(query, target string) float64 {
+	// Calculates percent score
+	dist := float64(LevDist(query, i[idx]))
+	l := (len(query) + len(i[idx])) / 2.0
+	return (1.0 - (dist / l)
+}
+
+func matchSlice(ch chan []string, matcher *search.Matcher, query string, target [][]string, idx, ind int, score float64) {
 	// Searches target slice for query
 	var ret []string
+	min := len(query)
 	for _, i := range target {
 		if matcher.EqualString(query, i[idx]) == true {
 			ret = []string{query, i[ind]}
 			break
-		} else if LevDist(query, i) < len( {
-
+		} else {
+			dist := LevDist(query, i[idx])
+			val := (1.0 - (dist / (len(query) + len(i[idx])) / 2.0))
+			if dist < min && val >= score {
+				ret = []string{query, i[ind]}
+				min = dist
+			}
 		}
 	}
 	ch <- ret
 }
 
-func Search(query []string, target [][]string, idx, ind int) ([][]string, []string) {
+func SearchSlice(query []string, target [][]string, idx, ind int, min float64) ([][]string, []string) {
 	// Searches target for match in target[idx] and returns [query, target[ind]]
 	var rows [][]string
 	var misses []string
 	ch := make(chan []string)
 	matcher := search.New(language.English)
 	for _, i := range query {
-		go searchSlice(ch, mathcer, query[i], target, idx, ind)
+		go searchSlice(ch, mathcer, query[i], target, idx, ind, min)
 		ret := <-ch
 		if len(ret) > 1 {
 			rows = append(rows, ret)
 		} else {
 			// Store unmathced queries
 			misses = append(misses, i)
+		}
 	}
 	return rows, misses
 }
