@@ -1,5 +1,5 @@
 # Patient
-ID INT
+ID INT PRIMARY KEY
 Sex TEXT
 Age DECIMAL(6,2)
 Castrated SMALLINT
@@ -10,7 +10,7 @@ Date TEXT
 Comments TEXT
 
 # Taxonomy
-taxa_id INT
+taxa_id INT PRIMARY KEY
 Kingdon TEXT
 Phylum TEXT
 Class TEXT
@@ -22,7 +22,7 @@ Source TEXT
 
 # Common
 taxa_id INT
-Name TEXT
+Name TEXT UNIQUE
 
 # Source
 ID INT
@@ -30,7 +30,7 @@ service_name TEXT
 account_id INT
 
 # Accounts
-account_id INT
+account_id INT PRIMARY KEY
 Name TEXT
 submitter_name TEXT
 
@@ -52,7 +52,7 @@ primary_tumor SMALLINT
 Malignant SMALLINT
 
 # Metastasis
-metastasis_id INT
+metastasis_id INT PRIMARY KEY
 Metastasis SMALLINT
 
 # Life_history
