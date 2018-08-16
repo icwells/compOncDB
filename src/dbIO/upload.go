@@ -20,7 +20,7 @@ func columnEqualTo(columns string, values [][]string) []string {
 	for _, val := range values {
 		if len(val) == len(col) {
 			first := true
-			buffer := bufio.NewBuffer()
+			buffer := bytes.NewBufferString("")
 			for idx, i := range val {
 				if first == false {
 					// Write seperating comma
@@ -59,7 +59,7 @@ func UpdateRow(db *sql.DB, table, columns, target, key string, values [][]string
 	return ret
 }
 
-func DeleteRow(db *sql.DB, table, column, value string)  {
+func DeleteRow(db *sql.DB, table, column, value string) {
 	// Deletes row(s) from database where column name = given value
 	cmd, err := db.Prepare(fmt.Sprintf("DELETE FROM %s WHERE %s = %s;", table, column, value))
 	if err != nil {
@@ -69,7 +69,7 @@ func DeleteRow(db *sql.DB, table, column, value string)  {
 		cmd.Close()
 		if err != nil {
 			fmt.Printf("\t[Error] Deleting row(s) from %s: %v\n", table, err)
-		}	
+		}
 	}
 }
 
