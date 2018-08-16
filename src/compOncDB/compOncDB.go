@@ -23,7 +23,7 @@ var (
 
 var (
 	// Kingpin arguments
-	app      = kingpin.New("compOncDB", "Coomand line-interface for uploading/extrating/manipulating data from the comparative oncology database.")
+	app      = kingpin.New("compOncDB", "Comand line-interface for uploading/extrating/manipulating data from the comparative oncology database.")
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 	ver      = kingpin.Command("version", "Print version info and exit.")
 	bu       = kingpin.Command("backup", "Backs up database to local machine (Must use root password).")
