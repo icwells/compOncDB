@@ -25,25 +25,29 @@ var (
 	// Kingpin arguments
 	app      = kingpin.New("compOncDB", "Comand line-interface for uploading/extrating/manipulating data from the comparative oncology database.")
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
-	ver      = kingpin.Command("version", "Print version info and exit.")
-	bu       = kingpin.Command("backup", "Backs up database to local machine (Must use root password).")
+	ver      = kingpin.Command("version", "Prints version info and exits.")
+	bu       = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
 	New      = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
 
 	upload   = kingpin.Command("upload", "Upload data to the database.")
-	common   = upload.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
 	taxa     = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
+	common   = upload.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
 	lh       = upload.Flag("lh", "Upload life history info from merged life history table to the database.").Default("false").Bool()
 	accounts = upload.Flag("accounts", "Extract account info from input file and update database.").Default("false").Bool()
 	diag     = upload.Flag("diagnosis", "Extract diagnosis info from input file and update database.").Default("false").Bool()
-	patient  = upload.Flag("patient", "Uploads patient info from input table to database.").Default("false").Bool()
+	patient  = upload.Flag("patient", "Upload patient info from input table to database.").Default("false").Bool()
 	infile   = upload.Arg("infile", "Path to input file.").Required().String()
 
-	extract  = kingpin.Command("extract", "Extracts data from the database and performs optional analyses.")
+	update   = kingpin.Command("update", "Update or delete existing records from the database.")
+	del		 = update.Flag("delete", "Delete records from given table if column = value.").Default("false").Bool()
+	upfile   = update.Arg("infile", "Path to input file.").Default("nil").String()
+
+	extract  = kingpin.Command("extract", "Extract data from the database and perform optional analyses.")
 	dump     = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
-	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with gtreater than min entries.").Default("false").Bool()
+	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
 	min      = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
 	nec      = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
-	outfile  = extract.Arg("outfile", "Name of output file.").Default("nil").String()
+	outfile  = extract.Arg("outfile", "Name of output file (writes to stdout if not given).").Default("nil").String()
 )
 
 func version() {
