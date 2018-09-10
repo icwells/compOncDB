@@ -30,6 +30,17 @@ type Record struct {
 	cancerage float64
 }
 
+func (r *Record) String() string {
+	// Returns formatted string of record attributes
+	ret := fmt.Sprintf("\nSpecies: %s\n", r.species)
+	ret += fmt.Sprintf("Total: %d\n", r.total)
+	ret += fmt.Sprintf("Cancer Records: %d", r.cancer)
+	/*for k, v := range r.entries {
+		ret += fmt.Sprintf("Taxa ID: %s\tAge: %.2f\n", k, v.age)
+	}*/
+	return ret
+}
+
 func (r *Record) calculateRates() []string {
 	// Returns string slice of rates
 	//"ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
@@ -51,13 +62,7 @@ func (r *Record) calculateRates() []string {
 
 func inMapRec(m map[string]*Record, s string) bool {
 	// Return true if s is a key in m
-	ret := false
-	for k, _ := range m {
-		if k == s {
-			ret = true
-			break
-		}
-	}
+	_, ret := m[s]
 	return ret
 }
 
@@ -72,24 +77,7 @@ func getRecKeys(records map[string]*Record) string {
 			buffer.WriteString(k)
 		} else {
 			buffer.WriteString(k)
-		}
-	}
-	return buffer.String()
-}
-
-func getEntryKeys(records map[string]*Record) string {
-	// Returns string of taxa_ids
-	first := true
-	buffer := bytes.NewBufferString("")
-	for _, val := range records {
-		for k, _ := range val.entries {
-			if first == false {
-				// Write name with preceding comma
-				buffer.WriteByte(',')
-				buffer.WriteString(k)
-			} else {
-				buffer.WriteString(k)
-			}
+			first = false
 		}
 	}
 	return buffer.String()
@@ -108,6 +96,7 @@ func formatRates(records map[string]*Record) [][]string {
 
 func getSpeciesNames(db *sql.DB, records map[string]*Record) map[string]*Record {
 	// Adds species names to structs
+	fmt.Println(getRecKeys(records))
 	species := entryMap(dbIO.GetRows(db, "Taxonomy", "taxa_id", getRecKeys(records), "Species,taxa_id"))
 	for k, v := range species {
 		if inMapRec(records, k) == true {
@@ -119,10 +108,12 @@ func getSpeciesNames(db *sql.DB, records map[string]*Record) map[string]*Record 
 
 func getSpeciesDiagnoses(db *sql.DB, records map[string]*Record, nec bool) map[string]*Record {
 	// Adds diagnosis info
-	diag := toMap(dbIO.GetRows(db, "Diagnosis", "ID", getEntryKeys(records), "ID,Masspresent,Necropsy"))
+	diag := toMap(dbIO.GetRows(db, "Diagnosis", "ID", getRecKeys(records), "ID,Masspresent,Necropsy"))
 	for _, val := range records {
+		fmt.Println(val)
 		for k, v := range val.entries {
 			if strarray.InMapSli(diag, k) == true {
+				//fmt.Println(k)
 				if nec == true && diag[k][1] != "1" {
 					// Delete non-necropsy records from the map
 					delete(val.entries, k)
@@ -145,6 +136,7 @@ func getSpeciesDiagnoses(db *sql.DB, records map[string]*Record, nec bool) map[s
 	}
 	for k, v := range records {
 		// Remove empty records
+		//fmt.Println(v.total)
 		if v.total == 0 {
 			delete(records, k)
 		}
@@ -160,13 +152,15 @@ func getSpeciesSummaries(db *sql.DB, records map[string]*Record, min int) map[st
 		if inMapRec(records, i[0]) == true {
 			age, _ := strconv.ParseFloat(i[1], 64)
 			if age >= records[i[0]].infant {
+				var e Entry
 				// Store age by id to calculate average age of cancer records later
-				records[i[0]].entries[i[3]].age = age
+				e.age = age
 				if i[2] == "male" {
-					records[i[0]].entries[i[3]].male = true
+					e.male = true
 				} else if i[2] == "female" {
-					records[i[0]].entries[i[3]].female = true
+					e.female = true
 				}
+				records[i[0]].entries[i[3]] = &e
 			}
 		}
 	}
@@ -179,7 +173,7 @@ func getSpeciesSummaries(db *sql.DB, records map[string]*Record, min int) map[st
 	return records
 }
 
-func getAgeOInfancy(db *sql.DB, records map[string]*Record) map[string]*Record {
+func getAgeOfInfancy(db *sql.DB, records map[string]*Record) map[string]*Record {
 	// Updates structs with min age for each species
 	// Get appropriate ages for each taxon
 	ages := dbIO.GetRows(db, "Life_history", "taxa_id", getRecKeys(records), "taxa_id,female_maturity,male_maturity,Weaning")
@@ -211,6 +205,7 @@ func getTargetSpecies(db *sql.DB, min int) map[string]*Record {
 	for k, v := range unique {
 		if v >= min {
 			var rec Record
+			rec.entries = make(map[string]*Entry)
 			records[k] = &rec
 		}
 	}
@@ -219,11 +214,21 @@ func getTargetSpecies(db *sql.DB, min int) map[string]*Record {
 
 func getCancerRates(db *sql.DB, col map[string]string, min int, nec bool) [][]string {
 	// Returns slice of string slices of cancer rates and related info
+	var ret [][]string
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", min)
 	records := getTargetSpecies(db, min)
-	records = getAgeOInfancy(db, records)
-	records = getSpeciesSummaries(db, records, min)
-	records = getSpeciesDiagnoses(db, records, nec)
-	records = getSpeciesNames(db, records)
-	return formatRates(records)
+	records = getAgeOfInfancy(db, records)
+	if len(records) > 0 {
+		records = getSpeciesSummaries(db, records, min)
+		if len(records) > 0 {
+			records = getSpeciesDiagnoses(db, records, nec)
+			if len(records) > 0 {
+				records = getSpeciesNames(db, records)
+				if len(records) > 0 {
+					ret = formatRates(records)
+				}
+			}
+		}
+	}
+	return ret
 }

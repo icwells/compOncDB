@@ -21,6 +21,19 @@ func uploadTraits(db *sql.DB, col map[string]string, traits [][]string) {
 	}
 }
 
+func fmtEntry(tid string, row []string) []string {
+	// Returns row formatted for upload with NAs replaced with 0.0
+	entry := []string{tid}
+	for _, i := range row[1:14] {
+		if i == "NA" {
+			entry = append(entry, "0.0")
+		} else {
+			entry = append(entry, i)
+		}
+	}
+	return entry
+}
+
 func extractTraits(infile string, ids []string, species map[string]string) [][]string {
 	// Extracts taxonomy from input file
 	first := true
@@ -40,8 +53,7 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 				tid := species[s]
 				if strarray.InSliceStr(ids, tid) == false {
 					// Skip entries which are already in db
-					entry := append([]string{tid}, spl[1:]...)
-					traits = append(traits, entry)
+					traits = append(traits, fmtEntry(tid, spl))
 				}
 			} else {
 				fmt.Printf("\t[Warning] %s not in taxonomy database. Skipping.\n", s)
