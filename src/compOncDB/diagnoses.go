@@ -41,6 +41,19 @@ func uploadDiagnosis(db *sql.DB, col map[string]string, tumor map[string][]strin
 	}
 }
 
+func tumorPairs(typ, loc string) [][]string {
+	// Returns slice of pairs of type, location
+	var ret [][]string
+	types := strings.Split(typ, ";")
+	locations := strings.Split(loc, ";")
+	for idx, i := range types {
+		if idx < len(locations) {
+			ret = append(ret, []string{i, locations[idx]})
+		}
+	}
+	return ret
+}
+
 func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []string) (map[string][]string, []string) {
 	// Extracts accounts from input file
 	first := true
@@ -59,15 +72,19 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []str
 				// Skip entries present in database or already in map
 				meta = append(meta, s[9])
 			}
-			intmr := strarray.InMapMapStr(tmr, s[10])
-			if intmr == false || intmr == true && strarray.InMapStr(tmr[s[10]], s[11]) == false {
-				// Skip entries present in database or already in map
-				if strarray.InMapSli(tumor, s[10]) == true && strarray.InSliceStr(tumor[s[10]], s[11]) == false {
-					// Add new location info
-					tumor[s[10]] = append(tumor[s[10]], s[11])
-				} else {
-					// Add new list
-					tumor[s[10]] = []string{s[11]}
+			// Iterate through type, location pairs individually
+			pairs := tumorPairs(s[10], s[11])
+			for _, i := range pairs {
+				_, intmr := tmr[i[0]]
+				if intmr == false || intmr == true && strarray.InMapStr(tmr[i[0]], i[1]) == false {
+					// Skip entries present in database or already in map
+					if strarray.InMapSli(tumor, i[0]) == true && strarray.InSliceStr(tumor[i[0]], i[1]) == false {
+						// Add new location info
+						tumor[i[0]] = append(tumor[i[0]], i[1])
+					} else {
+						// Add new list
+						tumor[i[0]] = []string{i[1]}
+					}
 				}
 			}
 		} else {

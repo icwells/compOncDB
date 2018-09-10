@@ -33,7 +33,7 @@ func getDenominator(l, row int) int {
 	// Returns denominator for subsetting upload slice
 	p := float64(l * row)
 	max := 300000.0
-	return int(math.Floor(p/max))
+	return int(math.Floor(p / max))
 }
 
 func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]string) {
@@ -47,14 +47,14 @@ func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]st
 	} else {
 		// Upload in chunks
 		var set [][][]string
-		idx := l/den
+		idx := l / den
 		ind := 0
 		for i := 0; i < den; i++ {
-			if ind + idx > l {
+			if ind+idx > l {
 				// Get last less than idx rows
 				idx = l - ind + 1
 			}
-			sub := list[ind:ind + idx]
+			sub := list[ind : ind+idx]
 			set = append(set, sub)
 		}
 		for _, i := range set {
@@ -96,11 +96,15 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 						} else {
 							d = []string{id, spl[7], spl[8], "-1"}
 						}
-						if strarray.InMapMapStr(tumor, spl[10]) == true && strarray.InMapStr(tumor[spl[10]], spl[11]) == true {
-							// ID, tumor_id, primary_tumor, malignant
-							t = []string{id, tumor[spl[10]][spl[11]], spl[12], spl[13]}
-						} else {
-							t = []string{id, "-1", spl[12], spl[13]}
+						// Assign ID to all tumor, location pairs tumorPairs in diagnoses.go)
+						pairs := tumorPairs(spl[10], spl[11])
+						for _, i := range pairs {
+							if strarray.InMapMapStr(tumor, i[0]) == true && strarray.InMapStr(tumor[i[0]], i[1]) == true {
+								// ID, tumor_id, primary_tumor, malignant
+								t = []string{id, tumor[i[0]][i[1]], spl[12], spl[13]}
+							} else {
+								t = []string{id, "-1", spl[12], spl[13]}
+							}
 						}
 						entries.update(p, d, t, s)
 						pass = true
@@ -114,7 +118,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 			first = false
 		}
 	}
-	fmt.Printf("\tExtracted %d records.\n", count - start)
+	fmt.Printf("\tExtracted %d records.\n", count-start)
 	return entries
 }
 

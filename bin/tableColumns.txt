@@ -22,7 +22,7 @@ Source TEXT
 
 # Common
 taxa_id INT
-Name TEXT UNIQUE
+Name TEXT
 
 # Source
 ID INT
