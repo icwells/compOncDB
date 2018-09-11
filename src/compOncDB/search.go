@@ -6,8 +6,8 @@ import (
 	"database/sql"
 	"dbIO"
 	"fmt"
-	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
+	"os"
 	"strings"
 )
 
@@ -15,7 +15,7 @@ func getTumorRecords(ch chan [][]string, db *sql.DB, id string, tumor [][]string
 	// Returns tumor information for given id
 	var loc []string
 	var typ []string	
-	rows := dbIO.GetRows(db, "Tumor_Relation", "ID", id, "*")
+	rows := dbIO.GetRows(db, "Tumor_relation", "ID", id, "*")
 	for _, i := range rows {
 		if primary == false || primary == true && i[2] == "1" {
 			for _, j := range tumor {
@@ -112,8 +112,8 @@ func getTaxonomy(db *sql.DB, ids []string, source bool) map[string][]string {
 			if source == true {
 				taxa[id] = table[id]
 			} else {
-				// Exclude source
-				taxa[id] = table[id][:7]
+				// Exclude source and species (in patient table)
+				taxa[id] = table[id][:6]
 			}
 		}
 	}
@@ -135,26 +135,6 @@ func getPatients(db *sql.DB, ids []string) (map[string][]string, map[string]stri
 	return patients, tids
 }
 
-func searchPatients(db *sql.DB, col map[string]string, ids []string, outfile, header string) {
-	// Extracs patient data using IDs
-	var ret [][]string
-	var taxaids []string
-	fmt.Println("\tExtracting patient information...")
-	patients, tid := getPatients(db, ids)
-	for _, i := range tid {
-		taxaids = append(taxaids, i)
-	}
-	// Leaving primary tumor and mass present switches false for now
-	records := getRecords(db, ids, false, false)
-	taxonomy := getTaxonomy(db, taxaids, false)
-	for _, i := range ids {
-		rec := append(patients[i], records[i]...)
-		rec = append(rec, taxonomy[tid[i]]...)
-		ret = append(ret, rec)
-	}
-	iotools.WriteToCSV(outfile, header, ret)
-}
-
 func getTaxa(db *sql.DB, ids []string) map[string][]string {
 	// Extracts patient data using taxa ids
 	patients := make(map[string][]string)
@@ -171,7 +151,7 @@ func getTaxa(db *sql.DB, ids []string) map[string][]string {
 	return patients
 }
 
-func getTaxaIDs(db *sql.DB, names []string, common bool) []string {
+func getTaxaIDs(db *sql.DB, names []string, level string, common bool) []string {
 	// Returns taxa id from species name
 	var ids []string
 	var table [][]string
@@ -180,7 +160,7 @@ func getTaxaIDs(db *sql.DB, names []string, common bool) []string {
 		table = dbIO.GetTable(db, "Common")
 	} else {
 		// Get ids from taxonomy table
-		table = dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"})
+		table = dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", level})
 	}
 	for _, n := range names {
 		for _, i := range table {
@@ -193,11 +173,36 @@ func getTaxaIDs(db *sql.DB, names []string, common bool) []string {
 	return ids
 }
 
-func searchCommonNames(db *sql.DB, col map[string]string, names []string, common bool) {
+func checkLevel(level string, common bool) string {
+	// Makes sure a valid taxonomic level is given
+	found := false
+	if common == true {
+		// Overwrite to species for common name comparison
+		level = "Species"
+	} else {
+		levels := []string{"Kingdon", "Phylum", "Class", "Orders", "Family", "Genus", "Species"}
+		// Convert level to title case
+		level = strings.Title(level)
+		for _, i := range levels {
+			if level == i {
+				found = true
+				break
+			}
+		}
+		if found == false {
+			fmt.Println("\n\t[Error] Please enter a valid taxonomic level. Exiting.\n")
+			os.Exit(11)
+		}
+	}
+	return level
+}
+
+func searchTaxonomicLevels(db *sql.DB, col map[string]string, level string, names []string, common bool) [][]string {
 	// Extracts data using species names
 	var ret [][]string
 	fmt.Println("\tExtracting patient information...")
-	ids := getTaxaIDs(db, names, common)
+	level = checkLevel(level, common)
+	ids := getTaxaIDs(db, names, level, common)
 	patients := getTaxa(db, ids)
 	// Leaving primary tumor and mass present switches false for now
 	records := getRecords(db, ids, false, false)
@@ -207,7 +212,7 @@ func searchCommonNames(db *sql.DB, col map[string]string, names []string, common
 		rec = append(rec, taxonomy[i]...)
 		ret = append(ret, rec)
 	}
-	iotools.WriteToCSV(outfile, header, ret)
+	return ret
 }
 
 /*func searchTaxaRank(db *sql.DB, col map[string]string, target, column, outfile, header string) {

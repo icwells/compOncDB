@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"strings"
 )
@@ -94,6 +95,7 @@ func writeResults(outfile, header string, table [][]string) {
 		if outfile != "nil" {
 			iotools.WriteToCSV(outfile, header, table)
 		} else {
-			printArray(header, rates)
+			printArray(header, table)
 		}
 	}
+}

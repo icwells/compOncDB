@@ -48,8 +48,8 @@ var (
 	txn      = "Name of taxonomic unit to extract data for or path to file with single column of units."
 	extract  = kingpin.Command("extract", "Extract data from the database and perform optional analyses.")
 	dump     = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
-	taxon	 = extract.Flag("taxa", txn).Short('s').Default("nil").String()
-	level	 = extract.Flag("level", "Taxonomic level of taxon (or entries in taxon file).").Short('l').Default("nil").String()
+	taxon	 = extract.Flag("taxa", txn).Short('t').Default("nil").String()
+	level	 = extract.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
 	com		 = extract.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
 	min      = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
@@ -150,7 +150,7 @@ func extractFromDB() time.Time {
 	} else if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
-		//header := 
+		header := "ID,Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Type,Location,primary_tumor,Malignant,Kingdon,Phylum,Class,Orders,Family,Genus,Species\n"
 		if iotools.Exists(*taxon) == true {
 			names = readList(*taxon)
 		} else {
@@ -161,7 +161,7 @@ func extractFromDB() time.Time {
 				names = []string{*taxon}
 			}
 		}
-		res := searchCommonNames(db *sql.DB, col, names, *com)
+		res := searchTaxonomicLevels(db, col, *level, names, *com)
 		writeResults(*outfile, header, res)
 	} else if *cr == true {
 		// Extract cancer rates

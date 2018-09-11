@@ -197,7 +197,6 @@ func getTargetSpecies(db *sql.DB, min int) map[string]*Record {
 	unique := dbIO.GetNumOccurances(db, "Patient", "taxa_id")
 	for k, v := range unique {
 		if v >= min {
-			count++
 			var rec Record
 			rec.entries = make(map[string]*Entry)
 			records[k] = &rec
