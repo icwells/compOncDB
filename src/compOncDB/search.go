@@ -193,7 +193,7 @@ func getTaxaIDs(db *sql.DB, names []string, common bool) []string {
 	return ids
 }
 
-func searchCommonNames(db *sql.DB, col map[string]string, names []string, outfile, header string, common bool) {
+func searchCommonNames(db *sql.DB, col map[string]string, names []string, common bool) {
 	// Extracts data using species names
 	var ret [][]string
 	fmt.Println("\tExtracting patient information...")

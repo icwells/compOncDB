@@ -63,6 +63,21 @@ func entryMap(t [][]string) map[string]string {
 	return m
 }
 
+func readList(infile string) []string {
+	// Reads list of queries from file
+	var ret []string
+	f := iotools.OpenFile(infile)
+	defer f.Close()
+	input := iotools.GetScanner(f)
+	for input.Scan() {
+		line := string(input.Text())
+		// Replace underscores if present
+		line = strings.Replace(line, "_", " ", -1) 
+		ret = append(ret, strings.TrimSpace(line))
+	}
+	return ret
+}
+
 func printArray(header string, table [][]string) {
 	// Prints slice of string slcies to screen
 	//header = strings.TrimSpace(header)
@@ -72,3 +87,13 @@ func printArray(header string, table [][]string) {
 		fmt.Println(strings.Join(row, "\t"))
 	}
 }
+
+func writeResults(outfile, header string, table [][]string) {
+	// Wraps calls to writeCSV/printArray
+	if len(table) > 0 {
+		if outfile != "nil" {
+			iotools.WriteToCSV(outfile, header, table)
+		} else {
+			printArray(header, rates)
+		}
+	}

@@ -12,6 +12,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -28,6 +29,7 @@ var (
 	ver      = kingpin.Command("version", "Prints version info and exits.")
 	bu       = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
 	New      = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
+	infile   = kingpin.Flag("infile", "Path to input file.").Short('i').Default("nil").String()
 
 	upload   = kingpin.Command("upload", "Upload data to the database.")
 	taxa     = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
@@ -36,14 +38,19 @@ var (
 	accounts = upload.Flag("accounts", "Extract account info from input file and update database.").Default("false").Bool()
 	diag     = upload.Flag("diagnosis", "Extract diagnosis info from input file and update database.").Default("false").Bool()
 	patient  = upload.Flag("patient", "Upload patient info from input table to database.").Default("false").Bool()
-	infile   = upload.Arg("infile", "Path to input file.").Required().String()
 
 	update   = kingpin.Command("update", "Update or delete existing records from the database.")
 	del		 = update.Flag("delete", "Delete records from given table if column = value.").Default("false").Bool()
-	upfile   = update.Arg("infile", "Path to input file.").Default("nil").String()
+	tbl		 = update.Flag("table", "Name of table containing target value (data in other tables will be updated approriately).").Short('t').Default("nil").String()
+	col		 = update.Flag("column", "Name of column containing target value.").Short('c').Default("nil").String()
+	val		 = update.Flag("value", "Name of target value to update.").Short('v').Default("nil").String()
 
+	txn      = "Name of taxonomic unit to extract data for or path to file with single column of units."
 	extract  = kingpin.Command("extract", "Extract data from the database and perform optional analyses.")
 	dump     = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
+	taxon	 = extract.Flag("taxa", txn).Short('s').Default("nil").String()
+	level	 = extract.Flag("level", "Taxonomic level of taxon (or entries in taxon file).").Short('l').Default("nil").String()
+	com		 = extract.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
 	min      = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
 	nec      = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
@@ -90,6 +97,81 @@ func connect(user string) (*sql.DB, string, time.Time) {
 	return db, pw, start
 }
 
+func uploadToDB() time.Time {
+	// Uploads infile to given table (all input variables are global)
+	if *infile == "nil" {
+		fmt.Println("\n\t[Error] Please specify input file. Exiting.\n")
+		os.Exit(1)
+	}
+	db, _, start := connect(*user)
+	col := dbIO.ReadColumns(COL, false)
+	defer db.Close()
+	if *taxa == true {
+		// Upload taxonomy
+		loadTaxa(db, col, *infile, *common)
+	} else if *lh == true {
+		// Upload life history table
+		loadLifeHistory(db, col, *infile)
+	} else if *accounts == true {
+		// Upload account info
+		loadAccounts(db, col, *infile)
+	} else if *diag == true {
+		loadDiagnoses(db, col, *infile)
+	} else if *patient == true {
+		// Upload patient data
+		loadPatients(db, col, *infile)
+	}
+	return start
+}
+
+func updateDB() time.Time {
+	// Updates database with given flags (all input variables are global)
+	_, _, start := connect(*user)
+	//col := dbIO.ReadColumns(COL, false)
+	//defer db.Close()
+	fmt.Println("\n\t[Warning] Update functionality not yet complete.")
+
+	return start
+}
+
+func extractFromDB() time.Time {
+	// Extracts data to outfile/stdout (all input variables are global)
+	col := dbIO.ReadColumns(COL, false)
+	db, _, start := connect(*user)
+	defer db.Close()	
+	if *dump != "nil" {
+		// Extract entire table
+		table := dbIO.GetTable(db, *dump)
+		if *outfile != "nil" {
+			iotools.WriteToCSV(*outfile, col[*dump], table)
+		} else {
+			printArray(col[*dump], table)
+		}
+	} else if *taxon != "nil" {
+		// Extract all data for a given species
+		var names []string
+		//header := 
+		if iotools.Exists(*taxon) == true {
+			names = readList(*taxon)
+		} else {
+			// Get single term
+			if strings.Contains(*taxon, "_") == true {
+				names = []string{strings.Replace(*taxon, "_", " ", -1)}
+			} else {
+				names = []string{*taxon}
+			}
+		}
+		res := searchCommonNames(db *sql.DB, col, names, *com)
+		writeResults(*outfile, header, res)
+	} else if *cr == true {
+		// Extract cancer rates
+		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
+		rates := getCancerRates(db, col, *min, *nec)
+		writeResults(*outfile, header, rates)
+	}
+	return start
+}
+
 func main() {
 	var db *sql.DB
 	var start time.Time
@@ -98,7 +180,7 @@ func main() {
 		case ver.FullCommand():
 			version()
 		case bu.FullCommand():
-			db, _, start = connect(*user)
+			db, pw, start = connect(*user)
 			defer db.Close()
 			backup(pw)
 		case New.FullCommand():
@@ -106,50 +188,11 @@ func main() {
 			defer db.Close()
 			dbIO.NewTables(db, COL)
 		case upload.FullCommand():
-			// Upload infile to given table
-			col := dbIO.ReadColumns(COL, false)
-			db, _, start = connect(*user)
-			defer db.Close()
-			if *taxa == true {
-				// Upload taxonomy
-				loadTaxa(db, col, *infile, *common)
-			} else if *lh == true {
-				// Upload life history table
-				loadLifeHistory(db, col, *infile)
-			} else if *accounts == true {
-				// Upload account info
-				loadAccounts(db, col, *infile)
-			} else if *diag == true {
-				loadDiagnoses(db, col, *infile)
-			} else if *patient == true {
-				// Upload patient data
-				loadPatients(db, col, *infile)
-			}
+			start = uploadToDB()
+		case update.FullCommand():
+			start = updateDB()
 		case extract.FullCommand():
-			// Extract data to outfile/stdout
-			col := dbIO.ReadColumns(COL, false)
-			db, _, start = connect(*user)
-			defer db.Close()	
-			if *dump != "nil" {
-				// Extract entire table
-				table := dbIO.GetTable(db, *dump)
-				if *outfile != "nil" {
-					iotools.WriteToCSV(*outfile, col[*dump], table)
-				} else {
-					printArray(col[*dump], table)
-				}
-			} else if *cr == true {
-				// Extract cancer rates
-				header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
-				rates := getCancerRates(db, col, *min, *nec)
-				if len(rates) > 0 {
-					if *outfile != "nil" {
-						iotools.WriteToCSV(*outfile, header, rates)
-					} else {
-						printArray(header, rates)
-					}
-				}
-			}
+			start = extractFromDB()
 	}
 	fmt.Printf("\n\tFinished. Runtime: %s\n\n", time.Since(start))
 }
