@@ -64,8 +64,8 @@ func backup(pw string) {
 	datestamp := time.Now().Format("2006-01-02")
 	password := fmt.Sprintf("-p%s", pw)
 	res := fmt.Sprintf("--result-file=%s.%s.sql", DB, datestamp)
-	dump := exec.Command("mysqldump", "-uroot", password, res, DB)
-	err := dump.Run()
+	bu := exec.Command("mysqldump", "-uroot", password, res, DB)
+	err := bu.Run()
 	if err == nil {
 		fmt.Println("\tBackup complete.")
 	} else {
@@ -133,11 +133,22 @@ func main() {
 			if *dump != "nil" {
 				// Extract entire table
 				table := dbIO.GetTable(db, *dump)
-				iotools.WriteToCSV(*outfile, col[*dump], table)
+				if *outfile != "nil" {
+					iotools.WriteToCSV(*outfile, col[*dump], table)
+				} else {
+					printArray(col[*dump], table)
+				}
 			} else if *cr == true {
+				// Extract cancer rates
 				header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
 				rates := getCancerRates(db, col, *min, *nec)
-				iotools.WriteToCSV(*outfile, header, rates)
+				if len(rates) > 0 {
+					if *outfile != "nil" {
+						iotools.WriteToCSV(*outfile, header, rates)
+					} else {
+						printArray(header, rates)
+					}
+				}
 			}
 	}
 	fmt.Printf("\n\tFinished. Runtime: %s\n\n", time.Since(start))

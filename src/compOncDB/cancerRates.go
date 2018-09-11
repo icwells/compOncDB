@@ -35,9 +35,6 @@ func (r *Record) String() string {
 	ret := fmt.Sprintf("\nSpecies: %s\n", r.species)
 	ret += fmt.Sprintf("Total: %d\n", r.total)
 	ret += fmt.Sprintf("Cancer Records: %d", r.cancer)
-	/*for k, v := range r.entries {
-		ret += fmt.Sprintf("Taxa ID: %s\tAge: %.2f\n", k, v.age)
-	}*/
 	return ret
 }
 
@@ -96,7 +93,6 @@ func formatRates(records map[string]*Record) [][]string {
 
 func getSpeciesNames(db *sql.DB, records map[string]*Record) map[string]*Record {
 	// Adds species names to structs
-	fmt.Println(getRecKeys(records))
 	species := entryMap(dbIO.GetRows(db, "Taxonomy", "taxa_id", getRecKeys(records), "Species,taxa_id"))
 	for k, v := range species {
 		if inMapRec(records, k) == true {
@@ -108,12 +104,10 @@ func getSpeciesNames(db *sql.DB, records map[string]*Record) map[string]*Record 
 
 func getSpeciesDiagnoses(db *sql.DB, records map[string]*Record, nec bool) map[string]*Record {
 	// Adds diagnosis info
-	diag := toMap(dbIO.GetRows(db, "Diagnosis", "ID", getRecKeys(records), "ID,Masspresent,Necropsy"))
+	diag := toMap(dbIO.GetTable(db, "Diagnosis"))
 	for _, val := range records {
-		fmt.Println(val)
 		for k, v := range val.entries {
 			if strarray.InMapSli(diag, k) == true {
-				//fmt.Println(k)
 				if nec == true && diag[k][1] != "1" {
 					// Delete non-necropsy records from the map
 					delete(val.entries, k)
@@ -136,7 +130,6 @@ func getSpeciesDiagnoses(db *sql.DB, records map[string]*Record, nec bool) map[s
 	}
 	for k, v := range records {
 		// Remove empty records
-		//fmt.Println(v.total)
 		if v.total == 0 {
 			delete(records, k)
 		}
@@ -147,7 +140,7 @@ func getSpeciesDiagnoses(db *sql.DB, records map[string]*Record, nec bool) map[s
 func getSpeciesSummaries(db *sql.DB, records map[string]*Record, min int) map[string]*Record {
 	// Updates structs with total age, number of males/females, and patient IDs; deletes entries with fewer than min adult records
 	fmt.Println("\tGetting records...")
-	patients := dbIO.GetRows(db, "Patient", "taxa_id", getRecKeys(records), "taxa_id,Age,Sex,ID")
+	patients := dbIO.GetColumns(db, "Patient", []string{"taxa_id", "Age", "Sex" ,"ID"})
 	for _, i := range patients {
 		if inMapRec(records, i[0]) == true {
 			age, _ := strconv.ParseFloat(i[1], 64)

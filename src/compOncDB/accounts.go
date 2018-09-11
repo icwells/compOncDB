@@ -35,7 +35,7 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	// Extracts accounts from input file
 	first := true
 	accounts := make(map[string][]string)
-	acc := tableToMap(table)
+	acc := toMap(table)
 	fmt.Printf("\n\tExtracting accounts from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()

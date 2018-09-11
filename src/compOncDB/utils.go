@@ -3,31 +3,32 @@
 package main
 
 import (
+	"fmt"
 	"github.com/icwells/go-tools/strarray"
+	"strings"
 )
+
+func typeof(v interface{}) string {
+	// Returns string of object type
+	return fmt.Sprintf("%T", v)
+}
 
 func toMap(t [][]string) map[string][]string {
 	// Converts slice of string slices to map with first element as key
+	// If slice is two columns wide, it will append the second item to map entry
 	m := make(map[string][]string)
 	for _, i := range t {
-		if strarray.InMapSli(m, i[0]) == true {
-			m[i[0]] = i[1:]
-		}
-	}
-	return m
-}
-
-func tableToMap(t [][]string) map[string][]string {
-	// Compresses extracted table to map for easier sorting
-	m := make(map[string][]string)
-	for _, i := range t {
-		if strarray.InMapSli(m, i[0]) == true {
-			if strarray.InSliceStr(m[i[0]], i[1]) == false {
-				// Add new submitter name
-				m[i[0]] = append(m[i[0]], i[1])
+		_, ex := m[i[0]]
+		if ex == false {
+			if typeof(i[1]) == "string" {
+				// Create new slice
+				m[i[0]] = []string{i[1]}
+			} else {
+				m[i[0]] = i[1:]
 			}
-		} else {
-			m[i[0]] = []string{i[1]}
+		} else if typeof(i[1]) == "string" && strarray.InSliceStr(m[i[0]], i[1]) == false {
+			// Append new stirng element
+			m[i[0]] = append(m[i[0]], i[1])
 		}
 	}
 	return m
@@ -60,4 +61,14 @@ func entryMap(t [][]string) map[string]string {
 		}
 	}
 	return m
+}
+
+func printArray(header string, table [][]string) {
+	// Prints slice of string slcies to screen
+	//header = strings.TrimSpace(header)
+	head := strings.Split(header, ",")
+	fmt.Print(strings.Join(head, "\t"))
+	for _, row := range table {
+		fmt.Println(strings.Join(row, "\t"))
+	}
 }
