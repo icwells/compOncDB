@@ -26,7 +26,7 @@ func fmtEntry(tid string, row []string) []string {
 	entry := []string{tid}
 	for _, i := range row[1:14] {
 		if i == "NA" {
-			entry = append(entry, "0.0")
+			entry = append(entry, "-1.0")
 		} else {
 			entry = append(entry, i)
 		}
