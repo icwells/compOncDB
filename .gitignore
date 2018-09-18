@@ -1,2 +1,5 @@
 # Binary 
 bin/compOncDB
+
+# Upload script
+upload.sh

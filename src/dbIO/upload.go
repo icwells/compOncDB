@@ -96,6 +96,7 @@ func escapeChars(v string) string {
 	chars := []string{"'", "\"", "_"}
 	na := []string{"Na", "N/A"}
 	for _, i := range na {
+		// Standardize NA values
 		if v == i {
 			v = strings.Replace(v, i, "NA", -1)
 		}

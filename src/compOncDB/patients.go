@@ -32,7 +32,7 @@ func (e *Entries) update(p, d, t, s []string) {
 func getDenominator(l, row int) int {
 	// Returns denominator for subsetting upload slice
 	p := float64(l * row)
-	max := 300000.0
+	max := 200000.0
 	return int(math.Floor(p / max))
 }
 
@@ -66,6 +66,7 @@ func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]st
 
 func extractPatients(infile string, count int, tumor, acc map[string]map[string]string, meta, species map[string]string) Entries {
 	// Assigns patient data to appropriate slices with unique entry IDs
+	missed := 0
 	first := true
 	start := count
 	var entries Entries
@@ -85,6 +86,10 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 						count++
 						id := strconv.Itoa(count)
 						var d, t []string
+						if strings.Contains(spl[3], "NA") == true {
+							// Make sure source ID is not NA
+							spl[3] = "-1"
+						}
 						// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
 						p := []string{id, spl[0], spl[1], spl[2], species[spl[4]], spl[3], spl[4], spl[5], spl[6]}
 						// ID, service, account_id
@@ -96,7 +101,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 						} else {
 							d = []string{id, spl[7], spl[8], "-1"}
 						}
-						// Assign ID to all tumor, location pairs tumorPairs in diagnoses.go)
+						// Assign ID to all tumor, location pairs tumorPairs (in diagnoses.go)
 						pairs := tumorPairs(spl[10], spl[11])
 						for _, i := range pairs {
 							if strarray.InMapMapStr(tumor, i[0]) == true && strarray.InMapStr(tumor[i[0]], i[1]) == true {
@@ -111,7 +116,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 					}
 				}
 				if pass == false {
-					fmt.Printf("\t[Warning] Count not find taxa ID or source ID for %s.\n", spl[4])
+					missed++
 				}
 			}
 		} else {
@@ -119,6 +124,9 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 		}
 	}
 	fmt.Printf("\tExtracted %d records.\n", count-start)
+	if missed > 0 {
+		fmt.Printf("\t[Warning] Count not find taxa ID or source ID for %d records.\n", missed)
+	}
 	return entries
 }
 

@@ -36,6 +36,7 @@ func fmtEntry(tid string, row []string) []string {
 
 func extractTraits(infile string, ids []string, species map[string]string) [][]string {
 	// Extracts taxonomy from input file
+	missed := 0
 	first := true
 	var traits [][]string
 	fmt.Printf("\n\tExtracting life history data from %s\n", infile)
@@ -56,11 +57,14 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 					traits = append(traits, fmtEntry(tid, spl))
 				}
 			} else {
-				fmt.Printf("\t[Warning] %s not in taxonomy database. Skipping.\n", s)
+				missed++
 			}
 		} else {
 			first = false
 		}
+	}
+	if missed > 0 {
+		fmt.Printf("\t[Warning] %d records not in taxonomy database.\n", missed)
 	}
 	return traits
 }
