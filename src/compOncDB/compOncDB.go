@@ -35,9 +35,7 @@ var (
 	taxa     = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
 	common   = upload.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
 	lh       = upload.Flag("lh", "Upload life history info from merged life history table to the database.").Default("false").Bool()
-	accounts = upload.Flag("accounts", "Extract account info from input file and update database.").Default("false").Bool()
-	diag     = upload.Flag("diagnosis", "Extract diagnosis info from input file and update database.").Default("false").Bool()
-	patient  = upload.Flag("patient", "Upload patient info from input table to database.").Default("false").Bool()
+	patient  = upload.Flag("patient", "Upload patient, account, and diagnosis info from input table to database.").Default("false").Bool()
 
 	update   = kingpin.Command("update", "Update or delete existing records from the database.")
 	del		 = update.Flag("delete", "Delete records from given table if column = value.").Default("false").Bool()
@@ -54,7 +52,7 @@ var (
 	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
 	min      = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
 	nec      = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
-	outfile  = extract.Arg("outfile", "Name of output file (writes to stdout if not given).").Default("nil").String()
+	outfile  = extract.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 )
 
 func version() {
@@ -112,13 +110,10 @@ func uploadToDB() time.Time {
 	} else if *lh == true {
 		// Upload life history table
 		loadLifeHistory(db, col, *infile)
-	} else if *accounts == true {
-		// Upload account info
-		loadAccounts(db, col, *infile)
-	} else if *diag == true {
-		loadDiagnoses(db, col, *infile)
 	} else if *patient == true {
 		// Upload patient data
+		loadAccounts(db, col, *infile)
+		loadDiagnoses(db, col, *infile)
 		loadPatients(db, col, *infile)
 	}
 	return start
