@@ -35,7 +35,7 @@ The program will prompt for a mysql password for the given username.
 	update			Update or delete existing records from the database.  
 	extract			Extract data from the database and perform optional analyses.  
 
-### Uasage by Command  
+### Usage by Command  
 
 #### Backup  
 	./compOncDB backup
@@ -56,12 +56,10 @@ Make sure tableColumns.txt is in the bin/ directory.
 	-u, --user="root"	MySQL username (default is root).  
 	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.  
 	--common			Additionally extract common names from Kestrel output to update common name tables.  
-	--lh				Upload life history info from merged life history table to the database.  
-	--accounts			Extract account info from input file and update database.  
-	--diagnosis			Extract diagnosis info from input file and update database.  
+	--lh				Upload life history info from merged life history table to the database.   
 	--patient			Upload patient info from input table to database.  
 
-	infile	Path to appropriate input file (Required).  
+	-i infile	Path to appropriate input file (Required).  
 
 Uploads data from input files to appropriate tables. Only one flag may be given to indicate the type of 
 input data, and therefore which tables must be updated. The only exception is for the --common flag which 
@@ -76,7 +74,7 @@ are all the same file which must in the format of uploadTemplate.csv.
 	--delete			Delete records from given table if column = value.  
 
 
-	infile	Path to appropriate input file.  
+	-i infile	Path to appropriate input file.  
 
 Update or delete existing records from the database.  
 
@@ -89,6 +87,6 @@ Update or delete existing records from the database.
 	-m, --min=50		Minimum number of entries required for calculations (default = 50).  
 	--necropsy			Extract only necropsy records (extracts all matches by default).  
 
-	outfile				Name of output file (writes to stdout if not given).  
+	-o outfile				Name of output file (writes to stdout if not given).  
 
 Extract data from the database and perform optional analyses.  
