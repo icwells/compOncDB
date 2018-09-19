@@ -59,7 +59,7 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []str
 	first := true
 	tumor := make(map[string][]string)
 	var meta []string
-	fmt.Printf("\n\tExtracting accounts from %s\n", infile)
+	fmt.Printf("\n\tExtracting diagnosis data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := bufio.NewScanner(f)

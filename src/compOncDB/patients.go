@@ -15,14 +15,14 @@ import (
 )
 
 type Entries struct {
-	p [][]string
-	d [][]string
-	t [][]string
-	s [][]string
+	p	[][]string
+	d	[][]string
+	t	[][]string
+	s	[][]string
 }
 
 func (e *Entries) update(p, d, t, s []string) {
-	// Appends new entries to appriate slice
+	// Appends new entries to appropriate slice
 	e.p = append(e.p, p)
 	e.d = append(e.d, d)
 	e.t = append(e.t, t)
@@ -56,10 +56,11 @@ func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]st
 			}
 			sub := list[ind : ind+idx]
 			set = append(set, sub)
+			ind = ind + idx
 		}
 		for _, i := range set {
-			vals, l := dbIO.FormatSlice(i)
-			dbIO.UpdateDB(db, table, col[table], vals, l)
+			vals, ln := dbIO.FormatSlice(i)
+			dbIO.UpdateDB(db, table, col[table], vals, ln)
 		}
 	}
 }
@@ -70,7 +71,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 	first := true
 	start := count
 	var entries Entries
-	fmt.Printf("\n\tExtracting accounts from %s\n", infile)
+	fmt.Printf("\n\tExtracting patient data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := bufio.NewScanner(f)
@@ -83,12 +84,15 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 				if len(spl) == 17 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[15]) == true {
 					// Skip entries without valid species and source data
 					if strarray.InMapStr(acc[spl[15]], spl[16]) == true {
+						var d, t []string
 						count++
 						id := strconv.Itoa(count)
-						var d, t []string
 						if strings.Contains(spl[3], "NA") == true {
 							// Make sure source ID is not NA
 							spl[3] = "-1"
+						} else if len(spl[3]) > 6 {
+							// Make sure age does not exceed decimal precision
+							spl[3] = spl[3][:7]
 						}
 						// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
 						p := []string{id, spl[0], spl[1], spl[2], species[spl[4]], spl[3], spl[4], spl[5], spl[6]}
