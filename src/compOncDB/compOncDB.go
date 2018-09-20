@@ -145,7 +145,7 @@ func extractFromDB() time.Time {
 	} else if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
-		header := "ID,Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Type,Location,primary_tumor,Malignant,Kingdon,Phylum,Class,Orders,Family,Genus,Species\n"
+		header := "ID,Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Meatastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
 		if iotools.Exists(*taxon) == true {
 			names = readList(*taxon)
 		} else {
@@ -160,7 +160,7 @@ func extractFromDB() time.Time {
 		writeResults(*outfile, header, res)
 	} else if *cr == true {
 		// Extract cancer rates
-		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
+		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female"
 		rates := getCancerRates(db, col, *min, *nec)
 		writeResults(*outfile, header, rates)
 	}

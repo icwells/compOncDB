@@ -11,10 +11,9 @@ import (
 	"strings"
 )
 
-func getTumorRecords(ch chan [][]string, db *sql.DB, id string, tumor [][]string, primary bool) {
+func getTumorRecords(ch chan []string, db *sql.DB, id string, tumor [][]string, primary bool) {
 	// Returns tumor information for given id
-	var loc []string
-	var typ []string	
+	var loc, typ, mal, prim []string
 	rows := dbIO.GetRows(db, "Tumor_relation", "ID", id, "*")
 	for _, i := range rows {
 		if primary == false || primary == true && i[2] == "1" {
@@ -22,10 +21,14 @@ func getTumorRecords(ch chan [][]string, db *sql.DB, id string, tumor [][]string
 				if i[1] == j[0] {
 					if i[2] == "1" {
 						// Prepend primary tumor
+						prim = append([]string{i[2]}, prim...)
+						mal = append([]string{i[3]}, mal...)
 						typ = append([]string{j[1]}, typ...)
 						loc = append([]string{j[2]}, loc...)
 					} else {
 						// Append tumor type and location
+						prim = append(prim, i[2])
+						mal = append(mal, i[3])
 						typ = append(typ, j[1])
 						loc = append(loc, j[2])
 					}
@@ -34,15 +37,15 @@ func getTumorRecords(ch chan [][]string, db *sql.DB, id string, tumor [][]string
 			}
 		}
 	}
-	diag := [][]string{typ, loc}
+	diag := []string{strings.Join(prim, ";"), strings.Join(mal, ";"), strings.Join(typ, ";"), strings.Join(loc, ";")}
 	ch <- diag
 }
 
-func getTumor(db *sql.DB, ids []string, primary bool) map[string][][]string {
+func getTumor(db *sql.DB, ids []string, primary bool) map[string][]string {
 	// Returns map of tumor data from patient ids
-	ch := make(chan [][]string)
+	ch := make(chan []string)
 	// {id: [types], [locations]}
-	rec := make(map[string][][]string)
+	rec := make(map[string][]string)
 	tumor := dbIO.GetTable(db, "Tumor")
 	for _, id := range ids {
 		// Get records for each patient concurrently
@@ -57,18 +60,22 @@ func getTumor(db *sql.DB, ids []string, primary bool) map[string][][]string {
 
 func getMetastasis(ch chan []string, db *sql.DB, id string, meta [][]string, mass bool) {
 	// Returns diagnosis and metastasis data
-	var diag []string
+	var diag, loc []string
 	rows := dbIO.GetRows(db, "Diagnosis", "ID", id, "*")
 	for _, i := range rows {
 		if mass == false || mass == true && i[1] == "1" {
+			diag = i[1:3]
 			for _, j := range meta {
 				if i[2] == j[0] {
 					// Append metastasis location
-					diag = append(diag, j[1])
+					loc = append(loc, j[1])
 					break
 				}
 			}
 		}
+	}
+	if len(diag) > 1 {
+		diag = append(diag, strings.Join(loc, ";"))
 	}
 	ch <- diag
 }
@@ -96,7 +103,8 @@ func getRecords(db *sql.DB, ids []string, mass, primary bool) map[string][]strin
 	meta := getDiagosis(db, ids, mass)
 	tumor := getTumor(db, ids, primary)
 	for _, i := range ids {
-		temp := []string{strings.Join(tumor[i][0], ";"), strings.Join(tumor[i][1], ";"), strings.Join(meta[i], ";")}
+		// Join multiple entires for same record
+		temp := append(meta[i], tumor[i]...)
 		diagnoses[i] = temp
 	}
 	return diagnoses
@@ -110,7 +118,9 @@ func getTaxonomy(db *sql.DB, ids []string, source bool) map[string][]string {
 	for _, id := range ids {
 		if strarray.InMapSli(table, id) == true {
 			if source == true {
-				taxa[id] = table[id]
+				// Keep source column
+				taxa[id] = table[id][:6]
+				taxa[id] = append(taxa[id], table[id][7])
 			} else {
 				// Exclude source and species (in patient table)
 				taxa[id] = table[id][:6]
@@ -120,35 +130,25 @@ func getTaxonomy(db *sql.DB, ids []string, source bool) map[string][]string {
 	return taxa
 }
 
-func getPatients(db *sql.DB, ids []string) (map[string][]string, map[string]string) {
-	// Returns map of target patient data (without id numbers) and map of taxa ids
-	patients := make(map[string][]string)
-	tids := make(map[string]string)
-	table := dbIO.GetTableMap(db, "Patient")
-	for _, id := range ids {
-		if strarray.InMapSli(table, id) == true {
-			patients[id] = table[id][:3]
-			patients[id] = append(patients[id], table[id][5:]...)
-			tids[id] = table[id][3]
-		}
-	}
-	return patients, tids
-}
-
-func getTaxa(db *sql.DB, ids []string) map[string][]string {
+func getTaxa(db *sql.DB, ids []string) (map[string][][]string, []string) {
 	// Extracts patient data using taxa ids
-	patients := make(map[string][]string)
+	patients := make(map[string][][]string)
+	var uid []string
 	table := dbIO.GetTable(db, "Patient")
 	for _, i := range table {
 		for _, id := range ids {
 			if id == i[4] {
-				patients[id] = i[:3]
-				patients[id] = append(patients[id], i[5:]...)
+				var rec []string
+				// Skip source and taxonomy ids
+				rec = i[:4]
+				rec = append(rec, i[6:]...)
+				patients[id] = append(patients[id], rec)
+				uid = append(uid, i[0])
 				break
 			}
 		}
 	}
-	return patients
+	return patients, uid
 }
 
 func getTaxaIDs(db *sql.DB, names []string, level string, common bool) []string {
@@ -180,7 +180,7 @@ func checkLevel(level string, common bool) string {
 		// Overwrite to species for common name comparison
 		level = "Species"
 	} else {
-		levels := []string{"Kingdon", "Phylum", "Class", "Orders", "Family", "Genus", "Species"}
+		levels := []string{"Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species"}
 		// Convert level to title case
 		level = strings.Title(level)
 		for _, i := range levels {
@@ -203,14 +203,19 @@ func searchTaxonomicLevels(db *sql.DB, col map[string]string, level string, name
 	fmt.Println("\tExtracting patient information...")
 	level = checkLevel(level, common)
 	ids := getTaxaIDs(db, names, level, common)
-	patients := getTaxa(db, ids)
+	patients, uid := getTaxa(db, ids)
 	// Leaving primary tumor and mass present switches false for now
-	records := getRecords(db, ids, false, false)
+	records := getRecords(db, uid, false, false)
 	taxonomy := getTaxonomy(db, ids, false)
-	for _, i := range ids {
-		rec := append(patients[i], records[i]...)
-		rec = append(rec, taxonomy[i]...)
-		ret = append(ret, rec)
+	for _, id := range ids {
+		for _, i := range patients[id] {
+			_, ex := records[i[0]] 
+			if ex == true {
+				rec := append(i, records[i[0]]...)
+				rec = append(rec, taxonomy[id]...)
+				ret = append(ret, rec)
+			}
+		}
 	}
 	return ret
 }
