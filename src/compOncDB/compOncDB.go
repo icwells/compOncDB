@@ -145,7 +145,7 @@ func extractFromDB() time.Time {
 	} else if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
-		header := "ID,Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Meatastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
+		header := "ID,Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
 		if iotools.Exists(*taxon) == true {
 			names = readList(*taxon)
 		} else {
