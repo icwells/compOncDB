@@ -108,9 +108,12 @@ func getSpeciesDiagnoses(db *sql.DB, records map[string]*Record, nec bool) map[s
 	for _, val := range records {
 		for k, v := range val.entries {
 			if strarray.InMapSli(diag, k) == true {
-				if nec == true && diag[k][1] != "1" {
-					// Delete non-necropsy records from the map
-					delete(val.entries, k)
+				if nec == true {
+					v, ex := diag[k]
+					if ex == false || len(v) < 2 || v[1] != "1" {
+						// Delete non-necropsy records from the map
+						delete(val.entries, k)
+					}
 				} else {
 					// Add values to species total
 					val.total++
