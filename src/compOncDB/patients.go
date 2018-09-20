@@ -90,9 +90,9 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 						if strings.Contains(spl[3], "NA") == true {
 							// Make sure source ID is not NA
 							spl[3] = "-1"
-						} else if len(spl[3]) > 6 {
+						} else if len(spl[1]) > 6 {
 							// Make sure age does not exceed decimal precision
-							spl[3] = spl[3][:7]
+							spl[1] = spl[1][:7]
 						}
 						// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
 						p := []string{id, spl[0], spl[1], spl[2], species[spl[4]], spl[3], spl[4], spl[5], spl[6]}

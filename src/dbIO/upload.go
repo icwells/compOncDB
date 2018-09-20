@@ -97,6 +97,7 @@ func escapeChars(v string) string {
 	na := []string{"Na", "N/A"}
 	// Reset semicolons to commas
 	v = strings.Replace(v, ";", ",", -1)
+	v = strings.Replace(v, "\\", "-", -1)
 	for _, i := range na {
 		// Standardize NA values
 		if v == i {
