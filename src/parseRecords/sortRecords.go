@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-}
+)
 
 func subsetLine(idx int, line []string) string {
 	// Returns line[idx]/NA
@@ -22,38 +22,35 @@ func subsetLine(idx int, line []string) string {
 	return ret
 }
 
-func (e *entries) checkAge(line []string) string {
-	// Returns age/-1
-	
-}
-
-func (e *entries) checkSex(line []string) string {
-	// Returns male/female/NA
-	ret := "NA"
-	val := subsetLine(e.Sex, line)
-	val = strings.ToUpper(val)
-	if val == "M" || val == "Male" {
-		ret = "male"
-	} else if val == "F" || val == "FEMALE" {
-		ret = "female"
-	}
-	return ret
-}
-
-func (e *entries) sortLine(line []string) (string, bool) {
+func (e *entries) sortLine(line []string) (record, bool) {
 	// Returns formatted string and true if it should be written
 	write := false
-	var row []string
-	if len(line) >= e.max && len(line[e.col.species]) >= 3 %% line[e.col.species].ToUpper() != "N/A" {
+	var rec record
+	if len(line) >= e.max && len(line[e.col.species]) >= 3 && line[e.col.species].ToUpper() != "N/A" {
 		// Proceed if line is properly formatted and species is present and no NA
-		if e.diagPresent == true {
-			row = append(row, e.checkSex(line))
-			row = append(row, e.checkAge(line))
-			row = append(row, e.getBinary(e.castrated, line))
+		id := subsetLine(e.col.id, line)
+		rec.setID(id)
+		if id != "NA" && e.diagPresent == true {
+			row, ex := e.diag[rec.id]
+			if ex == true {
+				// Assign diagnosis data if id is present in map
+				rec.setDiagnosis(row)
+			}
 		}
-		
+		if e.taxaPresent == true {
+			// Replace entry with scientific name
+			rec.species = e.taxa[line[e.col.species]]
+		} else {
+			rec.species = line[e.col.species]
+		}
+		rec.setDate(line[e.col.date])
+		rec.setComments(line[e.col.comments])
+		rec.service = e.service
+		rec.setAccount(line[e.col.account])
+		rec.setSubmitter(line[e.col.submitter])
+		write = true
 	}
-	return strings.Join(row, ","), write
+	return rec, write
 }
 
 func (e *entries) getHeader() string {
@@ -82,9 +79,9 @@ func (e *entries) sortRecords(infile, outfile string) {
 		if first == false {
 			total++
 			s := strings.Split(line, e.d)
-			row, write := e.sortLine(s)
-			if write == true { 
-				out.WriteString(row)
+			rec, write := e.sortLine(s)
+			if write == true {
+				out.WriteString(rec + "\n")
 				count++
 			}
 		} else {

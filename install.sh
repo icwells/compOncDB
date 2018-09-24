@@ -12,6 +12,7 @@ IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"
 LAN="golang.org/x/text/language"
 MAIN="compOncDB"
+PARSE="parseRecords"
 PR="github.com/Songmu/prompter"
 SA="github.com/icwells/go-tools/strarray"
 TM="textMatch"
@@ -35,6 +36,11 @@ for I in $DR $IO $KP $LAN $PR $SA $TS; do
 	fi
 done
 
+# Intall parseRecords
+echo "Building $PARSE..."
+go build -o bin/$PARSE src/$PARSE/*.go
+echo ""
+
 # Install dbIO and textMatch
 for I in $DBI $TM; do
 	#if [ ! -e "$PDIR/$I.a" ]; then
@@ -45,7 +51,7 @@ for I in $DBI $TM; do
 	#fi
 done
 
-# lineageSimulator 
+# compOncDB 
 echo "Building main..."
 go build -o bin/$MAIN src/$MAIN/*.go
 

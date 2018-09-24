@@ -46,9 +46,8 @@ func getDelim(header string) string {
 	return d
 }
 
-func mergeRecords() {
+func mergeRecords(ent entries) {
 	// Merges data into upload file
-	ent = newEntries(*source)
 	fmt.Println("\n\tMerging records...")
 	if *taxa != "nil" {
 		ent.getTaxonomy(*taxa)
@@ -63,11 +62,18 @@ func main() {
 	start := time.Now()
 	switch kingpin.Parse() {
 		case extract.FullCommand():
-			
+			fmt.Println("\n\tExtracting diagnosis information...")
+			ent = newEntries("")
+			ent.getDuplicates(*infile)
+			ent.extractDiagnosis(*infile, *outfile)
 		case merge.FullCommand():
-			mergeRecords()
+			ent = newEntries(*source)
+			mergeRecords(ent)
 		case sort.FullCommand():
-
+			fmt.Println("")
+			ent = newEntries("")
+			ent.getDuplicates(*infile)
+			mergeRecords(ent)
 	}
 	fmt.Printf("\tFinished. Run time: %s\n" time.Since(start))
 }

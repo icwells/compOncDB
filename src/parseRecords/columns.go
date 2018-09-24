@@ -25,6 +25,7 @@ type columns struct {
 	account		int
 	submitter	int
 	code		int
+	patient		int
 	max			int
 }
 
@@ -49,6 +50,7 @@ func newColumns() columns {
 	c.account = -1
 	c.submitter = -1
 	c.code = -1
+	c.patient = -1
 	return c
 }
 
@@ -117,6 +119,9 @@ func (c *columns) setColumns(header []string) {
 			c.maxIndex(idx)
 		} else if i == "Code" || i == "CancerY/N" {
 			c.code = idx
+			c.maxIndex(idx)
+		} else if i == "Patient" {
+			c.patient = idx
 			c.maxIndex(idx)
 		}
 	}

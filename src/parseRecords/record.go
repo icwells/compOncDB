@@ -25,28 +25,28 @@ func checkBinary(val string) string {
 		ret = "1"
 	} else if val == "N" || val == "NO" {
 		ret = "0"
-	} 
+	}
 	return ret
 }
 
 type record struct {
-	sex			string
-	age			string
-	castrated	string
-	id			string
-	species		string
-	date		string
-	comments	string
-	massPresent	string
-	necropsy	string
-	metastasis	string
-	tumorType	string
-	location	string
-	primary		string
-	malignant	string
-	service		string
-	account		string
-	submitter	string
+	sex         string
+	age         string
+	castrated   string
+	id          string
+	species     string
+	date        string
+	comments    string
+	massPresent string
+	necropsy    string
+	metastasis  string
+	tumorType   string
+	location    string
+	primary     string
+	malignant   string
+	service     string
+	account     string
+	submitter   string
 }
 
 func (r *record) String() {
@@ -116,7 +116,7 @@ func (r *record) setType(val string) {
 func (r *record) setID(val string) {
 	// Makes sure ID is an int
 	if _, err := strconv.Atoi(val); err == nil {
-    	r.id = val
+		r.id = val
 	} else {
 		r.id = "-1"
 	}

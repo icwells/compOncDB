@@ -7,17 +7,19 @@ import (
 	"github.com/icwells/go-tools/iotools"
 	"os"
 	"strings"
-}
+)
 
 type entries struct {
-	d			string
-	col			columns
-	service		string
-	taxa		map[string]string
-	diag		map[string][]string
-	records		map[string]record
-	taxaPresent	bool
-	diagPreset	bool
+	d           string
+	col         columns
+	service     string
+	match		matcher
+	taxa        map[string]string
+	diag        map[string][]string
+	dups		duplicates
+	records     []record
+	taxaPresent bool
+	diagPreset  bool
 }
 
 func newEntries(source string) entries {
@@ -27,7 +29,6 @@ func newEntries(source string) entries {
 	e.col = newColumns()
 	e.taxaPresent = false
 	e.diagPResent = false
-	e.diag = make(map[string][]string)
 }
 
 func (e *entries) parseHeader(header string) {
