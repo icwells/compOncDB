@@ -22,10 +22,10 @@ type entries struct {
 	diagPreset  bool
 }
 
-func newEntries(source string) entries {
+func newEntries(service string) entries {
 	// Initializes new struct
 	var e entries
-	e.service = source
+	e.service = service
 	e.col = newColumns()
 	e.taxaPresent = false
 	e.diagPResent = false

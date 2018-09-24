@@ -19,7 +19,7 @@ var (
 	extract  = kingpin.Command("extract", "Extract diagnosis data from infile.")
 
 	merge    = kingpin.Command("merge", "Merges taxonomy and diagnosis info with infile.")
-	source   = merge.Flag("--source", "Source database name.").Short('s').Required().String()
+	source   = merge.Flag("--service", "Service database name.").Short('s').Required().String()
 	taxa     = merge.Flag("--taxa", "Path to kestrel output.").Short('t').Default("nil").String()
 	diag     = merge.Flag("--diagnoses", "Path to diagnosis data.").Short('d').Default("nil").String()
 )
@@ -67,7 +67,7 @@ func main() {
 			ent.getDuplicates(*infile)
 			ent.extractDiagnosis(*infile, *outfile)
 		case merge.FullCommand():
-			ent = newEntries(*source)
+			ent = newEntries(*service)
 			mergeRecords(ent)
 		case sort.FullCommand():
 			fmt.Println("")
