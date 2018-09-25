@@ -24,7 +24,15 @@ func (e *entries) sortLine(line []string) (record, bool) {
 	// Returns formatted string and true if it should be written
 	write := false
 	var rec record
-	if len(line) >= e.col.max && len(line[e.col.species]) >= 3 && strings.ToUpper(line[e.col.species]) != "N/A" {
+	var idx int
+	if e.col.species >= 0 {
+		idx = e.col.species
+	} else if e.col.common >= 0 {
+		idx = e.col.common
+	} else {
+		printFatal("Cannot determine species column", 20)
+	}
+	if len(line) >= e.col.max && len(line[idx]) >= 3 && strings.ToUpper(line[idx]) != "N/A" {
 		// Proceed if line is properly formatted and species is present and no NA
 		id := subsetLine(e.col.id, line)
 		rec.setID(id)
@@ -37,9 +45,9 @@ func (e *entries) sortLine(line []string) (record, bool) {
 		}
 		if e.taxaPresent == true {
 			// Replace entry with scientific name
-			rec.species = e.taxa[line[e.col.species]]
+			rec.species = e.taxa[line[idx]]
 		} else {
-			rec.species = line[e.col.species]
+			rec.species = line[idx]
 		}
 		rec.setDate(line[e.col.date])
 		rec.setComments(line[e.col.comments])

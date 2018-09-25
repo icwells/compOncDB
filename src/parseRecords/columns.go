@@ -69,7 +69,7 @@ func (c *columns) setColumns(header []string) {
 		if i == "ID" || i == "OriginID" {
 			c.id = idx
 			c.maxIndex(idx)
-		} else if i == "CommonName" || i == "Breed" {
+		} else if i == "CommonName" || i == "Breed" || i == "PT_Name" {
 			c.common = idx
 			c.maxIndex(idx)
 		} else if i == "ScientificName" || i == "BinomialScientific" {

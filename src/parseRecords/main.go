@@ -76,5 +76,5 @@ func main() {
 		ent.getDuplicates(*infile)
 		mergeRecords(ent)
 	}
-	fmt.Printf("\tFinished. Run time: %s\n", time.Since(start))
+	fmt.Printf("\tFinished. Run time: %s\n\n", time.Since(start))
 }

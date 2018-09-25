@@ -73,7 +73,7 @@ func (r *record) String() string {
 	for idx, i := range row {
 		// Make sure values are present
 		if len(i) <= 0 {
-			row = append(row[:idx], row[idx+1:]...)
+			row[idx] = "NA"
 		}
 	}
 	return strings.Join(row, ",")
