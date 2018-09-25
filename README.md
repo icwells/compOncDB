@@ -51,7 +51,7 @@ Initializes new tables in new database. The database itself must be initialized 
 Make sure tableColumns.txt is in the bin/ directory.  
 
 #### Upload  
-	./compOncDB upload {-u username} --{type_from_list_below} infile
+	./compOncDB upload {-u username} --{type_from_list_below} -i infile
 
 	-u, --user="root"	MySQL username (default is root).  
 	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.  
@@ -79,7 +79,7 @@ are all the same file which must in the format of uploadTemplate.csv.
 Update or delete existing records from the database.  
 
 #### Extract  
-	./compOncDB extract {-u username} {--flags...} outfile
+	./compOncDB extract {-u username} {--flags...} -o outfile
 
 	-u, --user="root"	MySQL username (default is root).  
 	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
@@ -90,3 +90,24 @@ Update or delete existing records from the database.
 	-o outfile				Name of output file (writes to stdout if not given).  
 
 Extract data from the database and perform optional analyses.  
+
+## parseRecords  
+The parseRecords utility has been provided to help with parsing input files before uploading them to the database.  
+The extract functionality will use a regular expression based approach to identify diagnosis information.  
+The merge command will merge the output of the diagnosis command and taxonomy information (output of the [Kestrel](https://github.com/icwells/Kestrel) tool) 
+to make a csv file ready to upload to the MySQL database.  
+
+### Usage  
+
+	./parseRecords command -s service_name -i infile -o outfile
+
+	extract							Extract diagnosis data from infile.  
+	merge							Merges taxonomy and diagnosis info with infile.
+
+	--help							Show help.  
+	-i, --infile=INFILE				Path to input file (required).  
+	-o, --outfile=OUTFILE			Path to output file (required).  
+	-s, --service=SERVICE			Database/service name (required).  
+	-d, --dict="cancerdict.tsv"		Path to dictionary of cancer terms (used with the extract command).  
+	-t, --taxa="nil"				Path to kestrel output (used with the merge command).  
+	-d, --diagnoses="nil"			Path to diagnosis data (used with the merge command).  
