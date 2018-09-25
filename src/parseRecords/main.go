@@ -15,15 +15,15 @@ var (
 	app     = kingpin.New("parseRecords", "This script will parse and organize records for upload to the comparative oncology database.")
 	infile  = kingpin.Flag("infile", "Path to input file.").Short('i').Required().String()
 	outfile = kingpin.Flag("outfile", "Path to output file.").Short('o').Required().String()
-	service = kingpin.Flag("--service", "Service database name.").Short('s').Required().String()
+	service = kingpin.Flag("service", "Service database name.").Short('s').Required().String()
 	sort    = kingpin.Command("sort", "Sorts data for upload and controls for duplicate entries (These will be automically handled by the extract and merge commands)")
 
 	extract = kingpin.Command("extract", "Extract diagnosis data from infile.")
-	dict    = extract.Flag("--dict", "Path to dictionary of cancer terms.").Short('d').Default("cancerdict.tsv").String()
+	dict    = extract.Flag("dict", "Path to dictionary of cancer terms.").Short('d').Default("cancerdict.tsv").String()
 
 	merge = kingpin.Command("merge", "Merges taxonomy and diagnosis info with infile.")
-	taxa  = merge.Flag("--taxa", "Path to kestrel output.").Short('t').Default("nil").String()
-	diag  = merge.Flag("--diagnoses", "Path to diagnosis data.").Short('d').Default("nil").String()
+	taxa  = merge.Flag("taxa", "Path to kestrel output.").Short('t').Default("nil").String()
+	diag  = merge.Flag("diagnoses", "Path to diagnosis data.").Short('d').Default("nil").String()
 )
 
 func printFatal(msg string, code int) {
