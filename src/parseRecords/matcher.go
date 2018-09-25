@@ -81,30 +81,32 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 	// Returns Y/N/NA
 	ret := "NA"
 	match := re.FindStringSubmatch(line)
-	if len(exp) >= 1 {
-		if match[1] != "nil" {
-			if match[0] != "nil" {
-				// Negation found
-				if match[1] == exp {
-					ret = "Y"
+	if len(match) >= 2 {
+		if len(exp) >= 1 {
+			if match[1] != "nil" {
+				if match[0] != "nil" {
+					// Negation found
+					if match[1] == exp {
+						ret = "Y"
+					} else {
+						ret = "N"
+					}
 				} else {
-					ret = "N"
-				}
-			} else {
-				if match[1] == exp {
-					ret = "N"
-				} else {
-					ret = "Y"
+					if match[1] == exp {
+						ret = "N"
+					} else {
+						ret = "Y"
+					}
 				}
 			}
-		}
-	} else {
-		if match[0] != "nil" {
-			// Negating phrase found
-			ret = "N"
-		} else if match[1] != "nil" {
-			// No negation
-			ret = "Y"
+		} else {
+			if match[0] != "nil" {
+				// Negating phrase found
+				ret = "N"
+			} else if match[1] != "nil" {
+				// No negation
+				ret = "Y"
+			}
 		}
 	}
 	return ret

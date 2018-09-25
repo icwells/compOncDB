@@ -16,7 +16,6 @@ var (
 	infile  = kingpin.Flag("infile", "Path to input file.").Short('i').Required().String()
 	outfile = kingpin.Flag("outfile", "Path to output file.").Short('o').Required().String()
 	service = kingpin.Flag("service", "Service database name.").Short('s').Required().String()
-	sort    = kingpin.Command("sort", "Sorts data for upload and controls for duplicate entries (These will be automically handled by the extract and merge commands)")
 
 	extract = kingpin.Command("extract", "Extract diagnosis data from infile.")
 	dict    = extract.Flag("dict", "Path to dictionary of cancer terms.").Short('d').Default("cancerdict.tsv").String()
@@ -64,16 +63,12 @@ func main() {
 	start := time.Now()
 	switch kingpin.Parse() {
 	case extract.FullCommand():
+		fmt.Println("\n\tExtracting diagnosis inforation from input file...")
 		ent := newEntries(*service)
 		ent.getDuplicates(*infile)
 		ent.extractDiagnosis(*dict, *infile, *outfile)
 	case merge.FullCommand():
 		ent := newEntries(*service)
-		mergeRecords(ent)
-	case sort.FullCommand():
-		fmt.Println("")
-		ent := newEntries(*service)
-		ent.getDuplicates(*infile)
 		mergeRecords(ent)
 	}
 	fmt.Printf("\tFinished. Run time: %s\n\n", time.Since(start))

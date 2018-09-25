@@ -1,5 +1,6 @@
 # Binary 
 bin/compOncDB
+bin/parseRecords
 
 # Upload script
 upload.sh

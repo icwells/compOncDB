@@ -13,7 +13,7 @@ func countNA(row []string) (bool, bool) {
 	// Determines if any or all fields have been identified
 	var found, complete bool
 	count := 0
-	l := len(row)
+	l := len(row) - 2
 	for _, i := range row {
 		if i == "NA" {
 			count++
@@ -108,7 +108,7 @@ func (e *entries) extractDiagnosis(dict, infile, outfile string) {
 	var count, total, complete int
 	first := true
 	e.match = newMatcher(dict)
-	head := "ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Necropsy\n"
+	head := "ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Necropsy"
 	fmt.Println("\n\tExtracting diagnosis data...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
