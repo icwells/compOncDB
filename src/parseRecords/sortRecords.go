@@ -5,8 +5,6 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
-	"os"
-	"strconv"
 	"strings"
 )
 
@@ -26,7 +24,7 @@ func (e *entries) sortLine(line []string) (record, bool) {
 	// Returns formatted string and true if it should be written
 	write := false
 	var rec record
-	if len(line) >= e.max && len(line[e.col.species]) >= 3 && line[e.col.species].ToUpper() != "N/A" {
+	if len(line) >= e.col.max && len(line[e.col.species]) >= 3 && strings.ToUpper(line[e.col.species]) != "N/A" {
 		// Proceed if line is properly formatted and species is present and no NA
 		id := subsetLine(e.col.id, line)
 		rec.setID(id)
@@ -84,14 +82,14 @@ func (e *entries) sortRecords(infile, outfile string) {
 	out := iotools.CreateFile(outfile)
 	defer out.Close()
 	scanner := iotools.GetScanner(f)
-	for input.Scan() {
-		line := string(input.Text())
+	for scanner.Scan() {
+		line := string(scanner.Text())
 		if first == false {
 			total++
 			s := strings.Split(line, e.d)
 			rec, write := e.sortLine(s)
 			if write == true {
-				out.WriteString(rec + "\n")
+				out.WriteString(rec.String() + "\n")
 				count++
 			}
 		} else {
@@ -102,10 +100,12 @@ func (e *entries) sortRecords(infile, outfile string) {
 		}
 	}
 	if e.dupsPresent == true {
-		for k, v := range e.records {
+		for _, val := range e.dups.records {
 			// Write each stored record before closing
-			out.WriteString(v + "\n")
-			count++
+			for _, v := range val {
+				out.WriteString(v.String() + "\n")
+				count++
+			}
 		}
 	}
 	fmt.Printf("\tExtracted %d records from %d total records.\n", count, total)

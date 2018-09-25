@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func checkString(val string) {
+func checkString(val string) string {
 	// Returns NA if string is malformed
 	if len(val) <= 0 {
 		val = "NA"
@@ -47,10 +47,10 @@ type record struct {
 	service     string
 	account     string
 	submitter   string
-	patient		string
+	patient     string
 }
 
-func (r *record) String() {
+func (r *record) String() string {
 	// Returns formatted string
 	var row []string
 	row = append(row, r.sex)
@@ -137,7 +137,7 @@ func (r *record) setAge(val string) {
 	if strings.ToUpper(val) == "NA" || len(val) > 7 {
 		// Set -1 if age is too long (age would be impossible)
 		r.age = "-1"
-	} else if _, err := strconv.parseFloat(val, 64); err == nil {
+	} else if _, err := strconv.ParseFloat(val, 64); err == nil {
 		r.age = val
 	} else {
 		r.age = "-1"
@@ -160,11 +160,11 @@ func (r *record) setDiagnosis(row []string) {
 	// Stores and formats input from diagnosis
 	r.setAge(row[0])
 	r.setSex(row[1])
-	r.setCastrated(checkBinary(row[2]))
+	r.castrated = checkBinary(row[2])
 	r.setLocation(row[3])
 	r.setType(row[4])
-	r.setMalignant(checkBinary(row[5]))
-	r.setPrimary(checkBinary(row[6]))
-	r.setMetastasis(checkBinary(row[7]))
-	r.setNecropsy(checkBinary(row[8]))
+	r.malignant = checkBinary(row[5])
+	r.primary = checkBinary(row[6])
+	r.metastasis = checkBinary(row[7])
+	r.necropsy = checkBinary(row[8])
 }

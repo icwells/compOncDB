@@ -7,36 +7,36 @@ import (
 )
 
 type columns struct {
-	id			int	
-	species 	int
-	common		int
-	age 		int
-	days 		int
-	sex			int
-	castrated	int
-	location	int
-	typ			int
-	primary		int
-	metastasis	int
-	malignant	int
-	necropsy	int
-	date		int
-	comments	int
-	account		int
-	submitter	int
-	code		int
-	patient		int
-	max			int
+	id         int
+	species    int
+	common     int
+	age        int
+	days       int
+	sex        int
+	castrated  int
+	location   int
+	typ        int
+	primary    int
+	metastasis int
+	malignant  int
+	necropsy   int
+	date       int
+	comments   int
+	account    int
+	submitter  int
+	code       int
+	patient    int
+	max        int
 }
 
 func newColumns() columns {
 	// Returns new struct with columns set to -1
 	var c columns
 	c.id = -1
-	c.species  = -1
+	c.species = -1
 	c.common = -1
-	c.age  = -1
-	c.days  = -1
+	c.age = -1
+	c.days = -1
 	c.sex = -1
 	c.castrated = -1
 	c.location = -1
@@ -91,7 +91,7 @@ func (c *columns) setColumns(header []string) {
 			c.location = idx
 			c.maxIndex(idx)
 		} else if i == "CancerType" || i == "Type" {
-			c.type = idx
+			c.typ = idx
 			c.maxIndex(idx)
 		} else if i == "PrimaryTumor" || i == "Primary" {
 			c.primary = idx
@@ -105,7 +105,7 @@ func (c *columns) setColumns(header []string) {
 		} else if i == "Necropsy" || i == "DeathviaCancerY/N" {
 			c.necropsy = idx
 			c.maxIndex(idx)
-		} else if "Date" in i {
+		} else if strings.Contains(i, "Date") == true {
 			c.date = idx
 			c.maxIndex(idx)
 		} else if i == "Diagnosis" || i == "Comments" {

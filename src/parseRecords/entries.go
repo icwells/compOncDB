@@ -5,7 +5,6 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
-	"os"
 	"strings"
 )
 
@@ -15,11 +14,11 @@ type entries struct {
 	service     string
 	taxa        map[string]string
 	diag        map[string][]string
-	match		matcher
-	dups		duplicates
+	match       matcher
+	dups        duplicates
 	taxaPresent bool
-	diagPreset  bool
-	dupsPresent	bool
+	diagPresent bool
+	dupsPresent bool
 }
 
 func newEntries(service string) entries {
@@ -28,7 +27,7 @@ func newEntries(service string) entries {
 	e.service = service
 	e.col = newColumns()
 	e.taxaPresent = false
-	e.diagPResent = false
+	e.diagPresent = false
 	e.dupsPresent = false
 	return e
 }
@@ -50,8 +49,8 @@ func (e *entries) getTaxonomy(infile string) {
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
-	for input.Scan() {
-		line := string(input.Text())
+	for scanner.Scan() {
+		line := string(scanner.Text())
 		if first == false {
 			s := strings.Split(line, d)
 			// Store binomial for each search term
@@ -63,7 +62,7 @@ func (e *entries) getTaxonomy(infile string) {
 	}
 }
 
-func (e *entries) getDiagnosis(infile) {
+func (e *entries) getDiagnosis(infile string) {
 	// Reads in diagnosis data
 	var d string
 	first := true
@@ -73,8 +72,8 @@ func (e *entries) getDiagnosis(infile) {
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
-	for input.Scan() {
-		line := string(input.Text())
+	for scanner.Scan() {
+		line := string(scanner.Text())
 		if first == false {
 			s := strings.Split(line, d)
 			// Store daignosis data by ids

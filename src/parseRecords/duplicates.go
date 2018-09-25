@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
-	"os"
 	"strings"
 )
 
 type duplicates struct {
-	ids		map[string][]string
-	reps	map[string][]string
-	records map[string]record
+	ids     map[string][]string
+	reps    map[string][]string
+	count	int
+	records map[string]map[string]record
 }
 
 func newDuplicates() duplicates {
@@ -28,12 +28,13 @@ func newDuplicates() duplicates {
 func (d *duplicates) add(id, source string) {
 	// Stores all id combinations in ids and repeats in reps
 	if strings.ToUpper(id) != "NA" && strings.ToUpper(source) != "NA" {
-		row, ex := ids[source]
+		row, ex := d.ids[source]
 		if ex == true {
-			if strarray.InSliceSli(row, id) == true {
-				_, e := reps[source]
+			if strarray.InSliceStr(row, id) == true {
+				d.count++
+				r, e := d.reps[source]
 				if e == true {
-					if strarray.InSliceSli(d.reps, id) == false {
+					if strarray.InSliceStr(r, id) == false {
 						// Add to rep id slice
 						d.reps[source] = append(d.reps[source], id)
 					}
@@ -61,10 +62,10 @@ func (e *entries) getDuplicates(infile string) {
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
-	for input.Scan() {
-		line := string(input.Text())
+	for scanner.Scan() {
+		line := string(scanner.Text())
 		if first == false {
-			s := strings.Split(line, d)
+			s := strings.Split(line, e.d)
 			if len(s) > e.col.max {
 				if e.col.patient >= 0 {
 					pid := s[e.col.patient]
@@ -77,14 +78,15 @@ func (e *entries) getDuplicates(infile string) {
 			first = false
 		}
 	}
+	fmt.Printf("\tFound %d duplicate patients.\n", e.dups.count)
 }
 
 func (e *entries) resolveDuplicates(rec record) {
 	// Determines whether to replace existing record with input record
-	mp, ex := e.dups.records[rec.submitter]
-	if ex == true {
-		row, e := mp[rec.patient]
-		if e == true {
+	mp, exists := e.dups.records[rec.submitter]
+	if exists == true {
+		row, ex := mp[rec.patient]
+		if ex == true {
 			if row.massPresent != "1" {
 				if rec.massPresent == "1" {
 					// Only replace is stored record is not a cancer record and new one is
@@ -107,7 +109,7 @@ func (e *entries) inDuplicates(rec record) bool {
 	ret := false
 	row, ex := e.dups.reps[rec.submitter]
 	if ex == true {
-		if strarray.InSliceSli(row, rec.patient) == true {
+		if strarray.InSliceStr(row, rec.patient) == true {
 			ret = true
 		}
 	}
