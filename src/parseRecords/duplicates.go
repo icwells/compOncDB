@@ -13,6 +13,7 @@ import (
 type duplicates struct {
 	ids		map[string][]string
 	reps	map[string][]string
+	records map[string]record
 }
 
 func newDuplicates() duplicates {
@@ -20,30 +21,34 @@ func newDuplicates() duplicates {
 	var d duplicates
 	d.ids = make(map[string][]string)
 	d.reps = make(map[string][]string)
+	d.records = make(map[string]map[string]record)
+	return d
 }
 
 func (d *duplicates) add(id, source string) {
 	// Stores all id combinations in ids and repeats in reps
-	row, ex := ids[source]
-	if ex == true {
-		if strarray.InSliceSli(row, id) == true {
-			_, e := reps[source]
-			if e == true {
-				if strarray.InSliceSli(d.reps, id) == false {
-					// Add to rep id slice
-					d.reps[source] = append(d.reps[source], id)
+	if strings.ToUpper(id) != "NA" && strings.ToUpper(source) != "NA" {
+		row, ex := ids[source]
+		if ex == true {
+			if strarray.InSliceSli(row, id) == true {
+				_, e := reps[source]
+				if e == true {
+					if strarray.InSliceSli(d.reps, id) == false {
+						// Add to rep id slice
+						d.reps[source] = append(d.reps[source], id)
+					}
+				} else {
+					// Make new rep entry
+					d.reps[source] = []string{id}
 				}
 			} else {
-				// Make new rep entry
-				d.reps[source] = []string{id}
+				// Add to id slice
+				d.ids[source] = append(d.ids[source], id)
 			}
 		} else {
-			// Add to id slice
-			d.ids[source] = append(d.ids[source], id)
+			// Make new id map entry
+			d.ids[source] = []string{id}
 		}
-	} else {
-		// Make new id map entry
-		d.ids[source] = []string{id}
 	}
 }
 
@@ -51,6 +56,7 @@ func (e *entries) getDuplicates(infile string) {
 	// Identifies duplicate entries
 	first := true
 	e.dups = newDuplicates()
+	e.dupsPresent = true
 	fmt.Println("\tIdentifying duplicate entries...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -71,4 +77,39 @@ func (e *entries) getDuplicates(infile string) {
 			first = false
 		}
 	}
+}
+
+func (e *entries) resolveDuplicates(rec record) {
+	// Determines whether to replace existing record with input record
+	mp, ex := e.dups.records[rec.submitter]
+	if ex == true {
+		row, e := mp[rec.patient]
+		if e == true {
+			if row.massPresent != "1" {
+				if rec.massPresent == "1" {
+					// Only replace is stored record is not a cancer record and new one is
+					e.dups.records[rec.submitter][rec.patient] = rec
+				}
+			}
+		} else {
+			// Store new patient
+			e.dups.records[rec.submitter][rec.patient] = rec
+		}
+	} else {
+		// Make new map
+		e.dups.records[rec.submitter] = make(map[string]record)
+		e.dups.records[rec.submitter][rec.patient] = rec
+	}
+}
+
+func (e *entries) inDuplicates(rec record) bool {
+	// Returns true if rec is a duplicate record
+	ret := false
+	row, ex := e.dups.reps[rec.submitter]
+	if ex == true {
+		if strarray.InSliceSli(row, rec.patient) == true {
+			ret = true
+		}
+	}
+	return ret
 }

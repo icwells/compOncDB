@@ -47,6 +47,7 @@ type record struct {
 	service     string
 	account     string
 	submitter   string
+	patient		string
 }
 
 func (r *record) String() {
@@ -76,6 +77,15 @@ func (r *record) String() {
 		}
 	}
 	return strings.Join(row, ",")
+}
+
+func (r *record) setPatient(line []string, c columns) {
+	// Attempts to identify patient id
+	if c.patient >= 0 {
+		r.patient = checkString(line[c.patient])
+	} else if c.id >= 0 {
+		r.patient = checkString(line[c.id])
+	}
 }
 
 func (r *record) setAccount(val string) {

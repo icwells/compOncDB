@@ -48,7 +48,17 @@ func (e *entries) sortLine(line []string) (record, bool) {
 		rec.service = e.service
 		rec.setAccount(line[e.col.account])
 		rec.setSubmitter(line[e.col.submitter])
-		write = true
+		if e.dupsPresent == true {
+			rec.setPatient(line, e.col)
+			if e.inDuplicates(rec) == true {
+				// Resolve duplicate records and write when done
+				e.resolveDuplicates(rec)
+			} else {
+				write = true
+			}
+		} else {
+			write = true
+		}
 	}
 	return rec, write
 }
@@ -89,6 +99,13 @@ func (e *entries) sortRecords(infile, outfile string) {
 			e.parseHeader(line)
 			out.WriteString(e.getHeader())
 			first = false
+		}
+	}
+	if e.dupsPresent == true {
+		for k, v := range e.records {
+			// Write each stored record before closing
+			out.WriteString(v + "\n")
+			count++
 		}
 	}
 	fmt.Printf("\tExtracted %d records from %d total records.\n", count, total)

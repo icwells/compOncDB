@@ -15,11 +15,13 @@ var (
 	app      = kingpin.New("parseRecords", "This script will parse and organize records for upload to the comparative oncology database.")
 	infile   = kingpin.Flag("infile", "Path to input file.").Short('i').Required().String()
 	outfile  = kingpin.Flag("outfile", "Path to output file.").Short('o').Required().String()
+	source   = kingpin.Flag("--service", "Service database name.").Short('s').Required().String()
 	sort 	 = kingpin.Command("sort", "Sorts data for upload and controls for duplicate entries (These will be automically handled by the extract and merge commands)")
+
 	extract  = kingpin.Command("extract", "Extract diagnosis data from infile.")
+	dict     = extract.Flag("--dict", "Path to dictionary of cancer terms.").Short('d').Default("cancerdict.tsv").String()
 
 	merge    = kingpin.Command("merge", "Merges taxonomy and diagnosis info with infile.")
-	source   = merge.Flag("--service", "Service database name.").Short('s').Required().String()
 	taxa     = merge.Flag("--taxa", "Path to kestrel output.").Short('t').Default("nil").String()
 	diag     = merge.Flag("--diagnoses", "Path to diagnosis data.").Short('d').Default("nil").String()
 )
@@ -63,15 +65,15 @@ func main() {
 	switch kingpin.Parse() {
 		case extract.FullCommand():
 			fmt.Println("\n\tExtracting diagnosis information...")
-			ent = newEntries("")
+			ent = newEntries(*service)
 			ent.getDuplicates(*infile)
-			ent.extractDiagnosis(*infile, *outfile)
+			ent.extractDiagnosis(*dict, *infile, *outfile)
 		case merge.FullCommand():
 			ent = newEntries(*service)
 			mergeRecords(ent)
 		case sort.FullCommand():
 			fmt.Println("")
-			ent = newEntries("")
+			ent = newEntries(*service)
 			ent.getDuplicates(*infile)
 			mergeRecords(ent)
 	}

@@ -13,13 +13,13 @@ type entries struct {
 	d           string
 	col         columns
 	service     string
-	match		matcher
 	taxa        map[string]string
 	diag        map[string][]string
+	match		matcher
 	dups		duplicates
-	records     []record
 	taxaPresent bool
 	diagPreset  bool
+	dupsPresent	bool
 }
 
 func newEntries(service string) entries {
@@ -29,6 +29,8 @@ func newEntries(service string) entries {
 	e.col = newColumns()
 	e.taxaPresent = false
 	e.diagPResent = false
+	e.dupsPresent = false
+	return e
 }
 
 func (e *entries) parseHeader(header string) {
