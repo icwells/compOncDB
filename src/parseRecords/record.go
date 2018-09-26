@@ -50,6 +50,30 @@ type record struct {
 	patient     string
 }
 
+func newRecord() record {
+	// Returns record with default values
+	var r record
+	r.sex = "NA"
+	r.age = "-1"
+	r.castrated = "-1"
+	r.id = "NA"
+	r.species = "NA"
+	r.date = "NA"
+	r.comments = "NA"
+	r.massPresent = "-1"
+	r.necropsy = "-1"
+	r.metastasis = "-1"
+	r.tumorType = "NA"
+	r.location = "NA"
+	r.primary = "-1"
+	r.malignant = "-1"
+	r.service = "NA"
+	r.account = "NA"
+	r.submitter = "NA"
+	r.patient = "NA"
+	return r
+}
+
 func (r *record) String() string {
 	// Returns formatted string
 	var row []string
@@ -70,12 +94,6 @@ func (r *record) String() string {
 	row = append(row, r.service)
 	row = append(row, r.account)
 	row = append(row, r.submitter)
-	for idx, i := range row {
-		// Make sure values are present
-		if len(i) <= 0 {
-			row[idx] = "NA"
-		}
-	}
 	return strings.Join(row, ",")
 }
 
@@ -147,12 +165,8 @@ func (r *record) setType(val string) {
 }
 
 func (r *record) setID(val string) {
-	// Makes sure ID is an int
-	if _, err := strconv.Atoi(val); err == nil {
-		r.id = val
-	} else {
-		r.id = "-1"
-	}
+	// Stores ID as string
+	r.id = checkString(val)
 }
 
 func (r *record) setAge(val string) {

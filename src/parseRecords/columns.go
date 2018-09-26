@@ -66,7 +66,7 @@ func (c *columns) setColumns(header []string) {
 	for idx, i := range header {
 		i = strings.TrimSpace(i)
 		i = strings.Replace(i, " ", "", -1)
-		if i == "ID" || i == "OriginID" {
+		if i == "ID" || i == "OriginID" || i == "Access#" {
 			c.id = idx
 			c.maxIndex(idx)
 		} else if i == "CommonName" || i == "Breed" || i == "PT_Name" {
@@ -108,7 +108,7 @@ func (c *columns) setColumns(header []string) {
 		} else if strings.Contains(i, "Date") == true {
 			c.date = idx
 			c.maxIndex(idx)
-		} else if i == "Diagnosis" || i == "Comments" {
+		} else if i == "Diagnosis" || i == "Comments" || i == "Description" {
 			c.comments = idx
 			c.maxIndex(idx)
 		} else if i == "Account" {
@@ -120,7 +120,7 @@ func (c *columns) setColumns(header []string) {
 		} else if i == "Code" || i == "CancerY/N" {
 			c.code = idx
 			c.maxIndex(idx)
-		} else if i == "Patient" {
+		} else if i == "Patient" || i == "Name" {
 			c.patient = idx
 			c.maxIndex(idx)
 		}

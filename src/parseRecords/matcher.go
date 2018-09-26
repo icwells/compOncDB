@@ -169,15 +169,19 @@ func (m *matcher) getAge(line string) string {
 		} else {
 			// Convert to float, determine units, convert to months
 			a, _ := strconv.ParseFloat(age, 64)
-			if strings.Contains(match, "year") == true {
-				a = a * 12.0
-			} else if strings.Contains(match, "week") == true {
-				a = a / 4.0
-			} else if strings.Contains(match, "day") == true {
-				a = a / 30.0
+			if a > 0 {
+				if strings.Contains(match, "year") == true {
+					a = a * 12.0
+				} else if strings.Contains(match, "week") == true {
+					a = a / 4.0
+				} else if strings.Contains(match, "day") == true {
+					a = a / 30.0
+				}
+				// Convert back to string
+				ret = strconv.FormatFloat(a, 'f', -1, 64)
+			} else {
+				ret = "0"
 			}
-			// Convert back to string
-			ret = strconv.FormatFloat(a, 'f', -1, 64)
 		}
 	}
 	return ret

@@ -23,12 +23,13 @@ func subsetLine(idx int, line []string) string {
 func (e *entries) sortLine(line []string) (record, bool) {
 	// Returns formatted string and true if it should be written
 	write := false
-	var rec record
+	rec := newRecord()
 	var idx int
-	if e.col.species >= 0 {
-		idx = e.col.species
-	} else if e.col.common >= 0 {
+	if e.col.common >= 0 {
+		// Get common name if present
 		idx = e.col.common
+	} else if e.col.species >= 0 {
+		idx = e.col.species
 	} else {
 		printFatal("Cannot determine species column", 20)
 	}
@@ -45,15 +46,18 @@ func (e *entries) sortLine(line []string) (record, bool) {
 		}
 		if e.taxaPresent == true {
 			// Replace entry with scientific name
-			rec.species = e.taxa[line[idx]]
+			sp, ex := e.taxa[line[idx]]
+			if ex == true {
+				rec.species = sp
+			}
 		} else {
 			rec.species = line[idx]
 		}
-		rec.setDate(line[e.col.date])
-		rec.setComments(line[e.col.comments])
+		rec.setDate(subsetLine(e.col.date, line))
+		rec.setComments(subsetLine(e.col.comments, line))
 		rec.service = e.service
-		rec.setAccount(line[e.col.account])
-		rec.setSubmitter(line[e.col.submitter])
+		rec.setAccount(subsetLine(e.col.account, line))
+		rec.setSubmitter(subsetLine(e.col.submitter, line))
 		if e.dupsPresent == true {
 			rec.setPatient(line, e.col)
 			if e.inDuplicates(rec) == true {
