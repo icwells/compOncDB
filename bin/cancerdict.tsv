@@ -1,4 +1,3 @@
-Location	NA	(?i)(NA)(N/A)
 Location	abdomen	(?i)abdomen|abdom.*|omentum|diaphragm
 Location	bile duct	(?i)bile.*
 Location	bone	(?i)sacrum|bone.*
@@ -30,7 +29,6 @@ Location	thyroid	(?i)thyroid
 Location	uterus	(?i)uter(us|ine)
 Location	vulva	(?i)vulva|vagina
 Location	widespread	(?i)widespread|metastatic|(body as a whole)|multiple|disseminated
-Type	NA	(?i)(NA)(N/A)
 Type	adenocarcinoma	(?i)adenocarcinoma
 Type	adenoma	(?i)adenoma
 Type	carcinoma	(?i)carcinoma|TCC
