@@ -162,7 +162,7 @@ func (m *matcher) getAge(line string) string {
 	var ret string
 	match := m.getMatch(m.age, line)
 	if match != "NA" {
-		age := m.digit.FindString(line)
+		age := m.digit.FindString(match)
 		if strings.Contains(match, "month") == true {
 			// Keep if already in months
 			ret = age
@@ -183,6 +183,8 @@ func (m *matcher) getAge(line string) string {
 				ret = "0"
 			}
 		}
+	} else {
+		ret = match
 	}
 	return ret
 }

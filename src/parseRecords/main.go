@@ -63,9 +63,7 @@ func main() {
 	start := time.Now()
 	switch kingpin.Parse() {
 	case extract.FullCommand():
-		fmt.Println("\n\tExtracting diagnosis inforation from input file...")
 		ent := newEntries(*service)
-		ent.getDuplicates(*infile)
 		ent.extractDiagnosis(*dict, *infile, *outfile)
 	case merge.FullCommand():
 		ent := newEntries(*service)
