@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
+	"os"
 	"strings"
 )
 
@@ -62,6 +63,29 @@ func entryMap(t [][]string) map[string]string {
 		}
 	}
 	return m
+}
+
+func getTable(tables map[string]string, col string) string {
+	// Determines which table column is in
+	var ret string
+	if strings.Contains(col, "_") == false {
+		col = strings.Title(col)
+		for k, val := range tables {
+			for _, i := range strings.Split(val, ",") {
+				if col == i {
+					ret = k
+					break
+				}
+			}
+		}
+	//} else {
+
+	}
+	if len(ret) == 0 {
+		fmt.Printf("\n\t[Error] Cannot find table with column %s. Exiting.\n\n", col)
+		os.Exit(100)
+	}
+	return ret
 }
 
 func readList(infile string) []string {

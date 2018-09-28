@@ -24,6 +24,12 @@ Source TEXT
 taxa_id INT
 Name TEXT
 
+# Totals
+taxa_id INT
+Total INT
+Adult INT
+Cancer INT
+
 # Source
 ID INT
 service_name TEXT
