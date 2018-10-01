@@ -157,18 +157,13 @@ func getTaxaIDs(db *sql.DB, names []string, level string, common bool) []string 
 	var table [][]string
 	if common == true {
 		// Get taxonomy ids from common name list
-		table = dbIO.GetTable(db, "Common")
+		table = dbIO.SearchColumnText(db, "Common", "Name", names)
 	} else {
 		// Get ids from taxonomy table
-		table = dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", level})
+		table = dbIO.SearchColumnText(db, "Taxonomy", level, names)
 	}
-	for _, n := range names {
-		for _, i := range table {
-			if n == i[1] {
-				ids = append(ids, i[0])
-				break
-			}
-		}
+	for _, row := range table {
+		ids = append(ids, row[0])
 	}
 	return ids
 }
