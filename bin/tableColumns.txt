@@ -27,8 +27,12 @@ Name TEXT
 # Totals
 taxa_id INT
 Total INT
+Age DECIMAL(6,2)
 Adult INT
+Male INT
+Female INT
 Cancer INT
+Cancerage DECIMAL(6,2)
 
 # Source
 ID INT

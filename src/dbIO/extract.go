@@ -79,6 +79,18 @@ func addApprostrophes(key string) string {
 	return buffer.String()
 }
 
+func GetRowsMin(db *sql.DB, table, column, key, target string) [][]string {
+	// Returns rows of target columns with column >= key
+	var cmd string
+	cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s >= %s;", target, table, column, key)
+	rows, err := db.Query(cmd)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
+	}
+	defer rows.Close()
+	return toSlice(rows)
+}
+
 func GetRows(db *sql.DB, table, column, key, target string) [][]string {
 	// Returns rows of target columns with key in column
 	var cmd string
