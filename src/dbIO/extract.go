@@ -3,6 +3,7 @@
 package dbIO
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"github.com/icwells/go-tools/strarray"
@@ -62,14 +63,33 @@ func toSlice(rows *sql.Rows) [][]string {
 	return ret
 }
 
+func addApprostrophes(key string) string {
+	// Wraps terms in apostrophes to avoid errors 
+	s := strings.Split(key, ",")
+	buffer := bytes.NewBufferString("")
+	for idx, i := range s {
+		if idx != 0 {
+			// Write preceding comma
+			buffer.WriteByte(',')
+		}
+		buffer.WriteByte('\'')
+		buffer.WriteString(i)
+		buffer.WriteByte('\'')
+	}
+	return buffer.String()
+}
+
 func GetRows(db *sql.DB, table, column, key, target string) [][]string {
 	// Returns rows of target columns with key in column
 	var cmd string
 	if strings.Contains(key, ",") == true {
 		// Format for list
+		if strings.Contains(key, "'") == false {
+			key = addApprostrophes(key)
+		}
 		cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s IN (%s);", target, table, column, key)
 	} else {
-		cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s = %s;", target, table, column, key)
+		cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s = '%s';", target, table, column, key)
 	}
 	rows, err := db.Query(cmd)
 	if err != nil {
