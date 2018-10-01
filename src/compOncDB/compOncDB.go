@@ -52,6 +52,7 @@ var (
 	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
 	min      = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
 	nec      = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
+	count	 = extract.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
 	outfile  = extract.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 )
 
@@ -156,8 +157,13 @@ func extractFromDB() time.Time {
 				names = []string{*taxon}
 			}
 		}
-		res := searchTaxonomicLevels(db, col, *level, names, *com)
-		writeResults(*outfile, header, res)
+		res := searchTaxonomicLevels(db, col, *level, names, *com)	
+		if *count == true {
+			// Print count to screen
+			fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
+		} else {
+			writeResults(*outfile, header, res)
+		}
 	} else if *cr == true {
 		// Extract cancer rates
 		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female"
