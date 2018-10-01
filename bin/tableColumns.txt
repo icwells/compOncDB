@@ -44,7 +44,7 @@ submitter_name TEXT
 ID INT
 Masspresent SMALLINT
 Necropsy SMALLINT
-metastasis_id INT
+metastasis INT
 
 # Tumor
 tumor_id INT
@@ -56,10 +56,6 @@ ID INT
 tumor_id INT
 primary_tumor SMALLINT
 Malignant SMALLINT
-
-# Metastasis
-metastasis_id INT PRIMARY KEY
-Metastasis SMALLINT
 
 # Life_history
 taxa_id DOUBLE

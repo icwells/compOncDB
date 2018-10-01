@@ -28,6 +28,7 @@ type Record struct {
 	entries   map[string]*Entry
 	cancer    int
 	cancerage float64
+	adult	  int
 }
 
 func (r *Record) String() string {

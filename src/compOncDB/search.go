@@ -11,28 +11,26 @@ import (
 	"strings"
 )
 
-func getTumorRecords(ch chan []string, db *sql.DB, id string, tumor [][]string, primary bool) {
+func getTumorRecords(ch chan []string, db *sql.DB, id string, tumor map[string][]string, primary bool) {
 	// Returns tumor information for given id
 	var loc, typ, mal, prim []string
 	rows := dbIO.GetRows(db, "Tumor_relation", "ID", id, "*")
 	for _, i := range rows {
 		if primary == false || primary == true && i[2] == "1" {
-			for _, j := range tumor {
-				if i[1] == j[0] {
-					if i[2] == "1" {
-						// Prepend primary tumor
-						prim = append([]string{i[2]}, prim...)
-						mal = append([]string{i[3]}, mal...)
-						typ = append([]string{j[1]}, typ...)
-						loc = append([]string{j[2]}, loc...)
-					} else {
-						// Append tumor type and location
-						prim = append(prim, i[2])
-						mal = append(mal, i[3])
-						typ = append(typ, j[1])
-						loc = append(loc, j[2])
-					}
-					break
+			j, ex := tumor[i[1]]
+			if ex == true {
+				if i[2] == "1" {
+					// Prepend primary tumor
+					prim = append([]string{i[2]}, prim...)
+					mal = append([]string{i[3]}, mal...)
+					typ = append([]string{j[1]}, typ...)
+					loc = append([]string{j[2]}, loc...)
+				} else {
+					// Append tumor type and location
+					prim = append(prim, i[2])
+					mal = append(mal, i[3])
+					typ = append(typ, j[1])
+					loc = append(loc, j[2])
 				}
 			}
 		}
@@ -46,7 +44,7 @@ func getTumor(db *sql.DB, ids []string, primary bool) map[string][]string {
 	ch := make(chan []string)
 	// {id: [types], [locations]}
 	rec := make(map[string][]string)
-	tumor := dbIO.GetTable(db, "Tumor")
+	tumor := toMap(dbIO.GetTable(db, "Tumor"))
 	for _, id := range ids {
 		// Get records for each patient concurrently
 		go getTumorRecords(ch, db, id, tumor, primary)
@@ -58,36 +56,26 @@ func getTumor(db *sql.DB, ids []string, primary bool) map[string][]string {
 	return rec
 }
 
-func getMetastasis(ch chan []string, db *sql.DB, id string, meta [][]string, mass bool) {
+func getMetastasis(ch chan []string, db *sql.DB, id string, diag map[string][]string, mass bool) {
 	// Returns diagnosis and metastasis data
-	var diag, loc []string
-	rows := dbIO.GetRows(db, "Diagnosis", "ID", id, "*")
-	for _, i := range rows {
-		if mass == false || mass == true && i[1] == "1" {
-			diag = i[1:3]
-			for _, j := range meta {
-				if i[2] == j[0] {
-					// Append metastasis location
-					loc = append(loc, j[1])
-					break
-				}
-			}
+	var d []string
+	row, ex := diag[id]
+	if ex == true {
+		if mass == false || mass == true && row[1] == "1" {
+			d = row[1:]
 		}
 	}
-	if len(diag) > 1 {
-		diag = append(diag, strings.Join(loc, ";"))
-	}
-	ch <- diag
+	ch <- d
 }
 
 func getDiagosis(db *sql.DB, ids []string, mass bool) map[string][]string {
 	// Returns metastatis info from patient ids
 	ch := make(chan []string)
 	diagnoses := make(map[string][]string)
-	meta := dbIO.GetTable(db, "Metastasis")
+	diag := toMap(dbIO.GetTable(db, "Diagnosis"))
 	for _, id := range ids {
 		// Get records for each patient concurrently
-		go getMetastasis(ch, db, id, meta, mass)
+		go getMetastasis(ch, db, id, diag, mass)
 		ret := <-ch
 		if len(ret) >= 1 {
 			diagnoses[id] = ret
@@ -136,7 +124,7 @@ func getTaxa(db *sql.DB, ids []string) (map[string][][]string, []string) {
 	var uid []string
 	table := dbIO.GetTable(db, "Patient")
 	for _, i := range table {
-		for _, id := range ids {
+		for idx, id := range ids {
 			if id == i[4] {
 				var rec []string
 				// Skip source and taxonomy ids
@@ -144,6 +132,8 @@ func getTaxa(db *sql.DB, ids []string) (map[string][][]string, []string) {
 				rec = append(rec, i[6:]...)
 				patients[id] = append(patients[id], rec)
 				uid = append(uid, i[0])
+				// Remove id to shorten search
+				ids = append(ids[:idx], ids[idx+1:]...)
 				break
 			}
 		}
@@ -204,7 +194,7 @@ func searchTaxonomicLevels(db *sql.DB, col map[string]string, level string, name
 	taxonomy := getTaxonomy(db, ids, false)
 	for _, id := range ids {
 		for _, i := range patients[id] {
-			_, ex := records[i[0]] 
+			_, ex := records[i[0]]
 			if ex == true {
 				rec := append(i, records[i[0]]...)
 				rec = append(rec, taxonomy[id]...)
@@ -221,10 +211,10 @@ func searchTaxonomicLevels(db *sql.DB, col map[string]string, level string, name
 	tids := dbIO.GetRows(db, "Taxonomy", column, target, "taxa_id")
 	for _, i := range tids {
 		for _, j := range i {
-			// Convert ot slice of strings	
+			// Convert ot slice of strings
 			ids = append(ids, j)
 		}
 	}
 	patients := getTaxa(db, ids)
-	
+
 }*/

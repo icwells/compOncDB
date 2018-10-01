@@ -13,6 +13,20 @@ import (
 	"strings"
 )
 
+func TruncateTable(db *sql.DB, table string) {
+	// Clears all table contents
+	cmd, err := db.Prepare(fmt.Sprintf("TRUNCATE TABLE %s;", table))
+	if err != nil {
+		fmt.Printf("\t[Error] Formatting command to truncate table %s: %v\n", table, err)
+	} else {
+		_, err = cmd.Exec()
+		if err != nil {
+			fmt.Printf("\t[Error] Truncating table %s: %v\n", table, err)
+		}
+	}
+}
+
+
 func columnEqualTo(columns string, values [][]string) []string {
 	// Matches columns to inner slice by index, returns empty slice if indeces are not equal
 	var ret []string

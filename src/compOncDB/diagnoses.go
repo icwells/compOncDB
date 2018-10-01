@@ -13,9 +13,9 @@ import (
 	"strings"
 )
 
-func uploadDiagnosis(db *sql.DB, col map[string]string, tumor map[string][]string, meta []string, t, m int) {
+func uploadDiagnosis(db *sql.DB, col map[string]string, tumor map[string][]string, t int) {
 	// Uploads unique tumor and metastasis entries with random ID number
-	var mts, tmr [][]string
+	var tmr [][]string
 	// Convert tumor map to slice
 	for k, v := range tumor {
 		for _, i := range v {
@@ -28,16 +28,6 @@ func uploadDiagnosis(db *sql.DB, col map[string]string, tumor map[string][]strin
 	if len(tmr) > 0 {
 		vals, l := dbIO.FormatSlice(tmr)
 		dbIO.UpdateDB(db, "Tumor", col["Tumor"], vals, l)
-	}
-	// Add ids to metastasis data
-	for _, i := range meta {
-		m++
-		c := strconv.Itoa(m)
-		mts = append(mts, []string{c, i})
-	}
-	if len(mts) > 0 {
-		vals, l := dbIO.FormatSlice(mts)
-		dbIO.UpdateDB(db, "Metastasis", col["Metastasis"], vals, l)
 	}
 }
 
@@ -54,11 +44,10 @@ func tumorPairs(typ, loc string) [][]string {
 	return ret
 }
 
-func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []string) (map[string][]string, []string) {
+func extractDiagnosis(infile string, tmr map[string]map[string]string) map[string][]string {
 	// Extracts accounts from input file
 	first := true
 	tumor := make(map[string][]string)
-	var meta []string
 	fmt.Printf("\n\tExtracting diagnosis data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -67,11 +56,6 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []str
 		line := string(input.Text())
 		s := strings.Split(line, ",")
 		if first == false && len(s) == 17 {
-			// Determine if entry is unique
-			if strarray.InSliceStr(mts, s[9]) == false && strarray.InSliceStr(meta, s[9]) == false {
-				// Skip entries present in database or already in map
-				meta = append(meta, s[9])
-			}
 			// Iterate through type, location pairs individually
 			pairs := tumorPairs(s[10], s[11])
 			for _, i := range pairs {
@@ -91,15 +75,13 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string, mts []str
 			first = false
 		}
 	}
-	return tumor, meta
+	return tumor
 }
 
 func loadDiagnoses(db *sql.DB, col map[string]string, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
 	t := dbIO.GetMax(db, "Tumor", "tumor_id")
-	m := dbIO.GetMax(db, "Metastasis", "metastasis_id")
 	tmr := mapOfMaps(dbIO.GetTable(db, "Tumor"))
-	mts := dbIO.GetColumnText(db, "Metastasis", "metastasis")
-	tumor, meta := extractDiagnosis(infile, tmr, mts)
-	uploadDiagnosis(db, col, tumor, meta, t, m)
+	tumor := extractDiagnosis(infile, tmr)
+	uploadDiagnosis(db, col, tumor, t)
 }

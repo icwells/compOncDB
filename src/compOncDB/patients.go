@@ -65,7 +65,7 @@ func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]st
 	}
 }
 
-func extractPatients(infile string, count int, tumor, acc map[string]map[string]string, meta, species map[string]string) Entries {
+func extractPatients(infile string, count int, tumor, acc map[string]map[string]string, species map[string]string) Entries {
 	// Assigns patient data to appropriate slices with unique entry IDs
 	missed := 0
 	first := true
@@ -84,7 +84,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 				if len(spl) == 17 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[15]) == true {
 					// Skip entries without valid species and source data
 					if strarray.InMapStr(acc[spl[15]], spl[16]) == true {
-						var d, t []string
+						var t []string
 						count++
 						id := strconv.Itoa(count)
 						if strings.Contains(spl[3], "NA") == true {
@@ -98,13 +98,8 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 						p := []string{id, spl[0], spl[1], spl[2], species[spl[4]], spl[3], spl[4], spl[5], spl[6]}
 						// ID, service, account_id
 						s := []string{id, spl[14], acc[spl[15]][spl[16]]}
-						// Diagnosis entry
-						if strarray.InMapStr(meta, spl[9]) == true {
-							// ID, masspresent, necropsy, metastasis_id
-							d = []string{id, spl[7], spl[8], meta[spl[9]]}
-						} else {
-							d = []string{id, spl[7], spl[8], "-1"}
-						}
+						// Diagnosis entry: ID, masspresent, necropsy, metastasis_id
+						d := []string{id, spl[7], spl[8], spl[9]}
 						// Assign ID to all tumor, location pairs tumorPairs (in diagnoses.go)
 						pairs := tumorPairs(spl[10], spl[11])
 						for _, i := range pairs {
@@ -139,12 +134,13 @@ func loadPatients(db *sql.DB, col map[string]string, infile string) {
 	m := dbIO.GetMax(db, "Patient", "ID")
 	tumor := mapOfMaps(dbIO.GetTable(db, "Tumor"))
 	acc := mapOfMaps(dbIO.GetTable(db, "Accounts"))
-	meta := entryMap(dbIO.GetTable(db, "Metastasis"))
 	species := entryMap(dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"}))
 	// Get entry slices and upload to db
-	entries := extractPatients(infile, m, tumor, acc, meta, species)
+	entries := extractPatients(infile, m, tumor, acc, species)
 	uploadPatients(db, "Patient", col, entries.p)
 	uploadPatients(db, "Diagnosis", col, entries.d)
 	uploadPatients(db, "Tumor_relation", col, entries.t)
 	uploadPatients(db, "Source", col, entries.s)
+	// Recacluate species totals
+	speciesTotals(db, col)
 }
