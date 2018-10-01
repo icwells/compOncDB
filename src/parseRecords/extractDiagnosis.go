@@ -85,7 +85,12 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 	// Extracts diagnosis info from line
 	var row []string
 	cancer := true
-	if len(line) > e.col.id {
+	idx := e.col.id
+	if e.service == "NWZP" && e.col.code > idx {
+		// Get larger index
+		idx = e.col.code
+	}
+	if len(line) > idx {
 		id := line[e.col.id]
 		age := e.checkAge(line, e.col.age)
 		// Remove ID and join line
