@@ -29,6 +29,8 @@ var (
 	ver      = kingpin.Command("version", "Prints version info and exits.")
 	bu       = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
 	New      = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
+	column	 = kingpin.Flag("column", "Name of column containing target value (table is automatically determined).").Short('c').Default("nil").String()
+	value	 = kingpin.Flag("value", "Name of target value to update.").Short('v').Default("nil").String()
 	infile   = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 
 	upload   = kingpin.Command("upload", "Upload data to the database.")
@@ -38,16 +40,12 @@ var (
 	patient  = upload.Flag("patient", "Upload patient, account, and diagnosis info from input table to database.").Default("false").Bool()
 
 	update   = kingpin.Command("update", "Update or delete existing records from the database.")
-	total	 = update.Flag("count", "Manually recount species totals and update the Totals table.").Default("false").Bool()
-	del		 = update.Flag("delete", "Delete records if column = value (table is automatically determined).").Default("false").Bool()
-	uc		 = update.Flag("column", "Name of column containing target value.").Short('c').Default("nil").String()
-	uv		 = update.Flag("value", "Name of target value to update.").Short('v').Default("nil").String()
+	total	 = update.Flag("count", "Recount species totals and update the Totals table.").Default("false").Bool()
+	del		 = update.Flag("delete", "Delete records if column = value.").Default("false").Bool()
 
 	txn      = "Name of taxonomic unit to extract data for or path to file with single column of units."
 	extract  = kingpin.Command("extract", "Extract data from the database and perform optional analyses.")
 	dump     = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
-	ec		 = update.Flag("column", "Name of column containing target value (table is automatically determined).").Short('c').Default("nil").String()
-	ev		 = update.Flag("value", "Name of target value to update.").Short('v').Default("nil").String()
 	taxon	 = extract.Flag("taxa", txn).Short('t').Default("nil").String()
 	level	 = extract.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
 	com		 = extract.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
@@ -119,7 +117,7 @@ func uploadToDB() time.Time {
 		loadDiagnoses(db, col, *infile)
 		loadPatients(db, col, *infile)
 	} else {
-		fmt.Println("\tPlease enter a valid command.\n")
+		fmt.Println("\n\tPlease enter a valid command.\n")
 	}
 	return start
 }
@@ -128,14 +126,19 @@ func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
 	db, _, start := connect(*user)
 	defer db.Close()
+	col := dbIO.ReadColumns(COL, false)
 	if *total == true {
-		col := dbIO.ReadColumns(COL, false)
 		speciesTotals(db, col)
-	} else if *del == true && *uc != "nil" && *uv != "nil" {
-		
+	} else if *del == true && *column != "nil" && *value != "nil" {
+		if *user == "root" {
+			tables := getTable(col, *column)
+			deleteEntries(db, col, tables, *column, *value)
+		} else {
+			fmt.Println("\n\t[Error] Must be root to delete entries. Exiting.\n")
+		}
 	} else {
 		fmt.Println("\n\t[Warning] Update functionality not yet complete.")
-		//fmt.Println("\tPlease enter a valid command.\n")
+		//fmt.Println("\n\tPlease enter a valid command.\n")
 	}
 	return start
 }
@@ -174,9 +177,9 @@ func extractFromDB() time.Time {
 		} else {
 			writeResults(*outfile, header, res)
 		}
-	} else if *ec != "nil" && ev != "nil" {
+	//} else if *column != "nil" && *value != "nil" {
 		// Search for column/value match
-		table := getTable(col, *ec)
+		//table := getTable(col, *column)
 
 
 	} else if *cr == true {
@@ -185,7 +188,7 @@ func extractFromDB() time.Time {
 		rates := getCancerRates(db, col, *min, *nec)
 		writeResults(*outfile, header, rates)
 	} else {
-		fmt.Println("\tPlease enter a valid command.\n")
+		fmt.Println("\n\tPlease enter a valid command.\n")
 	}
 	return start
 }

@@ -41,7 +41,7 @@ account_id INT
 
 # Accounts
 account_id INT PRIMARY KEY
-Name TEXT
+Account TEXT
 submitter_name TEXT
 
 # Diagnosis

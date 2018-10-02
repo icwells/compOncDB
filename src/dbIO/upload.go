@@ -132,7 +132,7 @@ func ReadColumns(infile string, types bool) map[string]string {
 					col = strings.TrimSpace(line)
 				} else {
 					c := strings.Split(line, " ")
-					col = c[0]
+					col = strings.TrimSpace(c[0])
 				}
 				if strarray.InMapStr(columns, table) == true {
 					columns[table] = columns[table] + ", " + col

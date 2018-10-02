@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"github.com/icwells/go-tools/strarray"
 	"strings"
 )
 
@@ -71,7 +70,7 @@ func UpdateRow(db *sql.DB, table, columns, target, key string, values [][]string
 
 func DeleteRow(db *sql.DB, table, column, value string) {
 	// Deletes row(s) from database where column name = given value
-	cmd, err := db.Prepare(fmt.Sprintf("DELETE FROM %s WHERE %s = %s;", table, column, value))
+	cmd, err := db.Prepare(fmt.Sprintf("DELETE FROM %s WHERE %s = '%s';", table, column, value))
 	if err != nil {
 		fmt.Printf("\t[Error] Preparing deletion from %s: %v\n", table, err)
 	} else {

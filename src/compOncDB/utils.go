@@ -65,21 +65,38 @@ func entryMap(t [][]string) map[string]string {
 	return m
 }
 
-func getTable(tables map[string]string, col string) string {
+func getTable(tables map[string]string, col string) []string {
 	// Determines which table column is in
-	var ret string
-	if strings.Contains(col, "_") == false {
-		col = strings.Title(col)
+	var ret []string
+	col = strings.ToLower(col)
+	if strings.Contains(col, "_id") == false {
+		if strings.Contains(col, "_") == false {
+			col = strings.Title(col)
+		}
+		// Iterate through available column names
 		for k, val := range tables {
 			for _, i := range strings.Split(val, ",") {
+				i = strings.TrimSpace(i)
 				if col == i {
-					ret = k
+					ret = append(ret, k)
 					break
 				}
 			}
 		}
-	//} else {
-
+	} else if col == "id" {
+		// Return tables for uid
+		ret = []string{"Patient", "Source", "Diagnosis", "Tumor_relation"}
+	} else {
+		// Return multiple tables for ids
+		if col == "taxa_id" {
+			ret = []string{"Patient", "Taxonomy", "Common", "Totals", "Life_history"}
+		} else if col == "account_id" {
+			ret = []string{"Source", "Accounts"}
+		} else if col == "tumor_id" {
+			ret = []string{"Tumor", "Tumor_relation"}
+		} else if col == "source_id" {
+			ret = append(ret, "Patient")
+		}
 	}
 	if len(ret) == 0 {
 		fmt.Printf("\n\t[Error] Cannot find table with column %s. Exiting.\n\n", col)
@@ -105,7 +122,6 @@ func readList(infile string) []string {
 
 func printArray(header string, table [][]string) {
 	// Prints slice of string slcies to screen
-	//header = strings.TrimSpace(header)
 	head := strings.Split(header, ",")
 	fmt.Print(strings.Join(head, "\t"))
 	for _, row := range table {
