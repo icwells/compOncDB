@@ -70,7 +70,7 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 func loadAccounts(db *sql.DB, col map[string]string, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
 	m := dbIO.GetMax(db, "Accounts", "account_id")
-	acc := dbIO.GetColumns(db, "Accounts", []string{"Name", "submitter_name"})
+	acc := dbIO.GetColumns(db, "Accounts", []string{"Account", "submitter_name"})
 	accounts := extractAccounts(infile, acc)
 	uploadAccounts(db, col, accounts, m)
 }

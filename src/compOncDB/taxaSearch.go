@@ -204,17 +204,3 @@ func searchTaxonomicLevels(db *sql.DB, col map[string]string, level string, name
 	}
 	return ret
 }
-
-/*func searchTaxaRank(db *sql.DB, col map[string]string, target, column, outfile, header string) {
-	// Extracts ids from taxonomy table where target is present in column
-	var ids []string
-	tids := dbIO.GetRows(db, "Taxonomy", column, target, "taxa_id")
-	for _, i := range tids {
-		for _, j := range i {
-			// Convert ot slice of strings
-			ids = append(ids, j)
-		}
-	}
-	patients := getTaxa(db, ids)
-
-}*/

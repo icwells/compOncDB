@@ -5,7 +5,7 @@ Age DECIMAL(6,2)
 Castrated SMALLINT
 taxa_id INT
 source_id TEXT
-Species TEXT
+scientific_name TEXT
 Date TEXT
 Comments TEXT
 
@@ -27,7 +27,7 @@ Name TEXT
 # Totals
 taxa_id INT
 Total INT
-Age DECIMAL(6,2)
+Avgage DECIMAL(6,2)
 Adult INT
 Male INT
 Female INT
@@ -48,7 +48,7 @@ submitter_name TEXT
 ID INT
 Masspresent SMALLINT
 Necropsy SMALLINT
-metastasis INT
+Metastasis INT
 
 # Tumor
 tumor_id INT
@@ -62,7 +62,7 @@ primary_tumor SMALLINT
 Malignant SMALLINT
 
 # Life_history
-taxa_id DOUBLE
+taxa_id INT
 female_maturity DOUBLE
 male_maturity DOUBLE
 Gestation DOUBLE
