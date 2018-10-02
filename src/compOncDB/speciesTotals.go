@@ -21,6 +21,18 @@ type Record struct {
 	adult	  int
 }
 
+func avgAge(n float64, d int) string {
+	// Returns string of n/d
+	var ret string
+	if n > 0.0 && d > 0 {
+		age := n / float64(d)
+		ret = strconv.FormatFloat(age, 'f', -1, 64)
+	} else {
+		ret = "-1"
+	}
+	return ret
+}
+
 func (r *Record) String() string {
 	// Returns formatted string of record attributes
 	ret := fmt.Sprintf("\nSpecies: %s\n", r.species)
@@ -31,19 +43,18 @@ func (r *Record) String() string {
 
 func (r *Record) getAvgAge() string {
 	// Returns string of avg age
-	age := r.age / float64(r.adult)
-	return strconv.FormatFloat(age, 'f', -1, 64)
+	return avgAge(r.age, r.adult)
 }
 
 func (r *Record) getCancerAge() string {
 	// Returns string of average cancer record age
-	age := r.cancerage / float64(r.cancer)
-	return strconv.FormatFloat(age, 'f', -1, 64)
+	return avgAge(r.cancerage, r.cancer)
 }
 
-func (r *Record) toSlice() []string {
-	// Returns string slice of total, adult, and cancer incidences
+func (r *Record) toSlice(name string) []string {
+	// Returns string slice of values for upload to table
 	var ret []string
+	ret = append(ret, name)
 	ret = append(ret, strconv.Itoa(r.total))
 	ret = append(ret, r.getAvgAge())
 	ret = append(ret, strconv.Itoa(r.adult))
@@ -60,8 +71,8 @@ func uploadTotals(db *sql.DB, col map[string]string, records map[string]*Record)
 	fmt.Println("\tUploading new species totals...")
 	for k, v := range records {
 		// Taxa id, total, adult, cancer
-		t := append([]string{k}, v.toSlice()...)
-		totals = append(totals, t)
+		totals = append(totals, v.toSlice(k))
+		//fmt.Println(totals[len(totals)-1])
 	}
 	vals, l := dbIO.FormatSlice(totals)
 	dbIO.UpdateDB(db, "Totals", col["Totals"], vals, l)
@@ -76,8 +87,8 @@ func getTotals(db *sql.DB, records map[string]*Record) map[string]*Record {
 		if exists == true {
 			// Increment total
 			records[i[0]].total++
-			age, _ := strconv.ParseFloat(i[1], 64)
-			if age > records[i[0]].infant {
+			age, err := strconv.ParseFloat(i[1], 64)
+			if err == nil && age > records[i[0]].infant {
 				// Increment adult if age is greater than age of infancy
 				records[i[0]].adult++
 				records[i[0]].age = records[i[0]].age + age
@@ -130,10 +141,8 @@ func getAllSpecies(db *sql.DB) map[string]*Record {
 	records := make(map[string]*Record)
 	unique := dbIO.GetColumnText(db, "Taxonomy", "taxa_id")
 	for _, v := range unique {
-		if v >= min {
-			var rec Record
-			records[v] = &rec
-		}
+		var rec Record
+		records[v] = &rec
 	}
 	return records
 }

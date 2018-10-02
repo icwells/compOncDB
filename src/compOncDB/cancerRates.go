@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"dbIO"
 	"fmt"
-	"github.com/icwells/go-tools/strarray"
 	"strconv"
 )
 
@@ -19,26 +18,24 @@ func (r *Record) calculateRates() []string {
 	ret = append(ret, strconv.Itoa(r.cancer))
 	// Calculate rates
 	rate := float64(r.cancer) / float64(r.total)
-	avgage := r.age / float64(r.total)
-	cage := r.cancerage / float64(r.cancer)
 	ratio := float64(r.male) / float64(r.female)
 	// Append rates to slice and return
 	ret = append(ret, strconv.FormatFloat(rate, 'f', 2, 64))
-	ret = append(ret, strconv.FormatFloat(avgage, 'f', 2, 64))
-	ret = append(ret, strconv.FormatFloat(cage, 'f', 2, 64))
+	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64))
+	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(ratio, 'f', 2, 64))
 	return ret
 }
 
 func (r *Record) setRecord(row []string) {
 	// Reads values from Totals table entry
-	r.total = strconv.Atoi(row[1])
-	r.age, _ = strconv.ParseFloat(i[2], 'f', -1, 64)
-	r.adult = strconv.Atoi(row[3])
-	r.male = strconv.Atoi(row[4])
-	r.female = strconv.Atoi(row[5])
-	r.cancer = strconv.Atoi((row[7])
-	r.cancerage, _ = strconv.ParseFloat(i[7], 'f', -1, 64)
+	r.total, _ = strconv.Atoi(row[1])
+	r.age, _ = strconv.ParseFloat(row[2], 64)
+	r.adult, _ = strconv.Atoi(row[3])
+	r.male, _ = strconv.Atoi(row[4])
+	r.female, _ = strconv.Atoi(row[5])
+	r.cancer, _ = strconv.Atoi((row[6]))
+	r.cancerage, _ = strconv.ParseFloat(row[7], 64)
 }
 
 func inMapRec(m map[string]*Record, s string) bool {
@@ -89,7 +86,7 @@ func getSpeciesNames(db *sql.DB, records map[string]*Record) map[string]*Record 
 func getTargetSpecies(db *sql.DB, min int) map[string]*Record {
 	// Returns map of empty species records with >= min occurances
 	records := make(map[string]*Record)
-	target := dbIO.GetRowsMin(db, "Totals", "Adult", min)
+	target := dbIO.GetRowsMin(db, "Totals", "Adult", "*", min)
 	for _, i := range target {
 		var rec Record
 		rec.setRecord(i)
@@ -104,15 +101,9 @@ func getCancerRates(db *sql.DB, col map[string]string, min int, nec bool) [][]st
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", min)
 	records := getTargetSpecies(db, min)
 	if len(records) > 0 {
-		records = getSpeciesSummaries(db, records, min)
+		records = getSpeciesNames(db, records)
 		if len(records) > 0 {
-			records = getSpeciesDiagnoses(db, records, nec)
-			if len(records) > 0 {
-				records = getSpeciesNames(db, records)
-				if len(records) > 0 {
-					ret = formatRates(records)
-				}
-			}
+			ret = formatRates(records)
 		}
 	}
 	return ret
