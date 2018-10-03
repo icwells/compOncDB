@@ -32,6 +32,7 @@ var (
 	column	 = kingpin.Flag("column", "Name of column containing target value (table is automatically determined).").Short('c').Default("nil").String()
 	value	 = kingpin.Flag("value", "Name of target value to update.").Short('v').Default("nil").String()
 	infile   = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
+	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 
 	upload   = kingpin.Command("upload", "Upload data to the database.")
 	taxa     = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
@@ -43,17 +44,20 @@ var (
 	total	 = update.Flag("count", "Recount species totals and update the Totals table.").Default("false").Bool()
 	del		 = update.Flag("delete", "Delete records if column = value.").Default("false").Bool()
 
-	txn      = "Name of taxonomic unit to extract data for or path to file with single column of units."
 	extract  = kingpin.Command("extract", "Extract data from the database and perform optional analyses.")
 	dump     = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
-	taxon	 = extract.Flag("taxa", txn).Short('t').Default("nil").String()
-	level	 = extract.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
-	com		 = extract.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
 	min      = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
 	nec      = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
-	count	 = extract.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
-	outfile  = extract.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
+
+	txn      = "Name of taxonomic unit to extract data for or path to file with single column of units."
+	search	 = kingpin.Command("search", "Searches database for matches to given term.")
+	taxon	 = search.Flag("taxa", txn).Short('t').Default("nil").String()
+	level	 = search.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
+	com		 = search.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
+	count	 = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
+	short	 = search.Flag("short", "Returns short records (returns all associated data by default)").Default("false").Bool()
+	scour	 = search.Flag("scour", "Performs an extensive search using fuzzy matching.").Default("false").Bool()
 )
 
 func version() {
