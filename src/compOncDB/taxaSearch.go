@@ -7,7 +7,6 @@ import (
 	"dbIO"
 	"fmt"
 	"github.com/icwells/go-tools/strarray"
-	"math"
 	"os"
 	"strings"
 )
@@ -85,12 +84,12 @@ func getDiagosis(db *sql.DB, ids []string, mass bool) map[string][]string {
 	return diagnoses
 }
 
-func getRecords(db *sql.DB, ids []string, mass, primary bool) map[string][]string {
+func (s *searcher) getRecords(ids []string, mass, primary bool) map[string][]string {
 	// Gets diagnosis and metastasis data and formats values
 	fmt.Println("\tExtracting diagnosis information...")
 	diagnoses := make(map[string][]string)
-	meta := getDiagosis(db, ids, mass)
-	tumor := getTumor(db, ids, primary)
+	meta := getDiagosis(s.db, ids, mass)
+	tumor := getTumor(s.db, ids, primary)
 	for _, i := range ids {
 		// Join multiple entires for same record
 		temp := append(meta[i], tumor[i]...)
@@ -99,42 +98,30 @@ func getRecords(db *sql.DB, ids []string, mass, primary bool) map[string][]strin
 	return diagnoses
 }
 
-func getTaxonomy(db *sql.DB, ids []string, source bool) map[string][]string {
+func (s *searcher) getTaxonomy() map[string][]string {
 	// Returns taxonomy as map with taxa id as key
 	taxa := make(map[string][]string)
 	fmt.Println("\tExtracting taxonomy information...")
-	table := dbIO.GetTableMap(db, "Taxonomy")
-	for _, id := range ids {
+	table := dbIO.GetTableMap(s.db, "Taxonomy")
+	for _, id := range s.ids {
 		if strarray.InMapSli(table, id) == true {
-			if source == true {
-				// Keep source column
-				taxa[id] = table[id][:6]
-				taxa[id] = append(taxa[id], table[id][7])
-			} else {
-				// Exclude source and species (in patient table)
-				taxa[id] = table[id][:6]
-			}
+			// Exclude source and species (in patient table)
+			taxa[id] = table[id][:6]
 		}
 	}
 	return taxa
 }
 
-func getTaxa(db *sql.DB, ids []string) (map[string][][]string, []string) {
+func (s *searcher) getTaxa() (map[string][][]string, []string) {
 	// Extracts patient data using taxa ids
 	patients := make(map[string][][]string)
 	var uid []string
-	table := dbIO.GetTable(db, "Patient")
+	table := dbIO.GetTable(s.db, "Patient")
 	for _, i := range table {
-		for idx, id := range ids {
+		for _, id := range s.ids {
 			if id == i[4] {
-				var rec []string
-				// Skip source and taxonomy ids
-				rec = i[:4]
-				rec = append(rec, i[6:]...)
-				patients[id] = append(patients[id], rec)
+				patients[id] = append(patients[id], i)
 				uid = append(uid, i[0])
-				// Remove id to shorten search
-				ids = append(ids[:idx], ids[idx+1:]...)
 				break
 			}
 		}
@@ -142,29 +129,27 @@ func getTaxa(db *sql.DB, ids []string) (map[string][][]string, []string) {
 	return patients, uid
 }
 
-func getTaxaIDs(db *sql.DB, names []string, level string, common bool) []string {
+func (s *searcher) getTaxaIDs(names []string) {
 	// Returns taxa id from species name
-	var ids []string
 	var table [][]string
-	if common == true {
+	if s.common == true {
 		// Get taxonomy ids from common name list
-		table = dbIO.SearchColumnText(db, "Common", "Name", names)
+		table = dbIO.SearchColumnText(s.db, "Common", "Name", names)
 	} else {
 		// Get ids from taxonomy table
-		table = dbIO.SearchColumnText(db, "Taxonomy", level, names)
+		table = dbIO.SearchColumnText(s.db, "Taxonomy", s.column, names)
 	}
 	for _, row := range table {
-		ids = append(ids, row[0])
+		s.ids = append(s.ids, row[0])
 	}
-	return ids
 }
 
-func checkLevel(level string, common bool) string {
+func (s *searcher) checkLevel(level string) {
 	// Makes sure a valid taxonomic level is given
 	found := false
-	if common == true {
+	if s.common == true {
 		// Overwrite to species for common name comparison
-		level = "Species"
+		s.column = "Species"
 	} else {
 		levels := []string{"Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species"}
 		// Convert level to title case
@@ -179,29 +164,31 @@ func checkLevel(level string, common bool) string {
 			fmt.Println("\n\t[Error] Please enter a valid taxonomic level. Exiting.\n")
 			os.Exit(11)
 		}
+		s.column = level
 	}
-	return level
 }
 
-func searchTaxonomicLevels(db *sql.DB, col map[string]string, level string, names []string, common bool) [][]string {
+func searchTaxonomicLevels(db *sql.DB, col map[string]string, names []string) ([][]string, string) {
 	// Extracts data using species names
-	var ret [][]string
+	s := newSearcher(db, col, []string{"Taxonomy"})
+	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
+	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
 	fmt.Println("\tExtracting patient information...")
-	level = checkLevel(level, common)
-	ids := getTaxaIDs(db, names, level, common)
-	patients, uid := getTaxa(db, ids)
+	s.checkLevel(*level)
+	s.getTaxaIDs(names)
+	patients, uid := s.getTaxa()
 	// Leaving primary tumor and mass present switches false for now
-	records := getRecords(db, uid, false, false)
-	taxonomy := getTaxonomy(db, ids, false)
-	for _, id := range ids {
+	records := s.getRecords(uid, false, false)
+	taxonomy := s.getTaxonomy()
+	for _, id := range s.ids {
 		for _, i := range patients[id] {
 			_, ex := records[i[0]]
 			if ex == true {
 				rec := append(i, records[i[0]]...)
 				rec = append(rec, taxonomy[id]...)
-				ret = append(ret, rec)
+				s.res = append(s.res, rec)
 			}
 		}
 	}
-	return ret
+	return s.res, s.header
 }

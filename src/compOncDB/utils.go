@@ -58,7 +58,7 @@ func entryMap(t [][]string) map[string]string {
 	// Converts pair of columns to map for easier searching
 	m := make(map[string]string)
 	for _, i := range t {
-		if _, ex := m[i[1]=; ex == false {
+		if _, ex := m[i[1]]; ex == false {
 			m[i[1]] = i[0]
 		}
 	}

@@ -57,7 +57,7 @@ var (
 	com		 = search.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	count	 = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
 	short	 = search.Flag("short", "Returns short records (returns all associated data by default)").Default("false").Bool()
-	scour	 = search.Flag("scour", "Performs an extensive search using fuzzy matching.").Default("false").Bool()
+	//scour	 = search.Flag("scour", "Performs an extensive search using fuzzy matching.").Default("false").Bool()
 )
 
 func version() {
@@ -181,7 +181,6 @@ func searchDB() time.Time {
 	if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
-		header = "ID,Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
 		if iotools.Exists(*taxon) == true {
 			names = readList(*taxon)
 		} else {
@@ -192,17 +191,17 @@ func searchDB() time.Time {
 				names = []string{*taxon}
 			}
 		}
-		res = searchTaxonomicLevels(db, col, *level, names, *com)	
+		res, header = searchTaxonomicLevels(db, col, names)	
 		fmt.Println("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *column != "nil" && *value != "nil" {
 		// Search for column/value match
 		tables := getTable(col, *column)
-		res, header = searchColumns(db, col, tables, *column, *value)
-		fmt.Println("\tFound %d records where %s is %s.\n", len(res), *column, *value, *short, *scour)
+		res, header = searchColumns(db, col, tables)
+		fmt.Println("\tFound %d records where %s is %s.\n", len(res), *column, *value)
 	} else {
 		fmt.Println("\n\tPlease enter a valid command.\n")
 	}
-	if *count == false and len(res) >= 1 {
+	if *count == false && len(res) >= 1 {
 		writeResults(*outfile, header, res)
 	}
 	return start
