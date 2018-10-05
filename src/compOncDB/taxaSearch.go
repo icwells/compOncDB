@@ -7,6 +7,7 @@ import (
 	"dbIO"
 	"fmt"
 	"github.com/icwells/go-tools/strarray"
+	"math"
 	"os"
 	"strings"
 )

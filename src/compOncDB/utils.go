@@ -40,8 +40,8 @@ func mapOfMaps(t [][]string) map[string]map[string]string {
 	// Converts table to map of maps for easier searching
 	ret := make(map[string]map[string]string)
 	for _, row := range t {
-		if strarray.InMapMapStr(ret, row[1]) == true {
-			if strarray.InMapStr(ret[row[1]], row[2]) == false {
+		if m, ex := ret[row[1]]; ex == true {
+			if _, e := m[row[2]]; e == false {
 				// Add to existing map
 				ret[row[1]][row[2]] = row[0]
 			}
@@ -58,7 +58,7 @@ func entryMap(t [][]string) map[string]string {
 	// Converts pair of columns to map for easier searching
 	m := make(map[string]string)
 	for _, i := range t {
-		if strarray.InMapStr(m, i[1]) == false {
+		if _, ex := m[i[1]=; ex == false {
 			m[i[1]] = i[0]
 		}
 	}

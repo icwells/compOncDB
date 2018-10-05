@@ -160,10 +160,28 @@ func extractFromDB() time.Time {
 		} else {
 			printArray(col[*dump], table)
 		}
-	} else if *taxon != "nil" {
+	} else if *cr == true {
+		// Extract cancer rates
+		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female"
+		rates := getCancerRates(db, col, *min, *nec)
+		writeResults(*outfile, header, rates)
+	} else {
+		fmt.Println("\n\tPlease enter a valid command.\n")
+	}
+	return start
+}
+
+func searchDB() time.Time {
+	// Performs search functions on database
+	var res [][]string
+	var header string
+	col := dbIO.ReadColumns(COL, false)
+	db, _, start := connect(*user)
+	defer db.Close()
+	if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
-		header := "ID,Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
+		header = "ID,Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
 		if iotools.Exists(*taxon) == true {
 			names = readList(*taxon)
 		} else {
@@ -174,25 +192,18 @@ func extractFromDB() time.Time {
 				names = []string{*taxon}
 			}
 		}
-		res := searchTaxonomicLevels(db, col, *level, names, *com)	
-		if *count == true {
-			// Print count to screen
-			fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
-		} else {
-			writeResults(*outfile, header, res)
-		}
-	//} else if *column != "nil" && *value != "nil" {
+		res = searchTaxonomicLevels(db, col, *level, names, *com)	
+		fmt.Println("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
+	} else if *column != "nil" && *value != "nil" {
 		// Search for column/value match
-		//table := getTable(col, *column)
-
-
-	} else if *cr == true {
-		// Extract cancer rates
-		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female"
-		rates := getCancerRates(db, col, *min, *nec)
-		writeResults(*outfile, header, rates)
+		tables := getTable(col, *column)
+		res, header = searchColumns(db, col, tables, *column, *value)
+		fmt.Println("\tFound %d records where %s is %s.\n", len(res), *column, *value, *short, *scour)
 	} else {
 		fmt.Println("\n\tPlease enter a valid command.\n")
+	}
+	if *count == false and len(res) >= 1 {
+		writeResults(*outfile, header, res)
 	}
 	return start
 }
@@ -218,6 +229,8 @@ func main() {
 			start = updateDB()
 		case extract.FullCommand():
 			start = extractFromDB()
+		case search.FullCommand():
+			start = searchDB()
 	}
 	fmt.Printf("\n\tFinished. Runtime: %s\n\n", time.Since(start))
 }
