@@ -192,12 +192,12 @@ func searchDB() time.Time {
 			}
 		}
 		res, header = searchTaxonomicLevels(db, col, names)	
-		fmt.Println("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
+		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *column != "nil" && *value != "nil" {
 		// Search for column/value match
 		tables := getTable(col, *column)
 		res, header = searchColumns(db, col, tables)
-		fmt.Println("\tFound %d records where %s is %s.\n", len(res), *column, *value)
+		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *column, *value)
 	} else {
 		fmt.Println("\n\tPlease enter a valid command.\n")
 	}

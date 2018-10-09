@@ -22,13 +22,13 @@ func toMap(t [][]string) map[string][]string {
 	for _, i := range t {
 		_, ex := m[i[0]]
 		if ex == false {
-			if typeof(i[1]) == "string" {
+			if len(i) == 2 {
 				// Create new slice
 				m[i[0]] = []string{i[1]}
 			} else {
 				m[i[0]] = i[1:]
 			}
-		} else if typeof(i[1]) == "string" && strarray.InSliceStr(m[i[0]], i[1]) == false {
+		} else if len(i) == 2 && strarray.InSliceStr(m[i[0]], i[1]) == false {
 			// Append new stirng element
 			m[i[0]] = append(m[i[0]], i[1])
 		}

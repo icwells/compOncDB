@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"dbIO"
 	"fmt"
-	"math"
 	"os"
 	"strings"
 )
@@ -22,6 +21,7 @@ type searcher struct {
 	common	bool
 	res		[][]string
 	ids		[]string
+	taxaids	[]string
 	header	string
 }
 
@@ -59,67 +59,16 @@ func (s *searcher) setIDs() {
 	}
 }
 
-func (s *searcher) patientMap() map[string][]string {
-	// Adds to map of patients in blocks (make sure ids are set first)
-	var res [][]string
-	l := float64(len(s.ids))
-	d := math.Ceil(l / 50000.0)
-	idx := int(l/d)
-	ind := 0
-	for i := 0; i >= int(d); i++ {
-		if ind+idx > int(l) {
-			// Get last less than idx rows
-			idx = int(l) - ind + 1
-		}
-		vals := strings.Join(s.ids[ind:idx], ",")
-		r := dbIO.GetRows(s.db, "Patient", "ID", vals, "*")
-		res = append(res, r...)
-		ind = ind + idx
-	}
-	return toMap(res)
-}
-
 func (s *searcher) getPatients() {
-	// Adds patient records to s.res
+	// Prepends patient records to s.res
 	s.setIDs()
-	m := s.patientMap()
+	m := toMap(dbIO.GetRows(s.db, "Patient", "ID", strings.Join(s.ids, ","), "*"))
 	for idx, i := range s.res {
 		row, ex := m[i[0]]
 		if ex == true {
 			// Append existing record without ID
 			s.res[idx] = append(row, i[1:]...)
 		}
-	}
-}
-
-func (s *searcher) getTumorRelation(ch chan [][]string, row []string) {
-	// Returns matching tumor relation entries
-	var ret [][]string
-	table := dbIO.GetRows(s.db, "tumor_relation", "tumor_id", row[0], "*")
-	for _, i := range table {
-		res := append(i, row[1:]...)
-		ret = append(ret, res)
-	}
-	ch <- ret
-}
-
-func (s * searcher) searchTumor() {
-	// Finds matches in tumor tables
-	s.header = "ID,tumor_id,primary_tumor,Malignant,Type,Location"
-	if s.tables[0] == "tumor_relation" {
-		s.searchPairedTables(1)
-	} else if s.tables[0] == "Tumor" {
-		ch := make(chan [][]string)
-		t := dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
-		for _, i := range t {
-			go s.getTumorRelation(ch, i)
-			ret := <-ch
-			s.res = append(s.res, ret...)
-		}
-	}
-	if s.short == false {
-		s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,tumor_id,primary_tumor,Malignant,Type,Location"
-		s.getPatients()
 	}
 }
 	
@@ -167,18 +116,44 @@ func (s *searcher) searchDiagnosis() {
 
 func (s *searcher) searchPatient() {
 	// Searches any match that include the patient table
-	switch s.column {
-		case "taxa_id":
-			// Send to taxa search functions
-			*level = s.column
-			s.res, s.header = searchTaxonomicLevels(s.db, s.columns, []string{s.value})
-		default:
-			s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
-			s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location"
-			s.res = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
-			//if s.short == false {
-				
-			//}
+	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
+	s.res = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
+	if s.column == "taxa_id" {
+		s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Species"
+		taxa := dbIO.GetRows(s.db, "Taxonomy", s.column, s.value, "*")
+		taxonomy := taxa[0]
+		for idx, i := range s.res {
+			// Apppend taxonomy to records
+			s.res[idx] = append(i, taxonomy...)
+		}
+	}
+	if s.short == false {
+		var t map[string][]string
+		s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location"
+		s.setIDs()
+		d := toMap(dbIO.GetRows(s.db, "Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
+		if *count == false {
+		// Skip if not needed since this is the most time consuming step
+			t = s.getTumor()
+		}
+		for idx, i := range s.res {
+			// Concatenate tables
+			row := i
+			id := i[0]
+			diag, ex := d[id]
+			if ex == true {
+				row = append(row, diag...)
+			} else {
+				row = append(row, []string{"NA", "NA", "NA"}...)
+			}
+			tumor, e := t[id]
+			if e == true {
+				row = append(row, tumor...)
+			} else {
+				row = append(row, []string{"NA", "NA", "NA", "NA"}...)
+			}
+			s.res[idx] = row
+		}
 	}
 }
 
@@ -211,7 +186,7 @@ func (s *searcher) assignSearch() {
 
 func searchColumns(db *sql.DB, col map[string]string, tables []string) ([][]string, string) {
 	// Determines search procedure
-	fmt.Printf("\tSearching for records with %s in column %s...", *value, *column)
+	fmt.Printf("\tSearching for records with %s in column %s...\n", *value, *column)
 	s := newSearcher(db, col, tables)
 	s.assignSearch()
 	return s.res, s.header
