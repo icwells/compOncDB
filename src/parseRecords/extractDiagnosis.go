@@ -28,7 +28,7 @@ func countNA(row []string) (bool, bool) {
 	return found, complete
 }
 
-func (e *entries) parseDiagnosis(line, age string, cancer bool) []string {
+func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []string {
 	// Examines line for each diagnosis case
 	var row []string
 	prim := "N"
@@ -56,7 +56,11 @@ func (e *entries) parseDiagnosis(line, age string, cancer bool) []string {
 	}
 	row = append(row, prim)
 	row = append(row, met)
-	row = append(row, e.match.binaryMatch(e.match.necropsy, line, "biopsy"))
+	if necropsy == true {
+		row = append(row, "Y")
+	} else {
+		row = append(row, e.match.binaryMatch(e.match.necropsy, line, "biopsy"))
+	}
 	return row
 }
 
@@ -85,6 +89,7 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 	// Extracts diagnosis info from line
 	var row []string
 	cancer := true
+	necropsy := false
 	idx := e.col.id
 	if e.service == "NWZP" && e.col.code > idx {
 		// Get larger index
@@ -96,10 +101,12 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 		// Remove ID and join line
 		line = append(line[:e.col.id], line[e.col.id+1:]...)
 		str := strings.Join(line, " ")
-		if e.service == "NWZP" && strings.Contains(line[e.col.code], "8") == false {
-			cancer = false
+		if e.service == "NWZP" {
+			// Get neoplasia and euthnasia codes from NWZP
+			cancer = strings.Contains(line[e.col.code], "8") 
+			necropsy = strings.Contains(line[e.col.code], "14")
 		}
-		row = e.parseDiagnosis(str, age, cancer)
+		row = e.parseDiagnosis(str, age, cancer, necropsy)
 		// Prepend id
 		row = append([]string{id}, row...)
 	}
