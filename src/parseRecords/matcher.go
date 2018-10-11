@@ -63,7 +63,7 @@ func newMatcher(dict string) matcher {
 	m.malignant = regexp.MustCompile(`(not )?(malignant|benign)`)
 	m.metastasis = regexp.MustCompile(`(no )?(metastatis|mets)`)
 	m.primary = regexp.MustCompile(`primary|single|solitary|source`)
-	m.necropsy = regexp.MustCompile(`(necropsy|decesed|cause of death)|(biopsy)`)
+	m.necropsy = regexp.MustCompile(`(necropsy|decesed|cause of death|autopsy|dissection|euthan)|(biopsy)`)
 	m.setTypes(dict)
 	return m
 }
