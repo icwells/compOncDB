@@ -19,6 +19,8 @@ type Record struct {
 	cancer    int
 	cancerage float64
 	adult	  int
+	malecancer	int
+	femalecancer	int
 }
 
 func avgAge(n float64, d int) string {
@@ -84,7 +86,10 @@ func addDenominators(db *sql.DB, records map[string]*Record) map[string]*Record 
 	for k, v := range d {
 		_, ex := records[k]
 		if ex == true {
-			records[k].total += strconv.Atoi(v[0])
+			t, err := strconv.Atoi(v[0])
+			if err == nil {
+				records[k].total += t
+			}
 		}
 	}
 	return records
@@ -115,6 +120,11 @@ func getTotals(db *sql.DB, records map[string]*Record) map[string]*Record {
 						// Increment cancer count and age if masspresent == true
 						records[i[0]].cancer++
 						records[i[0]].cancerage = records[i[0]].cancerage + age
+						if i[3] == "male" {
+							records[i[0]].malecancer++
+						} else if i[3] == "female" {
+							records[i[0]].femalecancer++
+						}
 					}
 				}
 			}

@@ -143,7 +143,7 @@ func extractFromDB() time.Time {
 		}
 	} else if *cr == true {
 		// Extract cancer rates
-		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female"
+		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
 		rates := getCancerRates(db, col, *min, *nec)
 		writeResults(*outfile, header, rates)
 	} else {

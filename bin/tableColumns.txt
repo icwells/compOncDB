@@ -33,6 +33,8 @@ Male INT
 Female INT
 Cancer INT
 Cancerage DECIMAL(6,2)
+Malecancer INT
+Femalecancer INT
 
 # Denominators
 taxa_id INT PRIMARY KEY

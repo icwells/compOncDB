@@ -18,12 +18,14 @@ func (r *Record) calculateRates() []string {
 	ret = append(ret, strconv.Itoa(r.cancer))
 	// Calculate rates
 	rate := float64(r.cancer) / float64(r.total)
-	ratio := float64(r.male) / float64(r.female)
 	// Append rates to slice and return
 	ret = append(ret, strconv.FormatFloat(rate, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64))
-	ret = append(ret, strconv.FormatFloat(ratio, 'f', 2, 64))
+	ret = append(ret, strconv.Itoa(r.male))
+	ret = append(ret, strconv.Itoa(r.female))
+	ret = append(ret, strconv.Itoa(r.malecancer))
+	ret = append(ret, strconv.Itoa(r.femalecancer))
 	return ret
 }
 

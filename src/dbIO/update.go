@@ -19,7 +19,7 @@ func Connect(database, user string) (*sql.DB, string, time.Time) {
 	pw := prompter.Password("\n\tEnter MySQL password")
 	// Begin recording time after password input
 	start := time.Now()
-	db, err := sql.Open("mysql", user+":"+pw+"@/"+DB)
+	db, err := sql.Open("mysql", user+":"+pw+"@/"+database)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Connecting to database: %v", err)
 		os.Exit(1000)
