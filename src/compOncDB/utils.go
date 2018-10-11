@@ -143,7 +143,6 @@ func writeResults(outfile, header string, table [][]string) {
 	}
 }
 
-
 func deleteEntries(db *sql.DB, col map[string]string, tables []string, column, value string) {
 	// Deletes matches from appropriate tables
 	t := strings.Join(tables, ", ")
