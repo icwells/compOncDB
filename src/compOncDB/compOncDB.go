@@ -6,8 +6,6 @@ import (
 	"database/sql"
 	"dbIO"
 	"fmt"
-	"github.com/Songmu/prompter"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
@@ -83,30 +81,13 @@ func backup(pw string) {
 	}
 }
 
-func connect(user string) (*sql.DB, string, time.Time) {
-	// Attempts to connect to sql database. Returns db instance.
-	// Prompt for password
-	pw := prompter.Password("\n\tEnter MySQL password")
-	// Begin recording time after password input
-	start := time.Now()
-	db, err := sql.Open("mysql", user+":"+pw+"@/"+DB)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Connecting to database: %v", err)
-		os.Exit(2)
-	}
-	if err = db.Ping(); err != nil {
-		fmt.Printf("\n\t[Error] Cannot connect to database: %v", err)
-	}
-	return db, pw, start
-}
-
 func uploadToDB() time.Time {
 	// Uploads infile to given table (all input variables are global)
 	if *infile == "nil" {
 		fmt.Println("\n\t[Error] Please specify input file. Exiting.\n")
 		os.Exit(1)
 	}
-	db, _, start := connect(*user)
+	db, _, start := dbIO.Connect(DB, *user)
 	col := dbIO.ReadColumns(COL, false)
 	defer db.Close()
 	if *taxa == true {
@@ -128,7 +109,7 @@ func uploadToDB() time.Time {
 
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
-	db, _, start := connect(*user)
+	db, _, start := dbIO.Connect(DB, *user)
 	defer db.Close()
 	col := dbIO.ReadColumns(COL, false)
 	if *total == true {
@@ -150,7 +131,7 @@ func updateDB() time.Time {
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
 	col := dbIO.ReadColumns(COL, false)
-	db, _, start := connect(*user)
+	db, _, start := dbIO.Connect(DB, *user)
 	defer db.Close()	
 	if *dump != "nil" {
 		// Extract entire table
@@ -176,7 +157,7 @@ func searchDB() time.Time {
 	var res [][]string
 	var header string
 	col := dbIO.ReadColumns(COL, false)
-	db, _, start := connect(*user)
+	db, _, start := dbIO.Connect(DB, *user)
 	defer db.Close()
 	if *taxon != "nil" {
 		// Extract all data for a given species
@@ -215,11 +196,11 @@ func main() {
 		case ver.FullCommand():
 			version()
 		case bu.FullCommand():
-			db, pw, start = connect(*user)
+			db, pw, start = dbIO.Connect(DB, *user)
 			defer db.Close()
 			backup(pw)
 		case New.FullCommand():
-			db, _, start = connect(*user)
+			db, _, start = dbIO.Connect(DB, *user)
 			defer db.Close()
 			dbIO.NewTables(db, COL)
 		case upload.FullCommand():

@@ -6,8 +6,29 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/Songmu/prompter"
+	"os"
 	"strings"
+	"time"
 )
+
+func Connect(database, user string) (*sql.DB, string, time.Time) {
+	// Attempts to connect to sql database. Returns db instance.
+	// Prompt for password
+	pw := prompter.Password("\n\tEnter MySQL password")
+	// Begin recording time after password input
+	start := time.Now()
+	db, err := sql.Open("mysql", user+":"+pw+"@/"+DB)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Connecting to database: %v", err)
+		os.Exit(1000)
+	}
+	if err = db.Ping(); err != nil {
+		fmt.Printf("\n\t[Error] Cannot connect to database: %v", err)
+	}
+	return db, pw, start
+}
 
 func TruncateTable(db *sql.DB, table string) {
 	// Clears all table contents

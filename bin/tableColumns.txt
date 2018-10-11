@@ -25,7 +25,7 @@ taxa_id INT
 Name TEXT
 
 # Totals
-taxa_id INT
+taxa_id INT PRIMARY KEY
 Total INT
 Avgage DECIMAL(6,2)
 Adult INT
@@ -33,6 +33,10 @@ Male INT
 Female INT
 Cancer INT
 Cancerage DECIMAL(6,2)
+
+# Denominators
+taxa_id INT PRIMARY KEY
+Noncancer INT
 
 # Source
 ID INT
@@ -51,7 +55,7 @@ Necropsy SMALLINT
 Metastasis INT
 
 # Tumor
-tumor_id INT
+tumor_id INT PRIMARY KEY
 Type TEXT
 Location TEXT
 
@@ -62,7 +66,7 @@ primary_tumor SMALLINT
 Malignant SMALLINT
 
 # Life_history
-taxa_id INT
+taxa_id INT PRIMARY KEY
 female_maturity DOUBLE
 male_maturity DOUBLE
 Gestation DOUBLE
