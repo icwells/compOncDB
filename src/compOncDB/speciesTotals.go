@@ -74,7 +74,6 @@ func uploadTotals(db *sql.DB, col map[string]string, records map[string]*Record)
 	for k, v := range records {
 		// Taxa id, total, adult, cancer
 		totals = append(totals, v.toSlice(k))
-		//fmt.Println(totals[len(totals)-1])
 	}
 	vals, l := dbIO.FormatSlice(totals)
 	dbIO.UpdateDB(db, "Totals", col["Totals"], vals, l)
@@ -89,6 +88,7 @@ func addDenominators(db *sql.DB, records map[string]*Record) map[string]*Record 
 			t, err := strconv.Atoi(v[0])
 			if err == nil {
 				records[k].total += t
+				records[k].adult += t
 			}
 		}
 	}

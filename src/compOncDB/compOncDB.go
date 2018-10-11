@@ -36,6 +36,7 @@ var (
 	taxa     = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
 	common   = upload.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
 	lh       = upload.Flag("lh", "Upload life history info from merged life history table to the database.").Default("false").Bool()
+	den      = upload.Flag("den", "Uploads file to denominator table for databases where only cancer records were extracted.").Default("false").Bool()
 	patient  = upload.Flag("patient", "Upload patient, account, and diagnosis info from input table to database.").Default("false").Bool()
 
 	update   = kingpin.Command("update", "Update or delete existing records from the database.")
@@ -96,6 +97,9 @@ func uploadToDB() time.Time {
 	} else if *lh == true {
 		// Upload life history table
 		loadLifeHistory(db, col, *infile)
+	} else if *den == true {
+		// Uplaod denominator table
+		loadNonCancerTotals(db, col, *infile)
 	} else if *patient == true {
 		// Upload patient data
 		loadAccounts(db, col, *infile)
