@@ -51,7 +51,7 @@ func (d *denominators) parseHeader(line string) {
 		i = strings.TrimSpace(i)
 		if i == "Species" || i == "CommonNames" {
 			d.species = idx
-		} else if i == "Cancer" || i == "Tumor Count" {
+		} else if i == "Cancer" || i == "Tumor count" {
 			d.cancer = idx
 		} else if i == "Total" || i == "Total accessions" {
 			d.total = idx
