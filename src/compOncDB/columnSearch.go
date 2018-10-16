@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+var (
+	na := []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
+)
+
 type searcher struct {
 	db		*sql.DB
 	user	string
@@ -53,9 +57,43 @@ func (s *searcher) searchPairedTables(c int) {
 }
 
 func (s *searcher) setIDs() {
-	// Returns IDs from s.res
+	// Sets IDs from s.res
 	for _, i := range s.res {
 		s.ids = append(s.ids, i[0])
+	}
+}
+
+func (s *searcher) setTaxaIDs() {
+	// Stores taxa ids from res
+	for _, i := range s.res {
+		s.taxaids = append(s.taxaids, i[4])
+	}
+}
+
+func (s *searcher) appendSource() {
+	// Appends data from source table to res
+	m := toMap(dbIO.GetRows(s.db, "Source", "ID", strings.Join(s.ids, ","), "*")
+	for idx, i := range s.res {
+		row , ex := m[i[0]]
+		if ex == true {
+			s.res[idx] = append(i, row...)
+		} else {
+			s.res[idx] = append(i, na[:2]...)
+		}
+	}
+}
+
+func (s *searcher) appendTaxonomy() {
+	// Appends raxonomy to s.res
+	taxa := s.getTaxonomy(s.taxaids, true)
+	for idx, i := range s.res {
+		// Apppend taxonomy to records
+		taxonomy, ex := taxa[i[4]]
+		if ex == true {
+			s.res[idx] = append(i, taxonomy...)
+		} else {
+			s.res[idx] = append(i, na...)
+		}
 	}
 }
 
@@ -71,6 +109,8 @@ func (s *searcher) getPatients() {
 		}
 	}
 }
+
+// ---------------------------------------------------------------------------
 	
 func (s *searcher) searchSource() {
 	// Searches source tables
@@ -116,21 +156,12 @@ func (s *searcher) searchDiagnosis() {
 
 func (s *searcher) searchPatient() {
 	// Searches any match that include the patient table
-	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
 	s.res = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
-	if s.column == "taxa_id" {
-		s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Species"
-		taxa := dbIO.GetRows(s.db, "Taxonomy", s.column, s.value, "*")
-		taxonomy := taxa[0]
-		for idx, i := range s.res {
-			// Apppend taxonomy to records
-			s.res[idx] = append(i, taxonomy...)
-		}
-	}
+	s.setIDs()
+	s.setTaxaIDs()
+	s.appendTaxonomy()
 	if s.short == false {
 		var t map[string][]string
-		s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location"
-		s.setIDs()
 		d := toMap(dbIO.GetRows(s.db, "Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
 		if *count == false {
 		// Skip if not needed since this is the most time consuming step
@@ -154,11 +185,16 @@ func (s *searcher) searchPatient() {
 			}
 			s.res[idx] = row
 		}
+		s.appendSource()
 	}
 }
 
 func (s *searcher) assignSearch() {
 	// Runs appropriate search based on input
+	// Store standardized header
+	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
+	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Species,"
+	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,service_name,account_id"
 	switch s.tables[0] {
 		// Start with potential mutliple entries
 		case "Patient":

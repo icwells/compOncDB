@@ -35,7 +35,7 @@ func (s *searcher) getTaxa() map[string][][]string {
 	return patients
 }
 
-func (s *searcher) getTaxonomy(names []string) map[string][]string {
+func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 	// Stores taxa ids from species name and returns taxonomy
 	ret := make(map[string][]string)
 	var table [][]string
@@ -49,13 +49,17 @@ func (s *searcher) getTaxonomy(names []string) map[string][]string {
 		}
 		// Get taxonomy entries
 		table = dbIO.GetRows(s.db, "Taxonomy", "taxa_id", buffer.String(), "*")
-	} else {
+	} else if ids == false {
 		// Get matching taxonomies
 		table = dbIO.GetRows(s.db, "Taxonomy", s.column, strings.Join(names, ","), "*")
+	} else {
+		table = dbIO.GetRows(s.db, "Taxonomy", "taxa_id", strings.Join(names, ","), "*")
 	}
 	for _, row := range table {
-		// Append taxa id and return map of taxonomy entries
-		s.taxaids = append(s.taxaids, row[0])
+		if ids == false {
+			// Append taxa id and return map of taxonomy entries
+			s.taxaids = append(s.taxaids, row[0])
+		}
 		// Exclude taxa id, source, and species (in patient table)
 		ret[row[0]] = row[1:7]
 	}
@@ -94,7 +98,7 @@ func searchTaxonomicLevels(db *sql.DB, col map[string]string, names []string) ([
 	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
 	fmt.Println("\tExtracting patient information...")
 	s.checkLevel(*level)
-	taxonomy := s.getTaxonomy(names)
+	taxonomy := s.getTaxonomy(names, false)
 	patients := s.getTaxa()
 	if *count == false {
 		// Skip if not needed since this is the most time consuming step
