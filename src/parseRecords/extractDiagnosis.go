@@ -98,14 +98,14 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 	if len(line) > idx {
 		id := line[e.col.id]
 		age := e.checkAge(line, e.col.age)
-		// Remove ID and join line
-		line = append(line[:e.col.id], line[e.col.id+1:]...)
-		str := strings.Join(line, " ")
 		if e.service == "NWZP" {
 			// Get neoplasia and euthnasia codes from NWZP
 			cancer = strings.Contains(line[e.col.code], "8") 
 			necropsy = strings.Contains(line[e.col.code], "14")
 		}
+		// Remove ID and join line
+		line = append(line[:e.col.id], line[e.col.id+1:]...)
+		str := strings.Join(line, " ")
 		row = e.parseDiagnosis(str, age, cancer, necropsy)
 		// Prepend id
 		row = append([]string{id}, row...)

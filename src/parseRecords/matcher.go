@@ -68,6 +68,8 @@ func newMatcher(dict string) matcher {
 	return m
 }
 
+//----------------------------------------------------------------------------
+
 func (m *matcher) getMatch(re *regexp.Regexp, line string) string {
 	// Returns match/NA
 	match := re.FindString(line)
@@ -100,10 +102,10 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 				}
 			}
 		} else {
-			if match[0] != "nil" {
+			if match[0] == "not" || match[0] == "no" {
 				// Negating phrase found
 				ret = "N"
-			} else if match[1] != "nil" {
+			} else if len(match[1]) >= 0 {
 				// No negation
 				ret = "Y"
 			}
@@ -178,7 +180,7 @@ func (m *matcher) getAge(line string) string {
 					a = a / 30.0
 				}
 				// Convert back to string
-				ret = strconv.FormatFloat(a, 'f', -1, 64)
+				ret = strconv.FormatFloat(a, 'f', 4, 64)
 			} else {
 				ret = "0"
 			}
