@@ -33,7 +33,7 @@ func newSearcher(db *sql.DB, col map[string]string, tables []string) *searcher {
 	s.tables = tables
 	s.column = *column
 	s.value = *value
-	s.short = *short
+	//s.short = *short
 	s.common = *common
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s
@@ -41,23 +41,23 @@ func newSearcher(db *sql.DB, col map[string]string, tables []string) *searcher {
 
 func (s *searcher) getIDs() {
 	// Gets ids from target table and get patient records
-	ids = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "ID")
+	ids := dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "ID")
 	for _, i := range ids {
 		// Convert to single slice
 		s.ids = append(s.ids, i[0])
 	}
-	s.res := dbIO.GetRows(s.db, "Patient", "ID", strings.Join(s.ids, ","), "*")
+	s.res = dbIO.GetRows(s.db, "Patient", "ID", strings.Join(s.ids, ","), "*")
 }
 
 func (s *searcher) setIDs() {
-	// Sets IDs from s.res
+	// Sets IDs from s.res (ID must be in first column)
 	for _, i := range s.res {
 		s.ids = append(s.ids, i[0])
 	}
 }
 
 func (s *searcher) setTaxaIDs() {
-	// Stores taxa ids from res
+	// Stores taxa ids from patient results
 	for _, i := range s.res {
 		s.taxaids = append(s.taxaids, i[4])
 	}
@@ -65,7 +65,7 @@ func (s *searcher) setTaxaIDs() {
 
 func (s *searcher) appendSource() {
 	// Appends data from source table to res
-	m := toMap(dbIO.GetRows(s.db, "Source", "ID", strings.Join(s.ids, ","), "*")
+	m := toMap(dbIO.GetRows(s.db, "Source", "ID", strings.Join(s.ids, ","), "*"))
 	for idx, i := range s.res {
 		row , ex := m[i[0]]
 		if ex == true {
@@ -87,5 +87,28 @@ func (s *searcher) appendTaxonomy() {
 		} else {
 			s.res[idx] = append(i, s.na...)
 		}
+	}
+}
+
+func (s *searcher) appendDiagnosis() {
+	// Appends data from tumor and tumor relation tables
+	d := toMap(dbIO.GetRows(s.db, "Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
+	t := s.getTumor()
+	for idx, i := range s.res {
+		// Concatenate tables
+		id := i[0]
+		diag, ex := d[id]
+		if ex == true {
+			i = append(i, diag...)
+		} else {
+			i = append(i, s.na[:4]...)
+		}
+		tumor, e := t[id]
+		if e == true {
+			i = append(i, tumor...)
+		} else {
+			i = append(i, s.na[:5]...)
+		}
+		s.res[idx] = i
 	}
 }

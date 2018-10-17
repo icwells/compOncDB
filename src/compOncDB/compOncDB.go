@@ -55,8 +55,7 @@ var (
 	level	 = search.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
 	com		 = search.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	count	 = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
-	short	 = search.Flag("short", "Returns short records (returns all associated data by default)").Default("false").Bool()
-	//scour	 = search.Flag("scour", "Performs an extensive search using fuzzy matching.").Default("false").Bool()
+	table	 = search.Flag("table", "Return matching rows from this table only.").Default("nil").String()
 )
 
 func version() {
@@ -138,6 +137,10 @@ func extractFromDB() time.Time {
 	db, _, start := dbIO.Connect(DB, *user)
 	defer db.Close()	
 	if *dump != "nil" {
+		if *dump == "Accounts" && *user != "root" {
+			fmt.Println("\n\t[Error] Must be root to access Accounts table. Exiting.\n")
+			os.Exit(1010)
+		}
 		// Extract entire table
 		table := dbIO.GetTable(db, *dump)
 		if *outfile != "nil" {
@@ -180,8 +183,12 @@ func searchDB() time.Time {
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *column != "nil" && *value != "nil" {
 		// Search for column/value match
-		tables := getTable(col, *column)
-		res, header = searchColumns(db, col, tables)
+		if *table == "nil" {
+			tables := getTable(col, *column)
+			res, header = searchColumns(db, col, tables)
+		} else {
+			res, header = searchSingleTable(db, col)
+		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *column, *value)
 	} else {
 		fmt.Println("\n\tPlease enter a valid command.\n")
@@ -216,5 +223,5 @@ func main() {
 		case search.FullCommand():
 			start = searchDB()
 	}
-	fmt.Printf("\n\tFinished. Runtime: %s\n\n", time.Since(start))
+	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }

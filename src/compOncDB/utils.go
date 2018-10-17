@@ -126,10 +126,13 @@ func readList(infile string) []string {
 func printArray(header string, table [][]string) {
 	// Prints slice of string slcies to screen
 	head := strings.Split(header, ",")
-	fmt.Print(strings.Join(head, "\t"))
+	// Wrap in newlines
+	fmt.Println()
+	fmt.Println(strings.Join(head, "\t"))
 	for _, row := range table {
 		fmt.Println(strings.Join(row, "\t"))
 	}
+	fmt.Println()
 }
 
 func writeResults(outfile, header string, table [][]string) {
