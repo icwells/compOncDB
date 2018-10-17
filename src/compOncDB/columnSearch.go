@@ -10,116 +10,104 @@ import (
 	"strings"
 )
 
-var (
-	na := []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
-)
-
-type searcher struct {
-	db		*sql.DB
-	user	string
-	columns	map[string]string
-	tables	[]string
-	column	string
-	value	string
-	short	bool
-	common	bool
-	res		[][]string
-	ids		[]string
-	taxaids	[]string
-	header	string
-}
-
-func newSearcher(db *sql.DB, col map[string]string, tables []string) *searcher {
-	// Assigns starting values to searcher
-	s := new(searcher)
-	s.db = db
-	s.user = *user
-	s.columns = col
-	s.tables = tables
-	s.column = *column
-	s.value = *value
-	s.short = *short
-	s.common = *common
-	return s
-}
-
-func (s *searcher) searchPairedTables(c int) {
-	// Cancatentes results from paired tables, c indicates id column
-	s.res = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
-	// Get entire table in case value is not in both tables
-	m := toMap(dbIO.GetTable(s.db, s.tables[1]))
-	for idx, i := range s.res {
-		row, ex := m[i[c]]
+func getTumorRecords(ch chan []string, db *sql.DB, id string, tumor map[string][]string) {
+	// Returns tumor information for given id
+	var loc, typ, mal, prim []string
+	rows := dbIO.GetRows(db, "Tumor_relation", "ID", id, "*")
+	for _, i := range rows {
+		j, ex := tumor[i[1]]
 		if ex == true {
-			s.res[idx] = append(i, row...)
+			if i[2] == "1" {
+				// Prepend primary tumor
+				prim = append([]string{i[2]}, prim...)
+				mal = append([]string{i[3]}, mal...)
+				typ = append([]string{j[0]}, typ...)
+				loc = append([]string{j[1]}, loc...)
+			} else {
+				// Append tumor type and location
+				prim = append(prim, i[2])
+				mal = append(mal, i[3])
+				typ = append(typ, j[0])
+				loc = append(loc, j[1])
+			}
 		}
 	}
+	diag := []string{strings.Join(prim, ";"), strings.Join(mal, ";"), strings.Join(typ, ";"), strings.Join(loc, ";")}
+	ch <- diag
 }
 
-func (s *searcher) setIDs() {
-	// Sets IDs from s.res
-	for _, i := range s.res {
+func (s *searcher) getTumor() map[string][]string {
+	// Returns map of tumor data from patient ids
+	ch := make(chan []string)
+	// {id: [types], [locations]}
+	rec := make(map[string][]string)
+	tumor := toMap(dbIO.GetTable(s.db, "Tumor"))
+	for _, id := range s.ids {
+		// Get records for each patient concurrently
+		go getTumorRecords(ch, s.db, id, tumor)
+		ret := <-ch
+		if len(ret) >= 1 {
+			rec[id] = ret
+		}
+	}
+	return rec
+}
+
+func (s *searcher) getTumorRelation(ch chan [][]string, row []string) {
+	// Returns matching tumor relation entries
+	var ret [][]string
+	table := dbIO.GetRows(s.db, "tumor_relation", "tumor_id", row[0], "*")
+	for _, i := range table {
+		res := append(i, row[1:]...)
+		ret = append(ret, res)
+	}
+	ch <- ret
+}
+
+func (s * searcher) searchTumor() {
+	// Gets IDs from tumor ids
+	var tumorids []string
+	tids = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "ID")
+	for _, i := range tids {
+		// Convert to single slice
+		tumorids = append(tumorids, i[0])
+	}
+	ids = dbIO.GetRows(s.db, "Tumor_relation", "tumor_id", strings.Join(tumorids, ","), "ID")
+	for _, i := range ids {
 		s.ids = append(s.ids, i[0])
 	}
+	s.res := dbIO.GetRows(s.db, "Patient", "ID", strings.Join(s.ids, ","), "*")
 }
 
-func (s *searcher) setTaxaIDs() {
-	// Stores taxa ids from res
-	for _, i := range s.res {
-		s.taxaids = append(s.taxaids, i[4])
-	}
-}
-
-func (s *searcher) appendSource() {
-	// Appends data from source table to res
-	m := toMap(dbIO.GetRows(s.db, "Source", "ID", strings.Join(s.ids, ","), "*")
+func (s *searcher) appendDiagnosis() {
+	// Appends data from tumor and tumor relation tables
+	d := toMap(dbIO.GetRows(s.db, "Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
+	t := s.getTumor()
 	for idx, i := range s.res {
-		row , ex := m[i[0]]
+		// Concatenate tables
+		id := i[0]
+		diag, ex := d[id]
 		if ex == true {
-			s.res[idx] = append(i, row...)
+			i = append(i, diag...)
 		} else {
-			s.res[idx] = append(i, na[:2]...)
+			i = append(i, s.na[:4]...)
 		}
-	}
-}
-
-func (s *searcher) appendTaxonomy() {
-	// Appends raxonomy to s.res
-	taxa := s.getTaxonomy(s.taxaids, true)
-	for idx, i := range s.res {
-		// Apppend taxonomy to records
-		taxonomy, ex := taxa[i[4]]
-		if ex == true {
-			s.res[idx] = append(i, taxonomy...)
+		tumor, e := t[id]
+		if e == true {
+			i = append(i, tumor...)
 		} else {
-			s.res[idx] = append(i, na...)
+			i = append(i, s.na[:5]...)
 		}
+		s.res[idx] = i
 	}
 }
-
-func (s *searcher) getPatients() {
-	// Prepends patient records to s.res
-	s.setIDs()
-	m := toMap(dbIO.GetRows(s.db, "Patient", "ID", strings.Join(s.ids, ","), "*"))
-	for idx, i := range s.res {
-		row, ex := m[i[0]]
-		if ex == true {
-			// Append existing record without ID
-			s.res[idx] = append(row, i[1:]...)
-		}
-	}
-}
-
-// ---------------------------------------------------------------------------
 	
-func (s *searcher) searchSource() {
+func (s *searcher) searchAccounts() {
 	// Searches source tables
-	s.header = "ID,service_name,account_id"
 	switch s.column {
 		case "account_id":
 			if s.user == "root" {
 				// Return both tables
-				s.header = s.header + ",Account,submitter_name"
 				s.searchPairedTables(2)
 			} else {
 				if s.tables[0] == "Source" {
@@ -131,26 +119,12 @@ func (s *searcher) searchSource() {
 				}
 			}
 		default:
-			if s.tables[0] == "Source" && s.user != "root" {
+			if s.tables[0] == "Accounts" && s.user != "root" {
 				fmt.Println("\n\t[Error] Must be root to access Accounts table. Exiting.\n")
 				os.Exit(99)
 			} else {
 				s.res = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
 			}
-	}
-	if s.short == false {
-		s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments" + strings.Replace(s.header, "ID,", ",", 1)
-		s.getPatients()
-	}
-}
-
-func (s *searcher) searchDiagnosis() {
-	// Returns diagnosis entires
-	s.header = "ID,MassPresent,Necopsy,Metastasis"
-	s.res = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
-	if s.short == false {
-		s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments" + strings.Replace(s.header, "ID,", ",", 1)
-		s.getPatients()
 	}
 }
 
@@ -158,35 +132,6 @@ func (s *searcher) searchPatient() {
 	// Searches any match that include the patient table
 	s.res = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
 	s.setIDs()
-	s.setTaxaIDs()
-	s.appendTaxonomy()
-	if s.short == false {
-		var t map[string][]string
-		d := toMap(dbIO.GetRows(s.db, "Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
-		if *count == false {
-		// Skip if not needed since this is the most time consuming step
-			t = s.getTumor()
-		}
-		for idx, i := range s.res {
-			// Concatenate tables
-			row := i
-			id := i[0]
-			diag, ex := d[id]
-			if ex == true {
-				row = append(row, diag...)
-			} else {
-				row = append(row, []string{"NA", "NA", "NA"}...)
-			}
-			tumor, e := t[id]
-			if e == true {
-				row = append(row, tumor...)
-			} else {
-				row = append(row, []string{"NA", "NA", "NA", "NA"}...)
-			}
-			s.res[idx] = row
-		}
-		s.appendSource()
-	}
 }
 
 func (s *searcher) assignSearch() {
@@ -200,9 +145,9 @@ func (s *searcher) assignSearch() {
 		case "Patient":
 			s.searchPatient()
 		case "Source":
-			s.searchSource()
+			s.getIDs()
 		case "Tumor_relation":
-			s.searchTumor()
+			s.getIDs()
 		//case "Taxonomy":
 			//s.searchTaxonomy()
 		//case "Common":
@@ -212,11 +157,18 @@ func (s *searcher) assignSearch() {
 		//case "Totals":
 			//s.searchTotals()
 		case "Diagnosis":
-			s.searchDiagnosis()
+			s.getIDs()
 		case "Tumor":
 			s.searchTumor()
 		case "Accounts":
-			s.searchSource()
+			s.searchAccounts()
+	}
+	if *count == false {
+		// res and ids must be set first
+		s.setTaxaIDs()
+		s.appendTaxonomy()
+		s.appendDiagnosis()
+		s.appendSource()
 	}
 }
 
