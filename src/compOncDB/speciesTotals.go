@@ -10,16 +10,16 @@ import (
 )
 
 type Record struct {
-	species   string
-	infant    float64
-	total     int
-	age       float64
-	male      int
-	female    int
-	cancer    int
-	cancerage float64
-	adult	  int
-	malecancer	int
+	species   		string
+	infant    		float64
+	total     		int
+	age       		float64
+	male      		int
+	female    		int
+	cancer    		int
+	cancerage 		float64
+	adult	  		int
+	malecancer		int
 	femalecancer	int
 }
 
@@ -53,10 +53,10 @@ func (r *Record) getCancerAge() string {
 	return avgAge(r.cancerage, r.cancer)
 }
 
-func (r *Record) toSlice(name string) []string {
+func (r *Record) toSlice(id string) []string {
 	// Returns string slice of values for upload to table
 	var ret []string
-	ret = append(ret, name)
+	ret = append(ret, id)
 	ret = append(ret, strconv.Itoa(r.total))
 	ret = append(ret, r.getAvgAge())
 	ret = append(ret, strconv.Itoa(r.adult))
@@ -64,6 +64,8 @@ func (r *Record) toSlice(name string) []string {
 	ret = append(ret, strconv.Itoa(r.female))
 	ret = append(ret, strconv.Itoa(r.cancer))
 	ret = append(ret, r.getCancerAge())
+	ret = append(ret, strconv.Itoa(r.malecancer))
+	ret = append(ret, strconv.Itoa(r.femalecancer))
 	return ret
 }
 

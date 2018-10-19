@@ -15,7 +15,6 @@ MAIN="compOncDB"
 PARSE="parseRecords"
 PR="github.com/Songmu/prompter"
 SA="github.com/icwells/go-tools/strarray"
-TM="textMatch"
 TS="golang.org/x/text/search"
 
 # Get install location
@@ -42,7 +41,7 @@ go build -o bin/$PARSE src/$PARSE/*.go
 echo ""
 
 # Install dbIO and textMatch
-for I in $DBI $TM; do
+for I in $DBI; do
 	#if [ ! -e "$PDIR/$I.a" ]; then
 		echo "Installing $I..."
 		cp -R src/$I/ $GOPATH/src/

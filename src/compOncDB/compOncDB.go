@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	// Global arguemnts
+	// Global variables
 	COL = "tableColumns.txt"
 	DB  = "comparativeOncology"
 )
@@ -55,6 +55,7 @@ var (
 	level	 = search.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
 	com		 = search.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	count	 = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
+	eval	 = search.Flag("eval", "Searches life history or totals tables for matches (column operator value; valid operators: <= >= > <).").Default("nil").String()
 	table	 = search.Flag("table", "Return matching rows from this table only.").Default("nil").String()
 )
 
