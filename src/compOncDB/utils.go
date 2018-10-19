@@ -72,7 +72,7 @@ func getOperation(eval string) (string, string, string) {
 	// Splits eval into column, operator, value
 	found := false
 	var column, op, value string
-	operators := []string{"=", "==", ">=", "<=", ">", "<"}
+	operators := []string{"==", ">=", "<=", "=", ">", "<"}
 	for _, i := range operators {
 		if strings.Contains(eval, i) == true {
 			op = i
