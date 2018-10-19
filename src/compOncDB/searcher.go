@@ -9,31 +9,32 @@ import (
 )
 
 type searcher struct {
-	db		*sql.DB
-	user	string
-	columns	map[string]string
-	tables	[]string
-	column	string
-	value	string
-	short	bool
-	common	bool
-	res		[][]string
-	ids		[]string
-	taxaids	[]string
-	header	string
-	na		[]string
+	db			*sql.DB
+	user		string
+	columns		map[string]string
+	tables		[]string
+	column		string
+	value		string
+	operator	string
+	short		bool
+	common		bool
+	res			[][]string
+	ids			[]string
+	taxaids		[]string
+	header		string
+	na			[]string
 }
 
-func newSearcher(db *sql.DB, col map[string]string, tables []string) *searcher {
+func newSearcher(db *sql.DB, col map[string]string, tables []string, column, op, value string) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	s.db = db
 	s.user = *user
 	s.columns = col
 	s.tables = tables
-	s.column = *column
-	s.value = *value
-	//s.short = *short
+	s.column = column
+	s.value = value
+	s.operator = op
 	s.common = *common
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s

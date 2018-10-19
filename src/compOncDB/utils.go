@@ -68,6 +68,35 @@ func entryMap(t [][]string) map[string]string {
 	return m
 }
 
+func getOperation(eval string) (string, string, string) {
+	// Splits eval into column, operator, value
+	found := false
+	var column, op, value string
+	operators := []string{"=", "==", ">=", "<=", ">", "<"}
+	for _, i := range operators {
+		if strings.Contains(eval, i) == true {
+			op = i
+			if op == "==" {
+				// Convert to single equals sign for sql
+				op = "="
+			}
+			s := strings.Split(eval, i)
+			if len(s) == 2 {
+				// Only store properly formed queries
+				column = strings.TrimSpace(s[0])
+				value = strings.TrimSpace(s[1])
+				found = true
+			}
+			break
+		} 
+	}
+	if found == false {
+		fmt.Println("\n\t[Error] Please supply a valid evaluation argument. Exiting.\n")
+		os.Exit(1001)
+	}
+	return column, op, value
+}
+
 func getTable(tables map[string]string, col string) []string {
 	// Determines which table column is in
 	var ret []string
@@ -103,7 +132,7 @@ func getTable(tables map[string]string, col string) []string {
 	}
 	if len(ret) == 0 {
 		fmt.Printf("\n\t[Error] Cannot find table with column %s. Exiting.\n\n", col)
-		os.Exit(100)
+		os.Exit(999)
 	}
 	return ret
 }

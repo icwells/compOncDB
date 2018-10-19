@@ -34,6 +34,7 @@ The program will prompt for a mysql password for the given username.
 	upload			Upload data to the database.  
 	update			Update or delete existing records from the database.  
 	extract			Extract data from the database and perform optional analyses.  
+	search			Searches database for matches to given term.  
 
 ### Usage by Command  
 
@@ -57,9 +58,10 @@ Make sure tableColumns.txt is in the bin/ directory.
 	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.  
 	--common			Additionally extract common names from Kestrel output to update common name tables.  
 	--lh				Upload life history info from merged life history table to the database.   
+	--den				Uploads file to denominator table for databases where only cancer records were extracted.  
 	--patient			Upload patient info from input table to database.  
 
-	-i infile	Path to appropriate input file (Required).  
+	-i infile			Path to appropriate input file (Required).  
 
 Uploads data from input files to appropriate tables. Only one flag may be given to indicate the type of 
 input data, and therefore which tables must be updated. The only exception is for the --common flag which 
@@ -71,15 +73,14 @@ are all the same file which must in the format of uploadTemplate.csv.
 	./compOncDB update {-u username} {infile}
 
 	-u, --user="root"	MySQL username (default is root).  
-	--delete			Delete records from given table if column = value.  
-
-
-	-i infile	Path to appropriate input file.  
+	--count				Recount species totals and update the Totals table.  
+	--delete			Delete records from given table if column = value (must be root).  
+	--eval="nil"		Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <).  
 
 Update or delete existing records from the database.  
 
 #### Extract  
-	./compOncDB extract {-u username} {--flags...} -o outfile
+	./compOncDB extract {-u username} {--flags...} {-o outfile}
 
 	-u, --user="root"	MySQL username (default is root).  
 	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
@@ -87,9 +88,26 @@ Update or delete existing records from the database.
 	-m, --min=50		Minimum number of entries required for calculations (default = 50).  
 	--necropsy			Extract only necropsy records (extracts all matches by default).  
 
-	-o outfile				Name of output file (writes to stdout if not given).  
+	-o outfile			Name of output file (writes to stdout if not given).  
 
 Extract data from the database and perform optional analyses.  
+
+#### Search  
+	./compOncDB search {-u username} {--column/level --value/species ...} {-o outfile}
+
+	-u, --user="root"		MySQL username (default is root).   
+	-l, --level="Species"	Taxonomic level of taxon (or entries in taxon file)(default = Species).  
+	-t, --taxa="nil"		Name of taxonomic unit to extract data for or path to file with single column of units.  
+	--common				Indicates that common species name was given for taxa.  
+	--count					Returns count of target records instead of printing entire records.  
+	--eval="nil"			Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <).  
+	--table="nil"			Return matching rows from this table only.  
+
+	-o outfile				Name of output file (writes to stdout if not given).  
+
+Searches database for matches to given criteria. The taxonomy search is given special consideration since it is the most common search type.  
+For most tablesm the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history 
+tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=).  
 
 ## parseRecords  
 The parseRecords utility has been provided to help with parsing input files before uploading them to the database.  

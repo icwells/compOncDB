@@ -93,7 +93,7 @@ func (s *searcher) checkLevel(level string) {
 func searchTaxonomicLevels(db *sql.DB, col map[string]string, names []string) ([][]string, string) {
 	// Extracts data using species names
 	var records map[string][]string
-	s := newSearcher(db, col, []string{"Taxonomy"})
+	s := newSearcher(db, col, []string{"Taxonomy"}, *level, "=", "")
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
 	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
 	fmt.Println("\tExtracting patient information...")

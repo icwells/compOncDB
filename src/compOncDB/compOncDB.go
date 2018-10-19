@@ -27,8 +27,7 @@ var (
 	ver      = kingpin.Command("version", "Prints version info and exits.")
 	bu       = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
 	New      = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
-	column	 = kingpin.Flag("column", "Name of column containing target value (table is automatically determined).").Short('c').Default("nil").String()
-	value	 = kingpin.Flag("value", "Name of target value to update.").Short('v').Default("nil").String()
+	eval	 = search.Flag("eval", "Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <). ").Default("nil").String()
 	infile   = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 
@@ -55,7 +54,6 @@ var (
 	level	 = search.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
 	com		 = search.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	count	 = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
-	eval	 = search.Flag("eval", "Searches life history or totals tables for matches (column operator value; valid operators: <= >= > <).").Default("nil").String()
 	table	 = search.Flag("table", "Return matching rows from this table only.").Default("nil").String()
 )
 
@@ -118,16 +116,16 @@ func updateDB() time.Time {
 	col := dbIO.ReadColumns(COL, false)
 	if *total == true {
 		speciesTotals(db, col)
-	} else if *del == true && *column != "nil" && *value != "nil" {
+	} else if *del == true && *eval != "nil" {
 		if *user == "root" {
-			tables := getTable(col, *column)
-			deleteEntries(db, col, tables, *column, *value)
+			column, _, value := getOperation(*eval)
+			tables := getTable(col, column)
+			deleteEntries(db, col, tables, column, value)
 		} else {
 			fmt.Println("\n\t[Error] Must be root to delete entries. Exiting.\n")
 		}
 	} else {
-		fmt.Println("\n\t[Warning] Update functionality not yet complete.")
-		//fmt.Println("\n\tPlease enter a valid command.\n")
+		fmt.Println("\n\tPlease enter a valid command.\n")
 	}
 	return start
 }
@@ -182,15 +180,16 @@ func searchDB() time.Time {
 		}
 		res, header = searchTaxonomicLevels(db, col, names)	
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
-	} else if *column != "nil" && *value != "nil" {
+	} else if *eval != "nil" {
 		// Search for column/value match
+		column, op, value := getOperation(*eval)
 		if *table == "nil" {
-			tables := getTable(col, *column)
-			res, header = searchColumns(db, col, tables)
+			tables := getTable(col, column)
+			res, header = searchColumns(db, col, tables, column, op, value)
 		} else {
-			res, header = searchSingleTable(db, col)
+			res, header = searchSingleTable(db, col, column, op, value)
 		}
-		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *column, *value)
+		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
 	} else {
 		fmt.Println("\n\tPlease enter a valid command.\n")
 	}

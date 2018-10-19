@@ -111,6 +111,17 @@ func GetRows(db *sql.DB, table, column, key, target string) [][]string {
 	return toSlice(rows)
 }
 
+func EvaluateRows(db *sql.DB, table, column, op, key, target string) [][]string {
+	// Returns rows of target columns where key relates to column via op (>=/=/...)
+	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s %s '%s';", target, table, column, op, key)
+	rows, err := db.Query(cmd)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
+	}
+	defer rows.Close()
+	return toSlice(rows)
+}
+
 func GetColumnInt(db *sql.DB, table, column string) []int {
 	// Returns slice of all entries in column of integers
 	var col []int

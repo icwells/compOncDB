@@ -109,7 +109,7 @@ func (s *searcher) searchAccounts() {
 
 func (s *searcher) searchTaxaIDs() {
 	// Searches for matches in any table with taxa_ids as primary key
-	tids := dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "ID")
+	tids := dbIO.EvaluateRows(s.db, s.tables[0], s.column, s.operator, s.value, "taxa_id")
 	for _, i := range tids {
 		s.taxaids = append(s.taxaids, i[0])
 	}
@@ -161,18 +161,18 @@ func (s *searcher) assignSearch() {
 	}
 }
 
-func searchColumns(db *sql.DB, col map[string]string, tables []string) ([][]string, string) {
+func searchColumns(db *sql.DB, col map[string]string, tables []string, column, op, value string) ([][]string, string) {
 	// Determines search procedure
-	fmt.Printf("\tSearching for records with %s in column %s...\n", *value, *column)
-	s := newSearcher(db, col, tables)
+	fmt.Printf("\tSearching for records with %s in column %s...\n", value, column)
+	s := newSearcher(db, col, tables, column, op, value)
 	s.assignSearch()
 	return s.res, s.header
 }
 
-func searchSingleTable(db *sql.DB, col map[string]string) ([][]string, string) {
+func searchSingleTable(db *sql.DB, col map[string]string, column, op, value string) ([][]string, string) {
 	// Returns results from single table
-	fmt.Printf("\tSearching table %s for records with %s in column %s...\n", *table, *value, *column)
-	s := newSearcher(db, col, []string{*table})
+	fmt.Printf("\tSearching table %s for records with %s in column %s...\n", *table, value, column)
+	s := newSearcher(db, col, []string{*table}, column, op, value)
 	s.header = col[*table]
 	s.res = dbIO.GetRows(s.db, *table, s.column, s.value, "*")
 	return s.res, s.header
