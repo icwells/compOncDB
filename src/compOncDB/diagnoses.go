@@ -38,7 +38,7 @@ func tumorPairs(typ, loc string) [][]string {
 	locations := strings.Split(loc, ";")
 	for idx, i := range types {
 		if idx < len(locations) {
-			ret = append(ret, []string{i, locations[idx]})
+			ret = append(ret, []string{strings.TrimSpace(i), strings.TrimSpace(locations[idx])})
 		}
 	}
 	return ret
