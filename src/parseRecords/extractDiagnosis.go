@@ -38,6 +38,10 @@ func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []stri
 		// Try to extract age if it's not given
 		age = e.match.getAge(line)
 	}
+	if ch, _ := strconv.ParseFloat(age, 64); ch < 0.0 {
+		// Make sure values aren't below 0
+		age = "0"
+	}
 	row = append(row, age)
 	row = append(row, e.match.getMatch(e.match.sex, line))
 	row = append(row, e.match.getCastrated(line))
