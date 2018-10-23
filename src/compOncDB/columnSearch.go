@@ -169,11 +169,11 @@ func searchColumns(db *sql.DB, col map[string]string, tables []string, column, o
 	return s.res, s.header
 }
 
-func searchSingleTable(db *sql.DB, col map[string]string, column, op, value string) ([][]string, string) {
+func searchSingleTable(db *sql.DB, col map[string]string, table, column, op, value string) ([][]string, string) {
 	// Returns results from single table
 	fmt.Printf("\tSearching table %s for records with %s in column %s...\n", *table, value, column)
-	s := newSearcher(db, col, []string{*table}, column, op, value)
-	s.header = col[*table]
+	s := newSearcher(db, col, []string{table}, column, op, value)
+	s.header = col[table]
 	s.res = dbIO.GetRows(s.db, *table, s.column, s.value, "*")
 	return s.res, s.header
 }

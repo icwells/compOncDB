@@ -12,15 +12,16 @@ import (
 )
 
 type searchTest struct {
-	term	string
-	total	int
-	single	int
+	term   	string
+	table	string
+	total  	int
+	single 	int
 }
 
 type searchCases struct {
-	db		*sql.DB
-	col		map[string]string
-	cases	[]searchTest
+	db    *sql.DB
+	col   map[string]string
+	cases []searchTest
 }
 
 func newSearchCases() searchCases {
@@ -29,20 +30,20 @@ func newSearchCases() searchCases {
 	c.db, _, _ = dbIO.Connect(DB, "root")
 	c.col = dbIO.ReadColumns(COL, false)
 	c.cases = []searchTest{
-		{"Name==coyote", 209, 1}
-		}
+		{"Name==coyote", "Common", 209, 1},
+	}
 	return c
 }
 
 func TestSearchColumns(t *testing.T) {
-	// TPerform tests on the column search functions
+	// Perform tests on the column search functions
 	c := newSearchCases()
 	for _, i := range c.cases {
 		column, op, value := getOperation(i.term)
 		tables := getTable(col, column)
 		res, _ := searchColumns(c.db, c.col, tables, column, op, value)
 		if len(res) != i.total {
-			msg := fmt.Sprintf("Term %s failed. Expected: %d. Actual: %d." i.term, i.total, len(res))
+			msg := fmt.Sprintf("Term %s failed column search. Expected: %d. Actual: %d.", i.term, i.total, len(res))
 			t.Error(msg)
 		}
 	}
@@ -50,9 +51,30 @@ func TestSearchColumns(t *testing.T) {
 
 func TestSearchSingleTable(t *testing.T) {
 	// Tests single table search function
-	
+	c := newSearchCases()
+	for _, i := range c.cases {
+		column, op, value := getOperation(i.term)
+		tables := getTable(col, column)
+		res, _ := searchColumns(c.db, c.col, i.table, column, op, value)
+		if len(res) != i.single {
+			msg := fmt.Sprintf("Term %s failed single table search. Expected: %d. Actual: %d.", i.term, i.single, len(res))
+			t.Error(msg)
+		}
+	}
 }
 
 func TestSearchTaxonomicLevels(t *testing.T) {
 	// Tests taxa search functions
+	c := newSearchCases()
+	for _, i := range c.cases {
+		column, op, value := getOperation(i.term)
+		tables := getTable(col, column)
+
+		res, _ := searchColumns(c.db, c.col, []string{value})
+		if len(res) != i.total {
+			msg := fmt.Sprintf("Term %s failed column search. Expected: %d. Actual: %d.", i.term, i.total, len(res))
+			t.Error(msg)
+		}
+	}
+}
 }

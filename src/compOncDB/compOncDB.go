@@ -187,7 +187,7 @@ func searchDB() time.Time {
 			tables := getTable(col, column)
 			res, header = searchColumns(db, col, tables, column, op, value)
 		} else {
-			res, header = searchSingleTable(db, col, column, op, value)
+			res, header = searchSingleTable(db, col, *table, column, op, value)
 		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
 	} else {
