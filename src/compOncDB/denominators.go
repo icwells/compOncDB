@@ -58,7 +58,7 @@ func (d *denominators) parseHeader(line string) {
 		}
 	}
 	if d.species < 0 || d.cancer < 0 || d.total < 0 {
-		fmt.Println("\n\t[Error] Cannot determine column numbers. Exiting.\n")
+		fmt.Print("\n\t[Error] Cannot determine column numbers. Exiting.\n\n")
 		os.Exit(110)
 	}
 }

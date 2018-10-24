@@ -61,7 +61,7 @@ func version() {
 	fmt.Println("\n\tCompOncDB v0.1 (~) is a package for managing the ASU comparative oncology database.")
 	fmt.Println("\n\tCopyright 2018 by Shawn Rupp, Maley Lab, Biodesign Institute, Arizona State University.")
 	fmt.Println("\tThis program comes with ABSOLUTELY NO WARRANTY.")
-	fmt.Println("\n\tThis is free software, and you are welcome to redistribute it under certain conditions.\n")
+	fmt.Print("\n\tThis is free software, and you are welcome to redistribute it under certain conditions.\n\n")
 	os.Exit(0)
 }
 
@@ -83,7 +83,7 @@ func backup(pw string) {
 func uploadToDB() time.Time {
 	// Uploads infile to given table (all input variables are global)
 	if *infile == "nil" {
-		fmt.Println("\n\t[Error] Please specify input file. Exiting.\n")
+		fmt.Print("\n\t[Error] Please specify input file. Exiting.\n\n")
 		os.Exit(1)
 	}
 	db, _, start := dbIO.Connect(DB, *user)
@@ -104,7 +104,7 @@ func uploadToDB() time.Time {
 		loadDiagnoses(db, col, *infile)
 		loadPatients(db, col, *infile)
 	} else {
-		fmt.Println("\n\tPlease enter a valid command.\n")
+		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
 	return start
 }
@@ -122,10 +122,10 @@ func updateDB() time.Time {
 			tables := getTable(col, column)
 			deleteEntries(db, col, tables, column, value)
 		} else {
-			fmt.Println("\n\t[Error] Must be root to delete entries. Exiting.\n")
+			fmt.Print("\n\t[Error] Must be root to delete entries. Exiting.\n\n")
 		}
 	} else {
-		fmt.Println("\n\tPlease enter a valid command.\n")
+		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
 	return start
 }
@@ -137,7 +137,7 @@ func extractFromDB() time.Time {
 	defer db.Close()	
 	if *dump != "nil" {
 		if *dump == "Accounts" && *user != "root" {
-			fmt.Println("\n\t[Error] Must be root to access Accounts table. Exiting.\n")
+			fmt.Print("\n\t[Error] Must be root to access Accounts table. Exiting.\n\n")
 			os.Exit(1010)
 		}
 		// Extract entire table
@@ -153,7 +153,7 @@ func extractFromDB() time.Time {
 		rates := getCancerRates(db, col, *min, *nec)
 		writeResults(*outfile, header, rates)
 	} else {
-		fmt.Println("\n\tPlease enter a valid command.\n")
+		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
 	return start
 }
@@ -191,7 +191,7 @@ func searchDB() time.Time {
 		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
 	} else {
-		fmt.Println("\n\tPlease enter a valid command.\n")
+		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
 	if *count == false && len(res) >= 1 {
 		writeResults(*outfile, header, res)

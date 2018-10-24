@@ -83,7 +83,7 @@ func (s *searcher) checkLevel(level string) {
 			}
 		}
 		if found == false {
-			fmt.Println("\n\t[Error] Please enter a valid taxonomic level. Exiting.\n")
+			fmt.Print("\n\t[Error] Please enter a valid taxonomic level. Exiting.\n\n")
 			os.Exit(11)
 		}
 		s.column = level

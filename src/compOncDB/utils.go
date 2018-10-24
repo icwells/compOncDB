@@ -91,7 +91,7 @@ func getOperation(eval string) (string, string, string) {
 		} 
 	}
 	if found == false {
-		fmt.Println("\n\t[Error] Please supply a valid evaluation argument. Exiting.\n")
+		fmt.Print("\n\t[Error] Please supply a valid evaluation argument. Exiting.\n\n")
 		os.Exit(1001)
 	}
 	return column, op, value

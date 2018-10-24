@@ -86,7 +86,7 @@ func (s *searcher) searchTumor() {
 func (s *searcher) searchAccounts() {
 	// Searches source tables
 	if s.user != "root" {
-		fmt.Println("\n\t[Error] Must be root to access Accounts table. Exiting.\n")
+		fmt.Print("\n\t[Error] Must be root to access Accounts table. Exiting.\n\n")
 		os.Exit(1010)
 	}
 	var accounts []string
@@ -171,9 +171,9 @@ func searchColumns(db *sql.DB, col map[string]string, tables []string, column, o
 
 func searchSingleTable(db *sql.DB, col map[string]string, table, column, op, value string) ([][]string, string) {
 	// Returns results from single table
-	fmt.Printf("\tSearching table %s for records with %s in column %s...\n", *table, value, column)
+	fmt.Printf("\tSearching table %s for records with %s in column %s...\n", table, value, column)
 	s := newSearcher(db, col, []string{table}, column, op, value)
 	s.header = col[table]
-	s.res = dbIO.GetRows(s.db, *table, s.column, s.value, "*")
+	s.res = dbIO.GetRows(s.db, table, s.column, s.value, "*")
 	return s.res, s.header
 }
