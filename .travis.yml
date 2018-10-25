@@ -1,7 +1,7 @@
 language: go
 
 go:
-	- "1.x"
+	- "1.10.x"
 
 sudo: false
 
@@ -11,7 +11,7 @@ before_script:
 	- go fet -u gopkg.in/alecthomas/kingpin.v2
 	- go get -u github.com/Songmu/prompter
 	- go get -u github.com/icwells/go-tools/strarray
-	- go fmt src/*/*.go
-	- go vet src/*/*.go
+	- go fmt $(go list ./...)
+	- go vet $(go list ./...)
 
-script: go test -v src/*/*.go
+script: go test -v ./...
