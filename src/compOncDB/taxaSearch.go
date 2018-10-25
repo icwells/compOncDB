@@ -41,7 +41,7 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 	var table [][]string
 	if s.common == true {
 		// Get taxonomy ids from common name list
-		c := dbIO.SearchColumnText(s.db, "Common", "Name", names)
+		c := dbIO.GetRows(s.db, "Common", "Name", strings.Join(names, ","), "*")
 		buffer := bytes.NewBufferString(c[0][0])
 		for _, i := range c[1:] {
 			buffer.WriteByte(',')

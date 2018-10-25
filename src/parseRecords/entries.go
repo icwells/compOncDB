@@ -34,7 +34,7 @@ func newEntries(service string) entries {
 
 func (e *entries) parseHeader(header string) {
 	// Stores column numbers and delimiter from header
-	e.d = getDelim(header)
+	e.d = iotools.GetDelim(header)
 	head := strings.Split(header, e.d)
 	e.col.setColumns(head)
 }
@@ -56,7 +56,7 @@ func (e *entries) getTaxonomy(infile string) {
 			// Store binomial for each search term
 			e.taxa[s[0]] = s[8]
 		} else {
-			d = getDelim(line)
+			d = iotools.GetDelim(line)
 			first = false
 		}
 	}
@@ -79,7 +79,7 @@ func (e *entries) getDiagnosis(infile string) {
 			// Store daignosis data by ids
 			e.diag[s[0]] = s[1:]
 		} else {
-			d = getDelim(line)
+			d = iotools.GetDelim(line)
 			first = false
 		}
 	}

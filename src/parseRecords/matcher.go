@@ -46,7 +46,7 @@ func (m *matcher) setTypes(infile string) {
 				}
 			}
 		} else {
-			d = getDelim(line)
+			d = iotools.GetDelim(line)
 			first = false
 		}
 	}

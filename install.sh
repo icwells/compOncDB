@@ -26,9 +26,11 @@ echo ""
 
 # Get dependencies
 for I in $DR $IO $KP $PR $SA; do
-	echo "Installing $I..."
-	go get -u $I
-	echo ""
+	if [ ! -e "$PDIR/$I.a" ]; then
+		echo "Installing $I..."
+		go get -u $I
+		echo ""
+	fi
 done
 
 # Intall parseRecords

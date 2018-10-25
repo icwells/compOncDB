@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -29,22 +28,6 @@ func printFatal(msg string, code int) {
 	// Prints error and exits
 	fmt.Printf("\n\t[Error] %s. Exiting. \n\n", msg)
 	os.Exit(code)
-}
-
-func getDelim(header string) string {
-	// Returns delimiter
-	var d string
-	found := false
-	for _, i := range []string{"\t", ",", " "} {
-		if strings.Contains(header, i) == true {
-			d = i
-			found = true
-		}
-	}
-	if found == false {
-		printFatal("Cannot determine delimeter", 10)
-	}
-	return d
 }
 
 func mergeRecords(ent entries) {
