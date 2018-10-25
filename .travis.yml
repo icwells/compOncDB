@@ -6,6 +6,12 @@ go:
 sudo: false
 
 before_script:
+	- go get -u github.com/go-sql-driver/mysql
+	- go get -u github.com/icwells/go-tools/iotools
+	- go fet -u gopkg.in/alecthomas/kingpin.v2
+	- go get -u github.com/Songmu/prompter
+	- go get -u github.com/icwells/go-tools/strarray
 	- go fmt src/*/*.go
 	- go vet src/*/*.go
-	- bash install.sh
+
+script: go test -v src/*/*.go
