@@ -28,11 +28,9 @@ echo ""
 
 # Get dependencies
 for I in $DR $IO $KP $LAN $PR $SA $TS; do
-	if [ ! -e "$PDIR/$I.a" ]; then
-		echo "Installing $I..."
-		go get -u $I
-		echo ""
-	fi
+	echo "Installing $I..."
+	go get -u $I
+	echo ""
 done
 
 # Intall parseRecords
@@ -40,14 +38,12 @@ echo "Building $PARSE..."
 go build -o bin/$PARSE src/$PARSE/*.go
 echo ""
 
-# Install dbIO and textMatch
+# Install dbIO
 for I in $DBI; do
-	#if [ ! -e "$PDIR/$I.a" ]; then
-		echo "Installing $I..."
-		cp -R src/$I/ $GOPATH/src/
-		go install $I
-		echo ""
-	#fi
+	echo "Installing $I..."
+	cp -R src/$I/ $GOPATH/src/
+	go install $I
+	echo ""
 done
 
 # compOncDB 

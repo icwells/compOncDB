@@ -6,8 +6,6 @@ go:
 sudo: false
 
 before_script:
-	- go fmt src/*.go
-	- go vet src/*.go
-
-script:
+	- go fmt src/*/*.go
+	- go vet src/*/*.go
 	- bash install.sh
