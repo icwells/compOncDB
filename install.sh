@@ -6,7 +6,7 @@
 # Required programs:	Go 1.7+
 ##############################################################################
 
-DBI="dbIO"
+DBI="https://github.com/icwells/dbIO.git"
 DR="github.com/go-sql-driver/mysql"
 IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"
@@ -25,7 +25,7 @@ echo "GOPATH identified as $GOPATH"
 echo ""
 
 # Get dependencies
-for I in $DR $IO $KP $PR $SA; do
+for I in $DR $IO $KP $PR $SA $DBI; do
 	if [ ! -e "$PDIR/$I.a" ]; then
 		echo "Installing $I..."
 		go get -u $I
@@ -37,14 +37,6 @@ done
 echo "Building $PARSE..."
 go build -o bin/$PARSE src/$PARSE/*.go
 echo ""
-
-# Install dbIO
-for I in $DBI; do
-	echo "Installing $I..."
-	cp -R src/$I/ $GOPATH/src/
-	go install $I
-	echo ""
-done
 
 # compOncDB 
 echo "Building main..."
