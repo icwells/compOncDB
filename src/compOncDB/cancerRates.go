@@ -4,9 +4,8 @@ package main
 
 import (
 	"bytes"
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"strconv"
 )
 
@@ -74,9 +73,9 @@ func formatRates(records map[string]*Record) [][]string {
 	return ret
 }
 
-func getSpeciesNames(db *sql.DB, records map[string]*Record) map[string]*Record {
+func getSpeciesNames(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Adds species names to structs
-	species := entryMap(dbIO.GetRows(db, "Taxonomy", "taxa_id", getRecKeys(records), "Species,taxa_id"))
+	species := entryMap(db.GetRows("Taxonomy", "taxa_id", getRecKeys(records), "Species,taxa_id"))
 	for k, v := range species {
 		if inMapRec(records, k) == true {
 			records[k].species = v
@@ -85,10 +84,10 @@ func getSpeciesNames(db *sql.DB, records map[string]*Record) map[string]*Record 
 	return records
 }
 
-func getTargetSpecies(db *sql.DB, min int) map[string]*Record {
+func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*Record {
 	// Returns map of empty species records with >= min occurances
 	records := make(map[string]*Record)
-	target := dbIO.GetRowsMin(db, "Totals", "Adult", "*", min)
+	target := db.GetRowsMin("Totals", "Adult", "*", min)
 	for _, i := range target {
 		var rec Record
 		rec.setRecord(i)
@@ -97,7 +96,7 @@ func getTargetSpecies(db *sql.DB, min int) map[string]*Record {
 	return records
 }
 
-func getCancerRates(db *sql.DB, col map[string]string, min int, nec bool) [][]string {
+func getCancerRates(db *dbIO.DBIO, min int, nec bool) [][]string {
 	// Returns slice of string slices of cancer rates and related info
 	var ret [][]string
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", min)

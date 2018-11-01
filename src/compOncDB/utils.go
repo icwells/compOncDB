@@ -4,9 +4,8 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"os"
@@ -88,7 +87,7 @@ func getOperation(eval string) (string, string, string) {
 				found = true
 			}
 			break
-		} 
+		}
 	}
 	if found == false {
 		fmt.Print("\n\t[Error] Please supply a valid evaluation argument. Exiting.\n\n")
@@ -146,7 +145,7 @@ func readList(infile string) []string {
 	for input.Scan() {
 		line := string(input.Text())
 		// Replace underscores if present
-		line = strings.Replace(line, "_", " ", -1) 
+		line = strings.Replace(line, "_", " ", -1)
 		ret = append(ret, strings.TrimSpace(line))
 	}
 	return ret
@@ -175,7 +174,7 @@ func writeResults(outfile, header string, table [][]string) {
 	}
 }
 
-func deleteEntries(db *sql.DB, col map[string]string, tables []string, column, value string) {
+func deleteEntries(d *dbIO.DBIO, tables []string, column, value string) {
 	// Deletes matches from appropriate tables
 	t := strings.Join(tables, ", ")
 	reader := bufio.NewReader(os.Stdin)
@@ -184,7 +183,7 @@ func deleteEntries(db *sql.DB, col map[string]string, tables []string, column, v
 	if strings.TrimSpace(strings.ToUpper(input)) == "Y" {
 		fmt.Println("\tProceeding with deletion...")
 		for _, i := range tables {
-			dbIO.DeleteRow(db, i, column, value)
+			d.DeleteRow(i, column, value)
 		}
 	} else {
 		fmt.Println("\tSkipping deletion.")

@@ -6,7 +6,7 @@
 # Required programs:	Go 1.7+
 ##############################################################################
 
-DBI="https://github.com/icwells/dbIO"
+DBI="github.com/icwells/dbIO"
 DR="github.com/go-sql-driver/mysql"
 IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"

@@ -3,9 +3,8 @@
 package main
 
 import (
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"strconv"
 )
 
@@ -69,7 +68,7 @@ func (r *Record) toSlice(id string) []string {
 	return ret
 }
 
-func uploadTotals(db *sql.DB, col map[string]string, records map[string]*Record) {
+func uploadTotals(db *dbIO.DBIO, records map[string]*Record) {
 	// Converts map to slice and uploads to table
 	var totals [][]string
 	fmt.Println("\tUploading new species totals...")
@@ -78,12 +77,12 @@ func uploadTotals(db *sql.DB, col map[string]string, records map[string]*Record)
 		totals = append(totals, v.toSlice(k))
 	}
 	vals, l := dbIO.FormatSlice(totals)
-	dbIO.UpdateDB(db, "Totals", col["Totals"], vals, l)
+	db.UpdateDB("Totals", vals, l)
 }
 
-func addDenominators(db *sql.DB, records map[string]*Record) map[string]*Record {
+func addDenominators(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Adds fixed values from denominators table
-	d := toMap(dbIO.GetTable(db, "Denominators"))
+	d := toMap(db.GetTable("Denominators"))
 	for k, v := range d {
 		_, ex := records[k]
 		if ex == true {
@@ -97,10 +96,10 @@ func addDenominators(db *sql.DB, records map[string]*Record) map[string]*Record 
 	return records
 }
 
-func getTotals(db *sql.DB, records map[string]*Record) map[string]*Record {
+func getTotals(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Returns struct with number of total, adult, and adult cancer occurances by species
-	diag := entryMap(dbIO.GetColumns(db, "Diagnosis", []string{"Masspresent", "ID"}))
-	rows := dbIO.GetColumns(db, "Patient", []string{"taxa_id", "Age", "ID", "Sex"})
+	diag := entryMap(db.GetColumns("Diagnosis", []string{"Masspresent", "ID"}))
+	rows := db.GetColumns("Patient", []string{"taxa_id", "Age", "ID", "Sex"})
 	for _, i := range rows {
 		_, exists := records[i[0]]
 		if exists == true {
@@ -135,10 +134,10 @@ func getTotals(db *sql.DB, records map[string]*Record) map[string]*Record {
 	return records
 }
 
-func getAgeOfInfancy(db *sql.DB, records map[string]*Record) map[string]*Record {
+func getAgeOfInfancy(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Updates structs with min age for each species
 	// Get appropriate ages for each taxon
-	ages := dbIO.GetRows(db, "Life_history", "taxa_id", getRecKeys(records), "taxa_id,female_maturity,male_maturity,Weaning")
+	ages := db.GetRows("Life_history", "taxa_id", getRecKeys(records), "taxa_id,female_maturity,male_maturity,Weaning")
 	for _, i := range ages {
 		// Assign ages to structs
 		if inMapRec(records, i[0]) == true {
@@ -160,10 +159,10 @@ func getAgeOfInfancy(db *sql.DB, records map[string]*Record) map[string]*Record 
 	return records
 }
 
-func getAllSpecies(db *sql.DB) map[string]*Record {
+func getAllSpecies(db *dbIO.DBIO) map[string]*Record {
 	// Returns map of empty species records with >= min occurances
 	records := make(map[string]*Record)
-	unique := dbIO.GetColumnText(db, "Taxonomy", "taxa_id")
+	unique := db.GetColumnText("Taxonomy", "taxa_id")
 	for _, v := range unique {
 		var rec Record
 		records[v] = &rec
@@ -171,13 +170,13 @@ func getAllSpecies(db *sql.DB) map[string]*Record {
 	return records
 }
 
-func speciesTotals(db *sql.DB, col map[string]string) {
+func speciesTotals(db *dbIO.DBIO) {
 	// Recalculates occurances for each species
-	dbIO.TruncateTable(db, "Totals")
+	db.TruncateTable("Totals")
 	fmt.Println("\tCalculating total occurances by species...")
 	records := getAllSpecies(db)
 	records = getAgeOfInfancy(db, records)
 	records = getTotals(db, records)
 	records = addDenominators(db, records)
-	uploadTotals(db, col, records)
+	uploadTotals(db, records)
 }

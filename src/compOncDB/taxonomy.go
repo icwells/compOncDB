@@ -5,16 +5,15 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"strconv"
 	"strings"
 )
 
-func uploadTable(db *sql.DB, col map[string]string, taxa, common map[string][]string, count int) {
+func uploadTable(db *dbIO.DBIO, taxa, common map[string][]string, count int) {
 	// Uploads table to database
 	var com [][]string
 	for k, v := range taxa {
@@ -31,11 +30,11 @@ func uploadTable(db *sql.DB, col map[string]string, taxa, common map[string][]st
 	}
 	if len(taxa) > 0 {
 		vals, l := dbIO.FormatMap(taxa)
-		dbIO.UpdateDB(db, "Taxonomy", col["Taxonomy"], vals, l)
+		db.UpdateDB("Taxonomy", vals, l)
 	}
 	if len(com) > 0 {
 		vals, l := dbIO.FormatSlice(com)
-		dbIO.UpdateDB(db, "Common", col["Common"], vals, l)
+		db.UpdateDB("Common", vals, l)
 	}
 }
 
@@ -90,12 +89,12 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 	return taxa, common
 }
 
-func loadTaxa(db *sql.DB, col map[string]string, infile string, commonNames bool) {
+func loadTaxa(db *dbIO.DBIO, infile string, commonNames bool) {
 	// Loads unique entries into comparative oncology taxonomy table
 	var taxa, common map[string][]string
-	m := dbIO.GetMax(db, "Taxonomy", "taxa_id")
-	species := dbIO.GetColumnText(db, "Taxonomy", "Species")
-	com := dbIO.GetColumnText(db, "Common", "Name")
+	m := db.GetMax("Taxonomy", "taxa_id")
+	species := db.GetColumnText("Taxonomy", "Species")
+	com := db.GetColumnText("Common", "Name")
 	taxa, common = extractTaxa(infile, species, com, commonNames)
-	uploadTable(db, col, taxa, common, m)
+	uploadTable(db, taxa, common, m)
 }

@@ -4,16 +4,15 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"strconv"
 	"strings"
 )
 
-func uploadDiagnosis(db *sql.DB, col map[string]string, tumor map[string][]string, t int) {
+func uploadDiagnosis(db *dbIO.DBIO, tumor map[string][]string, t int) {
 	// Uploads unique tumor and metastasis entries with random ID number
 	var tmr [][]string
 	// Convert tumor map to slice
@@ -27,7 +26,7 @@ func uploadDiagnosis(db *sql.DB, col map[string]string, tumor map[string][]strin
 	}
 	if len(tmr) > 0 {
 		vals, l := dbIO.FormatSlice(tmr)
-		dbIO.UpdateDB(db, "Tumor", col["Tumor"], vals, l)
+		db.UpdateDB("Tumor", vals, l)
 	}
 }
 
@@ -78,10 +77,10 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string) map[strin
 	return tumor
 }
 
-func loadDiagnoses(db *sql.DB, col map[string]string, infile string) {
+func loadDiagnoses(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
-	t := dbIO.GetMax(db, "Tumor", "tumor_id")
-	tmr := mapOfMaps(dbIO.GetTable(db, "Tumor"))
+	t := db.GetMax("Tumor", "tumor_id")
+	tmr := mapOfMaps(db.GetTable("Tumor"))
 	tumor := extractDiagnosis(infile, tmr)
-	uploadDiagnosis(db, col, tumor, t)
+	uploadDiagnosis(db, tumor, t)
 }

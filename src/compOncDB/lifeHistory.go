@@ -5,19 +5,18 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"strings"
 )
 
-func uploadTraits(db *sql.DB, col map[string]string, traits [][]string) {
+func uploadTraits(db *dbIO.DBIO, traits [][]string) {
 	// Uploads table to database
 	if len(traits) > 0 {
 		vals, l := dbIO.FormatSlice(traits)
-		dbIO.UpdateDB(db, "Life_history", col["Life_history"], vals, l)
+		db.UpdateDB("Life_history", vals, l)
 	}
 }
 
@@ -69,10 +68,10 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 	return traits
 }
 
-func loadLifeHistory(db *sql.DB, col map[string]string, infile string) {
+func loadLifeHistory(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology taxonomy table
-	species := entryMap(dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"}))
-	ids := dbIO.GetColumnText(db, "Life_history", "taxa_id")
+	species := entryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
+	ids := db.GetColumnText("Life_history", "taxa_id")
 	traits := extractTraits(infile, ids, species)
-	uploadTraits(db, col, traits)
+	uploadTraits(db, traits)
 }

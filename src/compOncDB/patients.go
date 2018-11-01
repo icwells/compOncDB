@@ -4,9 +4,8 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"math"
@@ -36,14 +35,14 @@ func getDenominator(l, row int) int {
 	return int(math.Floor(p / max))
 }
 
-func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]string) {
+func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
 	// Uploads patient entries to db
 	l := len(list)
 	den := getDenominator(l, len(list[0]))
 	if den <= 1 {
 		// Upload slice at once
 		vals, l := dbIO.FormatSlice(list)
-		dbIO.UpdateDB(db, table, col[table], vals, l)
+		db.UpdateDB(table, vals, l)
 	} else {
 		// Upload in chunks
 		var set [][][]string
@@ -60,7 +59,7 @@ func uploadPatients(db *sql.DB, table string, col map[string]string, list [][]st
 		}
 		for _, i := range set {
 			vals, ln := dbIO.FormatSlice(i)
-			dbIO.UpdateDB(db, table, col[table], vals, ln)
+			db.UpdateDB(table, vals, ln)
 		}
 	}
 }
@@ -129,18 +128,18 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 	return entries
 }
 
-func loadPatients(db *sql.DB, col map[string]string, infile string) {
+func loadPatients(db *dbIO.DBIO, infile string) {
 	// Loads unique patient info to appropriate tables
-	m := dbIO.GetMax(db, "Patient", "ID")
-	tumor := mapOfMaps(dbIO.GetTable(db, "Tumor"))
-	acc := mapOfMaps(dbIO.GetTable(db, "Accounts"))
-	species := entryMap(dbIO.GetColumns(db, "Taxonomy", []string{"taxa_id", "Species"}))
+	m := db.GetMax("Patient", "ID")
+	tumor := mapOfMaps(db.GetTable("Tumor"))
+	acc := mapOfMaps(db.GetTable("Accounts"))
+	species := entryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	// Get entry slices and upload to db
 	entries := extractPatients(infile, m, tumor, acc, species)
-	uploadPatients(db, "Patient", col, entries.p)
-	uploadPatients(db, "Diagnosis", col, entries.d)
-	uploadPatients(db, "Tumor_relation", col, entries.t)
-	uploadPatients(db, "Source", col, entries.s)
+	uploadPatients(db, "Patient", entries.p)
+	uploadPatients(db, "Diagnosis", entries.d)
+	uploadPatients(db, "Tumor_relation", entries.t)
+	uploadPatients(db, "Source", entries.s)
 	// Recacluate species totals
-	speciesTotals(db, col)
+	speciesTotals(db)
 }

@@ -4,7 +4,7 @@ package main
 
 import (
 	"database/sql"
-	"dbIO"
+	"github.com/icwells/dbIO"
 	"fmt"
 	//"github.com/stretchr/testify/assert"
 	//"github.com/stretchr/testify/mock"

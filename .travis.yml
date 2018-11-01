@@ -4,7 +4,5 @@ go: "1.10.x"
 
 sudo: false
 
-go_import_path: src/dbIO
-
 script:
     - go test -v src/parseRecords/*.go

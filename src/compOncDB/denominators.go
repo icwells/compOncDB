@@ -3,9 +3,8 @@
 package main
 
 import (
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"os"
 	"strconv"
@@ -13,8 +12,7 @@ import (
 )
 
 type denominators struct {
-	db		*sql.DB
-	col		map[string]string
+	db		*dbIO.DBIO
 	infile	string
 	delim	string
 	species int
@@ -23,17 +21,16 @@ type denominators struct {
 	rec		map[string]int
 }
 
-func newDenominators(db *sql.DB, col map[string]string, infile string) denominators {
+func newDenominators(db *dbIO.DBIO, infile string) denominators {
 	// Returns initialized struct with existing data from table
 	var d denominators
 	d.db = db
-	d.col = col
 	d.infile = infile
 	d.species = -1
 	d.cancer = -1
 	d.total = -1
 	d.rec = make(map[string]int)
-	table := dbIO.GetTable(db, "Denominators")
+	table := db.GetTable("Denominators")
 	for _, i := range table {
 		n, err := strconv.Atoi(i[1])
 		if err == nil {
@@ -83,13 +80,13 @@ func (d *denominators) upload() {
 		den = append(den, r)
 	}
 	vals, l := dbIO.FormatSlice(den)
-	dbIO.UpdateDB(d.db, "Denominators", d.col["Denominators"], vals, l)
+	d.db.UpdateDB("Denominators", vals, l)
 }
 
 func (d *denominators) readDenominators() {
 	// Reads data from input file
 	first := true
-	com := entryMap(dbIO.GetTable(d.db, "Common"))
+	com := entryMap(d.db.GetTable("Common"))
 	f := iotools.OpenFile(d.infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
@@ -117,11 +114,11 @@ func (d *denominators) readDenominators() {
 	}
 }
 
-func loadNonCancerTotals(db *sql.DB, col map[string]string, infile string) {
+func loadNonCancerTotals(db *dbIO.DBIO, infile string) {
 	// Loads denominator 
 	fmt.Println("\tUploading to denominators table...")
-	d := newDenominators(db, col, infile)
-	dbIO.TruncateTable(db, "Denominators")
+	d := newDenominators(db, infile)
+	db.TruncateTable("Denominators")
 	d.readDenominators()
 	d.upload()
 }

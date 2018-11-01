@@ -3,14 +3,13 @@
 package main
 
 import (
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"os"
 	"strings"
 )
 
-func getTumorRecords(ch chan []string, db *sql.DB, rows [][]string, tumor map[string][]string) {
+func getTumorRecords(ch chan []string, db *dbIO.DBIO, rows [][]string, tumor map[string][]string) {
 	// Returns tumor information for given id
 	var loc, typ, mal, prim []string
 	for _, i := range rows {
@@ -38,7 +37,7 @@ func getTumorRecords(ch chan []string, db *sql.DB, rows [][]string, tumor map[st
 func (s *searcher) tumorMap() map[string][][]string {
 	// Converts tumor_relation table to map
 	ret := make(map[string][][]string)
-	rows := dbIO.GetRows(s.db, "Tumor_relation", "ID", strings.Join(s.ids, ","), "*")
+	rows := s.db.GetRows("Tumor_relation", "ID", strings.Join(s.ids, ","), "*")
 	for _, i := range rows{
 		_, ex := ret[i[0]]
 		if ex == true {
@@ -55,7 +54,7 @@ func (s *searcher) getTumor() map[string][]string {
 	ch := make(chan []string)
 	// {id: [types], [locations]}
 	rec := make(map[string][]string)
-	tumor := toMap(dbIO.GetTable(s.db, "Tumor"))
+	tumor := toMap(s.db.GetTable("Tumor"))
 	tr := s.tumorMap()
 	for _, id := range s.ids {
 		// Get records for each patient concurrently (may be multiple tumor relation records for an id)
@@ -71,16 +70,16 @@ func (s *searcher) getTumor() map[string][]string {
 func (s *searcher) searchTumor() {
 	// Gets IDs from tumor ids
 	var tumorids []string
-	tids := dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "ID")
+	tids := s.db.GetRows(s.tables[0], s.column, s.value, "ID")
 	for _, i := range tids {
 		// Convert to single slice
 		tumorids = append(tumorids, i[0])
 	}
-	ids := dbIO.GetRows(s.db, "Tumor_relation", "tumor_id", strings.Join(tumorids, ","), "ID")
+	ids := s.db.GetRows("Tumor_relation", "tumor_id", strings.Join(tumorids, ","), "ID")
 	for _, i := range ids {
 		s.ids = append(s.ids, i[0])
 	}
-	s.res = dbIO.GetRows(s.db, "Patient", "ID", strings.Join(s.ids, ","), "*")
+	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
 }
 	
 func (s *searcher) searchAccounts() {
@@ -93,33 +92,33 @@ func (s *searcher) searchAccounts() {
 	target := s.value
 	if s.column != "account_id" {
 		// Get target account IDs
-		aids := dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "ID")
+		aids := s.db.GetRows(s.tables[0], s.column, s.value, "ID")
 		for _, i := range aids {
 			accounts = append(accounts, i[0])
 		}
 		target = strings.Join(accounts, ",")
 	}
 	// Get target patient IDs
-	ids := dbIO.GetRows(s.db, "Source", "account_id", target, "ID")
+	ids := s.db.GetRows("Source", "account_id", target, "ID")
 	for _, i := range ids {
 		s.ids = append(s.ids, i[0])
 	}
-	s.res = dbIO.GetRows(s.db, "Patient", "ID", strings.Join(s.ids, ","), "*")
+	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
 }
 
 func (s *searcher) searchTaxaIDs() {
 	// Searches for matches in any table with taxa_ids as primary key
-	tids := dbIO.EvaluateRows(s.db, s.tables[0], s.column, s.operator, s.value, "taxa_id")
+	tids := s.db.EvaluateRows(s.tables[0], s.column, s.operator, s.value, "taxa_id")
 	for _, i := range tids {
 		s.taxaids = append(s.taxaids, i[0])
 	}
-	s.res = dbIO.GetRows(s.db, "Patient", "taxa_id", strings.Join(s.taxaids, ","), "*")
+	s.res = s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*")
 	s.setIDs()
 }
 
 func (s *searcher) searchPatient() {
 	// Searches any match that include the patient table
-	s.res = dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "*")
+	s.res = s.db.GetRows(s.tables[0], s.column, s.value, "*")
 	s.setIDs()
 }
 
@@ -161,19 +160,19 @@ func (s *searcher) assignSearch() {
 	}
 }
 
-func searchColumns(db *sql.DB, col map[string]string, tables []string, column, op, value string) ([][]string, string) {
+func searchColumns(db *dbIO.DBIO, tables []string, column, op, value string) ([][]string, string) {
 	// Determines search procedure
 	fmt.Printf("\tSearching for records with %s in column %s...\n", value, column)
-	s := newSearcher(db, col, tables, column, op, value)
+	s := newSearcher(db, tables, column, op, value)
 	s.assignSearch()
 	return s.res, s.header
 }
 
-func searchSingleTable(db *sql.DB, col map[string]string, table, column, op, value string) ([][]string, string) {
+func searchSingleTable(db *dbIO.DBIO, table, column, op, value string) ([][]string, string) {
 	// Returns results from single table
 	fmt.Printf("\tSearching table %s for records with %s in column %s...\n", table, value, column)
-	s := newSearcher(db, col, []string{table}, column, op, value)
-	s.header = col[table]
-	s.res = dbIO.GetRows(s.db, table, s.column, s.value, "*")
+	s := newSearcher(db, []string{table}, column, op, value)
+	s.header = s.db.Columns[table]
+	s.res = s.db.GetRows(table, s.column, s.value, "*")
 	return s.res, s.header
 }

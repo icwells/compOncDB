@@ -4,9 +4,8 @@ package main
 
 import (
 	"bytes"
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"os"
 	"strings"
 )
@@ -14,7 +13,7 @@ import (
 func (s *searcher) getRecords() map[string][]string {
 	// Gets diagnosis and metastasis data and formats values
 	fmt.Println("\tExtracting diagnosis information...")
-	d := toMap(dbIO.GetRows(s.db, "Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
+	d := toMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
 	tumor := s.getTumor()
 	for k, v := range d {
 		// Join multiple entires for same record
@@ -26,7 +25,7 @@ func (s *searcher) getRecords() map[string][]string {
 func (s *searcher) getTaxa() map[string][][]string {
 	// Extracts patient data using taxa ids
 	patients := make(map[string][][]string)
-	table := dbIO.GetRows(s.db, "Patient", "taxa_id", strings.Join(s.taxaids, ","), "*")
+	table := s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*")
 	for _, i := range table {
 		id := i[4]
 		patients[id] = append(patients[id], i)
@@ -41,19 +40,19 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 	var table [][]string
 	if s.common == true {
 		// Get taxonomy ids from common name list
-		c := dbIO.GetRows(s.db, "Common", "Name", strings.Join(names, ","), "*")
+		c := s.db.GetRows("Common", "Name", strings.Join(names, ","), "*")
 		buffer := bytes.NewBufferString(c[0][0])
 		for _, i := range c[1:] {
 			buffer.WriteByte(',')
 			buffer.WriteString(i[0])
 		}
 		// Get taxonomy entries
-		table = dbIO.GetRows(s.db, "Taxonomy", "taxa_id", buffer.String(), "*")
+		table = s.db.GetRows("Taxonomy", "taxa_id", buffer.String(), "*")
 	} else if ids == false {
 		// Get matching taxonomies
-		table = dbIO.GetRows(s.db, "Taxonomy", s.column, strings.Join(names, ","), "*")
+		table = s.db.GetRows("Taxonomy", s.column, strings.Join(names, ","), "*")
 	} else {
-		table = dbIO.GetRows(s.db, "Taxonomy", "taxa_id", strings.Join(names, ","), "*")
+		table = s.db.GetRows("Taxonomy", "taxa_id", strings.Join(names, ","), "*")
 	}
 	for _, row := range table {
 		if ids == false {
@@ -90,10 +89,10 @@ func (s *searcher) checkLevel(level string) {
 	}
 }
 
-func searchTaxonomicLevels(db *sql.DB, col map[string]string, names []string) ([][]string, string) {
+func searchTaxonomicLevels(db *dbIO.DBIO, names []string) ([][]string, string) {
 	// Extracts data using species names
 	var records map[string][]string
-	s := newSearcher(db, col, []string{"Taxonomy"}, *level, "=", "")
+	s := newSearcher(db, []string{"Taxonomy"}, *level, "=", "")
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
 	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
 	fmt.Println("\tExtracting patient information...")

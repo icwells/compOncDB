@@ -3,15 +3,13 @@
 package main
 
 import (
-	"database/sql"
-	"dbIO"
+	"github.com/icwells/dbIO"
 	"strings"
 )
 
 type searcher struct {
-	db			*sql.DB
+	db			*dbIO.DBIO
 	user		string
-	columns		map[string]string
 	tables		[]string
 	column		string
 	value		string
@@ -25,12 +23,11 @@ type searcher struct {
 	na			[]string
 }
 
-func newSearcher(db *sql.DB, col map[string]string, tables []string, column, op, value string) *searcher {
+func newSearcher(db *dbIO.DBIO, tables []string, column, op, value string) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	s.db = db
 	s.user = *user
-	s.columns = col
 	s.tables = tables
 	s.column = column
 	s.value = value
@@ -42,12 +39,12 @@ func newSearcher(db *sql.DB, col map[string]string, tables []string, column, op,
 
 func (s *searcher) getIDs() {
 	// Gets ids from target table and get patient records
-	ids := dbIO.GetRows(s.db, s.tables[0], s.column, s.value, "ID")
+	ids := s.db.GetRows(s.tables[0], s.column, s.value, "ID")
 	for _, i := range ids {
 		// Convert to single slice
 		s.ids = append(s.ids, i[0])
 	}
-	s.res = dbIO.GetRows(s.db, "Patient", "ID", strings.Join(s.ids, ","), "*")
+	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
 }
 
 func (s *searcher) setIDs() {
@@ -66,7 +63,7 @@ func (s *searcher) setTaxaIDs() {
 
 func (s *searcher) appendSource() {
 	// Appends data from source table to res
-	m := toMap(dbIO.GetRows(s.db, "Source", "ID", strings.Join(s.ids, ","), "*"))
+	m := toMap(s.db.GetRows("Source", "ID", strings.Join(s.ids, ","), "*"))
 	for idx, i := range s.res {
 		row , ex := m[i[0]]
 		if ex == true {
@@ -93,7 +90,7 @@ func (s *searcher) appendTaxonomy() {
 
 func (s *searcher) appendDiagnosis() {
 	// Appends data from tumor and tumor relation tables
-	d := toMap(dbIO.GetRows(s.db, "Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
+	d := toMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
 	t := s.getTumor()
 	for idx, i := range s.res {
 		// Concatenate tables

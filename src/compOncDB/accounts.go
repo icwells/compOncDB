@@ -5,16 +5,15 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
-	"dbIO"
 	"fmt"
+	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"strconv"
 	"strings"
 )
 
-func uploadAccounts(db *sql.DB, col map[string]string, accounts map[string][]string, count int) {
+func uploadAccounts(db *dbIO.DBIO, accounts map[string][]string, count int) {
 	// Uploads unique account entries with random ID number
 	var acc [][]string
 	for k, v := range accounts {
@@ -27,7 +26,7 @@ func uploadAccounts(db *sql.DB, col map[string]string, accounts map[string][]str
 	}
 	if len(acc) > 0 {
 		vals, l := dbIO.FormatSlice(acc)
-		dbIO.UpdateDB(db, "Accounts", col["Accounts"], vals, l)
+		db.UpdateDB("Accounts", vals, l)
 	}
 }
 
@@ -67,10 +66,10 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	return accounts
 }
 
-func loadAccounts(db *sql.DB, col map[string]string, infile string) {
+func loadAccounts(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
-	m := dbIO.GetMax(db, "Accounts", "account_id")
-	acc := dbIO.GetColumns(db, "Accounts", []string{"Account", "submitter_name"})
+	m := db.GetMax("Accounts", "account_id")
+	acc := db.GetColumns("Accounts", []string{"Account", "submitter_name"})
 	accounts := extractAccounts(infile, acc)
-	uploadAccounts(db, col, accounts, m)
+	uploadAccounts(db, accounts, m)
 }
