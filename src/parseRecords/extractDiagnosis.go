@@ -118,12 +118,12 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 	return row, found, complete
 }
 
-func (e *entries) extractDiagnosis(dict, infile, outfile string) {
+func (e *entries) extractDiagnosis(infile, outfile string) {
 	// Get diagnosis information using regexp struct
 	var res [][]string
 	var count, total, complete int
 	first := true
-	e.match = newMatcher(dict)
+	e.match = newMatcher()
 	head := "ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Necropsy"
 	fmt.Println("\n\tExtracting diagnosis data...")
 	f := iotools.OpenFile(infile)

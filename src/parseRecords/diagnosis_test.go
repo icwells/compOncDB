@@ -40,7 +40,7 @@ func getDays(n int) string {
 }
 
 func TestCheckAge(t *testing.T) {
-	// 
+	// Tests checkAge for age in days and years
 	e := newEntries("service")
 	ages := []struct {
 		row		[]string
@@ -68,4 +68,9 @@ func TestCheckAge(t *testing.T) {
 			t.Error(msg)
 		}
 	}
+}
+
+func TestParseDiagnosis(t *testing.T) {
+	// Tests parseDiagnosis
+
 }

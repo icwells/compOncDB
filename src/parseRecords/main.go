@@ -17,7 +17,6 @@ var (
 	service = kingpin.Flag("service", "Service database name.").Short('s').Required().String()
 
 	extract = kingpin.Command("extract", "Extract diagnosis data from infile.")
-	dict    = extract.Flag("dict", "Path to dictionary of cancer terms.").Short('d').Default("cancerdict.tsv").String()
 
 	merge = kingpin.Command("merge", "Merges taxonomy and diagnosis info with infile.")
 	taxa  = merge.Flag("taxa", "Path to kestrel output.").Short('t').Default("nil").String()
@@ -47,7 +46,7 @@ func main() {
 	switch kingpin.Parse() {
 	case extract.FullCommand():
 		ent := newEntries(*service)
-		ent.extractDiagnosis(*dict, *infile, *outfile)
+		ent.extractDiagnosis(*infile, *outfile)
 	case merge.FullCommand():
 		ent := newEntries(*service)
 		mergeRecords(ent)
