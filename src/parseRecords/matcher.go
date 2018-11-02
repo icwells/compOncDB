@@ -49,7 +49,7 @@ func (m *matcher) setTypes() {
 		"pancreas": regexp.MustCompile(`(?i)pancreas.*`),
 		"seminal vesicle": regexp.MustCompile(`(?i)seminal vesicle`),
 		"skin": regexp.MustCompile(`(?i)skin|eyelid`),
-		"spinal cord": regexp.MustCompile(`(?i)spinal cord`),
+		"spinal cord": regexp.MustCompile(`(?i)spinal (cord)?`),
 		"spleen": regexp.MustCompile(`(?i)spleen`),
 		"testis": regexp.MustCompile(`(?i)testi.*`),
 		"thyroid": regexp.MustCompile(`(?i)thyroid`),
@@ -61,7 +61,7 @@ func (m *matcher) setTypes() {
 		"adenocarcinoma": regexp.MustCompile(`(?i)adenocarcinoma`),
 		"adenoma": regexp.MustCompile(`(?i)adenoma`),
 		"carcinoma": regexp.MustCompile(`(?i)carcinoma|TCC`),
-		"lymphoma": regexp.MustCompile(`(?i)lymphomalymphosarcoma`),
+		"lymphoma": regexp.MustCompile(`(?i)lymphoma|lymphosarcoma`),
 		"leukemia": regexp.MustCompile(`(?i)leukemia`),
 		"neoplasia": regexp.MustCompile(`(?i)neoplasia|neoplasm|tumor`),
 		"polyp": regexp.MustCompile(`(?i)polyp`),
@@ -74,7 +74,7 @@ func newMatcher() matcher {
 	var m matcher
 	m.infant = regexp.MustCompile(`infant|(peri|neo)nat(e|al)|fet(us|al)`)
 	m.digit = regexp.MustCompile(`[0-9]+`)
-	m.age = regexp.MustCompile(`[0-9]+(-|\s)(day|week|month|year)s?(-|\s)(old)?`)
+	m.age = regexp.MustCompile(`[0-9]+(-|\s)(day|week|month|year)s?(-|\s)?(old)?`)
 	m.sex = regexp.MustCompile(`(fe)?male`)
 	m.castrated = regexp.MustCompile(`(not )?(castrat(ed)?|neuter(ed)?|spay(ed)?)`)
 	m.malignant = regexp.MustCompile(`(not )?(malignant|benign)`)
@@ -101,7 +101,7 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 	ret := "NA"
 	match := re.FindStringSubmatch(line)
 	if len(match) >= 2 {
-		if len(exp) >= 1 {
+		if len(exp) >= 2 {
 			if match[1] != "nil" {
 				if match[0] != "nil" {
 					// Negation found
@@ -119,7 +119,7 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 				}
 			}
 		} else {
-			if match[0] == "not" || match[0] == "no" {
+			if strings.Contains(match[0], "no") == true {
 				// Negating phrase found
 				ret = "N"
 			} else if len(match[1]) >= 0 {
@@ -153,8 +153,13 @@ func (m *matcher) getLocation(line string, cancer bool) string {
 		for k, v := range m.location {
 			match := m.getMatch(v, line)
 			if match != "NA" {
-				ret = k
-				break
+				if match != "widespread" && match != "other" {
+					ret = k
+					break
+				} else if ret == "NA" {
+					// Attempt to find more descriptive match
+					ret = k
+				}
 			}
 		}
 	}

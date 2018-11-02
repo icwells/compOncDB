@@ -74,14 +74,14 @@ func (e *entries) checkAge(line []string) string {
 	if e.col.days >= 0 {
 		age, err := strconv.ParseFloat(line[e.col.days], 64)
 		if err == nil {
-			// convert days to months
+			// Convert days to months
 			age = age / 30.0
 			ret = strconv.FormatFloat(age, 'f', -1, 64)
 		}
 	} else if e.col.age >= 0 {
 		age, err := strconv.ParseFloat(line[e.col.age], 64)
 		if err == nil {
-			// convert years to months
+			// Convert years to months
 			age = age * 12.0
 			ret = strconv.FormatFloat(age, 'f', -1, 64)
 		}
