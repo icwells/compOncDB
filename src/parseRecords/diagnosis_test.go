@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -28,6 +29,43 @@ func TestCountNA(t *testing.T) {
 	}
 }
 
+func getAge(n int) string {
+	// Returns formatted age
+	return strconv.FormatFloat(float64(n * 12), 'f', -1, 64)
+}
+
+func getDays(n int) string {
+	// Return formatted age from days
+	return strconv.FormatFloat(float64(n / 30.0), 'f', -1, 64)
+}
+
 func TestCheckAge(t *testing.T) {
 	// 
+	e := newEntries("service")
+	ages := []struct {
+		row		[]string
+		idx		int
+		age		string
+		days	string
+	}{
+		{[]string{"9", "ABC", "A16", "A99", "7", "1-Dec", "PACIFIC FORD TURTLE", "99-121", "M/F", "", "A99-7"}, 0, getAge(9), getDays(9)},
+		{[]string{"f1212351", "Bongo", "", "", "skin biopsy:  squamous cell carcinoma, in situ", "", "Female", "2"}, 7, getAge(2), getDays(2)},
+		{[]string{"6254519", "KV Zoo", "39179", "Arctic Fox", "6211", "", "", "Female"}, 5, "NA", "NA"},
+	}
+	for _, i := range ages {
+		e.col.age = i.idx
+		actual := e.checkAge(i.row)
+		if actual != i.age {
+			msg := fmt.Sprintf("Returned incorect value %s from age column. Expected %s.", actual, i.row[i.idx])
+			t.Error(msg)
+		}
+		// Repeat with days column
+		e.col.age++
+		e.col.days = i.idx
+		actual = e.checkAge(i.row)
+		if actual != i.days {
+			msg := fmt.Sprintf("Returned incorect value %s from days column. Expected %s.", actual, i.row[i.idx])
+			t.Error(msg)
+		}
+	}
 }

@@ -68,7 +68,7 @@ func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []stri
 	return row
 }
 
-func (e *entries) checkAge(line []string, idx int) string {
+func (e *entries) checkAge(line []string) string {
 	// Returns age from column if given
 	ret := "NA"
 	if e.col.days >= 0 {
@@ -101,7 +101,7 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 	}
 	if len(line) > idx {
 		id := line[e.col.id]
-		age := e.checkAge(line, e.col.age)
+		age := e.checkAge(line)
 		if e.service == "NWZP" {
 			// Get neoplasia and euthnasia codes from NWZP
 			cancer = strings.Contains(line[e.col.code], "8") 
