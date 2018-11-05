@@ -123,7 +123,6 @@ func (e *entries) extractDiagnosis(infile, outfile string) {
 	var res [][]string
 	var count, total, complete int
 	first := true
-	e.match = newMatcher()
 	head := "ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Necropsy"
 	fmt.Println("\n\tExtracting diagnosis data...")
 	f := iotools.OpenFile(infile)

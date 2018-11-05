@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -72,6 +73,40 @@ func TestCheckAge(t *testing.T) {
 }
 
 func TestParseDiagnosis(t *testing.T) {
-	// Tests parseDiagnosis
-
+	// Tests parseDiagnosis with matches from matcher_test.go
+	e := newEntries("service")
+	matches := newMatches()
+	for _, i := range matches {
+		var msg string
+		row := e.parseDiagnosis(strings.ToLower(i.line), "NA", true, false)
+		if row[0] != i.age && i.infant == false {
+			msg = fmt.Sprintf("Actual age %s does not equal expected %s", row[0], i.age)
+		} else if row[1] != i.sex {
+			msg = fmt.Sprintf("Actual sex %s does not equal expected %s", row[1], i.sex)
+		} else if row[2] != i.castrated {
+			msg = fmt.Sprintf("Actual neuter value %s does not equal expected %s", row[2], i.castrated)
+		} else if row[3] != i.location {
+			msg = fmt.Sprintf("Actual location %s does not equal expected %s", row[3], i.location)
+		} else if row[4] != i.typ {
+			msg = fmt.Sprintf("Actual type %s does not equal expected %s", row[4], i.typ)
+		} else if row[5] != i.malignant {
+			msg = fmt.Sprintf("Actual malignant value %s does not equal expected %s", row[5], i.malignant)
+		} else if row[6] != i.primary {
+			if row[4] != "NA" && row[7] == "N" {
+				// Skip if function determined a single tumor to be primary
+				if row[6] != "Y" {
+					msg = fmt.Sprintf("Actual primary %s does not equal expected %s", row[6], i.primary)
+				}
+			} else {
+				msg = fmt.Sprintf("Actual primary %s does not equal expected %s", row[6], i.primary)
+			}
+		} else if row[7] != i.metastasis {
+			msg = fmt.Sprintf("Actual metastasis value %s does not equal expected %s", row[7], i.metastasis)
+		} else if row[8] != i.necropsy {
+			msg = fmt.Sprintf("Actual necropsy value %s does not equal expected %s", row[8], i.necropsy)
+		}
+		if len(msg) > 1 {
+			t.Error(msg)
+		}
+	}
 }

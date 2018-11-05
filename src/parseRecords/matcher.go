@@ -102,27 +102,26 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 	match := re.FindStringSubmatch(line)
 	if len(match) >= 2 {
 		if len(exp) >= 2 {
-			if match[1] != "nil" {
-				if match[0] != "nil" {
-					// Negation found
-					if match[1] == exp {
-						ret = "Y"
-					} else {
-						ret = "N"
-					}
+			if strings.Contains(match[1], "no") == true {
+				// Negation found
+				if match[2] == exp {
+					ret = "Y"
 				} else {
-					if match[1] == exp {
-						ret = "N"
-					} else {
-						ret = "Y"
-					}
+					ret = "N"
+				}
+			} else {
+				if match[2] == exp {
+					// Negating expression found
+					ret = "N"
+				} else {
+					ret = "Y"
 				}
 			}
 		} else {
-			if strings.Contains(match[0], "no") == true {
+			if strings.Contains(match[1], "no") == true {
 				// Negating phrase found
 				ret = "N"
-			} else if len(match[1]) >= 0 {
+			} else if len(match[2]) > 0 {
 				// No negation
 				ret = "Y"
 			}

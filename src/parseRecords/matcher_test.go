@@ -4,7 +4,6 @@ package main
 
 import (
 	"fmt"
-	//"strconv"
 	"testing"
 )
 
@@ -17,7 +16,7 @@ type matches struct {
 	sex			string
 	castrated	string
 	malignant	string
-	metastatis	string
+	metastasis	string
 	primary		string
 	necropsy	string
 }
@@ -29,10 +28,10 @@ func newMatches() []matches {
 	line3 := "metastatis lymphoma, infant, 30 days, not castrated, "
 	line4 := "spayed female gray fox, "
 	return []matches {
-		{line1, "spinal cord", "neoplasia", false, "24.0000", "female", "Y", "NA", "NA", "NA", "N"},
+		{line1, "spinal cord", "neoplasia", false, "24.0000", "female", "Y", "NA", "NA", "N", "N"},
 		{line2, "liver", "carcinoma", false, "37", "male", "NA", "Y", "NA", "Y", "Y"},
 		{line3, "lymph", "lymphoma", true, "1.0000", "NA", "N", "NA", "Y", "N", "NA"},
-		{line4, "NA", "NA", false, "NA", "female", "Y", "NA", "NA", "NA", "NA"},
+		{line4, "NA", "NA", false, "NA", "female", "Y", "NA", "NA", "N", "NA"},
 	}
 }
 
