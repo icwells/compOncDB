@@ -27,6 +27,7 @@ func newEntries(service string) entries {
 	e.service = service
 	e.col = newColumns()
 	e.match = newMatcher()
+	e.dups = newDuplicates()
 	e.taxaPresent = false
 	e.diagPresent = false
 	e.dupsPresent = false
