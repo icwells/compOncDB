@@ -11,7 +11,7 @@ func checkString(val string) string {
 	// Returns NA if string is malformed
 	if len(val) <= 0 {
 		val = "NA"
-	} else if val == "na" || strings.ToUpper(val) == "N/A" {
+	} else if strings.ToLower(val) == "na" || strings.ToUpper(val) == "N/A" {
 		val = "NA"
 	}
 	return val
@@ -184,7 +184,7 @@ func (r *record) setAge(val string) {
 func (r *record) setSex(val string) {
 	// Returns male/female/NA
 	val = strings.ToUpper(val)
-	if val == "M" || val == "Male" {
+	if val == "M" || val == "MALE" {
 		r.sex = "male"
 	} else if val == "F" || val == "FEMALE" {
 		r.sex = "female"

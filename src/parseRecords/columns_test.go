@@ -20,7 +20,6 @@ func getColumns(headers [][]string) []columns {
 				c.age = 4 
 				c.comments = 5
 				c.max = 5
-				ret = append(ret, c)
 			case 1:
 				c.id = 0
 				c.common = 2
@@ -36,7 +35,6 @@ func getColumns(headers [][]string) []columns {
 				c.necropsy = 18
 				c.comments = 19
 				c.max = 19
-				ret = append(ret, c)
 			case 2:
 				c.submitter = 1
 				c.account = 2
@@ -47,7 +45,6 @@ func getColumns(headers [][]string) []columns {
 				c.code = 8
 				c.comments = 9
 				c.max = 9
-				ret = append(ret, c)
 			case 3:
 				c.id = 0
 				c.date = 1
@@ -59,7 +56,6 @@ func getColumns(headers [][]string) []columns {
 				c.sex = 8
 				c.comments = 9
 				c.max = 9
-				ret = append(ret, c)
 			case 4:
 				c.submitter = 1
 				c.id = 2
@@ -73,8 +69,8 @@ func getColumns(headers [][]string) []columns {
 				c.necropsy = 13
 				c.common = 15
 				c.max = 15
-				ret = append(ret, c)
 		}
+		ret = append(ret, c)
 	}
 	return ret
 }
