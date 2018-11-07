@@ -17,6 +17,7 @@ var (
 	// Global variables
 	COL = "tableColumns.txt"
 	DB  = "comparativeOncology"
+	TDB = "testDataBase"
 )
 
 var (
@@ -26,6 +27,7 @@ var (
 	ver     = kingpin.Command("version", "Prints version info and exits.")
 	bu      = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
 	New     = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
+	test	= kingpin.Flag("test", "Use testDataBase instead of comparativeOncology database.").Default("false").Bool()
 	eval    = search.Flag("eval", "Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <). ").Default("nil").String()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
@@ -79,15 +81,27 @@ func backup(pw string) {
 	}
 }
 
+func connectToDatabase() *dbIO.DBIO {
+	// Manages call to Connect and ReadColumns
+	var d string
+	if *test == true {
+		d = TDB
+	} else {
+		d = DB
+	}
+	db := dbIO.Connect(d, *user)
+	db.ReadColumns(COL, false)
+	defer db.DB.Close()
+	return db
+}
+
 func uploadToDB() time.Time {
 	// Uploads infile to given table (all input variables are global)
 	if *infile == "nil" {
 		fmt.Print("\n\t[Error] Please specify input file. Exiting.\n\n")
 		os.Exit(1)
 	}
-	db := dbIO.Connect(DB, *user)
-	db.ReadColumns(COL, false)
-	defer db.DB.Close()
+	db := connectToDatabase()
 	if *taxa == true {
 		// Upload taxonomy
 		loadTaxa(db, *infile, *common)
@@ -110,9 +124,7 @@ func uploadToDB() time.Time {
 
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
-	db := dbIO.Connect(DB, *user)
-	db.ReadColumns(COL, false)
-	defer db.DB.Close()
+	db := connectToDatabase()
 	if *total == true {
 		speciesTotals(db)
 	} else if *del == true && *eval != "nil" {
@@ -131,9 +143,7 @@ func updateDB() time.Time {
 
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
-	db := dbIO.Connect(DB, *user)
-	db.ReadColumns(COL, false)
-	defer db.DB.Close()
+	db := connectToDatabase()
 	if *dump != "nil" {
 		if *dump == "Accounts" && *user != "root" {
 			fmt.Print("\n\t[Error] Must be root to access Accounts table. Exiting.\n\n")
@@ -161,9 +171,7 @@ func searchDB() time.Time {
 	// Performs search functions on database
 	var res [][]string
 	var header string
-	db := dbIO.Connect(DB, *user)
-	db.ReadColumns(COL, false)
-	defer db.DB.Close()
+	db := connectToDatabase()
 	if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
@@ -199,18 +207,17 @@ func searchDB() time.Time {
 }
 
 func main() {
-	var db *dbIO.DBIO
 	var start time.Time
 	switch kingpin.Parse() {
 	case ver.FullCommand():
 		version()
 	case bu.FullCommand():
-		db = dbIO.Connect(DB, *user)
-		defer db.DB.Close()
+		db := connectToDatabase()
+		start = db.Starttime
 		backup(db.Password)
 	case New.FullCommand():
-		db = dbIO.Connect(DB, *user)
-		defer db.DB.Close()
+		db := connectToDatabase()
+		start = db.Starttime
 		db.NewTables(COL)
 	case upload.FullCommand():
 		start = uploadToDB()
