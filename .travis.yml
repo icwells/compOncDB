@@ -5,4 +5,5 @@ go: "1.10.x"
 sudo: false
 
 script:
-    - go test -v src/*/*.go
+    - go test -v src/parseRecords/*.go
+	- go test -v src/compOncDB/*.go
