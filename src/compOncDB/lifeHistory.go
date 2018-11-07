@@ -21,7 +21,7 @@ func uploadTraits(db *dbIO.DBIO, traits [][]string) {
 }
 
 func fmtEntry(tid string, row []string) []string {
-	// Returns row formatted for upload with NAs replaced with 0.0
+	// Returns row formatted for upload with NAs replaced with -1.0
 	entry := []string{tid}
 	for _, i := range row[1:14] {
 		if i == "NA" {
