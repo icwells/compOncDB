@@ -100,7 +100,10 @@ func getTable(tables map[string]string, col string) []string {
 	// Determines which table column is in
 	var ret []string
 	col = strings.ToLower(col)
-	if strings.Contains(col, "_id") == false {
+	if col == "id" {
+		// Return tables for uid
+		ret = []string{"Patient", "Source", "Diagnosis", "Tumor_relation"}
+	} else if strings.Contains(col, "_id") == false {
 		if strings.Contains(col, "_") == false {
 			col = strings.Title(col)
 		}
@@ -114,9 +117,6 @@ func getTable(tables map[string]string, col string) []string {
 				}
 			}
 		}
-	} else if col == "id" {
-		// Return tables for uid
-		ret = []string{"Patient", "Source", "Diagnosis", "Tumor_relation"}
 	} else {
 		// Return multiple tables for ids
 		if col == "taxa_id" {
