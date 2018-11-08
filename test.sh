@@ -28,8 +28,9 @@ MOUT="$TESTDIR/merged.csv"
 
 # Test parseRecords
 $PR extract -s $SERVICE -i $INPUT -o $DOUT
-
+diff $DOUT $DIAG
 $PR merge -s $SERVICE -i $INPUT -o $MOUT
+diff $MOUT $PATIENTS
 # Delete test files
 rm $DOUT
 rm $MOUT
@@ -37,9 +38,9 @@ rm $MOUT
 # Upload test data
 $CDB test -i $PATIENTS --taxafile $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM
 
-# Check table sizes
-
 # Dump tables and compare to expected
+
+# Check table sizes
 
 # Test taxaSearch output
 
