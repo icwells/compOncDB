@@ -7,30 +7,35 @@
 #	Required:	go 1.10+
 #				mysql 14.14+
 ##############################################################################
-
+TESTDIR=$(pwd)/test
 CDB=bin/compOncDB
 PR=bin/parseRecords
 
-SERVICE="NWZP"
 TAXA=test/taxonomies.csv
+LIFEHIST=
+DENOM=
+DIAG=
+PATIENTS=
+
+SERVICE="NWZP"
 INPUT=test/testInput.csv
+DOUT="$TESTDIR/diagnoses.csv"
+MOUT="$TESTDIR/merged.csv"
 
 
 # Compile binaries
 ./install.sh
 
-# Test extractDiagnosis
-$PR extract -s $SERVICE -i $INPUT -o  
+# Test parseRecords
+$PR extract -s $SERVICE -i $INPUT -o $DOUT
 
-# Test merger
+$PR merge -s $SERVICE -i $INPUT -o $MOUT
+# Delete test files
+rm $DOUT
+rm $MOUT
 
 # Upload test data
-$CDB new --test
-$CDB upload --test --common --taxa -i $TAXA
-$CDB upload --test --taxa -i $TAXA
-$CDB upload --test --lh -i 
-$CDB upload --test --den -i 
-$CDB upload --test --patient -i 
+$CDB test -i $PATIENTS --taxafile $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM
 
 # Check table sizes
 

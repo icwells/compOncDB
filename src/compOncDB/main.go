@@ -27,7 +27,6 @@ var (
 	ver     = kingpin.Command("version", "Prints version info and exits.")
 	bu      = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
 	New     = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
-	test	= kingpin.Flag("test", "Use testDataBase instead of comparativeOncology database.").Default("false").Bool()
 	eval    = search.Flag("eval", "Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <). ").Default("nil").String()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
@@ -49,13 +48,19 @@ var (
 	min     = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
 	nec     = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
 
-	txn    = "Name of taxonomic unit to extract data for or path to file with single column of units."
 	search = kingpin.Command("search", "Searches database for matches to given term.")
-	taxon  = search.Flag("taxa", txn).Short('t').Default("nil").String()
+	taxon  = search.Flag("taxa", "Name of taxonomic unit to extract data for or path to file with single column of units.").Short('t').Default("nil").String()
 	level  = search.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
 	com    = search.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	count  = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
 	table  = search.Flag("table", "Return matching rows from this table only.").Default("nil").String()
+
+	test 		= kingpin.Command("test", "Tests database functionality using testDataBase instead of comaprative oncology.")
+	taxafile	= test.Flag("taxonomy", "Path to taxonomy file.").String()
+	diagnosis	= test.Flag("diagnosis", "Path to extracted diganoses file.").String()
+	lifehistory	= test.Flag("lifehistory", "Path to life history data.").String()
+	noncancer	= test.Flag("denominators", "Path to file conataining non-cancer totals.").String()
+	testsearch	= test.Flag("search", "Search for matches using above commands.").Default("false").Bool()
 )
 
 func version() {
@@ -81,10 +86,10 @@ func backup(pw string) {
 	}
 }
 
-func connectToDatabase() *dbIO.DBIO {
+func connectToDatabase(testdb bool) *dbIO.DBIO {
 	// Manages call to Connect and ReadColumns
 	var d string
-	if *test == true {
+	if testdb == true {
 		d = TDB
 	} else {
 		d = DB
@@ -101,7 +106,7 @@ func uploadToDB() time.Time {
 		fmt.Print("\n\t[Error] Please specify input file. Exiting.\n\n")
 		os.Exit(1)
 	}
-	db := connectToDatabase()
+	db := connectToDatabase(false)
 	if *taxa == true {
 		// Upload taxonomy
 		loadTaxa(db, *infile, *common)
@@ -124,7 +129,7 @@ func uploadToDB() time.Time {
 
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
-	db := connectToDatabase()
+	db := connectToDatabase(false)
 	if *total == true {
 		speciesTotals(db)
 	} else if *del == true && *eval != "nil" {
@@ -143,7 +148,7 @@ func updateDB() time.Time {
 
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
-	db := connectToDatabase()
+	db := connectToDatabase(false)
 	if *dump != "nil" {
 		if *dump == "Accounts" && *user != "root" {
 			fmt.Print("\n\t[Error] Must be root to access Accounts table. Exiting.\n\n")
@@ -171,7 +176,7 @@ func searchDB() time.Time {
 	// Performs search functions on database
 	var res [][]string
 	var header string
-	db := connectToDatabase()
+	db := connectToDatabase(false)
 	if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
@@ -206,17 +211,41 @@ func searchDB() time.Time {
 	return db.Starttime
 }
 
+func testDB() time.Time {
+	// Performs test uploads and extractions
+	db := connectToDatabase(true)
+	db.NewTables(COL)
+	if *testsearch == false {
+		// Upload taxonomy
+		loadTaxa(db, *taxafile, true)
+		loadLifeHistory(db, *lifehistory)
+		// Uplaod denominator table
+		loadNonCancerTotals(db, *noncancer)
+		// Upload patient data
+		loadAccounts(db, *infile)
+		loadDiagnoses(db, *infile)
+		loadPatients(db, *infile)
+		for k := range db.Columns {
+			// Dump all tables for comparison
+			table := db.GetTable(k)
+			out := fmt.Sprintf("%s%s.csv", *outfile, k)
+			iotools.WriteToCSV(out, db.Columns[k], table)
+		}
+	}
+	return db.Starttime
+}
+
 func main() {
 	var start time.Time
 	switch kingpin.Parse() {
 	case ver.FullCommand():
 		version()
 	case bu.FullCommand():
-		db := connectToDatabase()
+		db := connectToDatabase(false)
 		start = db.Starttime
 		backup(db.Password)
 	case New.FullCommand():
-		db := connectToDatabase()
+		db := connectToDatabase(false)
 		start = db.Starttime
 		db.NewTables(COL)
 	case upload.FullCommand():
@@ -227,6 +256,8 @@ func main() {
 		start = extractFromDB()
 	case search.FullCommand():
 		start = searchDB()
+	case test.FullCommand():
+		start = testDB()
 	}
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }
