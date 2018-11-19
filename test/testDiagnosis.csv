@@ -1,19 +1,16 @@
 ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Necropsy
-1,NA,NA,NA,NA,NA,NA,NA,NA,N
-3,24,male,NA,lymph nodes,lymphoma,NA,NA,NA,NA
-4,NA,NA,NA,NA,NA,NA,NA,NA,Y
-5,NA,NA,NA,NA,NA,NA,NA,NA,NA
-6,NA,NA,NA,NA,NA,NA,NA,NA,Y
-7,NA,NA,NA,NA,NA,NA,NA,NA,Y
-8,NA,NA,NA,ovary,carcinoma,NA,NA,NA,NA
-9,NA,NA,NA,NA,NA,NA,NA,NA,NA
-10,0,female,NA,NA,NA,NA,NA,NA,N
-11,156,female,NA,uterus,carcinoma,Y,NA,Y,NA
-12,60,male,NA,NA,NA,NA,NA,NA,NA
-13,126,female,Y,NA,NA,NA,NA,NA,N
-14,0,female,NA,NA,NA,NA,NA,NA,NA
-15,0,NA,NA,NA,NA,NA,NA,NA,NA
-16,132,female,NA,liver,adenocarcinoma,Y,NA,NA,NA
-17,144,male,Y,NA,NA,NA,NA,NA,NA
-18,NA,male,N,NA,NA,NA,NA,NA,NA
-19,NA,male,N,NA,NA,NA,NA,NA,NA
+1,NA,male,NA,NA,NA,NA,N,NA,N
+3,24,male,NA,lymph nodes,lymphoma,NA,N,NA,NA
+4,NA,NA,NA,NA,NA,NA,N,NA,Y
+6,NA,NA,NA,NA,NA,NA,N,NA,Y
+8,NA,NA,NA,ovary,adenoma,NA,N,NA,NA
+10,0,female,NA,skin,carcinoma,NA,N,NA,N
+11,156,female,NA,uterus,carcinoma,NA,N,Y,NA
+12,60,male,NA,NA,NA,NA,N,NA,NA
+13,126,female,Y,NA,NA,NA,N,NA,N
+14,0,female,NA,NA,NA,NA,N,NA,NA
+15,192,NA,NA,NA,NA,NA,N,NA,NA
+16,132,female,NA,liver,adenocarcinoma,Y,N,NA,NA
+17,144,male,Y,NA,NA,NA,N,NA,NA
+18,NA,male,N,NA,NA,NA,N,NA,NA
+19,NA,male,N,NA,NA,NA,N,NA,NA

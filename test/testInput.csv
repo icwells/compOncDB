@@ -6,10 +6,10 @@ UID,Client,Account,CASE,ID,Date,PT_Name,Patient,Code,Diagnosis,caseid,Sex,Age
 5,XYZ,X520,X12,3,1-Dec,Coyote,12-54,M/F,MICRONED HEPATITIS,X12-3,,
 6,XYZ,X520,A99,4,1-Dec,Coyote,99-115,14,,A99-4,,
 7,XYZ,X520,A99,5,1-Dec,Coyote,99-117,M/F,ASPERGILLOSIS,A99-5,,
-8,KV Zoo,A16,A99,6,1-Dec,wolf,99-118,M/F,Ovarian carcinoma,A99-6,,
+8,KV Zoo,A16,A99,6,1-Dec,wolf,99-118,M/F8,Ovarian adenoma,A99-6,,
 9,KV Zoo,A16,A99,7,1-Dec,wolf,99-121,M/F,,A99-7,,
-10,KV Zoo,A16,A100,,,wolf,,8,"skin biopsy:  squamous cell carcinoma, in situ",,Female,0
-11,KV Zoo,A16,A101,,,wolf,,8,Uterus:  Endometrial carcinoma with hepatic metastasis,,Female,13
+10,KV Zoo,A16,A100,,,wolf,,8,skin biopsy:  squamous cell carcinoma; in situ,,Female,0
+11,KV Zoo,A16,A101,,,wolf,,8,Uterus:  Endometrial carcinoma with metastatis,,Female,13
 12,KV Zoo,A16,A102,,,wolf,,,,,Male,5
 13,KV Zoo,A16,A103,,,wolf,,,Spayed biopsy,,Female,10.5
 14,KV Zoo,A16,A104,,,wolf,,,,,Female,0

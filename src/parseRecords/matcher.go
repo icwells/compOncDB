@@ -60,12 +60,12 @@ func (m *matcher) setTypes() {
 	m.types = map[string]*regexp.Regexp {
 		"adenocarcinoma": regexp.MustCompile(`(?i)adenocarcinoma`),
 		"adenoma": regexp.MustCompile(`(?i)adenoma`),
-		"carcinoma": regexp.MustCompile(`(?i)carcinoma|TCC`),
+		"carcinoma": regexp.MustCompile(`(?i)\scarcinoma|TCC`),
 		"lymphoma": regexp.MustCompile(`(?i)lymphoma|lymphosarcoma`),
 		"leukemia": regexp.MustCompile(`(?i)leukemia`),
 		"neoplasia": regexp.MustCompile(`(?i)neoplasia|neoplasm|tumor`),
 		"polyp": regexp.MustCompile(`(?i)polyp`),
-		"sarcoma": regexp.MustCompile(`(?i)sarcoma`),
+		"sarcoma": regexp.MustCompile(`(?i)\ssarcoma`),
 	}
 }
 
@@ -78,7 +78,7 @@ func newMatcher() matcher {
 	m.sex = regexp.MustCompile(`(fe)?male`)
 	m.castrated = regexp.MustCompile(`(not )?(castrat(ed)?|neuter(ed)?|spay(ed)?)`)
 	m.malignant = regexp.MustCompile(`(not )?(malignant|benign)`)
-	m.metastasis = regexp.MustCompile(`(no )?(metastatis|mets)`)
+	m.metastasis = regexp.MustCompile(`(no )?(metastatis|metastatic|mets)`)
 	m.primary = regexp.MustCompile(`primary|single|solitary|source`)
 	m.necropsy = regexp.MustCompile(`(necropsy|decesed|cause of death|autopsy|dissection|euthan)|(biopsy)`)
 	m.setTypes()
@@ -121,7 +121,7 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 			if strings.Contains(match[1], "no") == true {
 				// Negating phrase found
 				ret = "N"
-			} else if len(match[2]) > 0 {
+			} else {
 				// No negation
 				ret = "Y"
 			}

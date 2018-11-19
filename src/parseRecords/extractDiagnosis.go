@@ -32,6 +32,7 @@ func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []stri
 	// Examines line for each diagnosis case
 	var row []string
 	prim := "N"
+	line = strings.ToLower(line)
 	if e.match.infantRecords(line) == true {
 		age = "0"
 	} else if age == "NA" {
