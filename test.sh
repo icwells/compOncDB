@@ -18,7 +18,7 @@ TESTDB="$TESTDIR/coDB_test.go"
 
 TAXA="$TESTDIR/taxonomies.csv"
 LIFEHIST="$TESTDIR/testLifeHistories.csv"
-DENOM=
+DENOM="$TESTDIR/testDenominators.csv"
 DIAG="$TESTDIR/testDiagnosis.csv"
 PATIENTS="$TESTDIR/testUpload.csv"
 
@@ -44,9 +44,11 @@ $PR merge -s $SERVICE -i $INPUT -t $TAXA -d $DIAG -o $MOUT
 go test $TESTPR --run TestMergeRecords --args --expected=$PATIENTS --actual=$MOUT
 # Delete test files
 rm $DOUT
-#rm $MOUT
+rm $MOUT
 
 # Upload test data
+echo ""
+echo "Running black bo tests on database upload..."
 #$CDB test -i $PATIENTS --taxafile $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM
 
 # Dump tables and compare to expected
