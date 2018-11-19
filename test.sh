@@ -10,9 +10,11 @@
 TESTDIR=$(pwd)/test
 CDB=bin/compOncDB
 PR=bin/parseRecords
+TESTPR="$TESTDIR/parseRecords_test.go"
+TESTDB="$TESTDIR/coDB_test.go"
 
 TAXA="$TESTDIR/taxonomies.csv"
-LIFEHIST=
+LIFEHIST="$TESTDIR/testLifeHistories.csv"
 DENOM=
 DIAG="$TESTDIR/testDiagnosis.csv"
 PATIENTS=
@@ -27,9 +29,8 @@ MOUT="$TESTDIR/merged.csv"
 
 # Test parseRecords
 $PR extract -s $SERVICE -i $INPUT -o $DOUT
-diff $DOUT $DIAG
 #$PR merge -s $SERVICE -i $INPUT -o $MOUT
-#diff $MOUT $PATIENTS
+go test $TESTPR --args $TESTDIR
 # Delete test files
 #rm $DOUT
 #rm $MOUT

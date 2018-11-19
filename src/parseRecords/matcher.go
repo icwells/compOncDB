@@ -40,7 +40,7 @@ func (m *matcher) setTypes() {
 		"leukemia": regexp.MustCompile(`(?i)leukemia`),
 		"liver": regexp.MustCompile(`(?i)hepa.*|liver.*|hep.*|billia.*`),
 		"lung": regexp.MustCompile(`(?i)lung.*|pulm.*|mediasti.*`),
-		"lymph": regexp.MustCompile(`(?i)lymph|lymph node`),
+		"lymph nodes": regexp.MustCompile(`(?i)lymph|lymph node`),
 		"muscle": regexp.MustCompile(`(?i)muscle|.*structure.*`),
 		"nerve": regexp.MustCompile(`(?i)nerve.*`),
 		"other": regexp.MustCompile(`(?i)gland|basal.*|islet|multifocal|neck|nasal|neuroendo.*`),
@@ -201,7 +201,7 @@ func (m *matcher) getAge(line string) string {
 					a = a / 30.0
 				}
 				// Convert back to string
-				ret = strconv.FormatFloat(a, 'f', 4, 64)
+				ret = strconv.FormatFloat(a, 'f', -1, 64)
 			} else {
 				ret = "0"
 			}

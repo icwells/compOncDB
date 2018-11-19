@@ -8,3 +8,6 @@ upload.sh
 # Test data
 test/diagnoses.csv
 test/merged.csv
+
+# File locks
+*.~lock.*
