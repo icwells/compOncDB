@@ -4,3 +4,7 @@ bin/parseRecords
 
 # Upload script
 upload.sh
+
+# Test data
+test/diagnoses.csv
+test/merged.csv
