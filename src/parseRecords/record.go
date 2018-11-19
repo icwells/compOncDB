@@ -3,15 +3,17 @@
 package main
 
 import (
+	"bytes"
 	"strconv"
 	"strings"
 )
 
 func checkString(val string) string {
 	// Returns NA if string is malformed
+	v := strings.ToLower(val)
 	if len(val) <= 0 {
 		val = "NA"
-	} else if strings.ToLower(val) == "na" || strings.ToUpper(val) == "N/A" {
+	} else if v == "na" || v == "n/a" {
 		val = "NA"
 	}
 	return val
@@ -60,12 +62,12 @@ func newRecord() record {
 	r.species = "NA"
 	r.date = "NA"
 	r.comments = "NA"
-	r.massPresent = "-1"
+	r.massPresent = "0"
 	r.necropsy = "-1"
 	r.metastasis = "-1"
 	r.tumorType = "NA"
 	r.location = "NA"
-	r.primary = "-1"
+	r.primary = "0"
 	r.malignant = "-1"
 	r.service = "NA"
 	r.account = "NA"
@@ -76,25 +78,40 @@ func newRecord() record {
 
 func (r *record) String() string {
 	// Returns formatted string
-	var row []string
-	row = append(row, r.sex)
-	row = append(row, r.age)
-	row = append(row, r.castrated)
-	row = append(row, r.id)
-	row = append(row, r.species)
-	row = append(row, r.date)
-	row = append(row, r.comments)
-	row = append(row, r.massPresent)
-	row = append(row, r.necropsy)
-	row = append(row, r.metastasis)
-	row = append(row, r.tumorType)
-	row = append(row, r.location)
-	row = append(row, r.primary)
-	row = append(row, r.malignant)
-	row = append(row, r.service)
-	row = append(row, r.account)
-	row = append(row, r.submitter)
-	return strings.Join(row, ",")
+	buffer := bytes.NewBufferString(r.sex)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.age)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.castrated)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.id)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.species)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.date)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.comments)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.massPresent)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.necropsy)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.metastasis)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.tumorType)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.location)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.primary)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.malignant)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.service)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.account)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.submitter)
+	return buffer.String()
 }
 
 func (r *record) setPatient(line []string, c columns) {
@@ -157,11 +174,6 @@ func (r *record) setLocation(val string) {
 func (r *record) setType(val string) {
 	// Store type/NA and masspresent
 	r.tumorType = checkString(val)
-	if r.tumorType != "NA" {
-		r.massPresent = "1"
-	} else {
-		r.massPresent = "0"
-	}
 }
 
 func (r *record) setID(val string) {
@@ -193,6 +205,13 @@ func (r *record) setSex(val string) {
 	}
 }
 
+func (r *record) setMassPresent() {
+	// Determines if mass is present by evaluating diagnosis settings
+	if r.tumorType != "NA" || r.malignant == "1" || r.metastasis == "1" || r.primary == "1" {
+		r.massPresent = "1"
+	}
+}
+
 func (r *record) setDiagnosis(row []string) {
 	// Stores and formats input from diagnosis
 	r.setAge(row[0])
@@ -204,4 +223,5 @@ func (r *record) setDiagnosis(row []string) {
 	r.primary = checkBinary(row[6])
 	r.metastasis = checkBinary(row[7])
 	r.necropsy = checkBinary(row[8])
+	r.setMassPresent()
 }
