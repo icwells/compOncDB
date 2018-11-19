@@ -9,12 +9,12 @@ ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Nec
 8,NA,NA,NA,NA,NA,NA,NA,NA,NA
 9,NA,NA,NA,NA,NA,NA,NA,NA,NA
 10,0,female,NA,NA,NA,NA,NA,NA,N
-11,13,female,NA,uterus,carcinoma,Y,NA,Y,NA
-12,5,male,NA,NA,NA,NA,NA,NA,NA
-13,10.5,female,Y,NA,NA,NA,NA,NA,N
+11,156,female,NA,uterus,carcinoma,Y,NA,Y,NA
+12,60,male,NA,NA,NA,NA,NA,NA,NA
+13,126,female,Y,NA,NA,NA,NA,NA,N
 14,0,female,NA,NA,NA,NA,NA,NA,NA
 15,0,NA,NA,NA,NA,NA,NA,NA,NA
-16,11,female,NA,liver,adenocarcinoma,Y,NA,NA,NA
-17,12,male,Y,NA,NA,NA,NA,NA,NA
+16,132,female,NA,liver,adenocarcinoma,Y,NA,NA,NA
+17,144,male,Y,NA,NA,NA,NA,NA,NA
 18,NA,male,N,NA,NA,NA,NA,NA,NA
 19,NA,male,N,NA,NA,NA,NA,NA,NA

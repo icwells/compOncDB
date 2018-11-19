@@ -66,9 +66,12 @@ func (c *columns) setColumns(header []string) {
 	for idx, i := range header {
 		i = strings.TrimSpace(i)
 		i = strings.Replace(i, " ", "", -1)
-		if i == "ID" || i == "OriginID" || i == "Access#" {
-			c.id = idx
-			c.maxIndex(idx)
+		if i == "ID" || i == "OriginID" || i == "Access#" || i == "UID" {
+			if c.id < 0 {
+				// Only store first column field (later columns tend to be source ids)
+				c.id = idx
+				c.maxIndex(idx)
+			}
 		} else if i == "CommonName" || i == "Breed" || i == "PT_Name" {
 			c.common = idx
 			c.maxIndex(idx)
