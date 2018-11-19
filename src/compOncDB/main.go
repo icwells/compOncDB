@@ -216,6 +216,10 @@ func testDB() time.Time {
 	db := connectToDatabase(true)
 	db.NewTables(COL)
 	if *testsearch == false {
+		// Clear existing tables
+		/*for k := range db.Columns {
+			db.TruncateTable(k)
+		}*/
 		// Upload taxonomy
 		loadTaxa(db, *taxafile, true)
 		loadLifeHistory(db, *lifehistory)

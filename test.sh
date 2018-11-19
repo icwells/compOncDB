@@ -27,34 +27,42 @@ INPUT="$TESTDIR/testInput.csv"
 DOUT="$TESTDIR/diagnoses.csv"
 MOUT="$TESTDIR/merged.csv"
 
-# Compile binaries
+whiteBoxTests () {
+	echo "Running white box tests..."
+	go test $DBSRC
+	go test $PRSRC
+}
+
+testParseRecords () {
+	echo ""
+	echo "Running black box tests on parseRecords..."
+	$PR extract -s $SERVICE -i $INPUT -o $DOUT
+	go test $TESTPR --run TestExtractDiagnosis  --args --expected=$DIAG --actual=$DOUT
+	$PR merge -s $SERVICE -i $INPUT -t $TAXA -d $DIAG -o $MOUT
+	go test $TESTPR --run TestMergeRecords --args --expected=$PATIENTS --actual=$MOUT
+	# Delete test files
+	rm $DOUT
+	rm $MOUT
+}
+
+testDataBase () {
+	# Upload test data
+	echo ""
+	echo "Running black box tests on database upload..."
+	$CDB test -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM
+
+	# Dump tables and compare to expected
+
+	# Check table sizes
+
+	# Test taxaSearch output
+
+	# Test columnSearch output
+}
+
+# Compile binaries and call test functions
 ./install.sh
 
-# White box tests
-echo "Running white box tests..."
-go test $DBSRC
-go test $PRSRC
-
-# Test parseRecords
-echo ""
-echo "Running black box tests on parseRecords..."
-$PR extract -s $SERVICE -i $INPUT -o $DOUT
-go test $TESTPR --run TestExtractDiagnosis  --args --expected=$DIAG --actual=$DOUT
-$PR merge -s $SERVICE -i $INPUT -t $TAXA -d $DIAG -o $MOUT
-go test $TESTPR --run TestMergeRecords --args --expected=$PATIENTS --actual=$MOUT
-# Delete test files
-rm $DOUT
-rm $MOUT
-
-# Upload test data
-echo ""
-echo "Running black bo tests on database upload..."
-#$CDB test -i $PATIENTS --taxafile $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM
-
-# Dump tables and compare to expected
-
-# Check table sizes
-
-# Test taxaSearch output
-
-# Test columnSearch output
+#whiteBoxTests
+#testParseRecords
+testDataBase
