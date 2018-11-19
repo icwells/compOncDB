@@ -1,12 +1,11 @@
 ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Necropsy
-1,NA,NA,NA,NA,NA,NA,NA,NA,NA
-2,NA,NA,NA,NA,NA,NA,NA,NA,NA
+1,NA,NA,NA,NA,NA,NA,NA,NA,N
 3,24,male,NA,lymph nodes,lymphoma,NA,NA,NA,NA
 4,NA,NA,NA,NA,NA,NA,NA,NA,Y
 5,NA,NA,NA,NA,NA,NA,NA,NA,NA
 6,NA,NA,NA,NA,NA,NA,NA,NA,Y
-7,NA,NA,NA,NA,NA,NA,NA,NA,NA
-8,NA,NA,NA,NA,NA,NA,NA,NA,NA
+7,NA,NA,NA,NA,NA,NA,NA,NA,Y
+8,NA,NA,NA,ovary,carcinoma,NA,NA,NA,NA
 9,NA,NA,NA,NA,NA,NA,NA,NA,NA
 10,0,female,NA,NA,NA,NA,NA,NA,N
 11,156,female,NA,uterus,carcinoma,Y,NA,Y,NA

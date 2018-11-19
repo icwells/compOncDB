@@ -1,12 +1,12 @@
 UID,Client,Account,CASE,ID,Date,PT_Name,Patient,Code,Diagnosis,caseid,Sex,Age
-1,XYZ,X520,X11,1,12-Dec,Coyote,11-4582,8,NORMAL BLOOD SMEAR,X11-1,,
+1,XYZ,X520,X11,1,12-Dec,Coyote,11-4582,8,Biopsy: NORMAL BLOOD SMEAR,X11-1,Male,
 2,XYZ,X520,X11,2,13-Jan,Coyote,11-930344,C/C,ERYTHROPHAGOCYTOSIS,X11-2,,
 3,XYZ,X520,X12,1,1-Dec,Coyote,12-32,,Lymphoma lymph nodes 2 year old male,X12-1,,
 4,XYZ,X520,X12,2,1-Dec,Coyote,12-35,M/F,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,X12-2,,
 5,XYZ,X520,X12,3,1-Dec,Coyote,12-54,M/F,MICRONED HEPATITIS,X12-3,,
 6,XYZ,X520,A99,4,1-Dec,Coyote,99-115,14,,A99-4,,
 7,XYZ,X520,A99,5,1-Dec,Coyote,99-117,M/F,ASPERGILLOSIS,A99-5,,
-8,KV Zoo,A16,A99,6,1-Dec,wolf,99-118,M/F,COLLOMIC GRANULONES YOLK COLLOMITIS,A99-6,,
+8,KV Zoo,A16,A99,6,1-Dec,wolf,99-118,M/F,Ovarian carcinoma,A99-6,,
 9,KV Zoo,A16,A99,7,1-Dec,wolf,99-121,M/F,,A99-7,,
 10,KV Zoo,A16,A100,,,wolf,,8,"skin biopsy:  squamous cell carcinoma, in situ",,Female,0
 11,KV Zoo,A16,A101,,,wolf,,,Uterus:  Endometrial carcinoma with hepatic metastasis,,Female,13

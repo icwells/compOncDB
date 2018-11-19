@@ -38,7 +38,7 @@ func getColumns(headers [][]string) []columns {
 			case 2:
 				c.submitter = 1
 				c.account = 2
-				c.id = 4
+				c.id = 0
 				c.date = 5
 				c.common = 6
 				c.patient = 7
@@ -58,7 +58,7 @@ func getColumns(headers [][]string) []columns {
 				c.max = 9
 			case 4:
 				c.submitter = 1
-				c.id = 2
+				c.id = 0
 				c.species = 5
 				c.sex = 6
 				c.age = 7
