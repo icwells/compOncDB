@@ -89,15 +89,16 @@ func backup(pw string) {
 
 func connectToDatabase(testdb bool) *dbIO.DBIO {
 	// Manages call to Connect and ReadColumns
-	var d string
+	var d, t string
 	if testdb == true {
 		d = TDB
+		t = *tables
 	} else {
 		d = DB
+		t = COL
 	}
 	db := dbIO.Connect(d, *user)
-	db.ReadColumns(COL, false)
-	defer db.DB.Close()
+	db.ReadColumns(t, false)
 	return db
 }
 
@@ -215,12 +216,17 @@ func searchDB() time.Time {
 func testDB() time.Time {
 	// Performs test uploads and extractions
 	db := connectToDatabase(true)
+	err := db.DB.Ping()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	db.NewTables(*tables)
 	if *testsearch == false {
 		// Clear existing tables
-		/*for k := range db.Columns {
+		for k := range db.Columns {
 			db.TruncateTable(k)
-		}*/
+		}
 		// Upload taxonomy
 		loadTaxa(db, *taxafile, true)
 		loadLifeHistory(db, *lifehistory)

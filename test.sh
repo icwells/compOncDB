@@ -7,13 +7,14 @@
 #	Required:	go 1.10+
 #				mysql 14.14+
 ##############################################################################
-DBSRC=src/compOncDB/*.go
-PRSRC=src/parseRecords/*.go
-CDB=bin/compOncDB
-PR=bin/parseRecords
-TABLES=bin/tableColumns.txt
+WD=$(pwd)
+DBSRC="$WD/src/compOncDB/*.go"
+PRSRC="$WD/src/parseRecords/*.go"
+CDB="$WD/bin/compOncDB"
+PR="$WD/bin/parseRecords"
+TABLES="$WD/bin/tableColumns.txt"
 
-TESTDIR=$(pwd)/test
+TESTDIR=$WD/test
 TESTPR="$TESTDIR/parseRecords_test.go"
 TESTDB="$TESTDIR/coDB_test.go"
 
