@@ -11,6 +11,7 @@ DBSRC=src/compOncDB/*.go
 PRSRC=src/parseRecords/*.go
 CDB=bin/compOncDB
 PR=bin/parseRecords
+TABLES=bin/tableColumns.txt
 
 TESTDIR=$(pwd)/test
 TESTPR="$TESTDIR/parseRecords_test.go"
@@ -49,7 +50,7 @@ testDataBase () {
 	# Upload test data
 	echo ""
 	echo "Running black box tests on database upload..."
-	$CDB test -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM
+	$CDB test --tables $TABLES -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM
 
 	# Dump tables and compare to expected
 

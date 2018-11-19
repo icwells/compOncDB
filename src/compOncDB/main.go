@@ -56,6 +56,7 @@ var (
 	table  = search.Flag("table", "Return matching rows from this table only.").Default("nil").String()
 
 	test 		= kingpin.Command("test", "Tests database functionality using testDataBase instead of comaprative oncology.")
+	tables		= test.Flag("tables", "Path tableColumns.txt file.").String()
 	taxafile	= test.Flag("taxonomy", "Path to taxonomy file.").String()
 	diagnosis	= test.Flag("diagnosis", "Path to extracted diganoses file.").String()
 	lifehistory	= test.Flag("lifehistory", "Path to life history data.").String()
@@ -214,7 +215,7 @@ func searchDB() time.Time {
 func testDB() time.Time {
 	// Performs test uploads and extractions
 	db := connectToDatabase(true)
-	db.NewTables(COL)
+	db.NewTables(*tables)
 	if *testsearch == false {
 		// Clear existing tables
 		/*for k := range db.Columns {
