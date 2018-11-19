@@ -1,0 +1,4 @@
+Query,SearchTerm,Kingdom,Phylum,Class,Order,Family,Genus,Species,EOL,NCBI,Wikipedia,IUCN,GBIF,ITIS
+Coyote,Coyote,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans,http://eol.org/api/hierarchy_entries/1.0.xml?id=52440711,NA,https://en.wikipedia.org/wiki/Coyote,NA,NA,
+wolf,Wolf,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus,http://eol.org/api/hierarchy_entries/1.0.xml?id=52624675,NA,https://en.wikipedia.org/wiki/Wolf,NA,NA,
+GRAY WOLF,Wolf,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus,http://eol.org/api/hierarchy_entries/1.0.xml?id=52624675,NA,https://en.wikipedia.org/wiki/Wolf,NA,NA,
