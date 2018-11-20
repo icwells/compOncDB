@@ -1,0 +1,4 @@
+taxa_id, Total, Avgage, Adult, Male, Female, Cancer, Cancerage, Malecancer, Femalecancer
+1,7,24.00,1,1,0,1,24.00,1,0
+2,12,135.00,6,2,3,2,144.00,0,2
+3,0,-1.00,0,0,0,0,-1.00,0,0

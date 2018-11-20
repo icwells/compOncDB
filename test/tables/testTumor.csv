@@ -1,0 +1,6 @@
+tumor_id, Type, Location
+1,lymphoma,lymph nodes
+2,adenoma,ovary
+3,carcinoma,skin
+4,carcinoma,uterus
+5,adenocarcinoma,liver
