@@ -89,16 +89,16 @@ func backup(pw string) {
 
 func connectToDatabase(testdb bool) *dbIO.DBIO {
 	// Manages call to Connect and ReadColumns
-	var d, t string
+	var d string
 	if testdb == true {
 		d = TDB
-		t = *tables
 	} else {
 		d = DB
-		t = COL
 	}
 	db := dbIO.Connect(d, *user)
-	db.ReadColumns(t, false)
+	if testdb == false {
+		db.ReadColumns(COL, false)
+	}
 	return db
 }
 
@@ -216,12 +216,9 @@ func searchDB() time.Time {
 func testDB() time.Time {
 	// Performs test uploads and extractions
 	db := connectToDatabase(true)
-	err := db.DB.Ping()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 	db.NewTables(*tables)
+	// Re-read columns without types
+	db.ReadColumns(*tables, false)
 	if *testsearch == false {
 		// Clear existing tables
 		for k := range db.Columns {
@@ -236,6 +233,7 @@ func testDB() time.Time {
 		loadAccounts(db, *infile)
 		loadDiagnoses(db, *infile)
 		loadPatients(db, *infile)
+		fmt.Print("\n\tDumping test tables...\n\n")
 		for k := range db.Columns {
 			// Dump all tables for comparison
 			table := db.GetTable(k)

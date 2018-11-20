@@ -51,7 +51,7 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 		line := string(input.Text())
 		if first == false {
 			spl := strings.Split(line, ",")
-			c := spl[1]
+			c := strings.Title(spl[1])
 			s := spl[8]
 			if strarray.InSliceStr(species, s) == false {
 				// Skip entries which are already in db

@@ -17,11 +17,13 @@ func uploadDiagnosis(db *dbIO.DBIO, tumor map[string][]string, t int) {
 	var tmr [][]string
 	// Convert tumor map to slice
 	for k, v := range tumor {
-		for _, i := range v {
-			// Add unique taxa ID
-			t++
-			c := strconv.Itoa(t)
-			tmr = append(tmr, []string{c, k, i})
+		if k != "NA" {
+			for _, i := range v {
+				// Add unique taxa ID and append if tumor type is present
+				t++
+				c := strconv.Itoa(t)
+				tmr = append(tmr, []string{c, k, i})
+			}
 		}
 	}
 	if len(tmr) > 0 {

@@ -51,9 +51,8 @@ testDataBase () {
 	# Upload test data
 	echo ""
 	echo "Running black box tests on database upload..."
-	$CDB test --tables $TABLES -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM
-
-	# Dump tables and compare to expected
+	$CDB test --tables $TABLES -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
+	# Compare tables to expected
 
 	# Check table sizes
 

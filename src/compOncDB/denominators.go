@@ -80,7 +80,9 @@ func (d *denominators) upload() {
 		den = append(den, r)
 	}
 	vals, l := dbIO.FormatSlice(den)
-	d.db.UpdateDB("Denominators", vals, l)
+	if len(vals) >= 1 {
+		d.db.UpdateDB("Denominators", vals, l)
+	}
 }
 
 func (d *denominators) readDenominators() {
@@ -95,7 +97,8 @@ func (d *denominators) readDenominators() {
 		if first == false {
 			s := strings.Split(line, d.delim)
 			// Get taxa id
-			id, ex := com[s[d.species]]
+			c := strings.Title(strings.TrimSpace(s[d.species]))
+			id, ex := com[c]
 			if ex == true {
 				x := d.getNonCancer(s)
 				_, e := d.rec[id]
@@ -116,7 +119,7 @@ func (d *denominators) readDenominators() {
 
 func loadNonCancerTotals(db *dbIO.DBIO, infile string) {
 	// Loads denominator 
-	fmt.Println("\tUploading to denominators table...")
+	fmt.Println("\n\tUploading to denominators table...")
 	d := newDenominators(db, infile)
 	db.TruncateTable("Denominators")
 	d.readDenominators()

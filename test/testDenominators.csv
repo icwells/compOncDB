@@ -1,2 +1,2 @@
-Species,Tumor count,Total accessions,Incidence
- Gray Fox,1,2,0.5
+CommonNames,Tumor count,Total accessions,Incidence,Kingdom,Phylum,Class,Order,Family,Genus,ScientificName
+Gray Fox,1,2,0.5,Animalia,Chordata,Mammalia,Carnivora,Canidae,Urocyon,Urocyon cinereoargenteus
