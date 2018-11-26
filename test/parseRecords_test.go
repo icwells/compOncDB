@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	indir = flag.String("indir", "", "Path to output directory with test data to compare.")
 	exp = flag.String("expected", "", "Path to expected output.")
 	act = flag.String("actual", "", "Path to actual output.")
 )

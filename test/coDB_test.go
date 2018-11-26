@@ -13,10 +13,6 @@ import (
 	"testing"
 )
 
-var (
-	indir = flag.String("indir", "", "Path to output directory with test data to compare.")
-)
-
 func sortInput(files []string, expected bool) map[string]string {
 	// Returns sorted actual or expected files
 	ret := make(map[string]string)
