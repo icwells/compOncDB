@@ -14,10 +14,10 @@ import (
 )
 
 type Entries struct {
-	p	[][]string
-	d	[][]string
-	t	[][]string
-	s	[][]string
+	p [][]string
+	d [][]string
+	t [][]string
+	s [][]string
 }
 
 func (e *Entries) update(p, d, t, s []string) {

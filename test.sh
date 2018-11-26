@@ -28,6 +28,7 @@ SERVICE="NWZP"
 INPUT="$TESTDIR/testInput.csv"
 DOUT="$TESTDIR/diagnoses.csv"
 MOUT="$TESTDIR/merged.csv"
+CASES="$TESTDIR/searchCases.csv"
 
 whiteBoxTests () {
 	echo "Running white box tests..."
@@ -55,7 +56,8 @@ testDataBase () {
 	# Compare tables to expected
 	go test $TESTDB --run TestDumpTables --args --indir="$TESTDIR/tables/"
 	# Test search output
-	go test $TESTDB --run TestSearches
+	$CDB test --search --tables $TABLES -i $CASES -o "$TESTDIR/searchResults"
+	go test $TESTDB --run TestSearches --args --indir="$TESTDIR/searchResults"
 }
 
 # Compile binaries and call test functions

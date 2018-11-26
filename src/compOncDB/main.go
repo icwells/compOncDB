@@ -55,13 +55,13 @@ var (
 	count  = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
 	table  = search.Flag("table", "Return matching rows from this table only.").Default("nil").String()
 
-	test 		= kingpin.Command("test", "Tests database functionality using testDataBase instead of comaprative oncology.")
-	tables		= test.Flag("tables", "Path tableColumns.txt file.").String()
-	taxafile	= test.Flag("taxonomy", "Path to taxonomy file.").String()
-	diagnosis	= test.Flag("diagnosis", "Path to extracted diganoses file.").String()
-	lifehistory	= test.Flag("lifehistory", "Path to life history data.").String()
-	noncancer	= test.Flag("denominators", "Path to file conataining non-cancer totals.").String()
-	testsearch	= test.Flag("search", "Search for matches using above commands.").Default("false").Bool()
+	test        = kingpin.Command("test", "Tests database functionality using testDataBase instead of comaprative oncology.")
+	tables      = test.Flag("tables", "Path tableColumns.txt file.").String()
+	taxafile    = test.Flag("taxonomy", "Path to taxonomy file.").String()
+	diagnosis   = test.Flag("diagnosis", "Path to extracted diganoses file.").String()
+	lifehistory = test.Flag("lifehistory", "Path to life history data.").String()
+	noncancer   = test.Flag("denominators", "Path to file conataining non-cancer totals.").String()
+	testsearch  = test.Flag("search", "Search for matches using above commands.").Default("false").Bool()
 )
 
 func version() {
@@ -241,8 +241,11 @@ func testDB() time.Time {
 			iotools.WriteToCSV(out, db.Columns[k], table)
 		}
 	} else {
-
-	}	
+		fmt.Print("\n\tTesting search functions...\n\n")
+		var terms searchterms
+		terms.readSearchTerms(*infile, *outfile)
+		terms.searchTestCases(db)
+	}
 	return db.Starttime
 }
 

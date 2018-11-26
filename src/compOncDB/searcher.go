@@ -8,19 +8,19 @@ import (
 )
 
 type searcher struct {
-	db			*dbIO.DBIO
-	user		string
-	tables		[]string
-	column		string
-	value		string
-	operator	string
-	short		bool
-	common		bool
-	res			[][]string
-	ids			[]string
-	taxaids		[]string
-	header		string
-	na			[]string
+	db       *dbIO.DBIO
+	user     string
+	tables   []string
+	column   string
+	value    string
+	operator string
+	short    bool
+	common   bool
+	res      [][]string
+	ids      []string
+	taxaids  []string
+	header   string
+	na       []string
 }
 
 func newSearcher(db *dbIO.DBIO, tables []string, column, op, value string) *searcher {
@@ -65,7 +65,7 @@ func (s *searcher) appendSource() {
 	// Appends data from source table to res
 	m := toMap(s.db.GetRows("Source", "ID", strings.Join(s.ids, ","), "*"))
 	for idx, i := range s.res {
-		row , ex := m[i[0]]
+		row, ex := m[i[0]]
 		if ex == true {
 			s.res[idx] = append(i, row...)
 		} else {

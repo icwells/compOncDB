@@ -12,13 +12,13 @@ import (
 )
 
 type denominators struct {
-	db		*dbIO.DBIO
-	infile	string
-	delim	string
+	db      *dbIO.DBIO
+	infile  string
+	delim   string
 	species int
-	cancer	int
-	total	int
-	rec		map[string]int
+	cancer  int
+	total   int
+	rec     map[string]int
 }
 
 func newDenominators(db *dbIO.DBIO, infile string) denominators {
@@ -118,7 +118,7 @@ func (d *denominators) readDenominators() {
 }
 
 func loadNonCancerTotals(db *dbIO.DBIO, infile string) {
-	// Loads denominator 
+	// Loads denominator
 	fmt.Println("\n\tUploading to denominators table...")
 	d := newDenominators(db, infile)
 	db.TruncateTable("Denominators")

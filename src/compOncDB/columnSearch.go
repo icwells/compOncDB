@@ -38,7 +38,7 @@ func (s *searcher) tumorMap() map[string][][]string {
 	// Converts tumor_relation table to map
 	ret := make(map[string][][]string)
 	rows := s.db.GetRows("Tumor_relation", "ID", strings.Join(s.ids, ","), "*")
-	for _, i := range rows{
+	for _, i := range rows {
 		_, ex := ret[i[0]]
 		if ex == true {
 			ret[i[0]] = append(ret[i[0]], i)
@@ -81,7 +81,7 @@ func (s *searcher) searchTumor() {
 	}
 	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
 }
-	
+
 func (s *searcher) searchAccounts() {
 	// Searches source tables
 	if s.user != "root" {
@@ -129,27 +129,27 @@ func (s *searcher) assignSearch() {
 	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Masspresent,Necropsy,Metastasis,"
 	s.header = s.header + "primary_tumor,Malignant,Type,Location,service_name,account_id"
 	switch s.tables[0] {
-		// Start with potential mutliple entries
-		case "Patient":
-			s.searchPatient()
-		case "Source":
-			s.getIDs()
-		case "Tumor_relation":
-			s.getIDs()
-		case "Taxonomy":
-			s.searchTaxaIDs()
-		case "Common":
-			s.searchTaxaIDs()
-		case "Life_history":
-			s.searchTaxaIDs()
-		case "Totals":
-			s.searchTaxaIDs()
-		case "Diagnosis":
-			s.getIDs()
-		case "Tumor":
-			s.searchTumor()
-		case "Accounts":
-			s.searchAccounts()
+	// Start with potential mutliple entries
+	case "Patient":
+		s.searchPatient()
+	case "Source":
+		s.getIDs()
+	case "Tumor_relation":
+		s.getIDs()
+	case "Taxonomy":
+		s.searchTaxaIDs()
+	case "Common":
+		s.searchTaxaIDs()
+	case "Life_history":
+		s.searchTaxaIDs()
+	case "Totals":
+		s.searchTaxaIDs()
+	case "Diagnosis":
+		s.getIDs()
+	case "Tumor":
+		s.searchTumor()
+	case "Accounts":
+		s.searchAccounts()
 	}
 	if *count == false {
 		// res and ids must be set first

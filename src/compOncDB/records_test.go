@@ -9,11 +9,11 @@ import (
 
 func TestAvgAge(t *testing.T) {
 	// Tests avgAge method (in speciesTotals script)
-	ages := []struct{
-		num			float64
-		den			int
-		expected	string
-	} {
+	ages := []struct {
+		num      float64
+		den      int
+		expected string
+	}{
 		{-1.1, 15, "-1"},
 		{12.8, 0, "-1"},
 		{12.0, 4, "3"},

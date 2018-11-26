@@ -9,17 +9,17 @@ import (
 )
 
 type Record struct {
-	species   		string
-	infant    		float64
-	total     		int
-	age       		float64
-	male      		int
-	female    		int
-	cancer    		int
-	cancerage 		float64
-	adult	  		int
-	malecancer		int
-	femalecancer	int
+	species      string
+	infant       float64
+	total        int
+	age          float64
+	male         int
+	female       int
+	cancer       int
+	cancerage    float64
+	adult        int
+	malecancer   int
+	femalecancer int
 }
 
 func avgAge(n float64, d int) string {
