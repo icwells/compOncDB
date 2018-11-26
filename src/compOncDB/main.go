@@ -192,16 +192,16 @@ func searchDB() time.Time {
 				names = []string{*taxon}
 			}
 		}
-		res, header = searchTaxonomicLevels(db, names)
+		res, header = SearchTaxonomicLevels(db, names)
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *eval != "nil" {
 		// Search for column/value match
 		column, op, value := getOperation(*eval)
 		if *table == "nil" {
 			tables := getTable(db.Columns, column)
-			res, header = searchColumns(db, tables, column, op, value)
+			res, header = SearchColumns(db, tables, column, op, value)
 		} else {
-			res, header = searchSingleTable(db, *table, column, op, value)
+			res, header = SearchSingleTable(db, *table, column, op, value)
 		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
 	} else {

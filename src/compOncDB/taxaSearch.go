@@ -89,7 +89,7 @@ func (s *searcher) checkLevel(level string) {
 	}
 }
 
-func searchTaxonomicLevels(db *dbIO.DBIO, names []string) ([][]string, string) {
+func SearchTaxonomicLevels(db *dbIO.DBIO, names []string) ([][]string, string) {
 	// Extracts data using species names
 	var records map[string][]string
 	s := newSearcher(db, []string{"Taxonomy"}, *level, "=", "")
