@@ -40,7 +40,7 @@ func (s *searchterms) setCase(row []string) {
 		} else if idx == 2 && len(i) >= 1 {
 			c.column = i
 		} else if idx == 3 && len(i) >= 1 {
-			c.op = i
+			c.op = strings.Replace(i, "'", "", -1)
 		} else if idx == 4 && len(i) >= 1 {
 			c.value = i
 		} else if idx == 5 && len(i) >= 1 {

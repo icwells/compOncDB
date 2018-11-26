@@ -52,12 +52,12 @@ testDataBase () {
 	# Upload test data
 	echo ""
 	echo "Running black box tests on database upload..."
-	$CDB test --tables $TABLES -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
+	#$CDB test --tables $TABLES -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
 	# Compare tables to expected
-	go test $TESTDB --run TestDumpTables --args --indir="$TESTDIR/tables/"
+	#go test $TESTDB --run TestDumpTables --args --indir="$TESTDIR/tables/"
 	# Test search output
-	$CDB test --search --tables $TABLES -i $CASES -o "$TESTDIR/searchResults"
-	go test $TESTDB --run TestSearches --args --indir="$TESTDIR/searchResults"
+	$CDB test --search --tables $TABLES -i $CASES -o "$TESTDIR/searchResults/"
+	go test $TESTDB --run TestSearches --args --indir="$TESTDIR/searchResults/"
 }
 
 # Compile binaries and call test functions

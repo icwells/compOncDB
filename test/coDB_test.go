@@ -159,4 +159,25 @@ func TestDumpTables(t *testing.T) {
 
 func TestSearches(t *testing.T) {
 	// Tests taxonomy search output
+	flag.Parse()
+	*indir, _ = iotools.FormatPath(*indir, false)
+	files, err := filepath.Glob(*indir + "*.csv")
+	if err != nil {
+		t.Errorf("Cannot find test files in %s: %v", *indir, err)
+	}
+	expected := sortInput(files, true)
+	actual := sortInput(files, false)
+	if iotools.Exists(*indir + "gray_fox.csv") == true {
+		t.Error("Empty result saved to file.")
+	}
+	for k, v := range expected {
+		act, ex := actual[k]
+		if ex == false {
+			t.Errorf("Actual search result %s not found.", k)
+		} else {
+			compareTables(t, k, v, act)
+			// Remove test output
+			//os.Remove(act)
+		}
+	}
 }
