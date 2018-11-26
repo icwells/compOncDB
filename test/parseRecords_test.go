@@ -1,6 +1,6 @@
 // Performs black box tests on parseRecords output
 
-package parseRecords_test
+package coDB_test
 
 import (
 	"flag"
