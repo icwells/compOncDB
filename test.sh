@@ -67,3 +67,4 @@ testDataBase () {
 #whiteBoxTests
 #testParseRecords
 testDataBase
+echo ""

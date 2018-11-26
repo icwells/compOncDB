@@ -4,13 +4,16 @@ package coDB_test
 
 import (
 	"flag"
-	"fmt"
 	"github.com/icwells/go-tools/iotools"
-	"os"
+	//"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
+)
+
+var (
+	indir = flag.String("indir", "", "Path to output directory with test data to compare.")
 )
 
 func sortInput(files []string, expected bool) map[string]string {
@@ -27,17 +30,62 @@ func sortInput(files []string, expected bool) map[string]string {
 	return ret
 }
 
-func loadTable(file string) map[string][]string {
+func loadTable(file string) [][]string {
 	// Returns table as a map of string slices
-	ret := make(map[string][]string)
+	first := true
+	var col []int
+	var ret [][]string
 	f := iotools.OpenFile(file)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
 	for scanner.Scan() {
 		s := strings.Split(string(scanner.Text()), ",")
-		ret[s[0]] = s[1:]
+		if first == false {
+			for _, c := range col {
+				// Remove randomly assigned id entries
+				var head []string
+				if c == 1 {
+					head = []string{s[0]}
+				} else {
+					head = s[:c]
+				s = append(head, s[c+1:]...)
+				}
+			}
+			ret = append(ret, s)
+		} else {
+			for idx, i := range s {
+				if i == "ID" || strings.Contains(i, "_id") == true {
+					col = append(col, idx)
+				}
+			}
+		}
 	}
 	return ret
+}
+
+func compareEntries(actual, expected []string) (bool, int) {
+	// Returns true if both slices are equal
+	ret := true
+	var index int
+	for idx, i := range actual {
+		if i != expected[idx] {
+			ret = false
+			// Attempt to resolve differences in floating point precision
+			a, err := strconv.ParseFloat(i, 64)
+			if err == nil {
+				var e float64
+				e, err = strconv.ParseFloat(expected[idx], 64)
+				if err == nil && a == e {
+					ret = true
+				}
+			}
+		}
+		if ret == false {
+			index = idx
+			break
+		}
+	}
+	return ret, index
 }
 
 func compareTables(t *testing.T, name, exp, act string) {
@@ -48,22 +96,19 @@ func compareTables(t *testing.T, name, exp, act string) {
 		t.Errorf("%s: Actual length %d does not equal expected: %d", name, len(actual), len(expected))
 	} else {
 		for k, v := range actual {
-			for idx, i := range v {
-				err := false
-				// Attempt to resolve differences in floating point precision
-				a, er := strconv.ParseFloat(i, 64)
-				if er == nil {
-					var e float64
-					e, er = strconv.ParseFloat(expected[k][idx], 64)
-					if er == nil && a != e {
-						err = true
-					}
-				} else if i != expected[k][idx] {
-					err = true
+			equal := false
+			var idx int
+			for _, val := range expected {
+				// Ignore randomly assigned IDs and compare to all entries
+				if len(v) == len(val) {
+					equal, idx = compareEntries(v, val)
 				}
-				if err == true && strings.Contains(name, "Tumor") == false {
-					t.Errorf("%s %d: Actual value %s does not equal expected: %s", name, idx + 1, i, expected[k][idx])
+				if equal == true { 
+					break
 				}
+			}
+			if equal == false {
+				t.Errorf("%s %d: Actual value %s does not equal expected: %s", name, idx, actual[k][idx], expected[k][idx])
 			}
 		}
 	}
@@ -75,8 +120,7 @@ func TestDumpTables(t *testing.T) {
 	*indir, _ = iotools.FormatPath(*indir, false)
 	files, err := filepath.Glob(*indir + "*.csv")
 	if err != nil {
-		fmt.Printf("\n\t[Error] Cannot find test files in %s: %v", *indir, err)
-		os.Exit(10)
+		t.Errorf("Cannot find test files in %s: %v", *indir, err)
 	}
 	expected := sortInput(files, true)
 	actual := sortInput(files, false)
