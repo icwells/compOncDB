@@ -5,7 +5,7 @@ package coDB_test
 import (
 	"flag"
 	"github.com/icwells/go-tools/iotools"
-	//"os"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -13,8 +13,40 @@ import (
 )
 
 var (
-	indir = flag.String("indir", "", "Path to output directory with test data to compare.")
+	indir  = flag.String("indir", "", "Path to output directory with test data to compare.")
+	level  = flag.String("level", "", "Empty field for taxonomic level search.")
+	tables = flag.String("tables", "", "Path tableColumns.txt file.")
 )
+
+type idtrimmer struct {
+	columns	[]int
+}
+
+func (t *idtrimmer) setColumns(row []string) {
+	// Stores id column indeces
+	for idx, i := range row {
+		if i == "ID" || strings.Contains(i, "_id") == true {
+			t.columns = append(t.columns, idx)
+		}
+	}
+}
+
+func (t *idtrimmer) trimColumns(row []string) []string {
+	// Removes randomly generated id numbers from column
+	for _, c := range t.columns {
+		// Remove randomly assigned id entries
+		var head []string
+		if c == 1 {
+			head = []string{row[0]}
+		} else {
+			head = row[:c]
+		row = append(head, row[c+1:]...)
+		}
+	}
+	return row
+}
+
+//----------------------------------------------------------------------------
 
 func sortInput(files []string, expected bool) map[string]string {
 	// Returns sorted actual or expected files
@@ -33,31 +65,18 @@ func sortInput(files []string, expected bool) map[string]string {
 func loadTable(file string) [][]string {
 	// Returns table as a map of string slices
 	first := true
-	var col []int
 	var ret [][]string
+	var trim idtrimmer
 	f := iotools.OpenFile(file)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
 	for scanner.Scan() {
 		s := strings.Split(string(scanner.Text()), ",")
 		if first == false {
-			for _, c := range col {
-				// Remove randomly assigned id entries
-				var head []string
-				if c == 1 {
-					head = []string{s[0]}
-				} else {
-					head = s[:c]
-				s = append(head, s[c+1:]...)
-				}
-			}
+			s = trim.trimColumns(s)
 			ret = append(ret, s)
 		} else {
-			for idx, i := range s {
-				if i == "ID" || strings.Contains(i, "_id") == true {
-					col = append(col, idx)
-				}
-			}
+			trim.setColumns(s)
 		}
 	}
 	return ret
@@ -131,7 +150,13 @@ func TestDumpTables(t *testing.T) {
 		} else {
 			compareTables(t, k, v, act)
 			// Remove test output
-			//os.Remove(act)
+			os.Remove(act)
 		}
 	}
+}
+
+//----------------------------------------------------------------------------
+
+func TestSearches(t *testing.T) {
+	// Tests taxonomy search output
 }

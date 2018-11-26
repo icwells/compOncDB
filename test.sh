@@ -54,11 +54,8 @@ testDataBase () {
 	$CDB test --tables $TABLES -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
 	# Compare tables to expected
 	go test $TESTDB --run TestDumpTables --args --indir="$TESTDIR/tables/"
-	# Check table sizes
-
-	# Test taxaSearch output
-
-	# Test columnSearch output
+	# Test search output
+	go test $TESTDB --run TestSearches
 }
 
 # Compile binaries and call test functions

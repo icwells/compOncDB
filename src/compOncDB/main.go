@@ -240,7 +240,9 @@ func testDB() time.Time {
 			out := fmt.Sprintf("%s%s.csv", *outfile, k)
 			iotools.WriteToCSV(out, db.Columns[k], table)
 		}
-	}
+	} else {
+
+	}	
 	return db.Starttime
 }
 
