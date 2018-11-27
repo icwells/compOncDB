@@ -32,22 +32,22 @@ func TestCountNA(t *testing.T) {
 
 func getAge(n int) string {
 	// Returns formatted age
-	return strconv.FormatFloat(float64(n) * 12.0, 'f', -1, 64)
+	return strconv.FormatFloat(float64(n)*12.0, 'f', -1, 64)
 }
 
 func getDays(n int) string {
 	// Return formatted age from days
-	return strconv.FormatFloat(float64(n) / 30.0, 'f', -1, 64)
+	return strconv.FormatFloat(float64(n)/30.0, 'f', -1, 64)
 }
 
 func TestCheckAge(t *testing.T) {
 	// Tests checkAge for age in days and years
 	e := newEntries("service")
 	ages := []struct {
-		row		[]string
-		idx		int
-		age		string
-		days	string
+		row  []string
+		idx  int
+		age  string
+		days string
 	}{
 		{[]string{"9", "ABC", "A16", "A99", "7", "1-Dec", "PACIFIC FORD TURTLE", "99-121", "M/F", "", "A99-7"}, 0, getAge(9), getDays(9)},
 		{[]string{"f1212351", "Bongo", "skin biopsy:  squamous cell carcinoma, in situ", "", "Female", "2"}, 5, getAge(2), getDays(2)},

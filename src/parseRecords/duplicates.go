@@ -12,7 +12,7 @@ import (
 type duplicates struct {
 	ids     map[string][]string
 	reps    map[string][]string
-	count	int
+	count   int
 	records map[string]map[string]record
 }
 

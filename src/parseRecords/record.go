@@ -131,7 +131,7 @@ func (r *record) setAccount(val string) {
 func (r *record) setSubmitter(val string) {
 	//Store submitter/NA
 	terms := map[string]string{"Animal Clinic": "A. C.", "Animal Hospital": "A. H.", "Veterinary Clinic": "V. C.",
-"Veterinary Hospital": "V. H.", "Veterinary Services": "V. S.", "Pet Vet": "P. V.", "International": "Intl ", "Animal": "Anim "}
+		"Veterinary Hospital": "V. H.", "Veterinary Services": "V. S.", "Pet Vet": "P. V.", "International": "Intl ", "Animal": "Anim "}
 	val = checkString(val)
 	if val != "NA" {
 		// Resolve abbreviations

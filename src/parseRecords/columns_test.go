@@ -12,63 +12,63 @@ func getColumns(headers [][]string) []columns {
 	var ret []columns
 	for idx := range headers {
 		c := newColumns()
-		switch (idx) {
-			case 0:
-				c.id = 0
-				c.common = 2
-				c.sex = 3
-				c.age = 4 
-				c.comments = 5
-				c.max = 5
-			case 1:
-				c.id = 0
-				c.common = 2
-				c.species = 3
-				c.age = 10
-				c.sex = 11
-				c.castrated = 12
-				c.location = 13
-				c.typ = 14
-				c.malignant = 15
-				c.primary = 16
-				c.metastasis = 17
-				c.necropsy = 18
-				c.comments = 19
-				c.max = 19
-			case 2:
-				c.submitter = 1
-				c.account = 2
-				c.id = 0
-				c.date = 5
-				c.common = 6
-				c.patient = 7
-				c.code = 8
-				c.comments = 9
-				c.max = 9
-			case 3:
-				c.id = 0
-				c.date = 1
-				c.submitter = 2
-				c.patient = 3
-				c.common = 5
-				c.days = 6
-				c.age = 7
-				c.sex = 8
-				c.comments = 9
-				c.max = 9
-			case 4:
-				c.submitter = 1
-				c.id = 0
-				c.species = 5
-				c.sex = 6
-				c.age = 7
-				c.code = 8
-				c.typ = 9
-				c.location = 10
-				c.metastasis = 11
-				c.necropsy = 13
-				c.common = 15
-				c.max = 15
+		switch idx {
+		case 0:
+			c.id = 0
+			c.common = 2
+			c.sex = 3
+			c.age = 4
+			c.comments = 5
+			c.max = 5
+		case 1:
+			c.id = 0
+			c.common = 2
+			c.species = 3
+			c.age = 10
+			c.sex = 11
+			c.castrated = 12
+			c.location = 13
+			c.typ = 14
+			c.malignant = 15
+			c.primary = 16
+			c.metastasis = 17
+			c.necropsy = 18
+			c.comments = 19
+			c.max = 19
+		case 2:
+			c.submitter = 1
+			c.account = 2
+			c.id = 0
+			c.date = 5
+			c.common = 6
+			c.patient = 7
+			c.code = 8
+			c.comments = 9
+			c.max = 9
+		case 3:
+			c.id = 0
+			c.date = 1
+			c.submitter = 2
+			c.patient = 3
+			c.common = 5
+			c.days = 6
+			c.age = 7
+			c.sex = 8
+			c.comments = 9
+			c.max = 9
+		case 4:
+			c.submitter = 1
+			c.id = 0
+			c.species = 5
+			c.sex = 6
+			c.age = 7
+			c.code = 8
+			c.typ = 9
+			c.location = 10
+			c.metastasis = 11
+			c.necropsy = 13
+			c.common = 15
+			c.max = 15
 		}
 		ret = append(ret, c)
 	}

@@ -10,10 +10,10 @@ import (
 func TestSubsetLine(t *testing.T) {
 	// Tests subsetLine (in sortRecords)
 	line := []string{"Cheetah ", "", " lion", " Heloderma suspectum"}
-	matches := []struct{
-		idx			int
-		expected	string
-	} {
+	matches := []struct {
+		idx      int
+		expected string
+	}{
 		{-1, "NA"},
 		{0, "Cheetah"},
 		{1, "NA"},
@@ -32,9 +32,9 @@ func TestSubsetLine(t *testing.T) {
 func TestCheckString(t *testing.T) {
 	// Tests checkString for NA determining
 	matches := []struct {
-		value		string
-		expected	string
-	} {
+		value    string
+		expected string
+	}{
 		{"", "NA"},
 		{"yes", "yes"},
 		{"N", "N"},
@@ -51,11 +51,11 @@ func TestCheckString(t *testing.T) {
 }
 
 func TestCheckBinary(t *testing.T) {
-	// Tests binary option conversion 
+	// Tests binary option conversion
 	matches := []struct {
-		value		string
-		expected	string
-	} {
+		value    string
+		expected string
+	}{
 		{"Y", "1"},
 		{"yes", "1"},
 		{"N", "0"},
@@ -120,40 +120,40 @@ func testRecords(rows [][]string) []record {
 	var ret []record
 	for idx := range rows {
 		r := newRecord()
-		switch (idx) {
-			case 0:
-				r.age = "12"
-				r.sex = "male"
-				r.castrated = "1"
-				r.location = "Spleen"
-				r.tumorType = "Carcinoma"
-				r.massPresent = "1"
-				r.malignant = "1"
-				r.primary = "-1"
-				r.metastasis = "1"
-				r.necropsy = "1"
-			case 1:
-				r.age = "-1"
-				r.sex = "female"
-				r.castrated = "-1"
-				r.location = "NA"
-				r.tumorType = "NA"
-				r.massPresent = "0"
-				r.malignant = "-1"
-				r.primary = "-1"
-				r.metastasis = "-1"
-				r.necropsy = "-1"
-			case 2:
-				r.age = "16.5"
-				r.sex = "NA"
-				r.castrated = "0"
-				r.location = "liver"
-				r.tumorType = "sarcoma"
-				r.massPresent = "1"
-				r.malignant = "0"
-				r.primary = "1"
-				r.metastasis = "0"
-				r.necropsy = "0"
+		switch idx {
+		case 0:
+			r.age = "12"
+			r.sex = "male"
+			r.castrated = "1"
+			r.location = "Spleen"
+			r.tumorType = "Carcinoma"
+			r.massPresent = "1"
+			r.malignant = "1"
+			r.primary = "-1"
+			r.metastasis = "1"
+			r.necropsy = "1"
+		case 1:
+			r.age = "-1"
+			r.sex = "female"
+			r.castrated = "-1"
+			r.location = "NA"
+			r.tumorType = "NA"
+			r.massPresent = "0"
+			r.malignant = "-1"
+			r.primary = "-1"
+			r.metastasis = "-1"
+			r.necropsy = "-1"
+		case 2:
+			r.age = "16.5"
+			r.sex = "NA"
+			r.castrated = "0"
+			r.location = "liver"
+			r.tumorType = "sarcoma"
+			r.massPresent = "1"
+			r.malignant = "0"
+			r.primary = "1"
+			r.metastasis = "0"
+			r.necropsy = "0"
 		}
 		ret = append(ret, r)
 	}

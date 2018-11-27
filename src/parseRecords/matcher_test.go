@@ -8,17 +8,17 @@ import (
 )
 
 type matches struct {
-	line 		string
-	location	string
-	typ			string
-	infant		bool
-	age			string
-	sex			string
-	castrated	string
-	malignant	string
-	metastasis	string
-	primary		string
-	necropsy	string
+	line       string
+	location   string
+	typ        string
+	infant     bool
+	age        string
+	sex        string
+	castrated  string
+	malignant  string
+	metastasis string
+	primary    string
+	necropsy   string
 }
 
 func newMatches() []matches {
@@ -27,7 +27,7 @@ func newMatches() []matches {
 	line2 := "cause of death: single Malignant liver carcinoma; retarded growth has also been reported. 37 month old male"
 	line3 := "metastatis lymphoma, infant, 30 days, not castrated, "
 	line4 := "spayed female gray fox, "
-	return []matches {
+	return []matches{
 		{line1, "spinal cord", "neoplasia", false, "24", "female", "Y", "NA", "NA", "N", "N"},
 		{line2, "liver", "carcinoma", false, "37", "male", "NA", "Y", "NA", "Y", "Y"},
 		{line3, "lymph nodes", "lymphoma", true, "1", "NA", "N", "NA", "Y", "N", "NA"},

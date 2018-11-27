@@ -105,7 +105,7 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 		age := e.checkAge(line)
 		if e.service == "NWZP" {
 			// Get neoplasia and euthnasia codes from NWZP
-			cancer = strings.Contains(line[e.col.code], "8") 
+			cancer = strings.Contains(line[e.col.code], "8")
 			necropsy = strings.Contains(line[e.col.code], "14")
 		}
 		// Remove ID and join line

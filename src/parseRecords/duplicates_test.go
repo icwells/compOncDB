@@ -9,12 +9,12 @@ import (
 )
 
 type source struct {
-	source	string
-	id		string
-	mass	string
-	repeat	bool
-	indups	bool
-	resolve	bool
+	source  string
+	id      string
+	mass    string
+	repeat  bool
+	indups  bool
+	resolve bool
 }
 
 func newSources() []source {
@@ -50,7 +50,7 @@ func TestAdd(t *testing.T) {
 			}
 		} else {
 			// Make sure new info is added to reps map
-			if len(e.dups.reps) != l + 1 {
+			if len(e.dups.reps) != l+1 {
 				t.Error("Length of reps map did not change with novel entry.")
 			}
 			row, ex := e.dups.reps[i.source]
@@ -58,7 +58,7 @@ func TestAdd(t *testing.T) {
 				t.Error("New source not added to reps map.")
 			} else if strarray.InSliceStr(row, i.id) == false {
 				t.Error("New id not added to reps map.")
-			}			
+			}
 		}
 	}
 }
