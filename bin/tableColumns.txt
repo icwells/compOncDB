@@ -19,6 +19,7 @@ Family TEXT
 Genus TEXT
 Species TEXT
 Source TEXT
+Currator TEXT
 
 # Common
 taxa_id INT
