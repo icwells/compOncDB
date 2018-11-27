@@ -12,7 +12,6 @@ import (
 
 func (s *searcher) getRecords() map[string][]string {
 	// Gets diagnosis and metastasis data and formats values
-	fmt.Println("\tExtracting diagnosis information...")
 	d := toMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
 	tumor := s.getTumor()
 	for k, v := range d {
@@ -41,13 +40,15 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 	if s.common == true {
 		// Get taxonomy ids from common name list
 		c := s.db.GetRows("Common", "Name", strings.Join(names, ","), "*")
-		buffer := bytes.NewBufferString(c[0][0])
-		for _, i := range c[1:] {
-			buffer.WriteByte(',')
-			buffer.WriteString(i[0])
+		if len(c) >= 1 {
+			buffer := bytes.NewBufferString(c[0][0])
+			for _, i := range c[1:] {
+				buffer.WriteByte(',')
+				buffer.WriteString(i[0])
+			}
+			// Get taxonomy entries
+			table = s.db.GetRows("Taxonomy", "taxa_id", buffer.String(), "*")
 		}
-		// Get taxonomy entries
-		table = s.db.GetRows("Taxonomy", "taxa_id", buffer.String(), "*")
 	} else if ids == false {
 		// Get matching taxonomies
 		table = s.db.GetRows("Taxonomy", s.column, strings.Join(names, ","), "*")
@@ -95,25 +96,27 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string) ([][]string, string) {
 	s := newSearcher(db, []string{"Taxonomy"}, *level, "=", "")
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
 	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
-	fmt.Println("\tExtracting patient information...")
 	s.checkLevel(*level)
+	fmt.Printf("\tExtracting patient information from %s...\n", s.column)
 	taxonomy := s.getTaxonomy(names, false)
-	patients := s.getTaxa()
-	if *count == false {
-		// Skip if not needed since this is the most time consuming step
-		records = s.getRecords()
-	}
-	for _, id := range s.taxaids {
-		for _, i := range patients[id] {
-			_, ex := records[i[0]]
-			var rec []string
-			if ex == true {
-				rec = append(i, records[i[0]]...)
-			} else {
-				rec = i
+	if len(taxonomy) >= 1 {
+		patients := s.getTaxa()
+		if *count == false {
+			// Skip if not needed since this is the most time consuming step
+			records = s.getRecords()
+		}
+		for _, id := range s.taxaids {
+			for _, i := range patients[id] {
+				_, ex := records[i[0]]
+				var rec []string
+				if ex == true {
+					rec = append(i, records[i[0]]...)
+				} else {
+					rec = append(i, s.na[:5]...)
+				}
+				rec = append(rec, taxonomy[id]...)
+				s.res = append(s.res, rec)
 			}
-			rec = append(rec, taxonomy[id]...)
-			s.res = append(s.res, rec)
 		}
 	}
 	return s.res, s.header

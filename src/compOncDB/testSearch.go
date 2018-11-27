@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
-	"strconv"
 	"strings"
 )
 
@@ -23,13 +22,11 @@ type testcase struct {
 func (c *testcase) String() string {
 	// Returns formatted string
 	ret := bytes.NewBufferString(c.level)
-	ret.WriteString(", ")
 	if c.common == true {
-		ret.WriteString("true")
+		ret.WriteString(", true, ")
 	} else {
-		ret.WriteString("false")
+		ret.WriteString(", false, ")
 	}
-	ret.WriteString(", ")
 	ret.WriteString(c.op)
 	ret.WriteString(", ")
 	ret.WriteString(c.value)
@@ -43,31 +40,36 @@ type searchterms struct {
 	cases  []*testcase
 }
 
-func (s *searchterms) addCase(c *testcase) {
-	// Appends new test case
-	s.cases = append(s.cases, c)
-}
-
 func (s *searchterms) setCase(row []string) {
 	// Adds new test case to slice
+	set := false
 	c := new(testcase)
 	for idx, i := range row {
 		i = strings.TrimSpace(i)
 		if idx == 0 && len(i) >= 1 {
 			c.level = i
-		} else if idx == 1 && len(i) >= 1 {
-			c.common = true
+			set = true
+		} else if idx == 1 {
+			if strings.ToLower(i) == "true" {
+				c.common = true
+			}
+			set = true
 		} else if idx == 2 && len(i) >= 1 {
-			c.column = i
+			if strings.Contains(i, "=") == true || strings.Contains(i, ">") == true || strings.Contains(i, "<") == true {
+				c.column, c.op, c.value = getOperation(i)
+			} else {
+				c.value = i
+			}
+			set = true
 		} else if idx == 3 && len(i) >= 1 {
-			c.op = strings.Replace(i, "'", "", -1)
-		} else if idx == 4 && len(i) >= 1 {
-			c.value = i
-		} else if idx == 5 && len(i) >= 1 {
 			c.table = i
+			set = true
 		}
 	}
-	s.addCase(c)
+	if set == true {
+		// Skip empty lines
+		s.cases = append(s.cases, c)
+	}
 }
 
 func (s *searchterms) readSearchTerms(infile, outdir string) {
@@ -92,10 +94,12 @@ func (s *searchterms) searchTestCases(db *dbIO.DBIO) {
 	for _, c := range s.cases {
 		var res [][]string
 		var header string
-		fmt.Println(c)
-		outfile := fmt.Sprintf("%s%s.csv", s.outdir, strings.Replace(c.value, " ", "_", 1))
-		if _, er := strconv.Atoi(c.column); er == nil {
-			if len(c.table) >= 2 {
+		outfile := "nil"
+		if s.outdir != "nil" {
+			outfile = fmt.Sprintf("%s%s.csv", s.outdir, strings.Replace(c.value, " ", "_", 1))
+		}
+		if len(c.column) >= 1 {
+			if len(c.table) >= 1 {
 				// Perform single table search
 				res, header = SearchSingleTable(db, c.table, c.column, c.op, c.value)
 			} else {
@@ -107,7 +111,6 @@ func (s *searchterms) searchTestCases(db *dbIO.DBIO) {
 			// Perform taxonomy search
 			*com = c.common
 			*level = c.level
-			fmt.Println(*com, *level)
 			res, header = SearchTaxonomicLevels(db, []string{c.value})
 		}
 		if len(res) >= 1 {

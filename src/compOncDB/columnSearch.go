@@ -162,7 +162,7 @@ func (s *searcher) assignSearch() {
 
 func SearchColumns(db *dbIO.DBIO, tables []string, column, op, value string) ([][]string, string) {
 	// Determines search procedure
-	fmt.Printf("\tSearching for records with %s in column %s...\n", value, column)
+	fmt.Printf("\tSearching for records with '%s' in column %s...\n", value, column)
 	s := newSearcher(db, tables, column, op, value)
 	s.assignSearch()
 	return s.res, s.header
@@ -170,9 +170,9 @@ func SearchColumns(db *dbIO.DBIO, tables []string, column, op, value string) ([]
 
 func SearchSingleTable(db *dbIO.DBIO, table, column, op, value string) ([][]string, string) {
 	// Returns results from single table
-	fmt.Printf("\tSearching table %s for records with %s in column %s...\n", table, value, column)
+	fmt.Printf("\tSearching table %s for records where %s %s %s...\n", table, column, op, value)
 	s := newSearcher(db, []string{table}, column, op, value)
 	s.header = s.db.Columns[table]
-	s.res = s.db.GetRows(table, s.column, s.value, "*")
+	s.res = s.db.EvaluateRows(table, s.column, s.operator, s.value, "*")
 	return s.res, s.header
 }

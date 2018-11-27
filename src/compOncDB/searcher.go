@@ -32,7 +32,7 @@ func newSearcher(db *dbIO.DBIO, tables []string, column, op, value string) *sear
 	s.column = column
 	s.value = value
 	s.operator = op
-	s.common = *common
+	s.common = *com
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s
 }
