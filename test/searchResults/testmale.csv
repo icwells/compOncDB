@@ -1,7 +1,7 @@
-Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus
-male,-1,-1,Canis latrans,12-Dec,Biopsy: NORMAL BLOOD SMEAR,0,0,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,24,-1,Canis latrans,1-Dec,Lymphoma lymph nodes 2 year old male,1,-1,-1,0,-1,lymphoma,lymph nodes,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,60,-1,Canis lupus,NA,NA,0,-1,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,144,1,Canis lupus,NA,neutered,0,-1,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,-1,0,Canis lupus,30463,NA,0,-1,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,-1,0,Canis lupus,32688,NA,0,-1,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
+Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus,service_name
+male,-1,-1,Canis latrans,12-Dec,Biopsy: NORMAL BLOOD SMEAR,0,0,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,NWZP
+male,24,-1,Canis latrans,1-Dec,Lymphoma lymph nodes 2 year old male,1,-1,-1,0,-1,lymphoma,lymph nodes,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,NWZP
+male,60,-1,Canis lupus,NA,NA,0,-1,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,NWZP
+male,144,1,Canis lupus,NA,neutered,0,-1,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,NWZP
+male,-1,0,Canis lupus,30463,NA,0,-1,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,NWZP
+male,-1,0,Canis lupus,32688,NA,0,-1,-1,0,-1,NA,NA,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,NWZP

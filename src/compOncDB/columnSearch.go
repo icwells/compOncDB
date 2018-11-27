@@ -126,8 +126,8 @@ func (s *searcher) assignSearch() {
 	// Runs appropriate search based on input
 	// Store standardized header
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
-	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Masspresent,Necropsy,Metastasis,"
-	s.header = s.header + "primary_tumor,Malignant,Type,Location,service_name,account_id"
+	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
+	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,service_name,account_id"
 	switch s.tables[0] {
 	// Start with potential mutliple entries
 	case "Patient":
@@ -154,8 +154,8 @@ func (s *searcher) assignSearch() {
 	if *count == false {
 		// res and ids must be set first
 		s.setTaxaIDs()
-		s.appendTaxonomy()
 		s.appendDiagnosis()
+		s.appendTaxonomy()
 		s.appendSource()
 	}
 }
