@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func uploadTable(db *dbIO.DBIO, taxa, common map[string][]string, count int) {
+func uploadTable(db *dbIO.DBIO, taxa map[string][]string, common map[string][][]string, count int) {
 	// Uploads table to database
 	var com [][]string
 	for k, v := range taxa {
@@ -21,10 +21,11 @@ func uploadTable(db *dbIO.DBIO, taxa, common map[string][]string, count int) {
 		count++
 		c := strconv.Itoa(count)
 		taxa[k] = append([]string{c}, v...)
-		if strarray.InMapSli(common, k) == true {
+		row, ex := common[k]
+		if ex == true {
 			// Join common names to taxa id in paired entries
-			for _, n := range common[k] {
-				com = append(com, []string{c, n})
+			for _, n := range row {
+				com = append(com, []string{c, n[0], n[1]})
 			}
 		}
 	}
@@ -38,11 +39,11 @@ func uploadTable(db *dbIO.DBIO, taxa, common map[string][]string, count int) {
 	}
 }
 
-func extractTaxa(infile string, species, com []string, commonNames bool) (map[string][]string, map[string][]string) {
+func extractTaxa(infile string, species, com []string, commonNames bool) (map[string][]string, map[string][][]string) {
 	// Extracts taxonomy from input file
 	first := true
 	taxa := make(map[string][]string)
-	common := make(map[string][]string)
+	common := make(map[string][][]string)
 	fmt.Printf("\n\tExtracting taxa from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -55,7 +56,7 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 			s := spl[8]
 			if strarray.InSliceStr(species, s) == false {
 				// Skip entries which are already in db
-				if strarray.InMapSli(taxa, s) == false {
+				if _, ex := taxa[s]; ex == false {
 					// Add unique taxonomies
 					taxonomy := spl[2:9]
 					// Get first returned source
@@ -74,12 +75,18 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 			}
 			if commonNames == true && strarray.InSliceStr(com, c) == false {
 				// Add unique common name entries to slice
-				if strarray.InMapSli(common, s) == true {
-					if strarray.InSliceStr(common[s], c) == false {
-						common[s] = append(common[s], c)
+				curator := "NA"
+				if len(spl) >= 15 {
+					// Store curator name
+					curator = spl[15]
+				}
+				row, ex := common[s]
+				if ex == true {
+					if strarray.InSliceSli(row, c, 0) == false {
+						common[s] = append(common[s], []string{c, curator})
 					}
 				} else {
-					common[s] = append(common[s], c)
+					common[s] = append(common[s], []string{c, curator})
 				}
 			}
 		} else {
@@ -91,7 +98,8 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 
 func loadTaxa(db *dbIO.DBIO, infile string, commonNames bool) {
 	// Loads unique entries into comparative oncology taxonomy table
-	var taxa, common map[string][]string
+	var taxa map[string][]string
+	var common map[string][][]string
 	m := db.GetMax("Taxonomy", "taxa_id")
 	species := db.GetColumnText("Taxonomy", "Species")
 	com := db.GetColumnText("Common", "Name")

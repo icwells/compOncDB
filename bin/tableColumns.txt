@@ -19,11 +19,11 @@ Family TEXT
 Genus TEXT
 Species TEXT
 Source TEXT
-Curator TEXT
 
 # Common
 taxa_id INT
 Name TEXT
+Curator TEXT
 
 # Totals
 taxa_id INT PRIMARY KEY
