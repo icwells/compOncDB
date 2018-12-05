@@ -2,7 +2,7 @@ language: go
 
 go: "1.10.x"
 
-sudo: false
+sudo: required
 
 script:
   - go test -v src/parseRecords/*.go 
