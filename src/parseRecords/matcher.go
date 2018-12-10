@@ -11,6 +11,7 @@ import (
 type matcher struct {
 	location   map[string]*regexp.Regexp
 	types      map[string]*regexp.Regexp
+	malignancy map[string]string
 	infant     *regexp.Regexp
 	digit      *regexp.Regexp
 	age        *regexp.Regexp
@@ -26,7 +27,7 @@ func (m *matcher) setTypes() {
 	// Sets type and location maps
 	m.location = map[string]*regexp.Regexp{
 		"abdomen":         regexp.MustCompile(`(?i)abdomen|abdom.*|omentum|diaphragm`),
-		"bile duct":       regexp.MustCompile(`(?i)bile.*`),
+		"bile duct":       regexp.MustCompile(`(?i)bile.*|biliary`),
 		"bone":            regexp.MustCompile(`(?i)sacrum|bone.*`),
 		"brain":           regexp.MustCompile(`(?i)brain`),
 		"adrenal":         regexp.MustCompile(`(?i)adrenal`),
@@ -35,25 +36,25 @@ func (m *matcher) setTypes() {
 		"colon":           regexp.MustCompile(`(?i)colon|rectum`),
 		"duodenum":        regexp.MustCompile(`(?i)duodenum`),
 		"fat":             regexp.MustCompile(`(?i)fat|adipose.*`),
-		"heart":           regexp.MustCompile(`(?i)heart`),
-		"kidney":          regexp.MustCompile(`(?i)kidney.*|ureter`),
+		"heart":           regexp.MustCompile(`(?i)heart|cardiac|atrial`),
+		"kidney":          regexp.MustCompile(`(?i)kidney.*|ureter|renal`),
 		"leukemia":        regexp.MustCompile(`(?i)leukemia`),
 		"liver":           regexp.MustCompile(`(?i)hepa.*|liver.*|hep.*|billia.*`),
-		"lung":            regexp.MustCompile(`(?i)lung.*|pulm.*|mediasti.*`),
+		"lung":            regexp.MustCompile(`(?i)lung.*|pulm.*|mediasti.*|bronchial|alveol.*`),
 		"lymph nodes":     regexp.MustCompile(`(?i)lymph|lymph node`),
 		"muscle":          regexp.MustCompile(`(?i)muscle|.*structure.*`),
 		"nerve":           regexp.MustCompile(`(?i)nerve.*`),
 		"other":           regexp.MustCompile(`(?i)gland|basal.*|islet|multifocal|neck|nasal|neuroendo.*`),
-		"oral":            regexp.MustCompile(`(?i)oral|tongue|mouth|lip|palate`),
-		"ovary":           regexp.MustCompile(`(?i)ovary|ovarian`),
-		"pancreas":        regexp.MustCompile(`(?i)pancreas.*`),
+		"oral":            regexp.MustCompile(`(?i)oral|tongue|mouth|lip|palate|pharyn.*|laryn.*`),
+		"ovary":           regexp.MustCompile(`(?i)ovar.*`),
+		"pancreas":        regexp.MustCompile(`(?i)pancreas.*|islet`),
 		"seminal vesicle": regexp.MustCompile(`(?i)seminal vesicle`),
-		"skin":            regexp.MustCompile(`(?i)skin|eyelid`),
-		"spinal cord":     regexp.MustCompile(`(?i)spinal (cord)?`),
+		"skin":            regexp.MustCompile(`(?i)skin|eyelid|(sub)?cutan.*|derm.*`),
+		"spinal cord":     regexp.MustCompile(`(?i)spinal|spine`),
 		"spleen":          regexp.MustCompile(`(?i)spleen`),
 		"testis":          regexp.MustCompile(`(?i)testi.*`),
 		"thyroid":         regexp.MustCompile(`(?i)thyroid`),
-		"uterus":          regexp.MustCompile(`(?i)uter(us|ine)`),
+		"uterus":          regexp.MustCompile(`(?i)uter.*`),
 		"vulva":           regexp.MustCompile(`(?i)vulva|vagina`),
 		"widespread":      regexp.MustCompile(`(?i)widespread|metastatic|(body as a whole)|multiple|disseminated`),
 	}
@@ -61,11 +62,31 @@ func (m *matcher) setTypes() {
 		"adenocarcinoma": regexp.MustCompile(`(?i)adenocarcinoma`),
 		"adenoma":        regexp.MustCompile(`(?i)adenoma`),
 		"carcinoma":      regexp.MustCompile(`(?i)\scarcinoma|TCC`),
+		"cyst":			  regexp.MustCompile(`(?i)cyst`),
+		"epulis":		  regexp.MustCompile(`(?i)epuli.*`),
+		"hyperplasia":	  regexp.MustCompile(`(?i)(meta|dys|hyper)plas(ia|tic)`),
 		"lymphoma":       regexp.MustCompile(`(?i)lymphoma|lymphosarcoma`),
 		"leukemia":       regexp.MustCompile(`(?i)leukemia`),
+		"meningioma":	  regexp.MustCompile(`(?i)meningioma`),
+		"papilloma":	  regexp.MustCompile(`(?i)papilloma`),
 		"neoplasia":      regexp.MustCompile(`(?i)neoplasia|neoplasm|tumor`),
 		"polyp":          regexp.MustCompile(`(?i)polyp`),
 		"sarcoma":        regexp.MustCompile(`(?i)\ssarcoma`),
+	}
+	m.malignancy = map[string]string{
+		"adenocarcinoma": "Y",
+		"adenoma": "N",
+		"carcinoma": "Y",
+		"cyst": "N",
+		"epulis": "N",
+		"hyperplasia": "N",
+		"lymphoma": "Y",
+		"leukemia": "Y",
+		"meningioma": "N",
+		"papilloma": "N",
+		"neoplasia": "NA",
+		"polyp": "N",
+		"sarcoma": "Y",
 	}
 }
 
@@ -80,7 +101,7 @@ func newMatcher() matcher {
 	m.malignant = regexp.MustCompile(`(not )?(malignant|benign)`)
 	m.metastasis = regexp.MustCompile(`(no )?(metastatis|metastatic|mets)`)
 	m.primary = regexp.MustCompile(`primary|single|solitary|source`)
-	m.necropsy = regexp.MustCompile(`(necropsy|deceased|cause(-|\s)of(-|\s)death|autopsy|dissection|euthan)|(biopsy)`)
+	m.necropsy = regexp.MustCompile(`(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissection|euthan.*)|(biopsy)`)
 	m.setTypes()
 	return m
 }
@@ -103,14 +124,14 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 	if len(match) >= 2 {
 		if len(exp) >= 2 {
 			if strings.Contains(match[1], "no") == true {
-				// Negation found
-				if match[2] == exp {
+				// Negating phrase found
+				if match[len(match)-1] == exp {
 					ret = "Y"
 				} else {
 					ret = "N"
 				}
 			} else {
-				if match[2] == exp {
+				if match[len(match)-1] == exp {
 					// Negating expression found
 					ret = "N"
 				} else {
@@ -126,6 +147,20 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 				ret = "Y"
 			}
 		}
+	}
+	return ret
+}
+
+func (m *matcher) getMalignancy(line, t string) string {
+	// Attmepts to determine if tumor is malignant or benign
+	ret := "NA"
+	if t != "NA" {
+		res, ex := m.malignancy[t]
+		if ex == true {
+			ret = res
+		}
+	} else {
+		ret = m.binaryMatch(m.malignant, line, "benign")
 	}
 	return ret
 }

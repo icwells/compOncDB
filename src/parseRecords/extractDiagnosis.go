@@ -49,7 +49,7 @@ func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []stri
 	row = append(row, e.match.getLocation(line, cancer))
 	t := e.match.getType(line, cancer)
 	row = append(row, t)
-	row = append(row, e.match.binaryMatch(e.match.malignant, line, "benign"))
+	row = append(row, e.match.getMalignancy(line, t))
 	met := e.match.binaryMatch(e.match.metastasis, line, "")
 	if met == "N" && t != "NA" {
 		// Store yes for primary if a tumor was found but no metastasis

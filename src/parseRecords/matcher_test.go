@@ -30,7 +30,7 @@ func newMatches() []matches {
 	return []matches{
 		{line1, "spinal cord", "neoplasia", false, "24", "female", "Y", "NA", "NA", "N", "N"},
 		{line2, "liver", "carcinoma", false, "37", "male", "NA", "Y", "NA", "Y", "Y"},
-		{line3, "lymph nodes", "lymphoma", true, "1", "NA", "N", "NA", "Y", "N", "NA"},
+		{line3, "lymph nodes", "lymphoma", true, "1", "NA", "N", "Y", "Y", "N", "NA"},
 		{line4, "NA", "NA", false, "NA", "female", "Y", "NA", "NA", "N", "NA"},
 	}
 }

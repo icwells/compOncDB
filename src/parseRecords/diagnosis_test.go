@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"testing"
@@ -24,8 +23,7 @@ func TestCountNA(t *testing.T) {
 	for _, i := range nas {
 		found, complete := countNA(i.row)
 		if found != i.found || complete != i.complete {
-			msg := fmt.Sprintf("countNA returned %v, %v instead of %v, %v.", found, complete, i.found, i.complete)
-			t.Error(msg)
+			t.Errorf("countNA returned %v, %v instead of %v, %v.", found, complete, i.found, i.complete)
 		}
 	}
 }
@@ -57,8 +55,7 @@ func TestCheckAge(t *testing.T) {
 		e.col.age = i.idx
 		actual := e.checkAge(i.row)
 		if actual != i.age {
-			msg := fmt.Sprintf("Returned incorect value %s from age column. Expected %s.", actual, i.row[i.idx])
-			t.Error(msg)
+			t.Errorf("Returned incorect value %s from age column. Expected %s.", actual, i.row[i.idx])
 		}
 	}
 	for _, i := range ages {
@@ -66,8 +63,7 @@ func TestCheckAge(t *testing.T) {
 		e.col.days = i.idx
 		actual := e.checkAge(i.row)
 		if actual != i.days {
-			msg := fmt.Sprintf("Returned incorect value %s from days column. Expected %s.", actual, i.row[i.idx])
-			t.Error(msg)
+			t.Errorf("Returned incorect value %s from days column. Expected %s.", actual, i.row[i.idx])
 		}
 	}
 }
@@ -77,36 +73,32 @@ func TestParseDiagnosis(t *testing.T) {
 	e := newEntries("service")
 	matches := newMatches()
 	for _, i := range matches {
-		var msg string
 		row := e.parseDiagnosis(strings.ToLower(i.line), "NA", true, false)
 		if row[0] != i.age && i.infant == false {
-			msg = fmt.Sprintf("Actual age %s does not equal expected %s", row[0], i.age)
+			t.Errorf("Actual age %s does not equal expected %s", row[0], i.age)
 		} else if row[1] != i.sex {
-			msg = fmt.Sprintf("Actual sex %s does not equal expected %s", row[1], i.sex)
+			t.Errorf("Actual sex %s does not equal expected %s", row[1], i.sex)
 		} else if row[2] != i.castrated {
-			msg = fmt.Sprintf("Actual neuter value %s does not equal expected %s", row[2], i.castrated)
+			t.Errorf("Actual neuter value %s does not equal expected %s", row[2], i.castrated)
 		} else if row[3] != i.location {
-			msg = fmt.Sprintf("Actual location %s does not equal expected %s", row[3], i.location)
+			t.Errorf("Actual location %s does not equal expected %s", row[3], i.location)
 		} else if row[4] != i.typ {
-			msg = fmt.Sprintf("Actual type %s does not equal expected %s", row[4], i.typ)
+			t.Errorf("Actual type %s does not equal expected %s", row[4], i.typ)
 		} else if row[5] != i.malignant {
-			msg = fmt.Sprintf("Actual malignant value %s does not equal expected %s", row[5], i.malignant)
+			t.Errorf("Actual malignant value %s does not equal expected %s", row[5], i.malignant)
 		} else if row[6] != i.primary {
 			if row[4] != "NA" && row[7] == "N" {
 				// Skip if function determined a single tumor to be primary
 				if row[6] != "Y" {
-					msg = fmt.Sprintf("Actual primary %s does not equal expected %s", row[6], i.primary)
+					t.Errorf("Actual primary %s does not equal expected %s", row[6], i.primary)
 				}
 			} else {
-				msg = fmt.Sprintf("Actual primary %s does not equal expected %s", row[6], i.primary)
+				t.Errorf("Actual primary %s does not equal expected %s", row[6], i.primary)
 			}
 		} else if row[7] != i.metastasis {
-			msg = fmt.Sprintf("Actual metastasis value %s does not equal expected %s", row[7], i.metastasis)
+			t.Errorf("Actual metastasis value %s does not equal expected %s", row[7], i.metastasis)
 		} else if row[8] != i.necropsy {
-			msg = fmt.Sprintf("Actual necropsy value %s does not equal expected %s", row[8], i.necropsy)
-		}
-		if len(msg) > 1 {
-			t.Error(msg)
+			t.Errorf("%s: Actual necropsy value %s does not equal expected %s", i.line, row[8], i.necropsy)
 		}
 	}
 }
