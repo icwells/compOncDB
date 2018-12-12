@@ -9,38 +9,6 @@ import (
 	"strconv"
 )
 
-func (r *dbupload.Record) calculateRates() []string {
-	// Returns string slice of rates
-	//"ScientificName,AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
-	ret := []string{r.species}
-	ret = append(ret, strconv.Itoa(r.adult))
-	ret = append(ret, strconv.Itoa(r.cancer))
-	// Calculate rates
-	rate := float64(r.cancer) / float64(r.adult)
-	// Append rates to slice and return
-	ret = append(ret, strconv.FormatFloat(rate, 'f', 2, 64))
-	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64))
-	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64))
-	ret = append(ret, strconv.Itoa(r.male))
-	ret = append(ret, strconv.Itoa(r.female))
-	ret = append(ret, strconv.Itoa(r.malecancer))
-	ret = append(ret, strconv.Itoa(r.femalecancer))
-	return ret
-}
-
-func (r *dbupload.Record) setRecord(row []string) {
-	// Reads values from Totals table entry
-	r.total, _ = strconv.Atoi(row[1])
-	r.age, _ = strconv.ParseFloat(row[2], 64)
-	r.adult, _ = strconv.Atoi(row[3])
-	r.male, _ = strconv.Atoi(row[4])
-	r.female, _ = strconv.Atoi(row[5])
-	r.cancer, _ = strconv.Atoi((row[6]))
-	r.cancerage, _ = strconv.ParseFloat(row[7], 64)
-}
-
-//----------------------------------------------------------------------------
-
 func formatRates(records map[string]*dbupload.Record) [][]string {
 	// Calculates rates and formats for printing
 	var ret [][]string

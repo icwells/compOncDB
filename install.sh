@@ -35,7 +35,7 @@ for I in $DR $IO $KP $PR $SA $DBI $DBU $BDE; do
 	fi
 done
 
-for I in $DBU $BDE; do
+for I in $DBU $DBE; do
 	echo "Installing $I..."
 	go get -u $I
 	echo ""

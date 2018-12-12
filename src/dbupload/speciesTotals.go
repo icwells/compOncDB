@@ -9,66 +9,6 @@ import (
 	"strconv"
 )
 
-type Record struct {
-	species      string
-	infant       float64
-	total        int
-	age          float64
-	male         int
-	female       int
-	cancer       int
-	cancerage    float64
-	adult        int
-	malecancer   int
-	femalecancer int
-}
-
-func avgAge(n float64, d int) string {
-	// Returns string of n/d
-	var ret string
-	if n > 0.0 && d > 0 {
-		age := n / float64(d)
-		ret = strconv.FormatFloat(age, 'f', -1, 64)
-	} else {
-		ret = "-1"
-	}
-	return ret
-}
-
-func (r *Record) String() string {
-	// Returns formatted string of record attributes
-	ret := fmt.Sprintf("\nSpecies: %s\n", r.species)
-	ret += fmt.Sprintf("Total: %d\n", r.total)
-	ret += fmt.Sprintf("Cancer Records: %d", r.cancer)
-	return ret
-}
-
-func (r *Record) getAvgAge() string {
-	// Returns string of avg age
-	return avgAge(r.age, r.adult)
-}
-
-func (r *Record) getCancerAge() string {
-	// Returns string of average cancer record age
-	return avgAge(r.cancerage, r.cancer)
-}
-
-func (r *Record) toSlice(id string) []string {
-	// Returns string slice of values for upload to table
-	var ret []string
-	ret = append(ret, id)
-	ret = append(ret, strconv.Itoa(r.total))
-	ret = append(ret, r.getAvgAge())
-	ret = append(ret, strconv.Itoa(r.adult))
-	ret = append(ret, strconv.Itoa(r.male))
-	ret = append(ret, strconv.Itoa(r.female))
-	ret = append(ret, strconv.Itoa(r.cancer))
-	ret = append(ret, r.getCancerAge())
-	ret = append(ret, strconv.Itoa(r.malecancer))
-	ret = append(ret, strconv.Itoa(r.femalecancer))
-	return ret
-}
-
 func uploadTotals(db *dbIO.DBIO, records map[string]*Record) {
 	// Converts map to slice and uploads to table
 	var totals [][]string
