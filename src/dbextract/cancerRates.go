@@ -1,6 +1,6 @@
 // This scrpt will calculate cancer rates for species with  at least a given number of entries
 
-package main
+package dbextract
 
 import (
 	"bytes"
@@ -37,29 +37,6 @@ func (r *Record) setRecord(row []string) {
 	r.female, _ = strconv.Atoi(row[5])
 	r.cancer, _ = strconv.Atoi((row[6]))
 	r.cancerage, _ = strconv.ParseFloat(row[7], 64)
-}
-
-func inMapRec(m map[string]*Record, s string) bool {
-	// Return true if s is a key in m
-	_, ret := m[s]
-	return ret
-}
-
-func getRecKeys(records map[string]*Record) string {
-	// Returns string of taxa_ids
-	first := true
-	buffer := bytes.NewBufferString("")
-	for k, _ := range records {
-		if first == false {
-			// Write name with preceding comma
-			buffer.WriteByte(',')
-			buffer.WriteString(k)
-		} else {
-			buffer.WriteString(k)
-			first = false
-		}
-	}
-	return buffer.String()
 }
 
 //----------------------------------------------------------------------------

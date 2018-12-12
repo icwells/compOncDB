@@ -1,6 +1,6 @@
 // This script contains methods for searching tumor tables
 
-package main
+package dbextract
 
 import (
 	"github.com/icwells/dbIO"

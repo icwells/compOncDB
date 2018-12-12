@@ -1,6 +1,6 @@
 // Performs white box tests on various methods in the compOncDB package
 
-package main
+package dbupload
 
 import (
 	"strconv"
@@ -22,8 +22,7 @@ func TestAvgAge(t *testing.T) {
 	for _, i := range ages {
 		actual := avgAge(i.num, i.den)
 		if actual != i.expected {
-			msg := fmtMessage("age", actual, i.expected)
-			t.Error(msg)
+			t.Errorf("Actual age %s does not equal expected: %s", actual, i.expected)
 		}
 	}
 }
@@ -50,14 +49,13 @@ func TestToSlice(t *testing.T) {
 		actual := r.toSlice(id)
 		for idx, i := range actual {
 			if i != expected[ind][idx] {
-				msg := fmtMessage("slice value", i, expected[ind][idx])
-				t.Error(msg)
+				t.Errorf("Actual slice value %s does not equal expected: %s", i, expected[ind][idx])
 			}
 		}
 	}
 }
 
-func TestCalculateRates(t *testing.T) {
+/*func TestCalculateRates(t *testing.T) {
 	// Tests calculateRates method
 	rec := testRecords()
 	expected := [][]string{
@@ -69,9 +67,8 @@ func TestCalculateRates(t *testing.T) {
 		actual := r.calculateRates()
 		for idx, i := range actual {
 			if i != expected[ind][idx] {
-				msg := fmtMessage("calculated rate", i, expected[ind][idx])
-				t.Error(msg)
+				t.Errorf("Actual calculated rate %s does not equal expected: %s", i, expected[ind][idx])
 			}
 		}
 	}
-}
+}*/

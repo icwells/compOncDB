@@ -8,8 +8,7 @@
 #				mysql 14.14+
 ##############################################################################
 WD=$(pwd)
-DBSRC="$WD/src/compOncDB/*.go"
-PRSRC="$WD/src/parseRecords/*.go"
+SRC="$WD/src/*/*.go"
 CDB="$WD/bin/compOncDB"
 PR="$WD/bin/parseRecords"
 TABLES="$WD/bin/tableColumns.txt"
@@ -32,8 +31,7 @@ CASES="$TESTDIR/searchCases.csv"
 
 whiteBoxTests () {
 	echo "Running white box tests..."
-	go test $DBSRC
-	go test $PRSRC
+	go test $SRC
 }
 
 testParseRecords () {
@@ -64,6 +62,6 @@ testDataBase () {
 ./install.sh
 
 whiteBoxTests
-testParseRecords
-testDataBase
+#testParseRecords
+#testDataBase
 echo ""

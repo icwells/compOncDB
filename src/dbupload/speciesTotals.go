@@ -1,8 +1,9 @@
 // This script will calculate and store total occurances for each species
 
-package main
+package dbupload
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/icwells/dbIO"
 	"strconv"
@@ -134,6 +135,29 @@ func getTotals(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	return records
 }
 
+func inMapRec(m map[string]*Record, s string) bool {
+	// Return true if s is a key in m
+	_, ret := m[s]
+	return ret
+}
+
+func getRecKeys(records map[string]*Record) string {
+	// Returns string of taxa_ids
+	first := true
+	buffer := bytes.NewBufferString("")
+	for k, _ := range records {
+		if first == false {
+			// Write name with preceding comma
+			buffer.WriteByte(',')
+			buffer.WriteString(k)
+		} else {
+			buffer.WriteString(k)
+			first = false
+		}
+	}
+	return buffer.String()
+}
+
 func getAgeOfInfancy(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Updates structs with min age for each species
 	// Get appropriate ages for each taxon
@@ -170,7 +194,7 @@ func getAllSpecies(db *dbIO.DBIO) map[string]*Record {
 	return records
 }
 
-func speciesTotals(db *dbIO.DBIO) {
+func SpeciesTotals(db *dbIO.DBIO) {
 	// Recalculates occurances for each species
 	db.TruncateTable("Totals")
 	fmt.Println("\tCalculating total occurances by species...")

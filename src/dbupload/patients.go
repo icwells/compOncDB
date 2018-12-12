@@ -141,5 +141,5 @@ func LoadPatients(db *dbIO.DBIO, infile string) {
 	uploadPatients(db, "Tumor_relation", entries.t)
 	uploadPatients(db, "Source", entries.s)
 	// Recacluate species totals
-	speciesTotals(db)
+	SpeciesTotals(db)
 }

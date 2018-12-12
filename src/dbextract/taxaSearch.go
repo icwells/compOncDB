@@ -1,6 +1,6 @@
 // This script will search for given records from the comparative oncology database
 
-package main
+package dbextract
 
 import (
 	"bytes"
