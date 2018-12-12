@@ -88,7 +88,7 @@ func (d *denominators) upload() {
 func (d *denominators) readDenominators() {
 	// Reads data from input file
 	first := true
-	com := entryMap(d.db.GetTable("Common"))
+	com := EntryMap(d.db.GetTable("Common"))
 	f := iotools.OpenFile(d.infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)

@@ -35,6 +35,12 @@ for I in $DR $IO $KP $PR $SA $DBI $DBU $BDE; do
 	fi
 done
 
+for I in $DBU $BDE; do
+	echo "Installing $I..."
+	go get -u $I
+	echo ""
+done
+
 # Intall parseRecords
 echo "Building $PARSE..."
 go build -o bin/$PARSE src/$PARSE/*.go

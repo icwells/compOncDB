@@ -3,13 +3,13 @@
 package dbextract
 
 import (
-	"bytes"
 	"fmt"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"strconv"
 )
 
-func (r *Record) calculateRates() []string {
+func (r *dbupload.Record) calculateRates() []string {
 	// Returns string slice of rates
 	//"ScientificName,AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
 	ret := []string{r.species}
@@ -28,7 +28,7 @@ func (r *Record) calculateRates() []string {
 	return ret
 }
 
-func (r *Record) setRecord(row []string) {
+func (r *dbupload.Record) setRecord(row []string) {
 	// Reads values from Totals table entry
 	r.total, _ = strconv.Atoi(row[1])
 	r.age, _ = strconv.ParseFloat(row[2], 64)
@@ -41,7 +41,7 @@ func (r *Record) setRecord(row []string) {
 
 //----------------------------------------------------------------------------
 
-func formatRates(records map[string]*Record) [][]string {
+func formatRates(records map[string]*dbupload.Record) [][]string {
 	// Calculates rates and formats for printing
 	var ret [][]string
 	for _, v := range records {
@@ -50,20 +50,20 @@ func formatRates(records map[string]*Record) [][]string {
 	return ret
 }
 
-func getSpeciesNames(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
+func getSpeciesNames(db *dbIO.DBIO, records map[string]*dbupload.Record) map[string]*dbupload.Record {
 	// Adds species names to structs
-	species := entryMap(db.GetRows("Taxonomy", "taxa_id", getRecKeys(records), "Species,taxa_id"))
+	species := dbupload.entryMap(db.GetRows("Taxonomy", "taxa_id", dbupload.getRecKeys(records), "Species,taxa_id"))
 	for k, v := range species {
-		if inMapRec(records, k) == true {
+		if dbupload.inMapRec(records, k) == true {
 			records[k].species = v
 		}
 	}
 	return records
 }
 
-func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*Record {
+func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
 	// Returns map of empty species records with >= min occurances
-	records := make(map[string]*Record)
+	records := make(map[string]*dbupload.Record)
 	target := db.GetRowsMin("Totals", "Adult", "*", min)
 	for _, i := range target {
 		var rec Record

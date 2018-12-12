@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func toMap(t [][]string) map[string][]string {
+func ToMap(t [][]string) map[string][]string {
 	// Converts slice of string slices to map with first element as key
 	// If slice is two columns wide, it will append the second item to map entry
 	m := make(map[string][]string)
@@ -28,7 +28,7 @@ func toMap(t [][]string) map[string][]string {
 	return m
 }
 
-func mapOfMaps(t [][]string) map[string]map[string]string {
+func MapOfMaps(t [][]string) map[string]map[string]string {
 	// Converts table to map of maps for easier searching
 	ret := make(map[string]map[string]string)
 	for _, row := range t {
@@ -46,7 +46,7 @@ func mapOfMaps(t [][]string) map[string]map[string]string {
 	return ret
 }
 
-func entryMap(t [][]string) map[string]string {
+func EntryMap(t [][]string) map[string]string {
 	// Converts pair of columns to map for easier searching
 	m := make(map[string]string)
 	for _, i := range t {

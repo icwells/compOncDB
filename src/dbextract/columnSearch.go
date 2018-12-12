@@ -1,6 +1,6 @@
 // This script contains functions for searching tables for a given column/value combination
 
-package main
+package dbextract
 
 import (
 	"fmt"

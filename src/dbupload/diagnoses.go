@@ -82,7 +82,7 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string) map[strin
 func LoadDiagnoses(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
 	t := db.GetMax("Tumor", "tumor_id")
-	tmr := mapOfMaps(db.GetTable("Tumor"))
+	tmr := MapOfMaps(db.GetTable("Tumor"))
 	tumor := extractDiagnosis(infile, tmr)
 	uploadDiagnosis(db, tumor, t)
 }

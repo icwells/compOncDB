@@ -131,9 +131,9 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 func LoadPatients(db *dbIO.DBIO, infile string) {
 	// Loads unique patient info to appropriate tables
 	m := db.GetMax("Patient", "ID")
-	tumor := mapOfMaps(db.GetTable("Tumor"))
-	acc := mapOfMaps(db.GetTable("Accounts"))
-	species := entryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
+	tumor := MapOfMaps(db.GetTable("Tumor"))
+	acc := MapOfMaps(db.GetTable("Accounts"))
+	species := EntryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	// Get entry slices and upload to db
 	entries := extractPatients(infile, m, tumor, acc, species)
 	uploadPatients(db, "Patient", entries.p)
