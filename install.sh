@@ -3,10 +3,12 @@
 ##############################################################################
 # This script will install scripts for the compOncDB package.
 # 
-# Required programs:	Go 1.7+
+# Required programs:	Go 1.11+
 ##############################################################################
 
 DBI="github.com/icwells/dbIO"
+DBU="github.com/icwells/compOncDB/src/dbupload"
+DBE="github.com/icwells/compOncDB/src/dbextract"
 DR="github.com/go-sql-driver/mysql"
 IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"

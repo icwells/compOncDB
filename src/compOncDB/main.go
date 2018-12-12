@@ -4,6 +4,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/dbupload"
+	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -111,18 +113,18 @@ func uploadToDB() time.Time {
 	db := connectToDatabase(false)
 	if *taxa == true {
 		// Upload taxonomy
-		loadTaxa(db, *infile, *common)
+		dbupload.LoadTaxa(db, *infile, *common)
 	} else if *lh == true {
 		// Upload life history table
-		loadLifeHistory(db, *infile)
+		dbupload.LoadLifeHistory(db, *infile)
 	} else if *den == true {
 		// Uplaod denominator table
-		loadNonCancerTotals(db, *infile)
+		dbupload.LoadNonCancerTotals(db, *infile)
 	} else if *patient == true {
 		// Upload patient data
-		loadAccounts(db, *infile)
-		loadDiagnoses(db, *infile)
-		loadPatients(db, *infile)
+		dbupload.LoadAccounts(db, *infile)
+		dbupload.LoadDiagnoses(db, *infile)
+		dbupload.LoadPatients(db, *infile)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
@@ -166,7 +168,7 @@ func extractFromDB() time.Time {
 	} else if *cr == true {
 		// Extract cancer rates
 		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
-		rates := getCancerRates(db, *min, *nec)
+		rates := dbextract.GetCancerRates(db, *min, *nec)
 		writeResults(*outfile, header, rates)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
@@ -192,16 +194,16 @@ func searchDB() time.Time {
 				names = []string{*taxon}
 			}
 		}
-		res, header = SearchTaxonomicLevels(db, names)
+		res, header = dbextract.SearchTaxonomicLevels(db, names)
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *eval != "nil" {
 		// Search for column/value match
 		column, op, value := getOperation(*eval)
 		if *table == "nil" {
-			tables := getTable(db.Columns, column)
-			res, header = SearchColumns(db, tables, column, op, value)
+			tables := dbextract.getTable(db.Columns, column)
+			res, header = dbextract.SearchColumns(db, tables, column, op, value)
 		} else {
-			res, header = SearchSingleTable(db, *table, column, op, value)
+			res, header = dbextract.SearchSingleTable(db, *table, column, op, value)
 		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
 	} else {
@@ -225,14 +227,14 @@ func testDB() time.Time {
 			db.TruncateTable(k)
 		}
 		// Upload taxonomy
-		loadTaxa(db, *taxafile, true)
-		loadLifeHistory(db, *lifehistory)
+		dbupload.LoadTaxa(db, *taxafile, true)
+		dbupload.LoadLifeHistory(db, *lifehistory)
 		// Uplaod denominator table
-		loadNonCancerTotals(db, *noncancer)
+		dbupload.LoadNonCancerTotals(db, *noncancer)
 		// Upload patient data
-		loadAccounts(db, *infile)
-		loadDiagnoses(db, *infile)
-		loadPatients(db, *infile)
+		dbupload.LoadAccounts(db, *infile)
+		dbupload.LoadDiagnoses(db, *infile)
+		dbupload.LoadPatients(db, *infile)
 		fmt.Print("\n\tDumping test tables...\n\n")
 		for k := range db.Columns {
 			// Dump all tables for comparison

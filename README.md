@@ -5,7 +5,7 @@ It is currently being developed, so many features are not yet available.
 Copyright 2018 by Shawn Rupp
 
 ## Dependencies  
-Go version 1.10 or higher  
+Go version 1.11 or higher  
 MySQL 14.14 or higher  
 
 ## Installation  
