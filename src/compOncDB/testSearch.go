@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"strings"
@@ -101,17 +102,15 @@ func (s *searchterms) searchTestCases(db *dbIO.DBIO) {
 		if len(c.column) >= 1 {
 			if len(c.table) >= 1 {
 				// Perform single table search
-				res, header = SearchSingleTable(db, c.table, c.column, c.op, c.value)
+				res, header = dbextract.SearchSingleTable(db, c.table, *user, c.column, c.op, c.value, false)
 			} else {
 				// Perform column search
 				tables := getTable(db.Columns, c.column)
-				res, header = SearchColumns(db, tables, c.column, c.op, c.value)
+				res, header = dbextract.SearchColumns(db, tables, *user, c.column, c.op, c.value, false, false)
 			}
 		} else {
 			// Perform taxonomy search
-			*com = c.common
-			*level = c.level
-			res, header = SearchTaxonomicLevels(db, []string{c.value})
+			res, header = dbextract.SearchTaxonomicLevels(db, []string{c.value}, *user, c.level, false, c.common)
 		}
 		if len(res) >= 1 {
 			writeResults(outfile, header, res)

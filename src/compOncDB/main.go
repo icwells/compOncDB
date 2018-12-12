@@ -4,8 +4,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/compOncDB/src/dbextract"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -135,7 +135,7 @@ func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
 	db := connectToDatabase(false)
 	if *total == true {
-		speciesTotals(db)
+		dbupload.SpeciesTotals(db)
 	} else if *del == true && *eval != "nil" {
 		if *user == "root" {
 			column, _, value := getOperation(*eval)
