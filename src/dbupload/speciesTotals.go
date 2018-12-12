@@ -83,7 +83,7 @@ func uploadTotals(db *dbIO.DBIO, records map[string]*Record) {
 
 func addDenominators(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Adds fixed values from denominators table
-	d := toMap(db.GetTable("Denominators"))
+	d := ToMap(db.GetTable("Denominators"))
 	for k, v := range d {
 		_, ex := records[k]
 		if ex == true {
@@ -99,7 +99,7 @@ func addDenominators(db *dbIO.DBIO, records map[string]*Record) map[string]*Reco
 
 func getTotals(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Returns struct with number of total, adult, and adult cancer occurances by species
-	diag := entryMap(db.GetColumns("Diagnosis", []string{"Masspresent", "ID"}))
+	diag := EntryMap(db.GetColumns("Diagnosis", []string{"Masspresent", "ID"}))
 	rows := db.GetColumns("Patient", []string{"taxa_id", "Age", "ID", "Sex"})
 	for _, i := range rows {
 		_, exists := records[i[0]]
