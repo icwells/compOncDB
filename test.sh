@@ -63,7 +63,7 @@ testDataBase () {
 }
 
 # Compile binaries and call test functions
-./install.sh
+#./install.sh
 
 whiteBoxTests
 testParseRecords
