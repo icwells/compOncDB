@@ -1,6 +1,6 @@
 // This script will upload unique tumor and metastasis data to the comparative oncology database
 
-package main
+package dbupload
 
 import (
 	"bufio"
@@ -79,7 +79,7 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string) map[strin
 	return tumor
 }
 
-func loadDiagnoses(db *dbIO.DBIO, infile string) {
+func LoadDiagnoses(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
 	t := db.GetMax("Tumor", "tumor_id")
 	tmr := mapOfMaps(db.GetTable("Tumor"))

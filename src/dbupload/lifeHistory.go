@@ -1,7 +1,7 @@
 // This script will summarize and upload the life history
 //table for the comparative oncology database
 
-package main
+package dbupload
 
 import (
 	"bufio"
@@ -68,7 +68,7 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 	return traits
 }
 
-func loadLifeHistory(db *dbIO.DBIO, infile string) {
+func LoadLifeHistory(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology taxonomy table
 	species := entryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	ids := db.GetColumnText("Life_history", "taxa_id")

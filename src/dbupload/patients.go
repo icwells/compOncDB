@@ -1,6 +1,6 @@
 // This script will upload patient data to the comparative oncology database
 
-package main
+package dbupload
 
 import (
 	"bufio"
@@ -128,7 +128,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 	return entries
 }
 
-func loadPatients(db *dbIO.DBIO, infile string) {
+func LoadPatients(db *dbIO.DBIO, infile string) {
 	// Loads unique patient info to appropriate tables
 	m := db.GetMax("Patient", "ID")
 	tumor := mapOfMaps(db.GetTable("Tumor"))

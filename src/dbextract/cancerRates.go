@@ -96,7 +96,7 @@ func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*Record {
 	return records
 }
 
-func getCancerRates(db *dbIO.DBIO, min int, nec bool) [][]string {
+func GetCancerRates(db *dbIO.DBIO, min int, nec bool) [][]string {
 	// Returns slice of string slices of cancer rates and related info
 	var ret [][]string
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", min)

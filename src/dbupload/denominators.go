@@ -1,6 +1,6 @@
 // This script contains functions for updating/deleting values from the database
 
-package main
+package dbupload
 
 import (
 	"fmt"
@@ -117,7 +117,7 @@ func (d *denominators) readDenominators() {
 	}
 }
 
-func loadNonCancerTotals(db *dbIO.DBIO, infile string) {
+func LoadNonCancerTotals(db *dbIO.DBIO, infile string) {
 	// Loads denominator
 	fmt.Println("\n\tUploading to denominators table...")
 	d := newDenominators(db, infile)

@@ -1,7 +1,7 @@
 // This srcipt will summarize diagnosis and account data from database files
 // and upload them the comparative oncology database
 
-package main
+package dbupload
 
 import (
 	"bufio"
@@ -66,7 +66,7 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	return accounts
 }
 
-func loadAccounts(db *dbIO.DBIO, infile string) {
+func LoadAccounts(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
 	m := db.GetMax("Accounts", "account_id")
 	acc := db.GetColumns("Accounts", []string{"Account", "submitter_name"})

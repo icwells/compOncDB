@@ -1,7 +1,7 @@
 // This script will summarize and upload the taxonomy
 //table for the comparative oncology database
 
-package main
+package dbupload
 
 import (
 	"bufio"
@@ -96,7 +96,7 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 	return taxa, common
 }
 
-func loadTaxa(db *dbIO.DBIO, infile string, commonNames bool) {
+func LoadTaxa(db *dbIO.DBIO, infile string, commonNames bool) {
 	// Loads unique entries into comparative oncology taxonomy table
 	var taxa map[string][]string
 	var common map[string][][]string
