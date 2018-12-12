@@ -3,9 +3,7 @@
 package dbupload
 
 import (
-	"bytes"
 	"fmt"
-	"github.com/icwells/dbIO"
 	"strconv"
 )
 
@@ -69,7 +67,7 @@ func (r *Record) toSlice(id string) []string {
 	return ret
 }
 
-func (r *dbupload.Record) calculateRates() []string {
+func (r *Record) calculateRates() []string {
 	// Returns string slice of rates
 	//"ScientificName,AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
 	ret := []string{r.species}
@@ -88,7 +86,7 @@ func (r *dbupload.Record) calculateRates() []string {
 	return ret
 }
 
-func (r *dbupload.Record) setRecord(row []string) {
+func (r *Record) setRecord(row []string) {
 	// Reads values from Totals table entry
 	r.total, _ = strconv.Atoi(row[1])
 	r.age, _ = strconv.ParseFloat(row[2], 64)

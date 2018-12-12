@@ -24,7 +24,7 @@ func TestToMap(t *testing.T) {
 		{"3", "c"},
 		{"3", "d"},
 	}
-	actual := toMap(slice)
+	actual := ToMap(slice)
 	for k, v := range actual {
 		for idx, i := range v {
 			if i != expected1[k][idx] {
@@ -36,7 +36,7 @@ func TestToMap(t *testing.T) {
 		// Lengthen inner slice
 		slice[idx] = append(i, i[1])
 	}
-	actual = toMap(slice)
+	actual = ToMap(slice)
 	for k, v := range actual {
 		for idx, i := range v {
 			if i != expected2[k][idx] {
