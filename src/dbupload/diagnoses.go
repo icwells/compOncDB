@@ -47,6 +47,8 @@ func tumorPairs(typ, loc string) [][]string {
 
 func extractDiagnosis(infile string, tmr map[string]map[string]string) map[string][]string {
 	// Extracts accounts from input file
+	var col map[string]int
+	var l int
 	first := true
 	tumor := make(map[string][]string)
 	fmt.Printf("\n\tExtracting diagnosis data from %s\n", infile)
@@ -56,14 +58,15 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string) map[strin
 	for input.Scan() {
 		line := string(input.Text())
 		s := strings.Split(line, ",")
-		if first == false && len(s) == 17 {
+		if first == false && len(s) == l {
 			// Iterate through type, location pairs individually
-			pairs := tumorPairs(s[10], s[11])
+			pairs := tumorPairs(s[col["Type"]], s[col["Location"]])
 			for _, i := range pairs {
-				_, intmr := tmr[i[0]]
-				if intmr == false || intmr == true && strarray.InMapStr(tmr[i[0]], i[1]) == false {
+				row, intmr := tmr[i[0]]
+				_, ex := row[i[1]]
+				if intmr == false || intmr == true && ex == false {
 					// Skip entries present in database or already in map
-					if strarray.InMapSli(tumor, i[0]) == true && strarray.InSliceStr(tumor[i[0]], i[1]) == false {
+					if _, ex := tumor[i[0]]; ex == true && strarray.InSliceStr(tumor[i[0]], i[1]) == false {
 						// Add new location info
 						tumor[i[0]] = append(tumor[i[0]], i[1])
 					} else {
@@ -73,6 +76,8 @@ func extractDiagnosis(infile string, tmr map[string]map[string]string) map[strin
 				}
 			}
 		} else {
+			col = getColumns(s)
+			l = len(s)
 			first = false
 		}
 	}

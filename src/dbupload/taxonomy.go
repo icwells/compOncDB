@@ -41,7 +41,10 @@ func uploadTable(db *dbIO.DBIO, taxa map[string][]string, common map[string][][]
 
 func extractTaxa(infile string, species, com []string, commonNames bool) (map[string][]string, map[string][][]string) {
 	// Extracts taxonomy from input file
+	var col map[string]int
+	var l int
 	first := true
+	cur := true
 	taxa := make(map[string][]string)
 	common := make(map[string][][]string)
 	fmt.Printf("\n\tExtracting taxa from %s\n", infile)
@@ -49,18 +52,18 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
-		line := string(input.Text())
+		line := strings.TrimSpace(string(input.Text()))
+		spl := strings.Split(line, ",")
 		if first == false {
-			spl := strings.Split(line, ",")
-			c := strings.Title(spl[1])
-			s := spl[8]
+			c := strings.Title(spl[col["SearchTerm"]])
+			s := spl[col["Species"]]
 			if strarray.InSliceStr(species, s) == false {
 				// Skip entries which are already in db
 				if _, ex := taxa[s]; ex == false {
 					// Add unique taxonomies
-					taxonomy := spl[2:9]
+					taxonomy := spl[col["Kingdom"] : col["Species"]+1]
 					// Get first returned source
-					sources := spl[9:]
+					sources := spl[col["Species"]+1 : col["Name"]]
 					source := "NA"
 					for _, i := range sources {
 						if i != "NA" && len(i) >= 5 {
@@ -76,9 +79,9 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 			if commonNames == true && strarray.InSliceStr(com, c) == false {
 				// Add unique common name entries to slice
 				curator := "NA"
-				if len(spl) >= 15 {
+				if cur == true {
 					// Store curator name
-					curator = spl[15]
+					curator = spl[col["Name"]]
 				}
 				row, ex := common[s]
 				if ex == true {
@@ -90,6 +93,12 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 				}
 			}
 		} else {
+			col = getColumns(spl)
+			l = len(spl)
+			if _, ex := col["Name"]; ex == false {
+				col["Name"] = l + 1
+				cur = false
+			}
 			first = false
 		}
 	}

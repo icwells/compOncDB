@@ -32,6 +32,8 @@ func uploadAccounts(db *dbIO.DBIO, accounts map[string][]string, count int) {
 
 func extractAccounts(infile string, table [][]string) map[string][]string {
 	// Extracts accounts from input file
+	var col map[string]int
+	var l int
 	first := true
 	accounts := make(map[string][]string)
 	acc := ToMap(table)
@@ -40,19 +42,18 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
-		line := string(input.Text())
-		s := strings.Split(line, ",")
-		if first == false && len(s) == 17 {
+		s := strings.Split(string(input.Text()), ",")
+		if first == false && len(s) == l {
 			pass := false
-			account := strings.Trim(s[15], " \n\t")
-			client := strings.Trim(s[16], " \n\t")
+			account := strings.TrimSpace(s[col["Account"]])
+			client := strings.TrimSpace(s[col["Submitter"]])
 			// Determine if entry is unique
-			rep := strarray.InMapSli(accounts, account)
+			row, rep := accounts[account]
 			if rep == false {
 				pass = true
-			} else if rep == true && strarray.InSliceStr(accounts[account], client) == false {
+			} else if rep == true && strarray.InSliceStr(row, client) == false {
 				pass = true
-			} else if strarray.InMapSli(acc, account) == true && strarray.InSliceStr(acc[account], client) == false {
+			} else if _, ex := acc[account]; ex == true && strarray.InSliceStr(acc[account], client) == false {
 				pass = true
 			}
 			if pass == true {
@@ -60,6 +61,8 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 				accounts[account] = append(accounts[account], client)
 			}
 		} else {
+			col = getColumns(s)
+			l = len(s)
 			first = false
 		}
 	}

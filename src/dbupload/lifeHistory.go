@@ -20,10 +20,10 @@ func uploadTraits(db *dbIO.DBIO, traits [][]string) {
 	}
 }
 
-func fmtEntry(tid string, row []string) []string {
-	// Returns row formatted for upload with NAs replaced with -1.0
+func fmtEntry(l int, tid string, row []string) []string {
+	// Returns row formatted for upload with NAs replaced with -1.0; skips source column
 	entry := []string{tid}
-	for _, i := range row[1:14] {
+	for _, i := range row[1 : l-1] {
 		if i == "NA" {
 			entry = append(entry, "-1.0")
 		} else {
@@ -37,28 +37,29 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 	// Extracts taxonomy from input file
 	missed := 0
 	first := true
+	var l int
 	var traits [][]string
 	fmt.Printf("\n\tExtracting life history data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
-		line := string(input.Text())
+		line := strings.TrimSpace(string(input.Text()))
+		spl := strings.Split(line, ",")
 		if first == false {
-			line = strings.Trim(line, "\n\t ")
-			spl := strings.Split(line, ",")
 			s := strings.Trim(spl[0], "\t ")
-			if strarray.InMapStr(species, s) == true {
-				// Get taxa id from species name
-				tid := species[s]
+			// Get taxa id from species name
+			tid, ex := species[s]
+			if ex == true {
 				if strarray.InSliceStr(ids, tid) == false {
 					// Skip entries which are already in db
-					traits = append(traits, fmtEntry(tid, spl))
+					traits = append(traits, fmtEntry(l, tid, spl))
 				}
 			} else {
 				missed++
 			}
 		} else {
+			l = len(spl)
 			first = false
 		}
 	}

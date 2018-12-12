@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
-	"github.com/icwells/go-tools/strarray"
 	"math"
 	"strconv"
 	"strings"
@@ -66,47 +65,53 @@ func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
 
 func extractPatients(infile string, count int, tumor, acc map[string]map[string]string, species map[string]string) Entries {
 	// Assigns patient data to appropriate slices with unique entry IDs
+	var col map[string]int
+	var l int
+	var entries Entries
 	missed := 0
 	first := true
 	start := count
-	var entries Entries
 	fmt.Printf("\n\tExtracting patient data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
-		line := string(input.Text())
+		spl := strings.Split(string(input.Text()), ",")
 		if first == false {
 			pass := false
-			spl := strings.Split(line, ",")
 			if strings.ToUpper(spl[4]) != "NA" {
-				if len(spl) == 17 && strarray.InMapStr(species, spl[4]) == true && strarray.InMapMapStr(acc, spl[15]) == true {
+				sp, exists := species[spl[col["Species"]]]
+				ac, ex := acc[spl[col["Account"]]]
+				if len(spl) == l && exists == true && ex == true {
 					// Skip entries without valid species and source data
-					if strarray.InMapStr(acc[spl[15]], spl[16]) == true {
+					aid, e := ac[spl[col["Submitter"]]]
+					if e == true {
 						var t []string
 						count++
 						id := strconv.Itoa(count)
-						if strings.Contains(spl[3], "NA") == true {
-							// Make sure source ID is not NA
-							spl[3] = "-1"
-						} else if len(spl[1]) > 6 {
+						if strings.Contains(spl[col["ID"]], "NA") == true {
+							// Make sure source ID is an integer
+							spl[col["ID"]] = "-1"
+						} else if len(spl[col["Age"]]) > 6 {
 							// Make sure age does not exceed decimal precision
-							spl[1] = spl[1][:7]
+							spl[col["Age"]] = spl[col["Age"]][:7]
 						}
 						// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
-						p := []string{id, spl[0], spl[1], spl[2], species[spl[4]], spl[3], spl[4], spl[5], spl[6]}
+						p := []string{id, spl[col["Sex"]], spl[col["Age"]], spl[col["Castrated"]], sp, spl[col["ID"]], spl[col["Species"]], spl[col["Date"]], spl[col["Comments"]]}
 						// ID, service, account_id
-						s := []string{id, spl[14], acc[spl[15]][spl[16]]}
-						// Diagnosis entry: ID, masspresent, necropsy, metastasis_id
-						d := []string{id, spl[7], spl[8], spl[9]}
+						s := []string{id, spl[col["Service"]], aid}
+						// Diagnosis entry: ID, masspresent, hyperplasia, necropsy, metastasis_id
+						d := []string{id, spl[col["MassPresent"]], spl[col["Hyperplasia"]], spl[col["Necropsy"]], spl[col["Metastasis"]]}
 						// Assign ID to all tumor, location pairs tumorPairs (in diagnoses.go)
-						pairs := tumorPairs(spl[10], spl[11])
+						pairs := tumorPairs(spl[col["Type"]], spl[col["Location"]])
 						for _, i := range pairs {
-							if strarray.InMapMapStr(tumor, i[0]) == true && strarray.InMapStr(tumor[i[0]], i[1]) == true {
+							row, intmr := tumor[i[0]]
+							r, inloc := row[i[1]]
+							if intmr == true && inloc == true {
 								// ID, tumor_id, primary_tumor, malignant
-								t = []string{id, tumor[i[0]][i[1]], spl[12], spl[13]}
+								t = []string{id, r, spl[col["Primary"]], spl[col["Malignant"]]}
 							} else {
-								t = []string{id, "-1", spl[12], spl[13]}
+								t = []string{id, "-1", spl[col["Primary"]], spl[col["Malignant"]]}
 							}
 						}
 						entries.update(p, d, t, s)
@@ -118,6 +123,8 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 				}
 			}
 		} else {
+			col = getColumns(spl)
+			l = len(spl)
 			first = false
 		}
 	}

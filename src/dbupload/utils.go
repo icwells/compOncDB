@@ -4,7 +4,6 @@ package dbupload
 
 import (
 	"github.com/icwells/go-tools/strarray"
-	"strings"
 )
 
 func ToMap(t [][]string) map[string][]string {
@@ -57,14 +56,11 @@ func EntryMap(t [][]string) map[string]string {
 	return m
 }
 
-func getColumns(header []string, col string) map[string]int {
-	// Returns column indeces from header and target table map entry
+func getColumns(header []string) map[string]int {
+	// Returns column name:index pairs
 	ret := make(map[string]int)
-	c := strings.Split(col, ",")
 	for idx, i := range header {
-		if strarray.InSliceStr(c, i) == true {
-			ret[i] = idx
-		}
+		ret[i] = idx
 	}
 	return ret
 }
