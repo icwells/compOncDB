@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/icwells/go-tools/strarray"
 	"testing"
 )
@@ -79,10 +78,7 @@ func TestResolveDuplicates(t *testing.T) {
 		e.resolveDuplicates(r)
 		if i.resolve == true {
 			//Compare each record as updated
-			msg := compareRecords(e.dups.records[i.source][i.id], r)
-			if len(msg) > 1 {
-				t.Error(msg)
-			}
+			compareRecords(t, e.dups.records[i.source][i.id], r)
 		}
 	}
 }
@@ -101,8 +97,7 @@ func TestInDuplicates(t *testing.T) {
 		r.submitter = i.source
 		actual := e.inDuplicates(r)
 		if actual != i.indups {
-			msg := fmt.Sprintf("inDuplucates returned %v were %v was expected.", actual, i.indups)
-			t.Error(msg)
+			t.Errorf("inDuplucates returned %v were %v was expected.", actual, i.indups)
 		}
 	}
 }

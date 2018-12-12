@@ -40,6 +40,7 @@ type record struct {
 	date        string
 	comments    string
 	massPresent string
+	hyperplasia	string
 	necropsy    string
 	metastasis  string
 	tumorType   string
@@ -63,6 +64,7 @@ func newRecord() record {
 	r.date = "NA"
 	r.comments = "NA"
 	r.massPresent = "0"
+	r.hyperplasia = "0"
 	r.necropsy = "-1"
 	r.metastasis = "-1"
 	r.tumorType = "NA"
@@ -93,6 +95,8 @@ func (r *record) String() string {
 	buffer.WriteString(r.comments)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.massPresent)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.hyperplasia)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.necropsy)
 	buffer.WriteByte(',')
@@ -172,8 +176,11 @@ func (r *record) setLocation(val string) {
 }
 
 func (r *record) setType(val string) {
-	// Store type/NA and masspresent
+	// Store type/NA and hyperplasia
 	r.tumorType = checkString(val)
+	if r.tumorType == "hyperplasia" {
+		r.hyperplasia = "1"
+	}
 }
 
 func (r *record) setID(val string) {

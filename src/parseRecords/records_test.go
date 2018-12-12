@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -23,8 +22,7 @@ func TestSubsetLine(t *testing.T) {
 	for _, i := range matches {
 		actual := subsetLine(i.idx, line)
 		if actual != i.expected {
-			msg := fmt.Sprintf("Actual %s does not equal expected: %s.", actual, i.expected)
-			t.Error(msg)
+			t.Errorf("Actual %s does not equal expected: %s.", actual, i.expected)
 		}
 	}
 }
@@ -44,8 +42,7 @@ func TestCheckString(t *testing.T) {
 	for _, i := range matches {
 		actual := checkString(i.value)
 		if actual != i.expected {
-			msg := fmt.Sprintf("Actual string value %s does not equal expected %s", actual, i.expected)
-			t.Error(msg)
+			t.Errorf("Actual string value %s does not equal expected %s", actual, i.expected)
 		}
 	}
 }
@@ -66,53 +63,52 @@ func TestCheckBinary(t *testing.T) {
 	for _, i := range matches {
 		actual := checkBinary(i.value)
 		if actual != i.expected {
-			msg := fmt.Sprintf("Actual binary option %s does not equal expected %s", actual, i.expected)
-			t.Error(msg)
+			t.Errorf("Actual binary option %s does not equal expected %s", actual, i.expected)
 		}
 	}
 }
 
-func compareRecords(a, e record) string {
+func compareRecords(t *testing.T, a, e record) {
 	// Returns error message/empty string
-	var msg string
 	if a.sex != e.sex {
-		msg = fmt.Sprintf("Actual sex %s does not equal expected: %s.", a.sex, e.sex)
+		t.Errorf("Actual sex %s does not equal expected: %s.", a.sex, e.sex)
 	} else if a.age != e.age {
-		msg = fmt.Sprintf("Actual age %s does not equal expected: %s.", a.age, e.age)
+		t.Errorf("Actual age %s does not equal expected: %s.", a.age, e.age)
 	} else if a.castrated != e.castrated {
-		msg = fmt.Sprintf("Actual neuter value %s does not equal expected: %s.", a.castrated, e.castrated)
+		t.Errorf("Actual neuter value %s does not equal expected: %s.", a.castrated, e.castrated)
 	} else if a.id != e.id {
-		msg = fmt.Sprintf("Actual ID %s does not equal expected: %s.", a.id, e.id)
+		t.Errorf("Actual ID %s does not equal expected: %s.", a.id, e.id)
 	} else if a.species != e.species {
-		msg = fmt.Sprintf("Actual species %s does not equal expected: %s.", a.species, e.species)
+		t.Errorf("Actual species %s does not equal expected: %s.", a.species, e.species)
 	} else if a.date != e.date {
-		msg = fmt.Sprintf("Actual date %s does not equal expected: %s.", a.date, e.date)
+		t.Errorf("Actual date %s does not equal expected: %s.", a.date, e.date)
 	} else if a.comments != e.comments {
-		msg = fmt.Sprintf("Actual comments %s do not equal expected: %s.", a.comments, e.comments)
+		t.Errorf("Actual comments %s do not equal expected: %s.", a.comments, e.comments)
 	} else if a.massPresent != e.massPresent {
-		msg = fmt.Sprintf("Actual mass present value %s does not equal expected: %s.", a.massPresent, e.massPresent)
+		t.Errorf("Actual mass present value %s does not equal expected: %s.", a.massPresent, e.massPresent)
+	} else if a.hyperplasia != e.hyperplasia {
+		t.Errorf("Actual hyperplasia value %s does not equal expected: %s.", a.massPresent, e.massPresent)
 	} else if a.necropsy != e.necropsy {
-		msg = fmt.Sprintf("Actual necropsy value %s does not equal expected: %s.", a.necropsy, e.necropsy)
+		t.Errorf("Actual necropsy value %s does not equal expected: %s.", a.necropsy, e.necropsy)
 	} else if a.metastasis != e.metastasis {
-		msg = fmt.Sprintf("Actual metastasis value %s does not equal expected: %s.", a.metastasis, e.metastasis)
+		t.Errorf("Actual metastasis value %s does not equal expected: %s.", a.metastasis, e.metastasis)
 	} else if a.tumorType != e.tumorType {
-		msg = fmt.Sprintf("Actual tumor type %s does not equal expected: %s.", a.tumorType, e.tumorType)
+		t.Errorf("Actual tumor type %s does not equal expected: %s.", a.tumorType, e.tumorType)
 	} else if a.location != e.location {
-		msg = fmt.Sprintf("Actual location %s does not equal expected: %s.", a.location, e.location)
+		t.Errorf("Actual location %s does not equal expected: %s.", a.location, e.location)
 	} else if a.primary != e.primary {
-		msg = fmt.Sprintf("Actual primary tumor value %s does not equal expected: %s.", a.primary, e.primary)
+		t.Errorf("Actual primary tumor value %s does not equal expected: %s.", a.primary, e.primary)
 	} else if a.malignant != e.malignant {
-		msg = fmt.Sprintf("Actual malignant value %s does not equal expected: %s.", a.malignant, e.malignant)
+		t.Errorf("Actual malignant value %s does not equal expected: %s.", a.malignant, e.malignant)
 	} else if a.service != e.service {
-		msg = fmt.Sprintf("Actual service %s does not equal expected: %s.", a.service, e.service)
+		t.Errorf("Actual service %s does not equal expected: %s.", a.service, e.service)
 	} else if a.account != e.account {
-		msg = fmt.Sprintf("Actual account %s does not equal expected: %s.", a.account, e.account)
+		t.Errorf("Actual account %s does not equal expected: %s.", a.account, e.account)
 	} else if a.submitter != e.submitter {
-		msg = fmt.Sprintf("Actual submitter %s does not equal expected: %s.", a.submitter, e.submitter)
+		t.Errorf("Actual submitter %s does not equal expected: %s.", a.submitter, e.submitter)
 	} else if a.patient != e.patient {
-		msg = fmt.Sprintf("Actual patient %s does not equal expected: %s.", a.patient, e.patient)
+		t.Errorf("Actual patient %s does not equal expected: %s.", a.patient, e.patient)
 	}
-	return msg
 }
 
 func testRecords(rows [][]string) []record {
@@ -128,6 +124,7 @@ func testRecords(rows [][]string) []record {
 			r.location = "Spleen"
 			r.tumorType = "Carcinoma"
 			r.massPresent = "1"
+			r.hyperplasia = "0"
 			r.malignant = "1"
 			r.primary = "-1"
 			r.metastasis = "1"
@@ -139,6 +136,7 @@ func testRecords(rows [][]string) []record {
 			r.location = "NA"
 			r.tumorType = "NA"
 			r.massPresent = "0"
+			r.hyperplasia = "0"
 			r.malignant = "-1"
 			r.primary = "-1"
 			r.metastasis = "-1"
@@ -150,6 +148,7 @@ func testRecords(rows [][]string) []record {
 			r.location = "liver"
 			r.tumorType = "sarcoma"
 			r.massPresent = "1"
+			r.hyperplasia = "0"
 			r.malignant = "0"
 			r.primary = "1"
 			r.metastasis = "0"
@@ -171,9 +170,6 @@ func TestSetDiagnosis(t *testing.T) {
 	for idx, i := range matches {
 		actual := newRecord()
 		actual.setDiagnosis(i)
-		msg := compareRecords(actual, expected[idx])
-		if len(msg) > 1 {
-			t.Error(msg)
-		}
+		compareRecords(t, actual, expected[idx])
 	}
 }

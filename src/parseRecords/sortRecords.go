@@ -79,7 +79,7 @@ func (e *entries) getHeader() string {
 	if e.diagPresent == false {
 		head = "ID,Species,Date,Comments,Account,Submitter\n"
 	} else {
-		head = "Sex,Age,Castrated,ID,Species,Date,Comments,MassPresent,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
+		head = "Sex,Age,Castrated,ID,Species,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
 	}
 	return head
 }
