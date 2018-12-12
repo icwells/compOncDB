@@ -67,6 +67,18 @@ func entryMap(t [][]string) map[string]string {
 	return m
 }
 
+func getColumns(header []string, col string) map[string]int {
+	// Returns coulmn indeces from header and target table map entry
+	ret := make(map[string]int)
+	c := strings.Split(col, ",")
+	for idx, i := range header {
+		if strarray.InSliceStr(c, i) == true {
+			ret[i] = idx
+		}
+	}
+	return ret
+}
+
 func getOperation(eval string) (string, string, string) {
 	// Splits eval into column, operator, value
 	found := false
