@@ -46,7 +46,7 @@ func TestToSlice(t *testing.T) {
 	}
 	for ind, r := range rec {
 		id := strconv.Itoa(ind + 1)
-		actual := r.toSlice(id)
+		actual := r.ToSlice(id)
 		for idx, i := range actual {
 			if i != expected[ind][idx] {
 				t.Errorf("Actual slice value %s does not equal expected: %s", i, expected[ind][idx])

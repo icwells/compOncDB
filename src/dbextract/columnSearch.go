@@ -4,6 +4,7 @@ package dbextract
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"os"
 	"strings"
@@ -54,7 +55,7 @@ func (s *searcher) getTumor() map[string][]string {
 	ch := make(chan []string)
 	// {id: [types], [locations]}
 	rec := make(map[string][]string)
-	tumor := toMap(s.db.GetTable("Tumor"))
+	tumor := dbupload.ToMap(s.db.GetTable("Tumor"))
 	tr := s.tumorMap()
 	for _, id := range s.ids {
 		// Get records for each patient concurrently (may be multiple tumor relation records for an id)
@@ -122,7 +123,7 @@ func (s *searcher) searchPatient() {
 	s.setIDs()
 }
 
-func (s *searcher) assignSearch() {
+func (s *searcher) assignSearch(count bool) {
 	// Runs appropriate search based on input
 	// Store standardized header
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
@@ -151,7 +152,7 @@ func (s *searcher) assignSearch() {
 	case "Accounts":
 		s.searchAccounts()
 	}
-	if *count == false {
+	if count == false {
 		// res and ids must be set first
 		s.setTaxaIDs()
 		s.appendDiagnosis()
@@ -160,18 +161,18 @@ func (s *searcher) assignSearch() {
 	}
 }
 
-func SearchColumns(db *dbIO.DBIO, tables []string, column, op, value string) ([][]string, string) {
+func SearchColumns(db *dbIO.DBIO, tables []string, user, column, op, value string, count, com bool) ([][]string, string) {
 	// Determines search procedure
 	fmt.Printf("\tSearching for records with '%s' in column %s...\n", value, column)
-	s := newSearcher(db, tables, column, op, value)
-	s.assignSearch()
+	s := newSearcher(db, tables, user, column, op, value, com)
+	s.assignSearch(count)
 	return s.res, s.header
 }
 
-func SearchSingleTable(db *dbIO.DBIO, table, column, op, value string) ([][]string, string) {
+func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, com bool) ([][]string, string) {
 	// Returns results from single table
 	fmt.Printf("\tSearching table %s for records where %s %s %s...\n", table, column, op, value)
-	s := newSearcher(db, []string{table}, column, op, value)
+	s := newSearcher(db, []string{table}, user, column, op, value, com)
 	s.header = s.db.Columns[table]
 	s.res = s.db.EvaluateRows(table, s.column, s.operator, s.value, "*")
 	return s.res, s.header

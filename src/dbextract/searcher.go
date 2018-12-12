@@ -23,16 +23,16 @@ type searcher struct {
 	na       []string
 }
 
-func newSearcher(db *dbIO.DBIO, tables []string, column, op, value string) *searcher {
+func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string, com bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	s.db = db
-	s.user = *user
+	s.user = user
 	s.tables = tables
 	s.column = column
 	s.value = value
 	s.operator = op
-	s.common = *com
+	s.common = com
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s
 }

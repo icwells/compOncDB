@@ -200,10 +200,10 @@ func searchDB() time.Time {
 		// Search for column/value match
 		column, op, value := getOperation(*eval)
 		if *table == "nil" {
-			tables := dbextract.getTable(db.Columns, column)
-			res, header = dbextract.SearchColumns(db, tables, column, op, value)
+			tables := getTable(db.Columns, column)
+			res, header = dbextract.SearchColumns(db, tables, *user, column, op, value, *count, *com)
 		} else {
-			res, header = dbextract.SearchSingleTable(db, *table, column, op, value)
+			res, header = dbextract.SearchSingleTable(db, *table, *user, column, op, value, *com)
 		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
 	} else {

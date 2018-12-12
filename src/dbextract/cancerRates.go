@@ -6,24 +6,23 @@ import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
-	"strconv"
 )
 
 func formatRates(records map[string]*dbupload.Record) [][]string {
 	// Calculates rates and formats for printing
 	var ret [][]string
 	for _, v := range records {
-		ret = append(ret, v.calculateRates())
+		ret = append(ret, v.CalculateRates())
 	}
 	return ret
 }
 
 func getSpeciesNames(db *dbIO.DBIO, records map[string]*dbupload.Record) map[string]*dbupload.Record {
 	// Adds species names to structs
-	species := dbupload.entryMap(db.GetRows("Taxonomy", "taxa_id", dbupload.getRecKeys(records), "Species,taxa_id"))
+	species := dbupload.EntryMap(db.GetRows("Taxonomy", "taxa_id", dbupload.getRecKeys(records), "Species,taxa_id"))
 	for k, v := range species {
-		if dbupload.inMapRec(records, k) == true {
-			records[k].species = v
+		if dbupload.InMapRec(records, k) == true {
+			records[k].Species = v
 		}
 	}
 	return records
@@ -34,8 +33,8 @@ func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
 	records := make(map[string]*dbupload.Record)
 	target := db.GetRowsMin("Totals", "Adult", "*", min)
 	for _, i := range target {
-		var rec Record
-		rec.setRecord(i)
+		var rec dbupload.Record
+		rec.SetRecord(i)
 		records[i[0]] = &rec
 	}
 	return records

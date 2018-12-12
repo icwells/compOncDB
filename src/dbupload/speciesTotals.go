@@ -3,7 +3,6 @@
 package dbupload
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/icwells/dbIO"
 	"strconv"
@@ -15,7 +14,7 @@ func uploadTotals(db *dbIO.DBIO, records map[string]*Record) {
 	fmt.Println("\tUploading new species totals...")
 	for k, v := range records {
 		// Taxa id, total, adult, cancer
-		totals = append(totals, v.toSlice(k))
+		totals = append(totals, v.ToSlice(k))
 	}
 	vals, l := dbIO.FormatSlice(totals)
 	db.UpdateDB("Totals", vals, l)
@@ -29,8 +28,8 @@ func addDenominators(db *dbIO.DBIO, records map[string]*Record) map[string]*Reco
 		if ex == true {
 			t, err := strconv.Atoi(v[0])
 			if err == nil {
-				records[k].total += t
-				records[k].adult += t
+				records[k].Total += t
+				records[k].Adult += t
 			}
 		}
 	}
@@ -45,27 +44,27 @@ func getTotals(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 		_, exists := records[i[0]]
 		if exists == true {
 			// Increment total
-			records[i[0]].total++
+			records[i[0]].Total++
 			age, err := strconv.ParseFloat(i[1], 64)
-			if err == nil && age > records[i[0]].infant {
+			if err == nil && age > records[i[0]].Infant {
 				// Increment adult if age is greater than age of infancy
-				records[i[0]].adult++
-				records[i[0]].age = records[i[0]].age + age
+				records[i[0]].Adult++
+				records[i[0]].Age = records[i[0]].Age + age
 				if i[3] == "male" {
-					records[i[0]].male++
+					records[i[0]].Male++
 				} else if i[3] == "female" {
-					records[i[0]].female++
+					records[i[0]].Female++
 				}
 				d, e := diag[i[2]]
 				if e == true {
 					if d == "1" {
 						// Increment cancer count and age if masspresent == true
-						records[i[0]].cancer++
-						records[i[0]].cancerage = records[i[0]].cancerage + age
+						records[i[0]].Cancer++
+						records[i[0]].Cancerage = records[i[0]].Cancerage + age
 						if i[3] == "male" {
-							records[i[0]].malecancer++
+							records[i[0]].Malecancer++
 						} else if i[3] == "female" {
-							records[i[0]].femalecancer++
+							records[i[0]].Femalecancer++
 						}
 					}
 				}
@@ -75,48 +74,25 @@ func getTotals(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	return records
 }
 
-func inMapRec(m map[string]*Record, s string) bool {
-	// Return true if s is a key in m
-	_, ret := m[s]
-	return ret
-}
-
-func getRecKeys(records map[string]*Record) string {
-	// Returns string of taxa_ids
-	first := true
-	buffer := bytes.NewBufferString("")
-	for k, _ := range records {
-		if first == false {
-			// Write name with preceding comma
-			buffer.WriteByte(',')
-			buffer.WriteString(k)
-		} else {
-			buffer.WriteString(k)
-			first = false
-		}
-	}
-	return buffer.String()
-}
-
 func getAgeOfInfancy(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Updates structs with min age for each species
 	// Get appropriate ages for each taxon
-	ages := db.GetRows("Life_history", "taxa_id", getRecKeys(records), "taxa_id,female_maturity,male_maturity,Weaning")
+	ages := db.GetRows("Life_history", "taxa_id", GetRecKeys(records), "taxa_id,female_maturity,male_maturity,Weaning")
 	for _, i := range ages {
 		// Assign ages to structs
-		if inMapRec(records, i[0]) == true {
+		if InMapRec(records, i[0]) == true {
 			w, _ := strconv.ParseFloat(i[3], 64)
 			f, _ := strconv.ParseFloat(i[1], 64)
 			m, _ := strconv.ParseFloat(i[2], 64)
 			if w > 0.0 {
 				// Assign weaning age
-				records[i[0]].infant = w
+				records[i[0]].Infant = w
 			} else if f > 0.0 && m > 0.0 {
 				// Assign 10% of average age of maturity
-				records[i[0]].infant = (((f + m) / 2) * 0.1)
+				records[i[0]].Infant = (((f + m) / 2) * 0.1)
 			} else {
 				// Default to 1 month
-				records[i[0]].infant = 1.0
+				records[i[0]].Infant = 1.0
 			}
 		}
 	}

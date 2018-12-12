@@ -3,22 +3,23 @@
 package dbupload
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 )
 
 type Record struct {
-	species      string
-	infant       float64
-	total        int
-	age          float64
-	male         int
-	female       int
-	cancer       int
-	cancerage    float64
-	adult        int
-	malecancer   int
-	femalecancer int
+	Species      string
+	Infant       float64
+	Total        int
+	Age          float64
+	Male         int
+	Female       int
+	Cancer       int
+	Cancerage    float64
+	Adult        int
+	Malecancer   int
+	Femalecancer int
 }
 
 func avgAge(n float64, d int) string {
@@ -35,64 +36,87 @@ func avgAge(n float64, d int) string {
 
 func (r *Record) String() string {
 	// Returns formatted string of record attributes
-	ret := fmt.Sprintf("\nSpecies: %s\n", r.species)
-	ret += fmt.Sprintf("Total: %d\n", r.total)
-	ret += fmt.Sprintf("Cancer Records: %d", r.cancer)
+	ret := fmt.Sprintf("\nSpecies: %s\n", r.Species)
+	ret += fmt.Sprintf("Total: %d\n", r.Total)
+	ret += fmt.Sprintf("Cancer Records: %d", r.Cancer)
 	return ret
 }
 
 func (r *Record) getAvgAge() string {
 	// Returns string of avg age
-	return avgAge(r.age, r.adult)
+	return avgAge(r.Age, r.Adult)
 }
 
 func (r *Record) getCancerAge() string {
 	// Returns string of average cancer record age
-	return avgAge(r.cancerage, r.cancer)
+	return avgAge(r.Cancerage, r.Cancer)
 }
 
-func (r *Record) toSlice(id string) []string {
+func (r *Record) ToSlice(id string) []string {
 	// Returns string slice of values for upload to table
 	var ret []string
 	ret = append(ret, id)
-	ret = append(ret, strconv.Itoa(r.total))
+	ret = append(ret, strconv.Itoa(r.Total))
 	ret = append(ret, r.getAvgAge())
-	ret = append(ret, strconv.Itoa(r.adult))
-	ret = append(ret, strconv.Itoa(r.male))
-	ret = append(ret, strconv.Itoa(r.female))
-	ret = append(ret, strconv.Itoa(r.cancer))
+	ret = append(ret, strconv.Itoa(r.Adult))
+	ret = append(ret, strconv.Itoa(r.Male))
+	ret = append(ret, strconv.Itoa(r.Female))
+	ret = append(ret, strconv.Itoa(r.Cancer))
 	ret = append(ret, r.getCancerAge())
-	ret = append(ret, strconv.Itoa(r.malecancer))
-	ret = append(ret, strconv.Itoa(r.femalecancer))
+	ret = append(ret, strconv.Itoa(r.Malecancer))
+	ret = append(ret, strconv.Itoa(r.Femalecancer))
 	return ret
 }
 
-func (r *Record) calculateRates() []string {
+func (r *Record) CalculateRates() []string {
 	// Returns string slice of rates
 	//"ScientificName,AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male:Female\n"
-	ret := []string{r.species}
-	ret = append(ret, strconv.Itoa(r.adult))
-	ret = append(ret, strconv.Itoa(r.cancer))
+	ret := []string{r.Species}
+	ret = append(ret, strconv.Itoa(r.Adult))
+	ret = append(ret, strconv.Itoa(r.Cancer))
 	// Calculate rates
-	rate := float64(r.cancer) / float64(r.adult)
+	rate := float64(r.Cancer) / float64(r.Adult)
 	// Append rates to slice and return
 	ret = append(ret, strconv.FormatFloat(rate, 'f', 2, 64))
-	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64))
-	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64))
-	ret = append(ret, strconv.Itoa(r.male))
-	ret = append(ret, strconv.Itoa(r.female))
-	ret = append(ret, strconv.Itoa(r.malecancer))
-	ret = append(ret, strconv.Itoa(r.femalecancer))
+	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
+	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
+	ret = append(ret, strconv.Itoa(r.Male))
+	ret = append(ret, strconv.Itoa(r.Female))
+	ret = append(ret, strconv.Itoa(r.Malecancer))
+	ret = append(ret, strconv.Itoa(r.Femalecancer))
 	return ret
 }
 
-func (r *Record) setRecord(row []string) {
+func (r *Record) SetRecord(row []string) {
 	// Reads values from Totals table entry
-	r.total, _ = strconv.Atoi(row[1])
-	r.age, _ = strconv.ParseFloat(row[2], 64)
-	r.adult, _ = strconv.Atoi(row[3])
-	r.male, _ = strconv.Atoi(row[4])
-	r.female, _ = strconv.Atoi(row[5])
-	r.cancer, _ = strconv.Atoi((row[6]))
-	r.cancerage, _ = strconv.ParseFloat(row[7], 64)
+	r.Total, _ = strconv.Atoi(row[1])
+	r.Age, _ = strconv.ParseFloat(row[2], 64)
+	r.Adult, _ = strconv.Atoi(row[3])
+	r.Male, _ = strconv.Atoi(row[4])
+	r.Female, _ = strconv.Atoi(row[5])
+	r.Cancer, _ = strconv.Atoi((row[6]))
+	r.Cancerage, _ = strconv.ParseFloat(row[7], 64)
+}
+
+func InMapRec(m map[string]*Record, s string) bool {
+	// Return true if s is a key in m
+	_, ret := m[s]
+	return ret
+}
+
+func GetRecKeys(records map[string]*Record) string {
+	// Returns string of taxa_ids
+	first := true
+	buffer := bytes.NewBufferString("")
+	for k, _ := range records {
+		if first == false {
+			// Write name with preceding comma
+			buffer.WriteByte(',')
+			buffer.WriteString(k)
+		} else {
+			buffer.WriteString(k)
+			first = false
+		}
+	}
+	return buffer.String()
 }
