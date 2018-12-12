@@ -3,6 +3,7 @@
 package dbextract
 
 import (
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"strings"
 )
@@ -63,7 +64,7 @@ func (s *searcher) setTaxaIDs() {
 
 func (s *searcher) appendSource() {
 	// Appends data from source table to res
-	m := toMap(s.db.GetRows("Source", "ID", strings.Join(s.ids, ","), "*"))
+	m := dbupload.ToMap(s.db.GetRows("Source", "ID", strings.Join(s.ids, ","), "*"))
 	for idx, i := range s.res {
 		row, ex := m[i[0]]
 		if ex == true {
@@ -90,7 +91,7 @@ func (s *searcher) appendTaxonomy() {
 
 func (s *searcher) appendDiagnosis() {
 	// Appends data from tumor and tumor relation tables
-	d := toMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
+	d := dbupload.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
 	t := s.getTumor()
 	for idx, i := range s.res {
 		// Concatenate tables

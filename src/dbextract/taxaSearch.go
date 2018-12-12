@@ -5,6 +5,7 @@ package dbextract
 import (
 	"bytes"
 	"fmt"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"os"
 	"strings"
@@ -12,7 +13,7 @@ import (
 
 func (s *searcher) getRecords() map[string][]string {
 	// Gets diagnosis and metastasis data and formats values
-	d := toMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
+	d := dbupload.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
 	tumor := s.getTumor()
 	for k, v := range d {
 		// Join multiple entires for same record
@@ -90,18 +91,18 @@ func (s *searcher) checkLevel(level string) {
 	}
 }
 
-func SearchTaxonomicLevels(db *dbIO.DBIO, names []string) ([][]string, string) {
+func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, count, com bool) ([][]string, string) {
 	// Extracts data using species names
 	var records map[string][]string
-	s := newSearcher(db, []string{"Taxonomy"}, *level, "=", "")
+	s := newSearcher(db, []string{"Taxonomy"}, user, level, "=", "", com)
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
 	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
-	s.checkLevel(*level)
+	s.checkLevel(level)
 	fmt.Printf("\tExtracting patient information from %s...\n", s.column)
 	taxonomy := s.getTaxonomy(names, false)
 	if len(taxonomy) >= 1 {
 		patients := s.getTaxa()
-		if *count == false {
+		if count == false {
 			// Skip if not needed since this is the most time consuming step
 			records = s.getRecords()
 		}

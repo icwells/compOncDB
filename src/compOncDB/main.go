@@ -194,7 +194,7 @@ func searchDB() time.Time {
 				names = []string{*taxon}
 			}
 		}
-		res, header = dbextract.SearchTaxonomicLevels(db, names)
+		res, header = dbextract.SearchTaxonomicLevels(db, names, *user, *level, *count, *com)
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *eval != "nil" {
 		// Search for column/value match
