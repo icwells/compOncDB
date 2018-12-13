@@ -46,6 +46,7 @@ var (
 
 	extract = kingpin.Command("extract", "Extract data from the database and perform optional analyses.")
 	dump    = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
+	sum     = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
 	cr      = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
 	min     = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
 	nec     = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
@@ -165,6 +166,9 @@ func extractFromDB() time.Time {
 		} else {
 			printArray(db.Columns[*dump], table)
 		}
+	} else if *sum == true {
+		summary := dbextract.GetSummary(db)
+		writeResults(*outfile, "Field,Total,%\n", summary)
 	} else if *cr == true {
 		// Extract cancer rates
 		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
