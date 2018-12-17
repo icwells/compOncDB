@@ -4,7 +4,7 @@ package dbextract
 
 import (
 	"fmt"
-	"github.com/icwells/compOncDB/src/dbupload"
+	"dbupload"
 	"github.com/icwells/dbIO"
 	"os"
 	"strings"

@@ -4,8 +4,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/icwells/compOncDB/src/dbextract"
-	"github.com/icwells/compOncDB/src/dbupload"
+	"dbextract"
+	"dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"os"

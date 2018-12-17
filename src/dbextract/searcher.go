@@ -3,7 +3,7 @@
 package dbextract
 
 import (
-	"github.com/icwells/compOncDB/src/dbupload"
+	"dbupload"
 	"github.com/icwells/dbIO"
 	"strings"
 )

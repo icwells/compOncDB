@@ -137,7 +137,7 @@ func (u *updater) getUpdateFile(infile string) {
 			first = false
 		}
 	}
-	fmt.Println(u.columns)
+	fmt.Println(u.col)
 	os.Exit(0)
 }
 
@@ -153,6 +153,7 @@ func (u *updater) updateTables(db *dbIO.DBIO) {
 
 func UpdateEntries(db *dbIO.DBIO, infile string) {
 	// Updates taxonomy entries
+	fmt.Println(db.Columns)
 	u := newUpdater(db.Columns)
 	u.getUpdateFile(infile)
 	u.updateTables(db)
