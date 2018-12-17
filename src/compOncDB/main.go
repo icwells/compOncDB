@@ -61,6 +61,7 @@ var (
 	lifehistory = test.Flag("lifehistory", "Path to life history data.").String()
 	noncancer   = test.Flag("denominators", "Path to file conataining non-cancer totals.").String()
 	testsearch  = test.Flag("search", "Search for matches using above commands.").Default("false").Bool()
+	updates  	= test.Flag("update", "Tests update functions.").Default("false").Bool()
 )
 
 func version() {

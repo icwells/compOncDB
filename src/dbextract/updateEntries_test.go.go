@@ -10,7 +10,7 @@ import (
 func getColumns() map[string]string {
 	// Returns map of columns names
 	return map[string]string{
-		"Patient": "ID,Sex,Age,Castrated,taxa_id,source_id,scientific_name,Date,Comments",
+		"Patient":   "ID,Sex,Age,Castrated,taxa_id,source_id,scientific_name,Date,Comments",
 		"Diagnosis": "ID,Masspresent,Hyperplasia,Necropsy,Metastasis",
 	}
 }
@@ -22,7 +22,7 @@ func TestFormatHeader(t *testing.T) {
 	for k, v := range c {
 		var testcase string
 		if k == "Patient" {
-			testcase =  strings.ToUpper(v)
+			testcase = strings.ToUpper(v)
 		} else {
 			testcase = strings.ToLower(v)
 		}
@@ -87,8 +87,8 @@ func TestEvaluateRow(t *testing.T) {
 	// Tests updater.evaluateRow
 	u := getUpdater()
 	cases := []struct {
-		input		[]string
-		expected	[]string
+		input    []string
+		expected []string
 	}{
 		{[]string{"1", "12", "male"}, []string{"male", "12", "", "", "", "", "", ""}},
 		{[]string{"2", "5", "female"}, []string{"female", "5", "", "", "", "", "", ""}},
@@ -108,7 +108,7 @@ func TestEvaluateRow(t *testing.T) {
 					}
 				}
 			}
-		} else if ex == true{
+		} else if ex == true {
 			t.Errorf("Value with missing ID stored in map.")
 		}
 	}

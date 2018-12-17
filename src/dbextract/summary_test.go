@@ -8,13 +8,13 @@ import (
 
 func TestGetRow(t *testing.T) {
 	// Tests getRows output
-	expected := []struct{
-		name	string
-		num		int
-		den		int
-		percent	string
-		length	int
-	} {
+	expected := []struct {
+		name    string
+		num     int
+		den     int
+		percent string
+		length  int
+	}{
 		{"total", 100, 0, "", 2},
 		{"cancer", 50, 100, "50.00%", 3},
 		{"male", 25, 100, "25.00%", 3},

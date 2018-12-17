@@ -7,13 +7,14 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
+	"os"
 	"strings"
 )
 
 type tableupdate struct {
-	table	string
-	target	string
-	values	map[string][]string
+	table  string
+	target string
+	values map[string][]string
 }
 
 func newTableUpdate(table, target string) *tableupdate {
@@ -43,9 +44,9 @@ func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 //----------------------------------------------------------------------------
 
 type updater struct {
-	columns	map[string][]int
-	col		map[string]string
-	tables	map[string]*tableupdate
+	columns map[string][]int
+	col     map[string]string
+	tables  map[string]*tableupdate
 }
 
 func newUpdater(col map[string]string) updater {
@@ -111,7 +112,7 @@ func (u *updater) evaluateRow(row []string) {
 					line = append(line, "")
 				} else {
 					line = append(line, row[i])
-				} 
+				}
 			}
 			u.tables[k].add(id, line)
 		}
@@ -136,6 +137,8 @@ func (u *updater) getUpdateFile(infile string) {
 			first = false
 		}
 	}
+	fmt.Println(u.columns)
+	os.Exit(0)
 }
 
 func (u *updater) updateTables(db *dbIO.DBIO) {

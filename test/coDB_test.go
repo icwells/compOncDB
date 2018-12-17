@@ -181,3 +181,25 @@ func TestSearches(t *testing.T) {
 		}
 	}
 }
+
+func TestUpdates(t *testing.T) {
+	// Tests dumped tables after update 
+	flag.Parse()
+	*indir, _ = iotools.FormatPath(*indir, false)
+	files, err := filepath.Glob(*indir + "*.csv")
+	if err != nil {
+		t.Errorf("Cannot find test files in %s: %v", *indir, err)
+	}
+	expected := sortInput(files, true)
+	actual := sortInput(files, false)
+	for k, v := range expected {
+		act, ex := actual[k]
+		if ex == false {
+			t.Errorf("Actual search result %s not found.", k)
+		} else {
+			compareTables(t, k, v, act)
+			// Remove test output
+			os.Remove(act)
+		}
+	}
+}

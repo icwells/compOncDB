@@ -168,7 +168,20 @@ func testDB() time.Time {
 	db.NewTables(*tables)
 	// Re-read columns without types
 	db.ReadColumns(*tables, false)
-	if *testsearch == false {
+	if *testsearch == true {
+		fmt.Print("\n\tTesting search functions...\n\n")
+		var terms searchterms
+		terms.readSearchTerms(*infile, *outfile)
+		terms.searchTestCases(db)
+	} else if *updates == true {
+		fmt.Print("\n\tTesting update functions...\n\n")
+		dbextract.UpdateEntries(db, *infile)
+		for _, i := range []string{"Patient", "Diagnosis"} {
+			table := db.GetTable(i)
+			out := fmt.Sprintf("%s%s.csv", *outfile, i)
+			iotools.WriteToCSV(out, db.Columns[i], table)
+		}
+	} else {
 		// Clear existing tables
 		for k := range db.Columns {
 			db.TruncateTable(k)
@@ -189,11 +202,6 @@ func testDB() time.Time {
 			out := fmt.Sprintf("%s%s.csv", *outfile, k)
 			iotools.WriteToCSV(out, db.Columns[k], table)
 		}
-	} else {
-		fmt.Print("\n\tTesting search functions...\n\n")
-		var terms searchterms
-		terms.readSearchTerms(*infile, *outfile)
-		terms.searchTestCases(db)
 	}
 	return db.Starttime
 }

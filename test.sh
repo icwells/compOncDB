@@ -30,7 +30,7 @@ INPUT="$TESTDIR/testInput.csv"
 DOUT="$TESTDIR/diagnoses.csv"
 MOUT="$TESTDIR/merged.csv"
 CASES="$TESTDIR/searchCases.csv"
-UPDATE="$TESTDIR/updates.csv"
+UPDATE="$TESTDIR/testUpdate.csv"
 
 whiteBoxTests () {
 	echo "Running white box tests..."
@@ -68,12 +68,12 @@ testSearch () {
 	go test $TESTDB --run TestSearches --args --indir="$TESTDIR/searchResults/"
 }
 
-testUpdate () {
+testUpdates () {
 	# Test search output
 	echo ""
 	echo "Running black box tests on database update..."
-	$CDB test --update --tables $TABLES -i $UPDATE -o "$TESTDIR/searchResults/"
-	go test $TESTDB --run TestUpdates --args --indir="$TESTDIR/searchResults/"
+	$CDB test --update --tables $TABLES -i $UPDATE -o "$TESTDIR/updateResults/"
+	go test $TESTDB --run TestUpdates --args --indir="$TESTDIR/updateResults/"
 }
 
 # Compile binaries and call test functions

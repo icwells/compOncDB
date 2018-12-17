@@ -13,25 +13,25 @@ func getRow(name string, num, den int) []string {
 	ret := []string{name}
 	ret = append(ret, string(num))
 	if den > 0 {
-		percent := (float64(num)/float64(den)) * 100
-		ret = append(ret, strconv.FormatFloat(percent, 'f', 2, 64) + "%")
+		percent := (float64(num) / float64(den)) * 100
+		ret = append(ret, strconv.FormatFloat(percent, 'f', 2, 64)+"%")
 	}
 	return ret
 }
 
 type summary struct {
-	total	int
-	male	int
-	female	int
-	age		int
-	mass	int
-	hyper	int
-	mal		int
-	benign	int
-	nec		int
-	taxa	int
-	com		int
-	hist	int
+	total  int
+	male   int
+	female int
+	age    int
+	mass   int
+	hyper  int
+	mal    int
+	benign int
+	nec    int
+	taxa   int
+	com    int
+	hist   int
 }
 
 func (s *summary) toSlice() [][]string {
