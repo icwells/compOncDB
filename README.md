@@ -19,9 +19,18 @@ Any missing Go packages will be downloaded and installed when running install.sh
 	cd compOncDB/  
 	./install.sh  
 
+### Testing the Installation  
+Create a database named "testDataBase" in MySQL (CREATE DATABASE testDataBase;) and run the following:
+
+	./test.sh
+
+You will be prompted the enter your MySQL password twice. All of the output from the test scripts should begin with "ok".  
+
 ## Usage  
 Once compiled, the compOncDB program can be used by giving it a base command and the appropriate flags.  
 The program will prompt for a mysql password for the given username.  
+
+Make sure the "comparativeOncology" database has been created in MySQL before running.  
 
 ### Overview  
 
@@ -35,6 +44,7 @@ The program will prompt for a mysql password for the given username.
 	update			Update or delete existing records from the database.  
 	extract			Extract data from the database and perform optional analyses.  
 	search			Searches database for matches to given term.  
+	test			Tests database functionality using testDataBase instead of comaprative oncology.  
 
 ### Usage by Command  
 
@@ -76,14 +86,18 @@ are all the same file which must in the format of uploadTemplate.csv.
 	--count				Recount species totals and update the Totals table.  
 	--delete			Delete records from given table if column = value (must be root).  
 	--eval="nil"		Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <).  
+	-i infile			Path to input file (see below for formatting).  
 
 Update or delete existing records from the database.  
+
+If an input file is given (with the -i flag)
 
 #### Extract  
 	./compOncDB extract {-u username} {--flags...} {-o outfile}
 
 	-u, --user="root"	MySQL username (default is root).  
 	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
+	--summarize			Compiles basic summary statistics of the database.  
 	--cancerRate		Calculates cancer rates for species with greater than min entries.  
 	-m, --min=50		Minimum number of entries required for calculations (default = 50).  
 	--necropsy			Extract only necropsy records (extracts all matches by default).  
@@ -106,8 +120,23 @@ Extract data from the database and perform optional analyses.
 	-o outfile				Name of output file (writes to stdout if not given).  
 
 Searches database for matches to given criteria. The taxonomy search is given special consideration since it is the most common search type.  
-For most tablesm the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history 
+For most tables, the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history 
 tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=).  
+
+#### Test  
+	./compOncDB test {paths_to_input_files}/ {--search --eval operation -o path_to_output file}
+
+	-u, --user="root"				MySQL username (default is root).
+	-i, --infile="nil"				Path to input file (if using).
+	-o, --outfile="nil"				Name of output file (writes to stdout if not given).
+	--tables=TABLES					Path tableColumns.txt file.
+	--taxonomy=TAXONOMY				Path to taxonomy file.
+	--diagnosis=DIAGNOSIS			Path to extracted diganoses file.
+	--lifehistory=LIFEHISTORY		Path to life history data.
+	--denominators=DENOMINATORS		Path to file conataining non-cancer totals.
+	--search						Search for matches using above commands.
+
+Runs tests using "testDataBase" (make sure it has been created in MySQL first).
 
 ## parseRecords  
 The parseRecords utility has been provided to help with parsing input files before uploading them to the database.  
