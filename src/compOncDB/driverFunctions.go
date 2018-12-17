@@ -76,6 +76,10 @@ func updateDB() time.Time {
 		dbupload.SpeciesTotals(db)
 	} else if *infile != "nil" {
 		dbextract.UpdateEntries(db, *infile)
+	} else if *column != "nil" && *value != "nil" && *eval != "nil" {
+		col, op, val := getOperation(*eval)
+		tables := getTable(db.Columns, col)
+		dbextract.UpdateSingleTable(db, tables[0], *column, *value, col, op, val)
 	} else if *del == true && *eval != "nil" {
 		if *user == "root" {
 			column, _, value := getOperation(*eval)

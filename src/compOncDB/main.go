@@ -23,7 +23,7 @@ var (
 	ver     = kingpin.Command("version", "Prints version info and exits.")
 	bu      = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
 	New     = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
-	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <). ").Default("nil").String()
+	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <). ").Short('e').Default("nil").String()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 
@@ -35,6 +35,8 @@ var (
 	patient = upload.Flag("patient", "Upload patient, account, and diagnosis info from input table to database.").Default("false").Bool()
 
 	update = kingpin.Command("update", "Update or delete existing records from the database (see README for upload file template).")
+	column = update.Flag("column", "Column to be updated with given value if --eval column == value.").Short('c').Default("nil").String()
+	value  = update.Flag("value", "Value to write to column if --eval column == value.").Short('v').Default("nil").String()
 	total  = update.Flag("count", "Recount species totals and update the Totals table.").Default("false").Bool()
 	del    = update.Flag("delete", "Delete records if column = value.").Default("false").Bool()
 

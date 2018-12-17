@@ -154,3 +154,14 @@ func UpdateEntries(db *dbIO.DBIO, infile string) {
 	u.getUpdateFile(infile)
 	u.updateTables(db)
 }
+
+func UpdateSingleTable(db *dbIO.DBIO, table, column, value, target, op, key string) {
+	// Updates single table
+	fmt.Printf("\n\tUpdating %s...\n", table)
+	c := db.UpdateRow(table, column, value, target, op, key)
+	if c == false {
+		fmt.Printf("\t[Warning] Failed to upload to %s.\n", table)
+	} else {
+		fmt.Printf("\tSuccessfully updated %s.\n", table)
+	}
+}
