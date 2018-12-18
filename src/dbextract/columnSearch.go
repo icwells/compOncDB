@@ -4,84 +4,10 @@ package dbextract
 
 import (
 	"fmt"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"os"
 	"strings"
 )
-
-func getTumorRecords(ch chan []string, db *dbIO.DBIO, rows [][]string, tumor map[string][]string) {
-	// Returns tumor information for given id
-	var loc, typ, mal, prim []string
-	for _, i := range rows {
-		j, ex := tumor[i[1]]
-		if ex == true {
-			if i[2] == "1" && len(prim) > 0 {
-				// Prepend primary tumor
-				prim = append([]string{i[2]}, prim...)
-				mal = append([]string{i[3]}, mal...)
-				typ = append([]string{j[0]}, typ...)
-				loc = append([]string{j[1]}, loc...)
-			} else {
-				// Append tumor type and location
-				prim = append(prim, i[2])
-				mal = append(mal, i[3])
-				typ = append(typ, j[0])
-				loc = append(loc, j[1])
-			}
-		}
-	}
-	diag := []string{strings.Join(prim, ";"), strings.Join(mal, ";"), strings.Join(typ, ";"), strings.Join(loc, ";")}
-	ch <- diag
-}
-
-func (s *searcher) tumorMap() map[string][][]string {
-	// Converts tumor_relation table to map
-	ret := make(map[string][][]string)
-	rows := s.db.GetRows("Tumor_relation", "ID", strings.Join(s.ids, ","), "*")
-	for _, i := range rows {
-		_, ex := ret[i[0]]
-		if ex == true {
-			ret[i[0]] = append(ret[i[0]], i)
-		} else {
-			ret[i[0]] = [][]string{i}
-		}
-	}
-	return ret
-}
-
-func (s *searcher) getTumor() map[string][]string {
-	// Returns map of tumor data from patient ids
-	ch := make(chan []string)
-	// {id: [types], [locations]}
-	rec := make(map[string][]string)
-	tumor := dbupload.ToMap(s.db.GetTable("Tumor"))
-	tr := s.tumorMap()
-	for _, id := range s.ids {
-		// Get records for each patient concurrently (may be multiple tumor relation records for an id)
-		go getTumorRecords(ch, s.db, tr[id], tumor)
-		ret := <-ch
-		if len(ret) >= 1 {
-			rec[id] = ret
-		}
-	}
-	return rec
-}
-
-func (s *searcher) searchTumor() {
-	// Gets IDs from tumor ids
-	var tumorids []string
-	tids := s.db.GetRows(s.tables[0], s.column, s.value, "ID")
-	for _, i := range tids {
-		// Convert to single slice
-		tumorids = append(tumorids, i[0])
-	}
-	ids := s.db.GetRows("Tumor_relation", "tumor_id", strings.Join(tumorids, ","), "ID")
-	for _, i := range ids {
-		s.ids = append(s.ids, i[0])
-	}
-	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
-}
 
 func (s *searcher) searchAccounts() {
 	// Searches source tables
@@ -125,17 +51,11 @@ func (s *searcher) searchPatient() {
 
 func (s *searcher) assignSearch(count bool) {
 	// Runs appropriate search based on input
-	// Store standardized header
-	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Date,Comments,"
-	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
-	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Species,service_name,account_id"
 	switch s.tables[0] {
 	// Start with potential mutliple entries
 	case "Patient":
 		s.searchPatient()
 	case "Source":
-		s.getIDs()
-	case "Tumor_relation":
 		s.getIDs()
 	case "Taxonomy":
 		s.searchTaxaIDs()
@@ -147,8 +67,6 @@ func (s *searcher) assignSearch(count bool) {
 		s.searchTaxaIDs()
 	case "Diagnosis":
 		s.getIDs()
-	case "Tumor":
-		s.searchTumor()
 	case "Accounts":
 		s.searchAccounts()
 	}
@@ -173,6 +91,7 @@ func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, com
 	// Returns results from single table
 	fmt.Printf("\tSearching table %s for records where %s %s %s...\n", table, column, op, value)
 	s := newSearcher(db, []string{table}, user, column, op, value, com)
+	// Overwrite standard header
 	s.header = s.db.Columns[table]
 	s.res = s.db.EvaluateRows(table, s.column, s.operator, s.value, "*")
 	return s.res, s.header

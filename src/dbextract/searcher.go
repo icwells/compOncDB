@@ -27,6 +27,10 @@ type searcher struct {
 func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string, com bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
+	// Add default header
+	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Date,Comments,"
+	s.header = s.header + "Masspresent,Hyperplasia,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
+	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Species,service_name,account_id"
 	s.db = db
 	s.user = user
 	s.tables = tables
@@ -92,7 +96,7 @@ func (s *searcher) appendTaxonomy() {
 func (s *searcher) appendDiagnosis() {
 	// Appends data from tumor and tumor relation tables
 	d := dbupload.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
-	t := s.getTumor()
+	t := dbupload.ToMap(s.db.GetRows("Tumor", "ID", strings.Join(s.ids, ","), "*"))
 	for idx, i := range s.res {
 		// Concatenate tables
 		id := i[0]
@@ -100,10 +104,10 @@ func (s *searcher) appendDiagnosis() {
 		if ex == true {
 			i = append(i, diag...)
 		} else {
-			i = append(i, s.na[:4]...)
+			i = append(i, s.na[:5]...)
 		}
-		tumor, e := t[id]
-		if e == true {
+		tumor, exists := t[id]
+		if exists == true {
 			i = append(i, tumor...)
 		} else {
 			i = append(i, s.na[:5]...)

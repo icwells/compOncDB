@@ -67,8 +67,6 @@ func getTable(tables map[string]string, col string) []string {
 			ret = []string{"Patient", "Taxonomy", "Common", "Totals", "Life_history"}
 		} else if col == "account_id" {
 			ret = []string{"Source", "Accounts"}
-		} else if col == "tumor_id" {
-			ret = []string{"Tumor_relation", "Tumor"}
 		} else if col == "source_id" {
 			ret = append(ret, "Patient")
 		}

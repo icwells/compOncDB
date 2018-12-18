@@ -56,17 +56,10 @@ Masspresent SMALLINT
 Hyperplasia SMALLINT
 Necropsy SMALLINT
 Metastasis SMALLINT
-
-# Tumor
-tumor_id INT PRIMARY KEY
-Type TEXT
-Location TEXT
-
-# Tumor_relation
-ID INT
-tumor_id INT
 primary_tumor SMALLINT
 Malignant SMALLINT
+Type TEXT
+Location TEXT
 
 # Life_history
 taxa_id INT PRIMARY KEY
