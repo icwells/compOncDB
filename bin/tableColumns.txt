@@ -56,6 +56,9 @@ Masspresent SMALLINT
 Hyperplasia SMALLINT
 Necropsy SMALLINT
 Metastasis SMALLINT
+
+# Tumor
+ID INT
 primary_tumor SMALLINT
 Malignant SMALLINT
 Type TEXT
