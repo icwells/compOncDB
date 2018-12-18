@@ -126,9 +126,9 @@ func (s *searcher) searchPatient() {
 func (s *searcher) assignSearch(count bool) {
 	// Runs appropriate search based on input
 	// Store standardized header
-	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
+	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Date,Comments,"
 	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
-	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,service_name,account_id"
+	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Species,service_name,account_id"
 	switch s.tables[0] {
 	// Start with potential mutliple entries
 	case "Patient":

@@ -5,7 +5,6 @@ Age DECIMAL(6,2)
 Castrated SMALLINT
 taxa_id INT
 source_id TEXT
-scientific_name TEXT
 Date TEXT
 Comments TEXT
 

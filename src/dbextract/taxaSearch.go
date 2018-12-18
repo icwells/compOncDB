@@ -61,8 +61,8 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 			// Append taxa id and return map of taxonomy entries
 			s.taxaids = append(s.taxaids, row[0])
 		}
-		// Exclude taxa id, source, and species (in patient table)
-		ret[row[0]] = row[1:7]
+		// Exclude taxa id and source
+		ret[row[0]] = row[1:8]
 	}
 	return ret
 }
@@ -95,8 +95,8 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 	// Extracts data using species names
 	var records map[string][]string
 	s := newSearcher(db, []string{"Taxonomy"}, user, level, "=", "", com)
-	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Species,Date,Comments,"
-	s.header = s.header + "Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus"
+	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
+	s.header = s.header + "Kingdom,Phylum,Class,Orders,Family,Genus,Species"
 	s.checkLevel(level)
 	fmt.Printf("\tExtracting patient information from %s...\n", s.column)
 	taxonomy := s.getTaxonomy(names, false)

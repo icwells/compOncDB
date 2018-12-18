@@ -79,9 +79,9 @@ testUpdates () {
 # Compile binaries and call test functions
 ./install.sh
 
-#whiteBoxTests
-#testParseRecords
-#testUpload
-#testSearch
+whiteBoxTests
+testParseRecords
+testUpload
+testSearch
 testUpdates
 echo ""

@@ -1,8 +1,8 @@
-Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus
-male,24,-1,Canis latrans,1-Dec,Lymphoma lymph nodes 2 year old male,1,-1,-1,0,-1,lymphoma,lymph nodes,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,-1,-1,Canis latrans,12-Dec,Biopsy: NORMAL BLOOD SMEAR,0,0,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,13-Jan,ERYTHROPHAGOCYTOSIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,1-Dec,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,0,1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,1-Dec,MICRONED HEPATITIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,1-Dec,NA,0,1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,1-Dec,ASPERGILLOSIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
+Sex,Age,Castrated,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus,Species
+male,24,-1,1-Dec,Lymphoma lymph nodes 2 year old male,1,-1,-1,0,-1,lymphoma,lymph nodes,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+male,-1,-1,12-Dec,Biopsy: NORMAL BLOOD SMEAR,0,0,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,13-Jan,ERYTHROPHAGOCYTOSIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,0,1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,MICRONED HEPATITIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,NA,0,1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,ASPERGILLOSIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans

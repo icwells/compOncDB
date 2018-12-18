@@ -1,20 +1,20 @@
-Sex,Age,Castrated,Species,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus
-male,24,-1,Canis latrans,1-Dec,Lymphoma lymph nodes 2 year old male,1,-1,-1,0,-1,lymphoma,lymph nodes,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,-1,-1,Canis latrans,12-Dec,Biopsy: NORMAL BLOOD SMEAR,0,0,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,13-Jan,ERYTHROPHAGOCYTOSIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,1-Dec,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,0,1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,1-Dec,MICRONED HEPATITIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,1-Dec,NA,0,1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis latrans,1-Dec,ASPERGILLOSIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis lupus,1-Dec,Ovarian adenoma,1,-1,-1,0,-1,adenoma,ovary,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-female,0,-1,Canis lupus,NA,skin biopsy:  squamous cell carcinoma; in situ,1,0,-1,0,-1,carcinoma,skin,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-female,156,-1,Canis lupus,NA,Uterus:  Endometrial carcinoma with metastatis,1,-1,1,0,-1,carcinoma,uterus,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-female,132,-1,Canis lupus,NA,Malignant liver adenocarcinoma,1,-1,-1,0,1,adenocarcinoma,liver,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,-1,-1,Canis lupus,1-Dec,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,60,-1,Canis lupus,NA,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-female,126,1,Canis lupus,NA,Spayed biopsy,0,0,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-female,0,-1,Canis lupus,NA,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-NA,192,-1,Canis lupus,NA,16 month old,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,144,1,Canis lupus,NA,neutered,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,-1,0,Canis lupus,30463,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
-male,-1,0,Canis lupus,32688,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis
+Sex,Age,Castrated,Date,Comments,Masspresent,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,Kingdom,Phylum,Class,Orders,Family,Genus,Species
+male,24,-1,1-Dec,Lymphoma lymph nodes 2 year old male,1,-1,-1,0,-1,lymphoma,lymph nodes,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+male,-1,-1,12-Dec,Biopsy: NORMAL BLOOD SMEAR,0,0,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,13-Jan,ERYTHROPHAGOCYTOSIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,0,1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,MICRONED HEPATITIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,NA,0,1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,ASPERGILLOSIS,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis latrans
+NA,-1,-1,1-Dec,Ovarian adenoma,1,-1,-1,0,-1,adenoma,ovary,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+female,0,-1,NA,skin biopsy:  squamous cell carcinoma; in situ,1,0,-1,0,-1,carcinoma,skin,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+female,156,-1,NA,Uterus:  Endometrial carcinoma with metastatis,1,-1,1,0,-1,carcinoma,uterus,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+female,132,-1,NA,Malignant liver adenocarcinoma,1,-1,-1,0,1,adenocarcinoma,liver,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+NA,-1,-1,1-Dec,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+male,60,-1,NA,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+female,126,1,NA,Spayed biopsy,0,0,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+female,0,-1,NA,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+NA,192,-1,NA,16 month old,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+male,144,1,NA,neutered,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+male,-1,0,30463,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus
+male,-1,0,32688,NA,0,-1,-1,,,,,Animalia,Chordata,Mammalia,Carnivora,Canidae,Canis,Canis lupus

@@ -97,7 +97,7 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 							spl[col["Age"]] = spl[col["Age"]][:7]
 						}
 						// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
-						p := []string{id, spl[col["Sex"]], spl[col["Age"]], spl[col["Castrated"]], sp, spl[col["ID"]], spl[col["Species"]], spl[col["Date"]], spl[col["Comments"]]}
+						p := []string{id, spl[col["Sex"]], spl[col["Age"]], spl[col["Castrated"]], sp, spl[col["ID"]], spl[col["Date"]], spl[col["Comments"]]}
 						// ID, service, account_id
 						s := []string{id, spl[col["Service"]], aid}
 						// Diagnosis entry: ID, masspresent, hyperplasia, necropsy, metastasis_id
