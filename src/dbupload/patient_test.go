@@ -36,7 +36,8 @@ func setEntries() *entries {
 		"Canis latrans": "1",
 		"Canis lupus": "2",
 	}
-	e.accounts["X520"] = map[string]string{"XYZ": "1"}
+	e.accounts["X520"] = make(map[string]string)
+	e.accounts["X520"]["XYZ"] = "1"
 	return e
 }
 
@@ -45,9 +46,9 @@ func getExpected() *entries {
 	e := newEntries(4)
 	e.p = [][]string{
 		[]string{"1", "male", "-1", "-1", "1", "1", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR"},
-		[]string{"2", "NA", "-1", "-1", "2", "1", "13-Jan", "ERYTHROPHAGOCYTOSIS"},
-		[]string{"3", "male", "24", "-1", "3", "1", "1-Dec", "Lymphoma lymph nodes 2 year old male"},
-		[]string{"4", "NA", "-1", "-1", "4", "1", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"},
+		[]string{"2", "NA", "-1", "-1", "1", "2", "13-Jan", "ERYTHROPHAGOCYTOSIS"},
+		[]string{"3", "male", "24", "-1", "1", "3", "1-Dec", "Lymphoma lymph nodes 2 year old male"},
+		[]string{"4", "NA", "-1", "-1", "1", "4", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"},
 	}
 	e.d = [][]string{
 		[]string{"1", "0", "0", "0", "-1"},
@@ -74,7 +75,7 @@ func getExpected() *entries {
 func comapareTables(t *testing.T, table string, a, e [][]string) {
 	// Comapres actual table to expected
 	if len(a) != len(e) {
-		t.Errorf("Actual length %d does not equal expected: %d", len(a), len(e))
+		t.Errorf("%s: Actual length %d does not equal expected: %d", table, len(a), len(e))
 	} else {
 		for ind, row := range a {
 			for idx, i := range row {
@@ -92,13 +93,13 @@ func TestEvaluateRow(t *testing.T) {
 	a := setEntries()
 	e := getExpected()
 	input := [][]string{
-		[]string{"male", "-1", "-1", "1", "Canis latrans", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver:skin", "0", "-1", "NWZP", "X520", "XYZ"},
+		[]string{"male", "-1", "-1", "1", "Canis latrans", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ"},
 		[]string{"NA", "-1", "-1", "2", "Canis latrans", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ"},
 		[]string{"male", "24", "-1", "3", "Canis latrans", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ"},
 		[]string{"NA", "-1", "-1", "4", "Canis latrans", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ"},
 	}
 	for _, i := range input {
-		e.evaluateRow(i)
+		a.evaluateRow(i)
 	}
 	comapareTables(t, "patient", a.p, e.p)
 	comapareTables(t, "diangosis", a.d, e.d)
