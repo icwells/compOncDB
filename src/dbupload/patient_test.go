@@ -71,7 +71,7 @@ func getExpected() *entries {
 	return e
 }
 
-func comapareTables(t *testing.T, a, e [][]string) {
+func comapareTables(t *testing.T, table string, a, e [][]string) {
 	// Comapres actual table to expected
 	if len(a) != len(e) {
 		t.Errorf("Actual length %d does not equal expected: %d", len(a), len(e))
@@ -79,7 +79,7 @@ func comapareTables(t *testing.T, a, e [][]string) {
 		for ind, row := range a {
 			for idx, i := range row {
 				if i != e[ind][idx] {
-					t.Errorf("Actual value %s does not equal expected: %s", i, e[ind][idx])
+					t.Errorf("%s %d: Actual value %s does not equal expected: %s", table, idx, i, e[ind][idx])
 					break
 				}
 			}
@@ -100,8 +100,8 @@ func TestEvaluateRow(t *testing.T) {
 	for _, i := range input {
 		e.evaluateRow(i)
 	}
-	comapareTables(t, a.p, e.p)
-	comapareTables(t, a.d, e.d)
-	comapareTables(t, a.t, e.t)
-	comapareTables(t, a.s, e.s)
+	comapareTables(t, "patient", a.p, e.p)
+	comapareTables(t, "diangosis", a.d, e.d)
+	comapareTables(t, "tumor", a.t, e.t)
+	comapareTables(t, "source", a.s, e.s)
 }
