@@ -40,7 +40,7 @@ type record struct {
 	date        string
 	comments    string
 	massPresent string
-	hyperplasia	string
+	hyperplasia string
 	necropsy    string
 	metastasis  string
 	tumorType   string
