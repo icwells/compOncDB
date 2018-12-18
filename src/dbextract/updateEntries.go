@@ -77,8 +77,10 @@ func (u *updater) formatHeader(row []string) []string {
 func (u *updater) setColumns(row []string) {
 	// Correlates input file columns to database tables and columns
 	keep := false
+	row = u.formatHeader(row)
 	for k, v := range u.col {
 		head := strings.Split(v, ",")
+		fmt.Println(head)
 		// Initialize new column header and fill (missing values have an index of -1)
 		for _, i := range head {
 			// Store file header index in index of database table column
@@ -137,7 +139,7 @@ func (u *updater) getUpdateFile(infile string) {
 			first = false
 		}
 	}
-	fmt.Println(u.col)
+	fmt.Println(u.columns)
 	os.Exit(0)
 }
 
@@ -153,7 +155,6 @@ func (u *updater) updateTables(db *dbIO.DBIO) {
 
 func UpdateEntries(db *dbIO.DBIO, infile string) {
 	// Updates taxonomy entries
-	fmt.Println(db.Columns)
 	u := newUpdater(db.Columns)
 	u.getUpdateFile(infile)
 	u.updateTables(db)
