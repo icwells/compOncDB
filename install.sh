@@ -7,8 +7,8 @@
 ##############################################################################
 
 DBI="github.com/icwells/dbIO"
-DBU="dbupload"
-DBE="dbextract"
+DBU="github.com/icwells/compOncDB/src/dbupload"
+DBE="github.com/icwells/compOncDB/src/dbextract"
 DR="github.com/go-sql-driver/mysql"
 IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"
@@ -37,8 +37,7 @@ done
 
 for I in $DBU $DBE; do
 	echo "Installing $I..."
-	cp -r "src/$I" "$GOPATH/src/"
-	go install $I
+	go get -u $I
 	echo ""
 done
 

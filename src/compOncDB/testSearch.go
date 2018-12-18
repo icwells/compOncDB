@@ -5,7 +5,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"dbextract"
+	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"strings"
