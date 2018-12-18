@@ -148,8 +148,8 @@ func (u *updater) updateTables(db *dbIO.DBIO) {
 	// Updates database with all identified values
 	fmt.Println("\tUpdating tables...")
 	for _, v := range u.tables {
-		if v.table == "Accounts" && db.User != "root" {
-			fmt.Print("\n\t[Error] Must be root to access Accounts table. Skipping.\n\n")
+		if v.table == "Accounts" {
+			fmt.Print("\n\t[Warning] Skipping Accounts table.\n\n")
 		} else {
 			v.updateTable(db)
 		}
