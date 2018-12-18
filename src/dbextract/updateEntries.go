@@ -7,7 +7,6 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
-	"os"
 	"strings"
 )
 
@@ -76,14 +75,14 @@ func (u *updater) formatHeader(row []string) []string {
 
 func (u *updater) setColumns(row []string) {
 	// Correlates input file columns to database tables and columns
-	keep := false
 	row = u.formatHeader(row)
 	for k, v := range u.col {
+		keep := false
 		head := strings.Split(v, ",")
-		fmt.Println(head)
 		// Initialize new column header and fill (missing values have an index of -1)
 		for _, i := range head {
 			// Store file header index in index of database table column
+			i = strings.TrimSpace(i)
 			ind := strarray.SliceIndex(row, i)
 			u.columns[k] = append(u.columns[k], ind)
 			if ind > 0 {
@@ -106,6 +105,7 @@ func (u *updater) evaluateRow(row []string) {
 	if len(id) >= 1 {
 		for k, v := range u.columns {
 			var line []string
+			keep := false
 			for _, i := range v {
 				if i <= 0 {
 					// Skip empty/ID fields
@@ -114,9 +114,12 @@ func (u *updater) evaluateRow(row []string) {
 					line = append(line, "")
 				} else {
 					line = append(line, row[i])
+					keep = true
 				}
 			}
-			u.tables[k].add(id, line)
+			if keep == true {
+				u.tables[k].add(id, line)
+			}
 		}
 	}
 }
@@ -139,8 +142,6 @@ func (u *updater) getUpdateFile(infile string) {
 			first = false
 		}
 	}
-	fmt.Println(u.columns)
-	os.Exit(0)
 }
 
 func (u *updater) updateTables(db *dbIO.DBIO) {
