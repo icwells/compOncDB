@@ -37,7 +37,7 @@ done
 
 for I in $DBU $DBE; do
 	echo "Installing $I..."
-	cp -r "src/$I" $GOPATH/src/
+	cp -r "src/$I" "$GOPATH/src/"
 	go install $I
 	echo ""
 done
