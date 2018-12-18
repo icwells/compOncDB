@@ -12,21 +12,6 @@ import (
 	"strings"
 )
 
-type Entries struct {
-	p [][]string
-	d [][]string
-	t [][]string
-	s [][]string
-}
-
-func (e *Entries) update(p, d, t, s []string) {
-	// Appends new entries to appropriate slice
-	e.p = append(e.p, p)
-	e.d = append(e.d, d)
-	e.t = append(e.t, t)
-	e.s = append(e.s, s)
-}
-
 func getDenominator(l, row int) int {
 	// Returns denominator for subsetting upload slice
 	p := float64(l * row)
@@ -63,14 +48,104 @@ func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
 	}
 }
 
-func extractPatients(infile string, count int, tumor, acc map[string]map[string]string, species map[string]string) Entries {
+func tumorPairs(typ, loc string) [][]string {
+	// Returns slice of pairs of type, location
+	var ret [][]string
+	types := strings.Split(typ, ";")
+	locations := strings.Split(loc, ";")
+	for idx, i := range types {
+		if idx < len(locations) {
+			ret = append(ret, []string{strings.TrimSpace(i), strings.TrimSpace(locations[idx])})
+		}
+	}
+	return ret
+}
+
+//----------------------------------------------------------------------------
+
+type entries struct {
+	count    int
+	p        [][]string
+	d        [][]string
+	t        [][]string
+	s        [][]string
+	accounts map[string]map[string]string
+	species  map[string]string
+	col      map[string]int
+	length   int
+}
+
+func newEntries(count int) *entries {
+	// Initializes new struct
+	e := new(entries)
+	e.count = count
+	e.accounts = make(map[string]map[string]string)
+	e.species = make(map[string]string)
+	return e
+}
+
+func (e *entries) addTumors(id string, row []string) {
+	// Assign ID to all tumor, location pairs tumorPairs
+	t := []string{id, row[e.col["Primary"]], row[e.col["Malignant"]]}
+	pairs := tumorPairs(row[e.col["Type"]], row[e.col["Location"]])
+	for _, i := range pairs {
+		e.t = append(e.t, append(t, i...))
+	}
+}
+
+func (e *entries) addDiagnosis(id string, row []string) {
+	// Diagnosis entry: ID, masspresent, hyperplasia, necropsy, metastasis_id
+	d := []string{id, row[e.col["MassPresent"]], row[e.col["Hyperplasia"]], row[e.col["Necropsy"]], row[e.col["Metastasis"]]}
+	e.d = append(e.d, d)
+}
+
+func (e *entries) addSource(id, aid string, row []string) {
+	// ID, service, account_id
+	e.s = append(e.s, []string{id, row[e.col["Service"]], aid})
+}
+
+func (e *entries) addPatient(id, sp string, row []string) {
+	// Formats patient data for upload
+	if strings.Contains(row[e.col["ID"]], "NA") == true {
+		// Make sure source ID is an integer
+		row[e.col["ID"]] = "-1"
+	} else if len(row[e.col["Age"]]) > 6 {
+		// Make sure age does not exceed decimal precision
+		row[e.col["Age"]] = row[e.col["Age"]][:7]
+	}
+	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
+	p := []string{id, row[e.col["Sex"]], row[e.col["Age"]], row[e.col["Castrated"]], sp, row[e.col["ID"]], row[e.col["Date"]], row[e.col["Comments"]]}
+	e.p = append(e.p, p)
+}
+
+func (e *entries) evaluateRow(row []string) int {
+	// Appends data to relevent slice
+	miss := 1
+	if strings.ToUpper(row[4]) != "NA" {
+		sp, exists := e.species[row[e.col["Species"]]]
+		ac, ex := e.accounts[row[e.col["Account"]]]
+		if len(row) == e.length && exists == true && ex == true {
+			// Skip entries without valid species and source data
+			aid, inmap := ac[row[e.col["Submitter"]]]
+			if inmap == true {
+				e.count++
+				id := strconv.Itoa(e.count)
+				e.addPatient(id, sp, row)
+				e.addSource(id, aid, row)
+				e.addDiagnosis(id, row)
+				e.addTumors(id, row)
+				miss--
+			}
+		}
+	}
+	return miss
+}
+
+func (e *entries) extractPatients(infile string) {
 	// Assigns patient data to appropriate slices with unique entry IDs
-	var col map[string]int
-	var l int
-	var entries Entries
 	missed := 0
 	first := true
-	start := count
+	start := e.count
 	fmt.Printf("\n\tExtracting patient data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -78,75 +153,30 @@ func extractPatients(infile string, count int, tumor, acc map[string]map[string]
 	for input.Scan() {
 		spl := strings.Split(string(input.Text()), ",")
 		if first == false {
-			pass := false
-			if strings.ToUpper(spl[4]) != "NA" {
-				sp, exists := species[spl[col["Species"]]]
-				ac, ex := acc[spl[col["Account"]]]
-				if len(spl) == l && exists == true && ex == true {
-					// Skip entries without valid species and source data
-					aid, e := ac[spl[col["Submitter"]]]
-					if e == true {
-						var t []string
-						count++
-						id := strconv.Itoa(count)
-						if strings.Contains(spl[col["ID"]], "NA") == true {
-							// Make sure source ID is an integer
-							spl[col["ID"]] = "-1"
-						} else if len(spl[col["Age"]]) > 6 {
-							// Make sure age does not exceed decimal precision
-							spl[col["Age"]] = spl[col["Age"]][:7]
-						}
-						// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
-						p := []string{id, spl[col["Sex"]], spl[col["Age"]], spl[col["Castrated"]], sp, spl[col["ID"]], spl[col["Date"]], spl[col["Comments"]]}
-						// ID, service, account_id
-						s := []string{id, spl[col["Service"]], aid}
-						// Diagnosis entry: ID, masspresent, hyperplasia, necropsy, metastasis_id
-						d := []string{id, spl[col["MassPresent"]], spl[col["Hyperplasia"]], spl[col["Necropsy"]], spl[col["Metastasis"]]}
-						// Assign ID to all tumor, location pairs tumorPairs (in diagnoses.go)
-						pairs := tumorPairs(spl[col["Type"]], spl[col["Location"]])
-						for _, i := range pairs {
-							row, intmr := tumor[i[0]]
-							r, inloc := row[i[1]]
-							if intmr == true && inloc == true {
-								// ID, tumor_id, primary_tumor, malignant
-								t = []string{id, r, spl[col["Primary"]], spl[col["Malignant"]]}
-							} else {
-								t = []string{id, "-1", spl[col["Primary"]], spl[col["Malignant"]]}
-							}
-						}
-						entries.update(p, d, t, s)
-						pass = true
-					}
-				}
-				if pass == false {
-					missed++
-				}
-			}
+			missed += e.evaluateRow(spl)
 		} else {
-			col = getColumns(spl)
-			l = len(spl)
+			e.col = getColumns(spl)
+			e.length = len(spl)
 			first = false
 		}
 	}
-	fmt.Printf("\tExtracted %d records.\n", count-start)
+	fmt.Printf("\tExtracted %d records.\n", e.count-start)
 	if missed > 0 {
 		fmt.Printf("\t[Warning] Count not find taxa ID or source ID for %d records.\n", missed)
 	}
-	return entries
 }
 
 func LoadPatients(db *dbIO.DBIO, infile string) {
 	// Loads unique patient info to appropriate tables
-	m := db.GetMax("Patient", "ID")
-	tumor := MapOfMaps(db.GetTable("Tumor"))
-	acc := MapOfMaps(db.GetTable("Accounts"))
-	species := EntryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
+	e := newEntries(db.GetMax("Patient", "ID"))
+	e.accounts = MapOfMaps(db.GetTable("Accounts"))
+	e.species = EntryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	// Get entry slices and upload to db
-	entries := extractPatients(infile, m, tumor, acc, species)
-	uploadPatients(db, "Patient", entries.p)
-	uploadPatients(db, "Diagnosis", entries.d)
-	uploadPatients(db, "Tumor_relation", entries.t)
-	uploadPatients(db, "Source", entries.s)
+	e.extractPatients(infile)
+	uploadPatients(db, "Patient", e.p)
+	uploadPatients(db, "Diagnosis", e.d)
+	uploadPatients(db, "Tumor", e.t)
+	uploadPatients(db, "Source", e.s)
 	// Recacluate species totals
 	SpeciesTotals(db)
 }
