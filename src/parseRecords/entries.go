@@ -26,7 +26,7 @@ func newEntries(service string) entries {
 	var e entries
 	e.service = service
 	e.col = newColumns()
-	e.match = newMatcher()
+	e.match = newMatcher(dict)
 	e.dups = newDuplicates()
 	e.taxaPresent = false
 	e.diagPresent = false

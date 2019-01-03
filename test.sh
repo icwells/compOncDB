@@ -6,6 +6,8 @@
 #
 #	Required:	go 1.10+
 #				mysql 14.14+
+#
+#	Usage:		./test.sh {install/white/parse/upload/search/update}
 ##############################################################################
 WD=$(pwd)
 PRSRC="$WD/src/parseRecords/*.go"
@@ -14,7 +16,6 @@ DUSRC="$WD/src/dbupload/*.go"
 CDB="$WD/bin/compOncDB"
 PR="$WD/bin/parseRecords"
 TABLES="$WD/bin/tableColumns.txt"
-DICT="$WD/bin/diagnosisDict.csv"
 
 TESTDIR=$WD/test
 TESTPR="$TESTDIR/parseRecords_test.go"
@@ -77,12 +78,39 @@ testUpdates () {
 	go test $TESTDB --run TestUpdates --args --indir="$TESTDIR/updateResults/"
 }
 
-# Compile binaries and call test functions
-./install.sh
-
-whiteBoxTests
-testParseRecords
-testUpload
-testSearch
-testUpdates
+if [ $# -eq 0 ]; then
+	whiteBoxTests
+	testParseRecords
+	testUpload
+	testSearch
+	testUpdates
+elif [ $1 = "install" ]; then
+	# Compile binaries and call test functions
+	./install.sh
+	whiteBoxTests
+	testParseRecords
+	testUpload
+	testSearch
+	testUpdates
+elif [ $1 = "white" ]; then
+	whiteBoxTests
+elif [ $1 = "parse" ]; then
+	testParseRecords
+elif [ $1 = "upload" ]; then
+	testUpload
+elif [ $1 = "search" ]; then
+	testSearch
+elif [ $1 = "update" ]; then
+	testUpdate
+elif [ $1 = "help" ]; then
+	echo ""
+	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
+	echo "Usage: ./test.sh {install/white/parse/upload/search/update}"
+	echo "install		Installs binaries and runs all tests"
+	echo "white		Runs white box tests"
+	echo "parse		Runs parseRecords black box tests"
+	echo "upload		Runs compOncDB upload black box tests"
+	echo "search		Runs compOncDB search black box tests"
+	echo "update		Runs compOncDB update black box tests"
+fi
 echo ""

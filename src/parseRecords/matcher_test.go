@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -40,10 +39,11 @@ func TestGetType(t *testing.T) {
 	m := newMatcher()
 	matches := newMatches()
 	for _, i := range matches {
-		actual := m.getType(i.line, true)
+		actual, mal := m.getType(i.line, true)
 		if actual != i.typ {
-			msg := fmt.Sprintf("Actual type %s does not equal expected: %s.", actual, i.typ)
-			t.Error(msg)
+			t.Errorf("Actual type %s does not equal expected: %s.", actual, i.typ)
+		} else if mal != i.malignant {
+			t.Errorf("Actual malignant value %s does not equal expected: %s.", mal, i.malignant)
 		}
 	}
 }
@@ -55,8 +55,7 @@ func TestGetLocation(t *testing.T) {
 	for _, i := range matches {
 		actual := m.getLocation(i.line, true)
 		if actual != i.location {
-			msg := fmt.Sprintf("Actual location %s does not equal expected: %s.", actual, i.location)
-			t.Error(msg)
+			t.Errorf("Actual location %s does not equal expected: %s.", actual, i.location)
 		}
 	}
 }
@@ -68,8 +67,7 @@ func TestGetCastrated(t *testing.T) {
 	for _, i := range matches {
 		actual := m.getCastrated(i.line)
 		if actual != i.castrated {
-			msg := fmt.Sprintf("Actual neuter value %s does not equal expected: %s.", actual, i.castrated)
-			t.Error(msg)
+			t.Errorf("Actual neuter value %s does not equal expected: %s.", actual, i.castrated)
 		}
 	}
 }
@@ -81,8 +79,7 @@ func TestInfantRecords(t *testing.T) {
 	for _, i := range matches {
 		actual := m.infantRecords(i.line)
 		if actual != i.infant {
-			msg := fmt.Sprintf("Actual infant record value %v does not equal expected: %v.", actual, i.infant)
-			t.Error(msg)
+			t.Errorf("Actual infant record value %v does not equal expected: %v.", actual, i.infant)
 		}
 	}
 }
@@ -94,8 +91,7 @@ func TestGetAge(t *testing.T) {
 	for _, i := range matches {
 		actual := m.getAge(i.line)
 		if actual != i.age {
-			msg := fmt.Sprintf("Actual age %s does not equal expected: %s.", actual, i.age)
-			t.Error(msg)
+			t.Errorf("Actual age %s does not equal expected: %s.", actual, i.age)
 		}
 	}
 }
