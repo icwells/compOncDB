@@ -44,7 +44,7 @@ whiteBoxTests () {
 testParseRecords () {
 	echo ""
 	echo "Running black box tests on parseRecords..."
-	$PR extract -s $SERVICE -c $DICT -i $INPUT -o $DOUT
+	$PR extract -s $SERVICE -i $INPUT -o $DOUT
 	go test $TESTPR --run TestExtractDiagnosis  --args --expected=$DIAG --actual=$DOUT
 	$PR merge -s $SERVICE -i $INPUT -t $TAXA -d $DIAG -o $MOUT
 	go test $TESTPR --run TestMergeRecords --args --expected=$PATIENTS --actual=$MOUT

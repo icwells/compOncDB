@@ -12,12 +12,10 @@ type entries struct {
 	d           string
 	col         columns
 	service     string
-	taxa        map[string]string
+	taxa        map[string][]string
 	diag        map[string][]string
 	match       matcher
 	dups        duplicates
-	taxaPresent bool
-	diagPresent bool
 	dupsPresent bool
 }
 
@@ -26,10 +24,8 @@ func newEntries(service string) entries {
 	var e entries
 	e.service = service
 	e.col = newColumns()
-	e.match = newMatcher(dict)
+	e.match = newMatcher()
 	e.dups = newDuplicates()
-	e.taxaPresent = false
-	e.diagPresent = false
 	e.dupsPresent = false
 	return e
 }
@@ -44,9 +40,9 @@ func (e *entries) parseHeader(header string) {
 func (e *entries) getTaxonomy(infile string) {
 	// Reads in map of species
 	var d string
+	col := make(map[string]int)
 	first := true
-	e.taxa = make(map[string]string)
-	e.taxaPresent = true
+	e.taxa = make(map[string][]string)
 	fmt.Println("\tReading taxonomy file...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -55,10 +51,12 @@ func (e *entries) getTaxonomy(infile string) {
 		line := string(scanner.Text())
 		if first == false {
 			s := strings.Split(line, d)
-			// Store binomial for each search term
-			e.taxa[s[0]] = s[8]
+			e.taxa[s[0]] = []string{s[col["Family"]], s[col["Genus"]], s[col["Species"]]}
 		} else {
 			d = iotools.GetDelim(line)
+			for idx, i := range strings.Split(line, d) {
+				col[strings.TrimSpace(i)] = idx
+			}
 			first = false
 		}
 	}
@@ -69,7 +67,6 @@ func (e *entries) getDiagnosis(infile string) {
 	var d string
 	first := true
 	e.diag = make(map[string][]string)
-	e.diagPresent = true
 	fmt.Println("\tReading diagnosis file...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()

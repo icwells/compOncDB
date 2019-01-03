@@ -37,21 +37,17 @@ func (e *entries) sortLine(line []string) (record, bool) {
 		// Proceed if line is properly formatted and species is present and no NA
 		id := subsetLine(e.col.id, line)
 		rec.setID(id)
-		if id != "NA" && e.diagPresent == true {
+		if id != "NA" {
 			row, ex := e.diag[rec.id]
 			if ex == true {
 				// Assign diagnosis data if id is present in map
 				rec.setDiagnosis(row)
 			}
 		}
-		if e.taxaPresent == true {
-			// Replace entry with scientific name
-			sp, ex := e.taxa[line[idx]]
-			if ex == true {
-				rec.species = sp
-			}
-		} else {
-			rec.species = line[idx]
+		// Replace entry with scientific name
+		sp, ex := e.taxa[line[idx]]
+		if ex == true {
+			rec.setSpecies(sp)
 		}
 		rec.setDate(subsetLine(e.col.date, line))
 		rec.setComments(subsetLine(e.col.comments, line))
@@ -75,12 +71,7 @@ func (e *entries) sortLine(line []string) (record, bool) {
 
 func (e *entries) getHeader() string {
 	// Returns appropriate header for available data
-	var head string
-	if e.diagPresent == false {
-		head = "ID,Species,Date,Comments,Account,Submitter\n"
-	} else {
-		head = "Sex,Age,Castrated,ID,Species,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
-	}
+	head := "Sex,Age,Castrated,ID,Family,Genus,Species,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
 	return head
 }
 

@@ -30,7 +30,7 @@ func getInput(file string, col int) map[string][]string {
 func TestMergeRecords(t *testing.T) {
 	// Compares output of parseRecords merge with expected output
 	flag.Parse()
-	header := []string{"Sex", "Age", "Castrated", "ID", "Species", "Date", "Comments", "MassPresent", 
+	header := []string{"Sex", "Age", "Castrated", "ID", "Family", "Genus", "Species", "Date", "Comments", "MassPresent", 
 		"Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter"}
 	expected := getInput(*exp, 3)
 	actual := getInput(*act, 3)

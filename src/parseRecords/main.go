@@ -19,8 +19,8 @@ var (
 	extract = kingpin.Command("extract", "Extract diagnosis data from infile.")
 
 	merge = kingpin.Command("merge", "Merges taxonomy and diagnosis info with infile.")
-	taxa  = merge.Flag("taxa", "Path to kestrel output.").Short('t').Default("nil").String()
-	diag  = merge.Flag("diagnoses", "Path to diagnosis data.").Short('d').Default("nil").String()
+	taxa  = merge.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
+	diag  = merge.Flag("diagnoses", "Path to diagnosis data.").Short('d').Required().String()
 )
 
 func printFatal(msg string, code int) {
@@ -32,12 +32,8 @@ func printFatal(msg string, code int) {
 func mergeRecords(ent entries) {
 	// Merges data into upload file
 	fmt.Println("\n\tMerging records...")
-	if *taxa != "nil" {
-		ent.getTaxonomy(*taxa)
-	}
-	if *diag != "nil" {
-		ent.getDiagnosis(*diag)
-	}
+	ent.getTaxonomy(*taxa)
+	ent.getDiagnosis(*diag)
 	ent.sortRecords(*infile, *outfile)
 }
 

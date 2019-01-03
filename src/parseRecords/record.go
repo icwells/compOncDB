@@ -36,6 +36,8 @@ type record struct {
 	age         string
 	castrated   string
 	id          string
+	family      string
+	genus       string
 	species     string
 	date        string
 	comments    string
@@ -60,6 +62,8 @@ func newRecord() record {
 	r.age = "-1"
 	r.castrated = "-1"
 	r.id = "NA"
+	r.family = "NA"
+	r.genus = "NA"
 	r.species = "NA"
 	r.date = "NA"
 	r.comments = "NA"
@@ -87,6 +91,10 @@ func (r *record) String() string {
 	buffer.WriteString(r.castrated)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.id)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.family)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.genus)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.species)
 	buffer.WriteByte(',')
@@ -181,6 +189,13 @@ func (r *record) setType(val string) {
 	if r.tumorType == "hyperplasia" {
 		r.hyperplasia = "1"
 	}
+}
+
+func (r *record) setSpecies(t []string) {
+	// Stores family, genus, and species
+	r.family = t[0]
+	r.genus = t[1]
+	r.species = t[2]
 }
 
 func (r *record) setID(val string) {
