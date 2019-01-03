@@ -186,7 +186,7 @@ func (r *record) setLocation(val string) {
 func (r *record) setType(val string) {
 	// Store type/NA and hyperplasia
 	r.tumorType = checkString(val)
-	if r.tumorType == "hyperplasia" {
+	if r.tumorType == "hyperplasia" || r.tumorType == "neoplasia" {
 		r.hyperplasia = "1"
 	}
 }
