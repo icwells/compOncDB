@@ -1,0 +1,76 @@
+Field,Name,Expression,Malignant
+Type,adenoma,adenoma,N
+Type,polyp,polyp,N
+Type,cyst,cyst,N
+Type,papilloma,papilloma,N
+Type,epulis,epuli.*,N
+Type,meningioma,meningioma,N
+Type,hyperplasia,(meta|dys|hyper)plas(ia|tic),N
+Type,cystadenoma,cystadenoma,N
+Type,trichoepithelioma,trichoepithelioma,N
+Type,lipoma,lipoma,N
+Type,fibropapilloma ,fibropapilloma ,N
+Type,fibropapillomatosis,fibropapilloma ,N
+Type,epithelioma,epithelioma,N
+Type,leiomyoma,leiomyoma,N
+Type,hemangioma,hemangioma,N
+Type,insulinoma,insulinoma,N
+Type,fibroma,fibroma,N
+Type,odontoma,odontoma,N
+Type,osteoma,osteoma,N
+Type,chromatophroma,chromatophroma,N
+Type,hamartoma ,hamartoma ,N
+Type,neoplasia,neoplasia|neoplasm|tumor,NA
+Type,adenocarcinoma,adenocarcinoma,Y
+Type,carcinoma,carcinoma|TCC,Y
+Type,lymphoma,lymphoma|lymphosarcoma,Y
+Type,leukemia,leukemia,Y
+Type,sarcoma,sarcoma,Y
+Type,carcinomatosis,carinomatosis,Y
+Type,chondrosarcoma,chondrosarcoma,Y
+Type,chordoma,chordoma,Y
+Type,disseminated,disseminated,Y
+Type,fibroadenocarcinoma,fibroadenocarcinoma,Y
+Type,fibrosarcoma,fibrosarcoma,Y
+Type,granulosa cell tumor,Granulosa cell tumor,Y
+Type,hemangiosarcoma,Hemangiosarcoma,Y
+Type,leiomyosarcoma,leiomyosarcoma,Y
+Type,fibrous histiocytoma,(fibrous )?histiocytoma,NA
+Type,melanoma,melanoma,Y
+Type,myxosarcoma,myxosarcoma,Y
+Type,nephroblastoma,(nephroblastoma|(Wilm's Tumor )),Y
+Type,osteosarcoma,osteosarcoma,Y
+Type,pheochromocytoma,pheochromocytoma,Y
+Type,rhabdomyosarcoma,rhabdomyosarcoma,Y
+Type,seminoma,seminoma,Y
+Location,abdomen,abdomen|abdom.*|omentum|diaphragm,
+Location,bile duct,bile.*|biliary,
+Location,bone,sacrum|bone.*,
+Location,brain,brain,
+Location,adrenal,adrenal,
+Location,bladder,bladder,
+Location,breast,(breast|mammary),
+Location,colon,colon|rectum,
+Location,duodenum,duoden.*,
+Location,fat,fat|adipose.*,
+Location,heart,heart|cardiac|atrial,
+Location,kidney,kidney.*|ureter|renal,
+Location,leukemia,leukemia,
+Location,liver,hepa.*|liver.*|hep.*|billia.*,
+Location,lung,lung.*|pulm.*|mediasti.*|bronchial|alveol.*,
+Location,lymph,lymph|lymph node,
+Location,muscle,muscle|.*structure.*,
+Location,nerve,nerve.*,
+Location,other,gland|basal.*|islet|multifocal|neck|nasal|neuroendo.*,
+Location,oral,oral|tongue|mouth|lip|palate|pharyn.*|laryn.*,
+Location,ovary,ovar.*,
+Location,pancreas,pancrea.*|islet,
+Location,seminal vesicle,seminal vesicle,
+Location,skin,skin|eyelid|(sub)?cutan.*|derm.*,
+Location,spinal cord,spinal|spine,
+Location,spleen,spleen,
+Location,testis,testi.*,
+Location,thyroid,thyroid,
+Location,uterus,uter.*,
+Location,vulva,vulva|vagina,
+Location,widespread,widespread|metastatic|(body as a whole)|multiple|disseminated,
