@@ -2,7 +2,6 @@
 ID INT PRIMARY KEY
 Sex TEXT
 Age DECIMAL(6,2)
-Infant TINYINT
 Castrated TINYINT
 taxa_id INT
 source_id TEXT
