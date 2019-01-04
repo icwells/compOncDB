@@ -73,26 +73,34 @@ func (s *searcher) assignSearch(count bool) {
 	if count == false {
 		// res and ids must be set first
 		s.setTaxaIDs()
+		if s.infant == false {
+			s.filterInfantRecords()
+		}
 		s.appendDiagnosis()
 		s.appendTaxonomy()
 		s.appendSource()
 	}
 }
 
-func SearchColumns(db *dbIO.DBIO, tables []string, user, column, op, value string, count, com bool) ([][]string, string) {
+func SearchColumns(db *dbIO.DBIO, tables []string, user, column, op, value string, count, com, inf bool) ([][]string, string) {
 	// Determines search procedure
 	fmt.Printf("\tSearching for records with '%s' in column %s...\n", value, column)
-	s := newSearcher(db, tables, user, column, op, value, com)
+	s := newSearcher(db, tables, user, column, op, value, com, inf)
 	s.assignSearch(count)
 	return s.res, s.header
 }
 
-func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, com bool) ([][]string, string) {
+func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, com, inf bool) ([][]string, string) {
 	// Returns results from single table
 	fmt.Printf("\tSearching table %s for records where %s %s %s...\n", table, column, op, value)
-	s := newSearcher(db, []string{table}, user, column, op, value, com)
+	s := newSearcher(db, []string{table}, user, column, op, value, com, inf)
 	// Overwrite standard header
 	s.header = s.db.Columns[table]
 	s.res = s.db.EvaluateRows(table, s.column, s.operator, s.value, "*")
+	if s.infant == false && table == "Patient" {
+		s.setIDs()
+		s.setTaxaIDs()
+		s.filterInfantRecords()
+	}
 	return s.res, s.header
 }

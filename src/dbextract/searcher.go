@@ -5,6 +5,7 @@ package dbextract
 import (
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"strconv"
 	"strings"
 )
 
@@ -15,8 +16,8 @@ type searcher struct {
 	column   string
 	value    string
 	operator string
-	short    bool
 	common   bool
+	infant   bool
 	res      [][]string
 	ids      []string
 	taxaids  []string
@@ -24,7 +25,7 @@ type searcher struct {
 	na       []string
 }
 
-func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string, com bool) *searcher {
+func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string, com, inf bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	// Add default header
@@ -38,6 +39,7 @@ func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string,
 	s.value = value
 	s.operator = op
 	s.common = com
+	s.infant = inf
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s
 }
@@ -64,6 +66,28 @@ func (s *searcher) setTaxaIDs() {
 	for _, i := range s.res {
 		s.taxaids = append(s.taxaids, i[4])
 	}
+}
+
+func (s *searcher) filterInfantRecords() {
+	// Removes infant records from search results
+	// In summary.go
+	ages := getMinAges(s.db, s.taxaids)
+	// Filter results
+	for idx := range s.res {
+		min, ex := ages[s.res[idx][4]]
+		if ex == true {
+			age, err := strconv.ParseFloat(s.res[idx][2], 64)
+			if err == nil && age <= min {
+				// Remove infant record
+				s.res = append(s.res[:idx], s.res[idx+1:]...)
+			}
+		}
+	}
+	// Update ids
+	s.ids = nil
+	s.taxaids = nil
+	s.setIDs()
+	s.setTaxaIDs()
 }
 
 func (s *searcher) appendSource() {

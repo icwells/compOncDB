@@ -114,7 +114,7 @@ func extractFromDB() time.Time {
 	} else if *cr == true {
 		// Extract cancer rates
 		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
-		rates := dbextract.GetCancerRates(db, *min, *nec)
+		rates := dbextract.GetCancerRates(db, *min, *nec, *inf)
 		writeResults(*outfile, header, rates)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
@@ -140,16 +140,16 @@ func searchDB() time.Time {
 				names = []string{*taxon}
 			}
 		}
-		res, header = dbextract.SearchTaxonomicLevels(db, names, *user, *level, *count, *com)
+		res, header = dbextract.SearchTaxonomicLevels(db, names, *user, *level, *count, *com, *infant)
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *eval != "nil" {
 		// Search for column/value match
 		column, op, value := getOperation(*eval)
 		if *table == "nil" {
 			tables := getTable(db.Columns, column)
-			res, header = dbextract.SearchColumns(db, tables, *user, column, op, value, *count, *com)
+			res, header = dbextract.SearchColumns(db, tables, *user, column, op, value, *count, *com, *infant)
 		} else {
-			res, header = dbextract.SearchSingleTable(db, *table, *user, column, op, value, *com)
+			res, header = dbextract.SearchSingleTable(db, *table, *user, column, op, value, *com, *infant)
 		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
 	} else {

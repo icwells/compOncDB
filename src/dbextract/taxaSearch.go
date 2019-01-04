@@ -76,17 +76,20 @@ func (s *searcher) checkLevel(level string) {
 	}
 }
 
-func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, count, com bool) ([][]string, string) {
+func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, count, com, inf bool) ([][]string, string) {
 	// Extracts data using species names
-	s := newSearcher(db, []string{"Taxonomy"}, user, level, "=", "", com)
+	s := newSearcher(db, []string{"Taxonomy"}, user, level, "=", "", com, inf)
 	s.checkLevel(level)
 	fmt.Printf("\tExtracting patient information from %s...\n", s.column)
 	taxonomy := s.getTaxonomy(names, false)
 	if len(taxonomy) >= 1 {
 		s.getTaxa()
+		s.setTaxaIDs()
+		if s.infant == false {
+			s.filterInfantRecords()
+		}
 		if count == false {
 			// Skip if not needed since this is the most time consuming step
-			s.setTaxaIDs()
 			s.appendDiagnosis()
 			s.appendTaxonomy()
 			s.appendSource()

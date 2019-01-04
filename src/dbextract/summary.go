@@ -4,9 +4,30 @@ package dbextract
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"strconv"
+	"strings"
 )
+
+func getMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
+	// Returns map of minumum ages by taxa id
+	var table map[string]string
+	ages := make(map[string]float64)
+	if len(taxaids) >= 1 {
+		table = dbupload.EntryMap(db.GetRows("Life_history", "taxa_id", strings.Join(taxaids, ","), "Infancy,taxa_id"))
+	} else {
+		table = dbupload.EntryMap(db.GetColumns("Life_history", []string{"Infancy", "taxa_id"}))
+	}
+	// Convert string ages to float
+	for k, v := range table {
+		a, err := strconv.ParseFloat(v, 64)
+		if err == nil {
+			ages[k] = a
+		}
+	}
+	return ages
+}
 
 func getRow(name string, num, den int) []string {
 	// Returns string slice of name, numerator, and percent
@@ -21,6 +42,8 @@ func getRow(name string, num, den int) []string {
 
 type summary struct {
 	total  int
+	infant int
+	adult  int
 	male   int
 	female int
 	age    int
@@ -38,6 +61,8 @@ func (s *summary) toSlice() [][]string {
 	// Calculates percents and returns slice of string slices
 	var ret [][]string
 	ret = append(ret, getRow("total", s.total, 0))
+	ret = append(ret, getRow("infant records", s.infant, s.total))
+	ret = append(ret, getRow("adult records", s.adult, s.total))
 	ret = append(ret, getRow("male", s.male, s.total))
 	ret = append(ret, getRow("female", s.female, s.total))
 	ret = append(ret, getRow("entries with ages", s.age, s.total))
@@ -52,9 +77,31 @@ func (s *summary) toSlice() [][]string {
 	return ret
 }
 
+func (s *summary) getNumAdult(db *dbIO.DBIO) {
+	// Gets total adult and infant records
+	var x []string
+	ages := getMinAges(db, x)
+	table := db.GetColumns("Patients", []string{"taxa_id", "Age"})
+	// Filter results
+	for _, i := range table {
+		min, ex := ages[i[0]]
+		if ex == true {
+			age, err := strconv.ParseFloat(i[1], 64)
+			if err == nil {
+				if age > min {
+					s.adult++
+				} else {
+					s.infant++
+				}
+			}
+		}
+	}
+}
+
 func (s *summary) setTotals(db *dbIO.DBIO) {
 	// Queries database for total number of occurances
 	s.total = db.Count("Patients", "ID", "", "", "", true)
+	s.getNumAdult(db)
 	s.male = db.Count("Patients", "Sex", "*", "=", "male", false)
 	s.female = db.Count("Patients", "Sex", "*", "=", "female", false)
 	s.age = db.Count("Patients", "Age", "*", ">=", "0", false)
