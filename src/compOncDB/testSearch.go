@@ -102,15 +102,15 @@ func (s *searchterms) searchTestCases(db *dbIO.DBIO) {
 		if len(c.column) >= 1 {
 			if len(c.table) >= 1 {
 				// Perform single table search
-				res, header = dbextract.SearchSingleTable(db, c.table, *user, c.column, c.op, c.value, false)
+				res, header = dbextract.SearchSingleTable(db, c.table, *user, c.column, c.op, c.value, false, false)
 			} else {
 				// Perform column search
 				tables := getTable(db.Columns, c.column)
-				res, header = dbextract.SearchColumns(db, tables, *user, c.column, c.op, c.value, false, false)
+				res, header = dbextract.SearchColumns(db, tables, *user, c.column, c.op, c.value, false, false, false)
 			}
 		} else {
 			// Perform taxonomy search
-			res, header = dbextract.SearchTaxonomicLevels(db, []string{c.value}, *user, c.level, false, c.common)
+			res, header = dbextract.SearchTaxonomicLevels(db, []string{c.value}, *user, c.level, false, c.common, false)
 		}
 		if len(res) >= 1 {
 			writeResults(outfile, header, res)

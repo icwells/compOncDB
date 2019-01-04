@@ -46,7 +46,6 @@ var (
 	cr      = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
 	min     = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("50").Int()
 	nec     = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
-	inf     = extract.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 
 	search = kingpin.Command("search", "Searches database for matches to given term.")
 	taxon  = search.Flag("taxa", "Name of taxonomic unit to extract data for or path to file with single column of units.").Short('t').Default("nil").String()

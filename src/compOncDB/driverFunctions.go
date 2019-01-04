@@ -114,7 +114,7 @@ func extractFromDB() time.Time {
 	} else if *cr == true {
 		// Extract cancer rates
 		header := "ScientificName,TotalRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
-		rates := dbextract.GetCancerRates(db, *min, *nec, *inf)
+		rates := dbextract.GetCancerRates(db, *min, *nec)
 		writeResults(*outfile, header, rates)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
