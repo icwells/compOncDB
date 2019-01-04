@@ -49,7 +49,7 @@ func calculateInfancy(weaning, male, female string) string {
 			ret = w
 		}
 	}
-	if age < 0.0 {
+	if ret < 0.0 {
 		ret = getAvgMaturity(male, female)
 	} else {
 		// Default to 1 month
@@ -82,7 +82,7 @@ func fmtEntry(col map[string]int, l int, tid string, row []string) []string {
 func getColumnIndeces(head []string) map[string]int {
 	// Returns map of column indeces by name
 	ret := make(map[string]int)
-	for idx, i := range row {
+	for idx, i := range head {
 		if strings.Contains(i, "/") == true {
 			i = i[:strings.Index(i, "/")]
 		} else if strings.Contains(i, "(") == true {
