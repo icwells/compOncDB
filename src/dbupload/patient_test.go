@@ -32,7 +32,7 @@ func setEntries() *entries {
 		"Sex": 0, "Age": 1, "Castrated": 2, "ID": 3, "Species": 4, "Date": 5, "Comments": 6, "MassPresent": 7, "Hyperplasia": 8,
 		"Necropsy": 9, "Metastasis": 10, "Type": 11, "Location": 12, "Primary": 13, "Malignant": 14, "Service": 15, 
 		"Account": 16, "Submitter": 17,}
-	e.species = map[string]string{
+	e.taxa = map[string]string{
 		"Canis latrans": "1",
 		"Canis lupus": "2",
 	}

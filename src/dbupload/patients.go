@@ -70,7 +70,7 @@ type entries struct {
 	t        [][]string
 	s        [][]string
 	accounts map[string]map[string]string
-	species  map[string]string
+	taxa  map[string]string
 	col      map[string]int
 	length   int
 }
@@ -80,7 +80,7 @@ func newEntries(count int) *entries {
 	e := new(entries)
 	e.count = count
 	e.accounts = make(map[string]map[string]string)
-	e.species = make(map[string]string)
+	e.taxa = make(map[string]string)
 	return e
 }
 
@@ -105,7 +105,7 @@ func (e *entries) addSource(id, aid string, row []string) {
 	e.s = append(e.s, []string{id, row[e.col["Service"]], aid})
 }
 
-func (e *entries) addPatient(id, sp string, row []string) {
+func (e *entries) addPatient(id, taxaid string, row []string) {
 	// Formats patient data for upload
 	if strings.Contains(row[e.col["ID"]], "NA") == true {
 		// Make sure source ID is an integer
@@ -115,7 +115,7 @@ func (e *entries) addPatient(id, sp string, row []string) {
 		row[e.col["Age"]] = row[e.col["Age"]][:7]
 	}
 	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
-	p := []string{id, row[e.col["Sex"]], row[e.col["Age"]], row[e.col["Castrated"]], sp, row[e.col["ID"]], row[e.col["Date"]], row[e.col["Comments"]]}
+	p := []string{id, row[e.col["Sex"]], row[e.col["Age"]], row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Date"]], row[e.col["Comments"]]}
 	e.p = append(e.p, p)
 }
 
@@ -123,7 +123,8 @@ func (e *entries) evaluateRow(row []string) int {
 	// Appends data to relevent slice
 	miss := 1
 	if strings.ToUpper(row[4]) != "NA" {
-		sp, exists := e.species[row[e.col["Species"]]]
+		t := getTaxon(row[e.col["Family"]], row[e.col["Genus"]], row[e.col["Species"]])
+		taxaid, exists := e.taxa[t]
 		ac, ex := e.accounts[row[e.col["Account"]]]
 		if len(row) == e.length && exists == true && ex == true {
 			// Skip entries without valid species and source data
@@ -131,7 +132,7 @@ func (e *entries) evaluateRow(row []string) int {
 			if inmap == true {
 				e.count++
 				id := strconv.Itoa(e.count)
-				e.addPatient(id, sp, row)
+				e.addPatient(id, taxaid, row)
 				e.addSource(id, aid, row)
 				e.addDiagnosis(id, row)
 				e.addTumors(id, row)
@@ -171,7 +172,7 @@ func LoadPatients(db *dbIO.DBIO, infile string) {
 	// Loads unique patient info to appropriate tables
 	e := newEntries(db.GetMax("Patient", "ID"))
 	e.accounts = MapOfMaps(db.GetTable("Accounts"))
-	e.species = EntryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
+	e.taxa = getTaxaIDs(db, false)
 	// Get entry slices and upload to db
 	e.extractPatients(infile)
 	uploadPatients(db, "Patient", e.p)

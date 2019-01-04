@@ -39,7 +39,33 @@ func uploadTable(db *dbIO.DBIO, taxa map[string][]string, common map[string][][]
 	}
 }
 
-func extractTaxa(infile string, species, com []string, commonNames bool) (map[string][]string, map[string][][]string) {
+func getTaxon(family, genus, species string) string {
+	// Returns lowest taxon present
+	var ret string
+	if species != "NA" {
+		ret = species
+	} else if genus != "NA" {
+		ret = species
+	} else if family != "NA" {
+		ret = family
+	}
+	return ret
+}
+
+func getSource(sources []string) string {
+	// Get first returned source
+	source := "NA"
+	for _, i := range sources {
+		if i != "NA" && len(i) >= 5 {
+			// Assumes at least "http:"
+			source = i
+			break
+		}
+	}
+	return source
+}
+
+func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (map[string][]string, map[string][][]string) {
 	// Extracts taxonomy from input file
 	var col map[string]int
 	var l int
@@ -56,40 +82,33 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 		spl := strings.Split(line, ",")
 		if first == false {
 			c := strings.Title(spl[col["SearchTerm"]])
-			s := spl[col["Species"]]
-			if strarray.InSliceStr(species, s) == false {
+			s := getTaxon(spl[col["Family"]], spl[col["Genus"]], spl[col["Species"]])
+			if _, ex := taxaids[s]; ex == false {
 				// Skip entries which are already in db
 				if _, ex := taxa[s]; ex == false {
 					// Add unique taxonomies
 					taxonomy := spl[col["Kingdom"] : col["Species"]+1]
-					// Get first returned source
-					sources := spl[col["Species"]+1 : col["Name"]]
-					source := "NA"
-					for _, i := range sources {
-						if i != "NA" && len(i) >= 5 {
-							// Assumes at least "http:"
-							source = i
-							break
-						}
-					}
-					taxonomy = append(taxonomy, source)
+					taxonomy = append(taxonomy, getSource(spl[col["Species"]+1 : col["Name"]]))
 					taxa[s] = taxonomy
 				}
 			}
-			if commonNames == true && strarray.InSliceStr(com, c) == false {
-				// Add unique common name entries to slice
-				curator := "NA"
-				if cur == true {
-					// Store curator name
-					curator = spl[col["Name"]]
-				}
-				row, ex := common[s]
-				if ex == true {
-					if strarray.InSliceSli(row, c, 0) == false {
+			if commonNames == true {
+				if _, ex := taxaids[c]; ex == false {
+					// Add unique common name entries to slice
+					curator := "NA"
+					if cur == true {
+						// Store curator name
+						curator = spl[col["Name"]]
+					}
+					row, ex := common[s]
+					if ex == true {
+						// Add to existing species record
+						if strarray.InSliceSli(row, c, 0) == false {
+							common[s] = append(common[s], []string{c, curator})
+						}
+					} else {
 						common[s] = append(common[s], []string{c, curator})
 					}
-				} else {
-					common[s] = append(common[s], []string{c, curator})
 				}
 			}
 		} else {
@@ -105,13 +124,30 @@ func extractTaxa(infile string, species, com []string, commonNames bool) (map[st
 	return taxa, common
 }
 
+func getTaxaIDs(db *dbIO.DBIO, commonNames bool) map[string]string {
+	// Returns map of taxa ids corresponding to common names, binomial names, genus, or family (whichever is most descriptive)
+	ret := make(map[string]string)
+	taxa := db.GetColumns("Taxonomy", []string{"taxa_id", "Family", "Genus", "Species"})
+	for _, i := range taxa {
+		key := getTaxon(i[1], i[2], i[3])
+		if len(key) >= 1 {
+			ret[key] = i[0]
+		}
+	}
+	if commonNames == true {
+		for _, i := range db.GetTable("Common") {
+			ret[i[1]] = i[0]
+		}
+	}
+	return ret
+}
+
 func LoadTaxa(db *dbIO.DBIO, infile string, commonNames bool) {
 	// Loads unique entries into comparative oncology taxonomy table
 	var taxa map[string][]string
 	var common map[string][][]string
 	m := db.GetMax("Taxonomy", "taxa_id")
-	species := db.GetColumnText("Taxonomy", "Species")
-	com := db.GetColumnText("Common", "Name")
-	taxa, common = extractTaxa(infile, species, com, commonNames)
+	taxaids := getTaxaIDs(db, commonNames)
+	taxa, common = extractTaxa(infile, taxaids, commonNames)
 	uploadTable(db, taxa, common, m)
 }
