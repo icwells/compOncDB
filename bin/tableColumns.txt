@@ -2,7 +2,8 @@
 ID INT PRIMARY KEY
 Sex TEXT
 Age DECIMAL(6,2)
-Castrated SMALLINT
+Infant TINYINT
+Castrated TINYINT
 taxa_id INT
 source_id TEXT
 Date TEXT
@@ -52,15 +53,15 @@ submitter_name TEXT
 
 # Diagnosis
 ID INT
-Masspresent SMALLINT
-Hyperplasia SMALLINT
-Necropsy SMALLINT
-Metastasis SMALLINT
+Masspresent TINYINT
+Hyperplasia TINYINT
+Necropsy TINYINT
+Metastasis TINYINT
 
 # Tumor
 ID INT
-primary_tumor SMALLINT
-Malignant SMALLINT
+primary_tumor TINYINT
+Malignant TINYINT
 Type TEXT
 Location TEXT
 
@@ -70,6 +71,7 @@ female_maturity DOUBLE
 male_maturity DOUBLE
 Gestation DOUBLE
 Weaning DOUBLE
+Infancy DOUBLE
 litter_size DOUBLE
 litters_year DOUBLE
 interbirth_interval DOUBLE

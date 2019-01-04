@@ -77,23 +77,11 @@ func getTotals(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 func getAgeOfInfancy(db *dbIO.DBIO, records map[string]*Record) map[string]*Record {
 	// Updates structs with min age for each species
 	// Get appropriate ages for each taxon
-	ages := db.GetRows("Life_history", "taxa_id", GetRecKeys(records), "taxa_id,female_maturity,male_maturity,Weaning")
+	ages := db.GetRows("Life_history", "taxa_id", GetRecKeys(records), "taxa_id,Infancy")
 	for _, i := range ages {
 		// Assign ages to structs
 		if InMapRec(records, i[0]) == true {
-			w, _ := strconv.ParseFloat(i[3], 64)
-			f, _ := strconv.ParseFloat(i[1], 64)
-			m, _ := strconv.ParseFloat(i[2], 64)
-			if w > 0.0 {
-				// Assign weaning age
-				records[i[0]].Infant = w
-			} else if f > 0.0 && m > 0.0 {
-				// Assign 10% of average age of maturity
-				records[i[0]].Infant = (((f + m) / 2) * 0.1)
-			} else {
-				// Default to 1 month
-				records[i[0]].Infant = 1.0
-			}
+			records[i[0]].Infant, _ = strconv.ParseFloat(i[1], 64)
 		}
 	}
 	return records
