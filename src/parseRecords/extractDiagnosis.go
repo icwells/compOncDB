@@ -97,8 +97,8 @@ func (e *entries) checkAge(line []string) string {
 func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 	// Extracts diagnosis info from line
 	var row []string
+	var necropsy, found, complete bool
 	cancer := true
-	necropsy := false
 	idx := e.col.id
 	if e.service == "NWZP" && e.col.code > idx {
 		// Get larger index
@@ -118,8 +118,8 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 		row = e.parseDiagnosis(str, age, cancer, necropsy)
 		// Prepend id
 		row = append([]string{id}, row...)
+		found, complete = countNA(row)
 	}
-	found, complete := countNA(row)
 	return row, found, complete
 }
 

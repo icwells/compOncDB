@@ -36,7 +36,7 @@ func newMatcher() matcher {
 	m.benign = regexp.MustCompile(`(?i)(not )?(benign|encapsulated)`)
 	m.metastasis = regexp.MustCompile(`(?i)(no )?(metastatis|metastatic|mets)`)
 	m.primary = regexp.MustCompile(`(?i)primary|single|solitary|source`)
-	m.necropsy = regexp.MustCompile(`(?i)(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissection|euthan.*)`)
+	m.necropsy = regexp.MustCompile(`(?i)(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissect*|euthan.*)`)
 	m.biopsy = regexp.MustCompile(`(?i)biopsy`)
 	m.setTypes()
 	return m
