@@ -73,11 +73,11 @@ func (s *searcher) filterInfantRecords() {
 	// In summary.go
 	ages := getMinAges(s.db, s.taxaids)
 	// Filter results
-	for idx := range s.res {
-		if len(s.res) >= 5 {
-			min, ex := ages[s.res[idx][4]]
+	for idx, i := range s.res {
+		if len(i) >= 5 {
+			min, ex := ages[i[4]]
 			if ex == true {
-				age, err := strconv.ParseFloat(s.res[idx][2], 64)
+				age, err := strconv.ParseFloat(i[2], 64)
 				if err == nil && age <= min {
 					// Remove infant record
 					s.res = append(s.res[:idx], s.res[idx+1:]...)
