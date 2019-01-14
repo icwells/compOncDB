@@ -12,11 +12,8 @@ import (
 
 func (s *searcher) getTaxa() {
 	// Extracts patient data using taxa ids
-	table := s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*")
-	for _, i := range table {
-		s.res = append(s.res, i...)
-		s.ids = append(s.ids, i[0])
-	}
+	s.res = s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*")
+	s.setIDs()
 }
 
 func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
