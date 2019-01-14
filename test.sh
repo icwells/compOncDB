@@ -13,6 +13,7 @@ WD=$(pwd)
 PRSRC="$WD/src/parseRecords/*.go"
 DBSRC="$WD/src/compOncDB/*.go"
 DUSRC="$WD/src/dbupload/*.go"
+DESRC="$WD/src/dbextract/*.go"
 CDB="$WD/bin/compOncDB"
 PR="$WD/bin/parseRecords"
 TABLES="$WD/bin/tableColumns.txt"
@@ -35,10 +36,12 @@ CASES="$TESTDIR/searchCases.csv"
 UPDATE="$TESTDIR/testUpdate.csv"
 
 whiteBoxTests () {
+	echo ""
 	echo "Running white box tests..."
 	go test $PRSRC
 	go test $DBSRC
 	go test $DUSRC
+	go test $DESRC
 }
 
 testParseRecords () {
@@ -78,20 +81,20 @@ testUpdates () {
 	go test $TESTDB --run TestUpdates --args --indir="$TESTDIR/updateResults/"
 }
 
-if [ $# -eq 0 ]; then
+testAll () {
 	whiteBoxTests
 	testParseRecords
 	testUpload
 	testSearch
 	testUpdates
+}
+
+if [ $# -eq 0 ]; then
+	testAll
 elif [ $1 = "install" ]; then
 	# Compile binaries and call test functions
 	./install.sh
-	whiteBoxTests
-	testParseRecords
-	testUpload
-	testSearch
-	testUpdates
+	testAll
 elif [ $1 = "white" ]; then
 	whiteBoxTests
 elif [ $1 = "parse" ]; then
@@ -106,6 +109,7 @@ elif [ $1 = "help" ]; then
 	echo ""
 	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
 	echo "Usage: ./test.sh {install/white/parse/upload/search/update}"
+	echo ""
 	echo "install		Installs binaries and runs all tests"
 	echo "white		Runs white box tests"
 	echo "parse		Runs parseRecords black box tests"

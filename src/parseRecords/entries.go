@@ -33,8 +33,7 @@ func newEntries(service string) entries {
 func (e *entries) parseHeader(header string) {
 	// Stores column numbers and delimiter from header
 	e.d = iotools.GetDelim(header)
-	head := strings.Split(header, e.d)
-	e.col.setColumns(head)
+	e.col.setColumns(strings.Split(header, e.d))
 }
 
 func (e *entries) getTaxonomy(infile string) {
