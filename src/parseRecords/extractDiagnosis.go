@@ -49,7 +49,7 @@ func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []stri
 	row = append(row, e.match.getLocation(line, cancer))
 	t, mal := e.match.getType(line, cancer)
 	row = append(row, t)
-	met := e.match.binaryMatch(e.match.metastasis, line, "")
+	met := e.match.binaryMatch(e.match.metastasis, line)
 	if met == "Y" {
 		// Assume malignancy if metastasis is detected
 		mal = "Y"
@@ -68,7 +68,7 @@ func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []stri
 	if necropsy == true {
 		row = append(row, "Y")
 	} else {
-		row = append(row, e.match.binaryMatch(e.match.necropsy, line, "biopsy"))
+		row = append(row, e.match.getNecropsy(line))
 	}
 	return row
 }

@@ -21,6 +21,7 @@ type matcher struct {
 	metastasis *regexp.Regexp
 	primary    *regexp.Regexp
 	necropsy   *regexp.Regexp
+	biopsy	   *regexp.Regexp
 }
 
 func newMatcher() matcher {
@@ -35,7 +36,8 @@ func newMatcher() matcher {
 	m.benign = regexp.MustCompile(`(?i)(not )?(benign|encapsulated)`)
 	m.metastasis = regexp.MustCompile(`(?i)(no )?(metastatis|metastatic|mets)`)
 	m.primary = regexp.MustCompile(`(?i)primary|single|solitary|source`)
-	m.necropsy = regexp.MustCompile(`(?i)(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissection|euthan.*)|(biopsy)`)
+	m.necropsy = regexp.MustCompile(`(?i)(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissection|euthan.*)`)
+	m.biopsy = regexp.MustCompile(`(?i)biopsy`)
 	m.setTypes()
 	return m
 }
@@ -51,35 +53,30 @@ func (m *matcher) getMatch(re *regexp.Regexp, line string) string {
 	return match
 }
 
-func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
+func (m *matcher) binaryMatch(re *regexp.Regexp, line string) string {
 	// Returns Y/N/NA
 	ret := "NA"
 	match := re.FindStringSubmatch(line)
 	if len(match) >= 2 {
-		if len(exp) >= 2 {
-			if strings.Contains(match[1], "no") == true {
-				// Negating phrase found
-				if match[len(match)-1] == exp {
-					ret = "Y"
-				} else {
-					ret = "N"
-				}
-			} else {
-				if match[len(match)-1] == exp {
-					// Negating expression found
-					ret = "N"
-				} else {
-					ret = "Y"
-				}
-			}
+		if strings.Contains(match[1], "no ") == true || strings.Contains(match[1], "not ") == true {
+			// Negating phrase found
+			ret = "N"
 		} else {
-			if strings.Contains(match[1], "no") == true {
-				// Negating phrase found
-				ret = "N"
-			} else {
-				// No negation
-				ret = "Y"
-			}
+			// No negation
+			ret = "Y"
+		}
+	}
+	return ret
+}
+
+func (m *matcher) getNecropsy(line string) string {
+	// Returns Y/N/NA; also searches for negating expression
+	ret := m.binaryMatch(m.necropsy, line)
+	if ret == "NA" {
+		// Search for biopsy
+		inverse := m.getMatch(m.biopsy, line)
+		if inverse != "NA" {
+			ret = "N"
 		}
 	}
 	return ret
@@ -87,9 +84,9 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line, exp string) string {
 
 func (m *matcher) getMalignancy(line string) string {
 	// Returns Y/N for malignant/benign
-	ret := m.binaryMatch(m.malignant, line, "")
+	ret := m.binaryMatch(m.malignant, line)
 	if ret == "NA" {
-		ret = m.binaryMatch(m.benign, line, "")
+		ret = m.binaryMatch(m.benign, line)
 		// Reverse benign result
 		if ret == "Y" {
 			ret = "N"
@@ -145,7 +142,7 @@ func (m *matcher) getLocation(line string, cancer bool) string {
 
 func (m *matcher) getCastrated(line string) string {
 	// Returns castration status
-	match := m.binaryMatch(m.castrated, line, "")
+	match := m.binaryMatch(m.castrated, line)
 	if match == "NA" && strings.Contains(line, "intact") == true {
 		match = "N"
 	}

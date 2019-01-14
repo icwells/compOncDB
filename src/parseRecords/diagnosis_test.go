@@ -4,6 +4,7 @@ package main
 
 import (
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -67,7 +68,7 @@ func TestCheckAge(t *testing.T) {
 	}
 }
 
-/*func TestParseDiagnosis(t *testing.T) {
+func TestParseDiagnosis(t *testing.T) {
 	// Tests parseDiagnosis with matches from matcher_test.go
 	e := newEntries("service")
 	matches := newMatches()
@@ -100,4 +101,4 @@ func TestCheckAge(t *testing.T) {
 			t.Errorf("%s: Actual necropsy value %s does not equal expected %s", i.line, row[8], i.necropsy)
 		}
 	}
-}*/
+}
