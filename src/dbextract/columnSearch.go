@@ -70,7 +70,7 @@ func (s *searcher) assignSearch(count bool) {
 	case "Accounts":
 		s.searchAccounts()
 	}
-	if count == false {
+	if count == false && len(s.res) >= 1 {
 		// res and ids must be set first
 		s.setTaxaIDs()
 		if s.infant == false {

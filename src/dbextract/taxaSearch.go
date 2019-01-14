@@ -24,6 +24,7 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 		// Get taxonomy ids from common name list
 		c := s.db.GetRows("Common", "Name", strings.Join(names, ","), "*")
 		if len(c) >= 1 {
+			// Colect taxa IDs
 			buffer := bytes.NewBufferString(c[0][0])
 			for _, i := range c[1:] {
 				buffer.WriteByte(',')
@@ -82,14 +83,16 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 	if len(taxonomy) >= 1 {
 		s.getTaxa()
 		s.setTaxaIDs()
-		if s.infant == false {
-			s.filterInfantRecords()
-		}
-		if count == false {
-			// Skip if not needed since this is the most time consuming step
-			s.appendDiagnosis()
-			s.appendTaxonomy()
-			s.appendSource()
+		if len(s.res) >= 1 {
+			if s.infant == false {
+				s.filterInfantRecords()
+			}
+			if count == false {
+				// Skip if not needed since this is the most time consuming step
+				s.appendDiagnosis()
+				s.appendTaxonomy()
+				s.appendSource()
+			}
 		}
 	}
 	return s.res, s.header
