@@ -12,13 +12,13 @@ import (
 var (
 	// Kingpin arguments
 	app     = kingpin.New("parseRecords", "This script will parse and organize records for upload to the comparative oncology database.")
+	service = kingpin.Flag("service", "Service database name.").Short('s').Required().String()
 	infile  = kingpin.Flag("infile", "Path to input file.").Short('i').Required().String()
 	outfile = kingpin.Flag("outfile", "Path to output file.").Short('o').Required().String()
-	service = kingpin.Flag("service", "Service database name.").Short('s').Required().String()
 
 	extract = kingpin.Command("extract", "Extract diagnosis data from infile.")
 
-	merge = kingpin.Command("merge", "Merges taxonomy and diagnosis info with infile.")
+	merge = kingpin.Command("merge", "Merges taxonomy and diagnosis info with infile and accounts for duplicate records.")
 	taxa  = merge.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
 	diag  = merge.Flag("diagnoses", "Path to diagnosis data.").Short('d').Required().String()
 )
