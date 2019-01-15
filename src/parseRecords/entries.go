@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
+	"os"
 	"strings"
 )
 
@@ -34,6 +35,18 @@ func (e *entries) parseHeader(header string) {
 	// Stores column numbers and delimiter from header
 	e.d = iotools.GetDelim(header)
 	e.col.setColumns(strings.Split(header, e.d))
+}
+
+func (e *entries) getOutputFile(outfile, header string) *os.File {
+	// Opends file for appending
+	var f *os.File
+	if iotools.Exists(outfile) == true {
+		f = iotools.AppendFile(outfile)
+	} else {
+		f = iotools.CreateFile(outfile)
+		f.WriteString(header)
+	}
+	return f
 }
 
 func (e *entries) getTaxonomy(infile string) {

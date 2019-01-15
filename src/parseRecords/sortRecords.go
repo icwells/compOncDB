@@ -82,7 +82,7 @@ func (e *entries) sortRecords(infile, outfile string) {
 	fmt.Println("\tSorting input records...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
-	out := iotools.CreateFile(outfile)
+	out := e.getOutputFile(outfile, e.getHeader())
 	defer out.Close()
 	scanner := iotools.GetScanner(f)
 	for scanner.Scan() {
@@ -98,7 +98,6 @@ func (e *entries) sortRecords(infile, outfile string) {
 		} else {
 			// Get column info and write header
 			e.parseHeader(line)
-			out.WriteString(e.getHeader())
 			first = false
 		}
 	}
