@@ -30,16 +30,21 @@ func backup(pw string) {
 }
 
 func connectToDatabase(testdb bool) *dbIO.DBIO {
-	// Manages call to Connect and ReadColumns
+	// Manages call to Connect and GetTableColumns
 	d := DB
 	if testdb == true {
 		d = TDB
 	}
 	db := dbIO.Connect(d, *user)
-	if testdb == false {
-		db.ReadColumns(COL, false)
-	}
+	db.GetTableColumns()
 	return db
+}
+
+func newDatabase() time.Time {
+	// Creates new database and tables
+	db := dbIO.CreateDatabase(DB, *user)
+	db.NewTables(*tablefile)
+	return db.Starttime
 }
 
 func uploadToDB() time.Time {
@@ -163,17 +168,18 @@ func searchDB() time.Time {
 
 func testDB() time.Time {
 	// Performs test uploads and extractions
-	db := connectToDatabase(true)
-	db.NewTables(*tables)
-	// Re-read columns without types
-	db.ReadColumns(*tables, false)
+	var db *dbIO.DBIO
 	if *testsearch == true {
 		fmt.Print("\n\tTesting search functions...\n\n")
+		db = connectToDatabase(true)
+		db.ReadColumns(*tables)
 		var terms searchterms
 		terms.readSearchTerms(*infile, *outfile)
 		terms.searchTestCases(db)
 	} else if *updates == true {
 		fmt.Print("\n\tTesting update functions...\n\n")
+		db = connectToDatabase(true)
+		db.ReadColumns(*tables)
 		dbextract.UpdateEntries(db, *infile)
 		for _, i := range []string{"Patient", "Diagnosis"} {
 			table := db.GetTable(i)
@@ -181,10 +187,9 @@ func testDB() time.Time {
 			iotools.WriteToCSV(out, db.Columns[i], table)
 		}
 	} else {
-		// Clear existing tables
-		for k := range db.Columns {
-			db.TruncateTable(k)
-		}
+		// Get empty database
+		db := dbIO.ReplaceDatabase(TDB, *user)
+		db.NewTables(*tables)
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *taxafile, true)
 		dbupload.LoadLifeHistory(db, *lifehistory)

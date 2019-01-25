@@ -20,12 +20,14 @@ var (
 	// Kingpin arguments
 	app     = kingpin.New("compOncDB", "Comand line-interface for uploading/extrating/manipulating data from the comparative oncology database.")
 	user    = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
-	ver     = kingpin.Command("version", "Prints version info and exits.")
-	bu      = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
-	New     = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
 	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <). ").Short('e').Default("nil").String()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
+	ver     = kingpin.Command("version", "Prints version info and exits.")
+	bu      = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
+
+	New     	= kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
+	tablefile   = New.Flag("tables", "Path tableColumns.txt file.").String()
 
 	upload  = kingpin.Command("upload", "Upload data to the database.")
 	taxa    = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
@@ -83,9 +85,7 @@ func main() {
 		start = db.Starttime
 		backup(db.Password)
 	case New.FullCommand():
-		db := connectToDatabase(false)
-		start = db.Starttime
-		db.NewTables(COL)
+		start = newDatabase()
 	case upload.FullCommand():
 		start = uploadToDB()
 	case update.FullCommand():
