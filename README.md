@@ -4,11 +4,22 @@ It is currently being developed, so many features are not yet available.
 
 Copyright 2018 by Shawn Rupp
 
-## Dependencies  
+1. [Description](#Description)
+2. [Installation](#Installation)  
+3. [Usage](#Usage)  
+4. [Commands](#Commands)  
+5. [parseRecords](#parseRecords)
+
+## Description  
+compOncDB is a program written to manage veterinary pathology data and identify cancer records using  a MySQL database. The accompanying parseRecords tool can be used to extract diagnosis information from an input file. It can then be used to merge the source data, diagnosis output, and taxonomy information into a format ready for upload to the MySQL database. The program provides basic CRUD (create, read, update, delete) functionality, as well as specific analysis functions. These include calculating cancer rates per species, calculating summary statistics, and searching for specific records.  
+
+## Installation  
+
+### Dependencies  
 Go version 1.11 or higher  
 MySQL 14.14 or higher  
 
-## Installation  
+### Download  
 Download the repository:  
 
 	git clone https://github.com/icwells/compOncDB.git  
@@ -20,11 +31,11 @@ Any missing Go packages will be downloaded and installed when running install.sh
 	./install.sh  
 
 ### Testing the Installation  
-Create a database named "testDataBase" in MySQL (CREATE DATABASE testDataBase;) and run the following:
+Create a database named "testDataBase" in MySQL (CREATE DATABASE testDataBase;) and run the following in a terminal:
 
 	./test.sh
 
-You will be prompted the enter your MySQL password twice. All of the output from the test scripts should begin with "ok".  
+You will be prompted the enter your MySQL password several times. All of the output from the test scripts should begin with "ok".  
 
 ## Usage  
 Once compiled, the compOncDB program can be used by giving it a base command and the appropriate flags.  
@@ -46,7 +57,7 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 	search			Searches database for matches to given term.  
 	test			Tests database functionality using testDataBase instead of comaprative oncology.  
 
-### Usage by Command  
+### Commands  
 
 #### Backup  
 	./compOncDB backup
