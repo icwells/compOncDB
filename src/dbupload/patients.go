@@ -26,14 +26,13 @@ func sizeOf(list [][]string) int {
 func getDenominator(size int) int {
 	// Returns denominator for subsetting upload slice (size in bytes / 16Mb)
 	max := 10000000.0
-	return int(math.Floor(float64(size) / max))
+	return int(math.Ceil(float64(size) / max))
 }
 
 func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
 	// Uploads patient entries to db
 	l := len(list)
 	den := getDenominator(sizeOf(list))
-	fmt.Println(den, sizeOf(list))
 	if den <= 1 {
 		// Upload slice at once
 		vals, l := dbIO.FormatSlice(list)
