@@ -90,10 +90,12 @@ func getAgeOfInfancy(db *dbIO.DBIO, records map[string]*Record) map[string]*Reco
 func getAllSpecies(db *dbIO.DBIO) map[string]*Record {
 	// Returns map of empty species records with >= min occurances
 	records := make(map[string]*Record)
-	unique := db.GetColumnText("Taxonomy", "taxa_id")
+	unique := db.GetColumns("Taxonomy", []string{"taxa_id", "Species"})
 	for _, v := range unique {
-		var rec Record
-		records[v] = &rec
+		if v[1] != "NA" {
+			var rec Record
+			records[v[0]] = &rec
+		}
 	}
 	return records
 }

@@ -43,7 +43,9 @@ func getTaxon(family, genus, species string) string {
 	// Returns lowest taxon present
 	var ret string
 	if species != "NA" {
-		ret = species
+		s := strings.Split(species, " ")
+		// Save with genus capitalized and species in lower case
+		ret = strings.Title(s[0]) + " " + strings.ToLower(s[1]) 
 	} else if genus != "NA" {
 		ret = species
 	} else if family != "NA" {
