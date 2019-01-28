@@ -35,7 +35,7 @@ func getRow(name string, num, den int) []string {
 	ret = append(ret, string(num))
 	if den > 0 {
 		percent := (float64(num) / float64(den)) * 100
-		ret = append(ret, strconv.FormatFloat(percent, 'f', 2, 64)+"%")
+		ret = append(ret, fmt.Sprintf("%.2f%%", percent))
 	}
 	return ret
 }
