@@ -3,6 +3,7 @@
 package dbextract
 
 import (
+	"strconv"
 	"testing"
 )
 
@@ -26,7 +27,7 @@ func TestGetRow(t *testing.T) {
 			t.Errorf("Actual length %d does not equal expected: %d", len(actual), i.length)
 		} else if actual[0] != i.name {
 			t.Errorf("Actual name %s does not equal expected: %s", actual[0], i.name)
-		} else if actual[1] != string(i.num) {
+		} else if actual[1] != strconv.Itoa(i.num) {
 			t.Errorf("Actual total %s does not equal expected: %d", actual[1], i.num)
 		} else if i.length == 3 && actual[2] != i.percent {
 			t.Errorf("Actual percent %s does not equal expected: %s", actual[2], i.percent)

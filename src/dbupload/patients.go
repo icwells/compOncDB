@@ -187,7 +187,7 @@ func (e *entries) extractPatients(infile string) {
 	}
 	fmt.Printf("\tExtracted %d records.\n", e.count-start)
 	if missed > 0 {
-		fmt.Printf("\t[Warning] Count not find taxa ID or source ID for %d records.\n", missed)
+		fmt.Printf("\t[Warning] Could not find taxa ID or source ID for %d records.\n", missed)
 	}
 }
 

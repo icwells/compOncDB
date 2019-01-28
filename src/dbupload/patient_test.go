@@ -45,10 +45,10 @@ func getExpected() *entries {
 	// Returns pre-filled struct of expected results
 	e := newEntries(4)
 	e.p = [][]string{
-		[]string{"1", "male", "-1", "-1", "1", "1", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR"},
-		[]string{"2", "NA", "-1", "-1", "1", "2", "13-Jan", "ERYTHROPHAGOCYTOSIS"},
-		[]string{"3", "male", "24", "-1", "1", "3", "1-Dec", "Lymphoma lymph nodes 2 year old male"},
-		[]string{"4", "NA", "-1", "-1", "1", "4", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"},
+		[]string{"1", "male", "-1.00", "-1", "1", "1", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR"},
+		[]string{"2", "NA", "-1.00", "-1", "1", "2", "13-Jan", "ERYTHROPHAGOCYTOSIS"},
+		[]string{"3", "male", "24.00", "-1", "1", "3", "1-Dec", "Lymphoma lymph nodes 2 year old male"},
+		[]string{"4", "NA", "-1.00", "-1", "1", "4", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"},
 	}
 	e.d = [][]string{
 		[]string{"1", "0", "0", "0", "-1"},
