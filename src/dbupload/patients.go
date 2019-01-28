@@ -8,14 +8,19 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"math"
-	"reflect"
 	"strconv"
 	"strings"
 )
 
-func sizeOf(T interface{}) int {
+func sizeOf(list [][]string) int {
 	// Returns size of array in bytes
-	return int(reflect.TypeOf(T).Size())
+	ret := 0
+	for _, i := range list {
+		for _, j := range i {
+			ret += len([]byte(j))
+		}
+	}
+	return ret
 }
 
 func getDenominator(size int) int {
