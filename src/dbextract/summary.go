@@ -81,7 +81,7 @@ func (s *summary) getNumAdult(db *dbIO.DBIO) {
 	// Gets total adult and infant records
 	var x []string
 	ages := getMinAges(db, x)
-	table := db.GetColumns("Patients", []string{"taxa_id", "Age"})
+	table := db.GetColumns("Patient", []string{"taxa_id", "Age"})
 	// Filter results
 	for _, i := range table {
 		min, ex := ages[i[0]]
@@ -100,11 +100,11 @@ func (s *summary) getNumAdult(db *dbIO.DBIO) {
 
 func (s *summary) setTotals(db *dbIO.DBIO) {
 	// Queries database for total number of occurances
-	s.total = db.Count("Patients", "ID", "", "", "", true)
+	s.total = db.Count("Patient", "ID", "", "", "", true)
 	s.getNumAdult(db)
-	s.male = db.Count("Patients", "Sex", "*", "=", "male", false)
-	s.female = db.Count("Patients", "Sex", "*", "=", "female", false)
-	s.age = db.Count("Patients", "Age", "*", ">=", "0", false)
+	s.male = db.Count("Patient", "Sex", "*", "=", "male", false)
+	s.female = db.Count("Patient", "Sex", "*", "=", "female", false)
+	s.age = db.Count("Patient", "Age", "*", ">=", "0", false)
 	s.mass = db.Count("Diagnosis", "Masspresent", "*", "=", "1", false)
 	s.hyper = db.Count("Diagnosis", "Hyperplasia", "*", "=", "1", false)
 	s.nec = db.Count("Diagnosis", "Necropsy", "*", "=", "1", false)
