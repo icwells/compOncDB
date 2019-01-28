@@ -25,7 +25,7 @@ func sizeOf(list [][]string) int {
 
 func getDenominator(size int) int {
 	// Returns denominator for subsetting upload slice (size in bytes / 16Mb)
-	max := 15000000.0
+	max := 10000000.0
 	return int(math.Floor(float64(size) / max))
 }
 
