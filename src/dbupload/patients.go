@@ -8,21 +8,27 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"math"
+	"reflect"
 	"strconv"
 	"strings"
 )
 
-func getDenominator(l, row int) int {
-	// Returns denominator for subsetting upload slice
-	p := float64(l * row)
-	max := 200000.0
+func sizeOf(T interface{}) int {
+	// Returns size of array in bytes
+	return int(reflect.TypeOf(T).Size())
+}
+
+func getDenominator(size int) int {
+	// Returns denominator for subsetting upload slice (size in bytes / 16Mb)
+	p := float64(size)
+	max := 16777216.0
 	return int(math.Floor(p / max))
 }
 
 func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
 	// Uploads patient entries to db
 	l := len(list)
-	den := getDenominator(l, len(list[0]))
+	den := getDenominator(sizeOf(list))
 	if den <= 1 {
 		// Upload slice at once
 		vals, l := dbIO.FormatSlice(list)
