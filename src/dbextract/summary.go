@@ -32,7 +32,7 @@ func getMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
 func getRow(name string, num, den int) []string {
 	// Returns string slice of name, numerator, and percent
 	ret := []string{name}
-	ret = append(ret, string(num))
+	ret = append(ret, strconv.Itoa(num))
 	if den > 0 {
 		percent := (float64(num) / float64(den)) * 100
 		ret = append(ret, fmt.Sprintf("%.2f%%", percent))
