@@ -115,6 +115,19 @@ func (e *entries) addSource(id, aid string, row []string) {
 	e.s = append(e.s, []string{id, row[e.col["Service"]], aid})
 }
 
+func formatAge(age string) string {
+	// Returns age formatted for sql upload
+	ret := "-1.0"
+	f, err := strconv.ParseFloat(age, 64)
+	if err == nil {
+		age = fmt.Sprintf("%.2f", f)
+		if len(age) <= 7 {
+			ret = age
+		} 
+	}
+	return ret
+}
+
 func (e *entries) addPatient(id, taxaid string, row []string) {
 	// Formats patient data for upload
 	if strings.Contains(row[e.col["ID"]], "NA") == true {
@@ -125,7 +138,7 @@ func (e *entries) addPatient(id, taxaid string, row []string) {
 		row[e.col["Age"]] = row[e.col["Age"]][:7]
 	}
 	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
-	p := []string{id, row[e.col["Sex"]], row[e.col["Age"]], row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Date"]], row[e.col["Comments"]]}
+	p := []string{id, row[e.col["Sex"]], formatAge(row[e.col["Age"]]), row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Date"]], row[e.col["Comments"]]}
 	e.p = append(e.p, p)
 }
 
