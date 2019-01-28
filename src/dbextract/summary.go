@@ -100,7 +100,7 @@ func (s *summary) getNumAdult(db *dbIO.DBIO) {
 
 func (s *summary) setTotals(db *dbIO.DBIO) {
 	// Queries database for total number of occurances
-	s.total = db.Count("Patient", "ID", "", "", "", true)
+	s.total = db.Count("Patient", "ID", "*", "", "", true)
 	s.getNumAdult(db)
 	s.male = db.Count("Patient", "Sex", "*", "=", "male", false)
 	s.female = db.Count("Patient", "Sex", "*", "=", "female", false)
@@ -110,9 +110,9 @@ func (s *summary) setTotals(db *dbIO.DBIO) {
 	s.nec = db.Count("Diagnosis", "Necropsy", "*", "=", "1", false)
 	s.mal = db.Count("Tumor", "Malignant", "*", "=", "1", false)
 	s.benign = db.Count("Tumor", "Malignant", "*", "=", "0", false)
-	s.taxa = db.Count("Taxonomy", "taxa_id", "", "", "", true)
-	s.com = db.Count("Common", "taxa_id", "", "", "", true)
-	s.hist = db.Count("Life_history", "taxa_id", "", "", "", true)
+	s.taxa = db.Count("Taxonomy", "", "taxa_id", "", "", true)
+	s.com = db.Count("Common", "", "taxa_id", "", "", true)
+	s.hist = db.Count("Life_history", "", "taxa_id", "", "", true)
 }
 
 func GetSummary(db *dbIO.DBIO) [][]string {
