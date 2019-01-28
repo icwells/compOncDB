@@ -53,6 +53,7 @@ type summary struct {
 	benign int
 	nec    int
 	taxa   int
+	path   int
 	com    int
 	hist   int
 }
@@ -72,6 +73,7 @@ func (s *summary) toSlice() [][]string {
 	ret = append(ret, getRow("benign", s.benign, s.total))
 	ret = append(ret, getRow("necropsies", s.nec, s.total))
 	ret = append(ret, getRow("taxonomies", s.taxa, 0))
+	ret = append(ret, getRow("taxonomies with pathology records", s.path, s.taxa))
 	ret = append(ret, getRow("taxonomies with common names", s.com, s.taxa))
 	ret = append(ret, getRow("taxonomies with life history data", s.hist, s.taxa))
 	return ret
@@ -111,6 +113,7 @@ func (s *summary) setTotals(db *dbIO.DBIO) {
 	s.mal = db.Count("Tumor", "Malignant", "*", "=", "1", false)
 	s.benign = db.Count("Tumor", "Malignant", "*", "=", "0", false)
 	s.taxa = db.Count("Taxonomy", "", "taxa_id", "", "", true)
+	s.path = db.Count("Patient", "", "taxa_id", "", "", true)
 	s.com = db.Count("Common", "", "taxa_id", "", "", true)
 	s.hist = db.Count("Life_history", "", "taxa_id", "", "", true)
 }
