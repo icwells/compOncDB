@@ -16,11 +16,13 @@ import (
 
 func backup(pw string) {
 	// Backup database to local machine
-	fmt.Printf("\n\tBacking up %s database to local machine...\n", DB)
+	c := setConfiguration(false)
+	fmt.Printf("\n\tBacking up %s database to local machine...\n", c.database)
 	datestamp := time.Now().Format("2006-01-02")
 	password := fmt.Sprintf("-p%s", pw)
-	res := fmt.Sprintf("--result-file=%s.%s.sql", DB, datestamp)
-	bu := exec.Command("mysqldump", "-uroot", password, res, DB)
+	host := fmt.Sprintf("-h%s", c.host)
+	res := fmt.Sprintf("--result-file=%s.%s.sql", c.database, datestamp)
+	bu := exec.Command("mysqldump", "-uroot", host, password, res, c.database)
 	err := bu.Run()
 	if err == nil {
 		fmt.Println("\tBackup complete.")
@@ -29,21 +31,11 @@ func backup(pw string) {
 	}
 }
 
-func connectToDatabase(testdb bool) *dbIO.DBIO {
-	// Manages call to Connect and GetTableColumns
-	d := DB
-	if testdb == true {
-		d = TDB
-	}
-	db := dbIO.Connect("", d, *user)
-	db.GetTableColumns()
-	return db
-}
-
 func newDatabase() time.Time {
 	// Creates new database and tables
-	db := dbIO.CreateDatabase("", DB, *user)
-	db.NewTables(*tablefile)
+	c := setConfiguration(false)
+	db := dbIO.CreateDatabase("", c.database, *user)
+	db.NewTables(c.tables)
 	return db.Starttime
 }
 
@@ -53,7 +45,7 @@ func uploadToDB() time.Time {
 		fmt.Print("\n\t[Error] Please specify input file. Exiting.\n\n")
 		os.Exit(1)
 	}
-	db := connectToDatabase(false)
+	db := connectToDatabase(setConfiguration(false))
 	if *taxa == true {
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *infile, *common)
@@ -75,7 +67,7 @@ func uploadToDB() time.Time {
 
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
-	db := connectToDatabase(false)
+	db := connectToDatabase(setConfiguration(false))
 	if *total == true {
 		dbupload.SpeciesTotals(db)
 	} else if *infile != "nil" {
@@ -100,7 +92,7 @@ func updateDB() time.Time {
 
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
-	db := connectToDatabase(false)
+	db := connectToDatabase(setConfiguration(false))
 	if *dump != "nil" {
 		if *dump == "Accounts" && *user != "root" {
 			fmt.Print("\n\t[Error] Must be root to access Accounts table. Exiting.\n\n")
@@ -131,7 +123,7 @@ func searchDB() time.Time {
 	// Performs search functions on database
 	var res [][]string
 	var header string
-	db := connectToDatabase(false)
+	db := connectToDatabase(setConfiguration(false))
 	if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
@@ -172,14 +164,12 @@ func testDB() time.Time {
 	if *testsearch == true {
 		var terms searchterms
 		fmt.Print("\n\tTesting search functions...\n\n")
-		db = connectToDatabase(true)
-		db.GetTableColumns()
+		db = connectToDatabase(setConfiguration(true))
 		terms.readSearchTerms(*infile, *outfile)
 		terms.searchTestCases(db)
 	} else if *updates == true {
 		fmt.Print("\n\tTesting update functions...\n\n")
-		db = connectToDatabase(true)
-		db.GetTableColumns()
+		db = connectToDatabase(setConfiguration(true))
 		dbextract.UpdateEntries(db, *infile)
 		for _, i := range []string{"Patient", "Diagnosis"} {
 			table := db.GetTable(i)
@@ -188,8 +178,9 @@ func testDB() time.Time {
 		}
 	} else {
 		// Get empty database
-		db = dbIO.ReplaceDatabase("", TDB, *user)
-		db.NewTables(*tables)
+		c := setConfiguration(true)
+		db = dbIO.ReplaceDatabase(c.host, c.testdb, *user)
+		db.NewTables(c.tables)
 		// Replace column names
 		db.GetTableColumns()
 		// Upload taxonomy

@@ -80,7 +80,7 @@ func (s *searcher) filterInfantRecords() {
 				age, err := strconv.ParseFloat(i[2], 64)
 				if err == nil && age <= min {
 					// Remove infant record
-					if idx < len(s.res) - 1 {
+					if idx < len(s.res)-1 {
 						s.res = append(s.res[:idx], s.res[idx+1:]...)
 					} else {
 						// Drop last element

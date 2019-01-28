@@ -80,7 +80,7 @@ type entries struct {
 	t        [][]string
 	s        [][]string
 	accounts map[string]map[string]string
-	taxa  map[string]string
+	taxa     map[string]string
 	col      map[string]int
 	length   int
 }
@@ -123,7 +123,7 @@ func formatAge(age string) string {
 		age = fmt.Sprintf("%.2f", f)
 		if len(age) <= 7 {
 			ret = age
-		} 
+		}
 	}
 	return ret
 }

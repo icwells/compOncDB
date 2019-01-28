@@ -46,7 +46,7 @@ func getTaxon(family, genus, species string) string {
 		s := strings.Split(species, " ")
 		if len(s) > 1 {
 			// Save with genus capitalized and species in lower case
-			ret = strings.Title(s[0]) + " " + strings.ToLower(s[1]) 
+			ret = strings.Title(s[0]) + " " + strings.ToLower(s[1])
 		} else {
 			ret = strings.Title(species)
 		}
@@ -95,9 +95,9 @@ func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (ma
 					// Add unique taxonomies
 					taxonomy := spl[col["Kingdom"] : col["Species"]+1]
 					if cur == true {
-						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1 : col["Name"]]))
+						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1:col["Name"]]))
 					} else {
-						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1 : l]))
+						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1:l]))
 					}
 					taxa[s] = taxonomy
 				}

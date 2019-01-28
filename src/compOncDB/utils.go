@@ -11,6 +11,55 @@ import (
 	"strings"
 )
 
+type configuration struct {
+	host     string
+	database string
+	testdb   string
+	tables   string
+	test     bool
+}
+
+func setConfiguration(test bool) configuration {
+	// Gets setting from config.txt
+	var c configuration
+	c.test = test
+	if iotools.Exists(*config) == false {
+		fmt.Print("\n\t[Error] Cannot find config file. Exiting.\n")
+		os.Exit(1)
+	}
+	f := iotools.OpenFile(*config)
+	defer f.Close()
+	scanner := iotools.GetScanner(f)
+	for scanner.Scan() {
+		s := strings.Split(string(scanner.Text()), "=")
+		for idx, i := range s {
+			s[idx] = strings.TrimSpace(i)
+		}
+		switch s[0] {
+		case "host":
+			c.host = s[1]
+		case "database":
+			c.database = s[1]
+		case "test_database":
+			c.testdb = s[1]
+		case "table_columns":
+			c.tables = s[1]
+		}
+	}
+	return c
+}
+
+func connectToDatabase(c configuration) *dbIO.DBIO {
+	// Manages call to Connect and GetTableColumns
+	d := c.database
+	if c.test == true {
+		d = c.testdb
+	}
+	db := dbIO.Connect(c.host, d, *user)
+	db.GetTableColumns()
+	return db
+}
+
 func getOperation(eval string) (string, string, string) {
 	// Splits eval into column, operator, value
 	found := false

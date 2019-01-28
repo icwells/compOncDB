@@ -10,24 +10,16 @@ import (
 )
 
 var (
-	// Global variables
-	COL = "tableColumns.txt"
-	DB  = "comparativeOncology"
-	TDB = "testDataBase"
-)
-
-var (
 	// Kingpin arguments
 	app     = kingpin.New("compOncDB", "Comand line-interface for uploading/extrating/manipulating data from the comparative oncology database.")
 	user    = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
+	config  = kingpin.Flag("config", "Path to config.txt (Default is in bin directory).").Default("config.txt").String()
 	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <). ").Short('e').Default("nil").String()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 	ver     = kingpin.Command("version", "Prints version info and exits.")
 	bu      = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
-
-	New     	= kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
-	tablefile   = New.Flag("tables", "Path tableColumns.txt file.").String()
+	New     = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
 
 	upload  = kingpin.Command("upload", "Upload data to the database.")
 	taxa    = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
@@ -58,7 +50,6 @@ var (
 	infant = extract.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 
 	test        = kingpin.Command("test", "Tests database functionality using testDataBase instead of comaprative oncology.")
-	tables      = test.Flag("tables", "Path tableColumns.txt file.").String()
 	taxafile    = test.Flag("taxonomy", "Path to taxonomy file.").String()
 	diagnosis   = test.Flag("diagnosis", "Path to extracted diganoses file.").String()
 	lifehistory = test.Flag("lifehistory", "Path to life history data.").String()
@@ -81,7 +72,7 @@ func main() {
 	case ver.FullCommand():
 		version()
 	case bu.FullCommand():
-		db := connectToDatabase(false)
+		db := connectToDatabase(setConfiguration(false))
 		start = db.Starttime
 		backup(db.Password)
 	case New.FullCommand():

@@ -30,11 +30,11 @@ func setEntries() *entries {
 	e.length = 18
 	e.col = map[string]int{
 		"Sex": 0, "Age": 1, "Castrated": 2, "ID": 3, "Species": 4, "Date": 5, "Comments": 6, "MassPresent": 7, "Hyperplasia": 8,
-		"Necropsy": 9, "Metastasis": 10, "Type": 11, "Location": 12, "Primary": 13, "Malignant": 14, "Service": 15, 
-		"Account": 16, "Submitter": 17,}
+		"Necropsy": 9, "Metastasis": 10, "Type": 11, "Location": 12, "Primary": 13, "Malignant": 14, "Service": 15,
+		"Account": 16, "Submitter": 17}
 	e.taxa = map[string]string{
 		"Canis latrans": "1",
-		"Canis lupus": "2",
+		"Canis lupus":   "2",
 	}
 	e.accounts["X520"] = make(map[string]string)
 	e.accounts["X520"]["XYZ"] = "1"
