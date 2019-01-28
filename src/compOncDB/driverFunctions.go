@@ -35,14 +35,14 @@ func connectToDatabase(testdb bool) *dbIO.DBIO {
 	if testdb == true {
 		d = TDB
 	}
-	db := dbIO.Connect(d, *user)
+	db := dbIO.Connect("", d, *user)
 	db.GetTableColumns()
 	return db
 }
 
 func newDatabase() time.Time {
 	// Creates new database and tables
-	db := dbIO.CreateDatabase(DB, *user)
+	db := dbIO.CreateDatabase("", DB, *user)
 	db.NewTables(*tablefile)
 	return db.Starttime
 }
@@ -188,7 +188,7 @@ func testDB() time.Time {
 		}
 	} else {
 		// Get empty database
-		db := dbIO.ReplaceDatabase(TDB, *user)
+		db := dbIO.ReplaceDatabase("", TDB, *user)
 		db.NewTables(*tables)
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *taxafile, true)

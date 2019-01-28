@@ -88,7 +88,11 @@ func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (ma
 				if _, ex := taxa[s]; ex == false {
 					// Add unique taxonomies
 					taxonomy := spl[col["Kingdom"] : col["Species"]+1]
-					taxonomy = append(taxonomy, getSource(spl[col["Species"]+1 : col["Name"]]))
+					if cur == true {
+						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1 : col["Name"]]))
+					} else {
+						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1 : l]))
+					}
 					taxa[s] = taxonomy
 				}
 			}

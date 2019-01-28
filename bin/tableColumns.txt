@@ -10,7 +10,7 @@ Comments TEXT
 
 # Taxonomy
 taxa_id INT PRIMARY KEY
-Kingdon TEXT
+Kingdom TEXT
 Phylum TEXT
 Class TEXT
 Orders TEXT

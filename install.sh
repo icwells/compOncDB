@@ -27,7 +27,7 @@ echo "GOPATH identified as $GOPATH"
 echo ""
 
 # Get dependencies
-for I in $DR $IO $KP $PR $SA $DBI; do
+for I in $DR $IO $KP $PR $SA ; do
 	if [ ! -e "$PDIR/$I.a" ]; then
 		echo "Installing $I..."
 		go get -u $I
@@ -35,7 +35,7 @@ for I in $DR $IO $KP $PR $SA $DBI; do
 	fi
 done
 
-for I in $DBU $DBE; do
+for I in $DBI $DBU $DBE; do
 	echo "Installing $I..."
 	go get -u $I
 	echo ""
