@@ -26,7 +26,7 @@ func sizeOf(list [][]string) int {
 func getDenominator(size int) int {
 	// Returns denominator for subsetting upload slice (size in bytes / 16Mb)
 	max := 16777216.0
-	return int(math.Floor(float64(size) / max))
+	return int(math.Floor(float64(size*8) / max))
 }
 
 func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
