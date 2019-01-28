@@ -104,7 +104,7 @@ elif [ $1 = "upload" ]; then
 elif [ $1 = "search" ]; then
 	testSearch
 elif [ $1 = "update" ]; then
-	testUpdate
+	testUpdates
 elif [ $1 = "help" ]; then
 	echo ""
 	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."

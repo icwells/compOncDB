@@ -170,16 +170,16 @@ func testDB() time.Time {
 	// Performs test uploads and extractions
 	var db *dbIO.DBIO
 	if *testsearch == true {
+		var terms searchterms
 		fmt.Print("\n\tTesting search functions...\n\n")
 		db = connectToDatabase(true)
-		db.ReadColumns(*tables)
-		var terms searchterms
+		db.GetTableColumns()
 		terms.readSearchTerms(*infile, *outfile)
 		terms.searchTestCases(db)
 	} else if *updates == true {
 		fmt.Print("\n\tTesting update functions...\n\n")
 		db = connectToDatabase(true)
-		db.ReadColumns(*tables)
+		db.GetTableColumns()
 		dbextract.UpdateEntries(db, *infile)
 		for _, i := range []string{"Patient", "Diagnosis"} {
 			table := db.GetTable(i)
@@ -188,8 +188,10 @@ func testDB() time.Time {
 		}
 	} else {
 		// Get empty database
-		db := dbIO.ReplaceDatabase("", TDB, *user)
+		db = dbIO.ReplaceDatabase("", TDB, *user)
 		db.NewTables(*tables)
+		// Replace column names
+		db.GetTableColumns()
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *taxafile, true)
 		dbupload.LoadLifeHistory(db, *lifehistory)
