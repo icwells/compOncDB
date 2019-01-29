@@ -2,8 +2,11 @@
 bin/compOncDB
 bin/parseRecords
 
+# Config
+bin/config.txt
+
 # Upload script
-upload.sh
+bin/upload.sh
 
 # Test data
 test/diagnoses.csv

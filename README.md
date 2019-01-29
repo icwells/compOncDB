@@ -30,8 +30,16 @@ Any missing Go packages will be downloaded and installed when running install.sh
 	cd compOncDB/  
 	./install.sh  
 
+### Config File  
+The config file is located in the bin directory by default (although a different location can be specified with the --config flag). It contains 
+basic connection information which will be used for all connections. This includes the host (leave blank for local host), database name, test database name, 
+and the path to tableColumns.txt (also located in the bin by default). The host is the only field that may need changing, depending on whether you are using 
+a local or a remote connection.  
+
+Be sure to change the name of "example_config.txt" to "config.txt" (to prevent git from overwritting it).
+
 ### Testing the Installation  
-Create a database named "testDataBase" in MySQL (CREATE DATABASE testDataBase;) and run the following in a terminal:
+Run the following in a terminal:
 
 	./test.sh
 
@@ -68,6 +76,7 @@ Backs up database to local machine. Must use root password. Output is written to
 	./compOncDB new {-u username}  
 
 	-u, --user="root"	MySQL username (default is root).  
+	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 
 Initializes new tables in new database. The database itself must be initialized manually.  
 Make sure tableColumns.txt is in the bin/ directory.  
@@ -76,6 +85,7 @@ Make sure tableColumns.txt is in the bin/ directory.
 	./compOncDB upload {-u username} --{type_from_list_below} -i infile
 
 	-u, --user="root"	MySQL username (default is root).  
+	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.  
 	--common			Additionally extract common names from Kestrel output to update common name tables.  
 	--lh				Upload life history info from merged life history table to the database.   
@@ -94,6 +104,7 @@ are all the same file which must in the format of uploadTemplate.csv.
 	./compOncDB update {-u username} {infile}
 
 	-u, --user="root"	MySQL username (default is root).  
+	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 	--count				Recount species totals and update the Totals table.  
 	--delete			Delete records from given table if column = value (must be root).  
 	-c, --column="nil"	Column to be updated with given value if --eval column == value.
@@ -122,6 +133,7 @@ a matching taxonomic level would be updated.
 	./compOncDB extract {-u username} {--flags...} {-o outfile}
 
 	-u, --user="root"	MySQL username (default is root).  
+	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
 	--summarize			Compiles basic summary statistics of the database.  
 	--cancerRate		Calculates cancer rates for species with greater than min entries.  
@@ -136,6 +148,7 @@ Extract data from the database and perform optional analyses.
 	./compOncDB search {-u username} {--column/level --value/species ...} {-o outfile}
 
 	-u, --user="root"		MySQL username (default is root).   
+	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 	-l, --level="Species"	Taxonomic level of taxon (or entries in taxon file)(default = Species).  
 	-t, --taxa="nil"		Name of taxonomic unit to extract data for or path to file with single column of units.  
 	--common				Indicates that common species name was given for taxa.  
@@ -150,19 +163,19 @@ For most tables, the only valid operator for the eval flag is = (or ==). For sea
 tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=).  
 
 #### Test  
-	./compOncDB test {paths_to_input_files}/ {--search --eval operation -o path_to_output file}
+	./compOncDB test {paths_to_input_files}/ {--search --eval operation -o path_to_output file}  
 
-	-u, --user="root"				MySQL username (default is root).
-	-i, --infile="nil"				Path to input file (if using).
-	-o, --outfile="nil"				Name of output file (writes to stdout if not given).
-	--tables=TABLES					Path tableColumns.txt file.
-	--taxonomy=TAXONOMY				Path to taxonomy file.
-	--diagnosis=DIAGNOSIS			Path to extracted diganoses file.
-	--lifehistory=LIFEHISTORY		Path to life history data.
-	--denominators=DENOMINATORS		Path to file conataining non-cancer totals.
-	--search						Search for matches using above commands.
+	-u, --user="root"				MySQL username (default is root).  
+	--config="config.txt"  Path to config.txt (Default is in bin directory).  
+	-i, --infile="nil"				Path to input file (if using).  
+	-o, --outfile="nil"				Name of output file (writes to stdout if not given).  
+	--taxonomy=TAXONOMY				Path to taxonomy file.  
+	--diagnosis=DIAGNOSIS			Path to extracted diganoses file.  
+	--lifehistory=LIFEHISTORY		Path to life history data.  
+	--denominators=DENOMINATORS		Path to file conataining non-cancer totals.  
+	--search						Search for matches using above commands.  
 
-Runs tests using "testDataBase" (make sure it has been created in MySQL first).
+Runs tests using "testDataBase" (make sure it has been created in MySQL first).  
 
 ## parseRecords  
 The parseRecords utility has been provided to help with parsing input files before uploading them to the database.  
