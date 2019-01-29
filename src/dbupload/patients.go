@@ -131,9 +131,6 @@ func (e *entries) addPatient(id, taxaid string, row []string) {
 	if strings.Contains(row[e.col["ID"]], "NA") == true {
 		// Make sure source ID is an integer
 		row[e.col["ID"]] = "-1"
-	} else if len(row[e.col["Age"]]) > 6 {
-		// Make sure age does not exceed decimal precision
-		row[e.col["Age"]] = row[e.col["Age"]][:7]
 	}
 	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
 	p := []string{id, row[e.col["Sex"]], formatAge(row[e.col["Age"]]), row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Date"]], row[e.col["Comments"]]}
