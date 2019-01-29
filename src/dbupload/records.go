@@ -96,6 +96,8 @@ func (r *Record) SetRecord(row []string) {
 	r.Female, _ = strconv.Atoi(row[5])
 	r.Cancer, _ = strconv.Atoi((row[6]))
 	r.Cancerage, _ = strconv.ParseFloat(row[7], 64)
+	r.MaleCancer, _ = strconv.Atoi((row[8]))
+	r.FemaleCancer, _ = strconv.Atoi((row[9]))
 }
 
 func InMapRec(m map[string]*Record, s string) bool {
