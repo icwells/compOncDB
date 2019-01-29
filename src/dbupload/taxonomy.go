@@ -39,17 +39,24 @@ func uploadTable(db *dbIO.DBIO, taxa map[string][]string, common map[string][][]
 	}
 }
 
+func speciesCaps(species string) string {
+	// Returns properly capitalized species name
+	var ret string
+	s := strings.Split(strings.ToLower(species), " ")
+	if len(s) > 1 {
+		// Save with genus capitalized and species in lower case
+		ret = strings.Title(s[0]) + " " + s[1]
+	} else {
+		ret = strings.Title(species)
+	}
+	return ret
+}
+
 func getTaxon(family, genus, species string) string {
 	// Returns lowest taxon present
 	var ret string
 	if species != "NA" {
-		s := strings.Split(strings.ToLower(species), " ")
-		if len(s) > 1 {
-			// Save with genus capitalized and species in lower case
-			ret = strings.Title(s[0]) + " " + s[1]
-		} else {
-			ret = strings.Title(species)
-		}
+		ret = speciesCaps(species)
 	} else if genus != "NA" {
 		ret = strings.Title(species)
 	} else if family != "NA" {
@@ -69,6 +76,19 @@ func getSource(sources []string) string {
 		}
 	}
 	return source
+}
+
+func checkCaps(taxonomy []string) []string {
+	// Returns slice with proper capitization
+	l := len(taxonomy) - 1
+	for idx, i := range taxonomy {
+		if idx < l {
+			taxonomy[idx] = strings.Title(i)
+		} else {
+			taxonomy[idx] = speciesCaps(i)
+		}
+	}
+	return taxonomy
 }
 
 func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (map[string][]string, map[string][][]string) {
@@ -93,7 +113,7 @@ func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (ma
 				// Skip entries which are already in db
 				if _, ex := taxa[s]; ex == false {
 					// Add unique taxonomies
-					taxonomy := spl[col["Kingdom"] : col["Species"]+1]
+					taxonomy := checkCaps(spl[col["Kingdom"] : col["Species"]+1])
 					if cur == true {
 						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1:col["Name"]]))
 					} else {

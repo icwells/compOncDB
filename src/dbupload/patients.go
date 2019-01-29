@@ -39,21 +39,19 @@ func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
 		db.UpdateDB(table, vals, l)
 	} else {
 		// Upload in chunks
-		var set [][][]string
+		var end int
 		idx := l / den
 		ind := 0
 		for i := 0; i < den; i++ {
 			if ind+idx > l {
 				// Get last less than idx rows
-				idx = l - ind + 1
+				end = l
+			} else {
+				end = ind + idx
 			}
-			sub := list[ind : ind+idx]
-			set = append(set, sub)
-			ind = ind + idx
-		}
-		for _, i := range set {
-			vals, ln := dbIO.FormatSlice(i)
+			vals, ln := dbIO.FormatSlice(list[ind : end])
 			db.UpdateDB(table, vals, ln)
+			ind = ind + idx
 		}
 	}
 }
