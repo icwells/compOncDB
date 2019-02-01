@@ -153,14 +153,14 @@ Extract data from the database and perform optional analyses.
 	-t, --taxa="nil"		Name of taxonomic unit to extract data for or path to file with single column of units.  
 	--common				Indicates that common species name was given for taxa.  
 	--count					Returns count of target records instead of printing entire records.  
-	-e, --eval="nil"		Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <).  
+	-e, --eval="nil"		Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: = <= >= > <).  
 	--table="nil"			Return matching rows from this table only.  
 
 	-o outfile				Name of output file (writes to stdout if not given).  
 
 Searches database for matches to given criteria. The taxonomy search is given special consideration since it is the most common search type.  
-For most tables, the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history 
-tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=).  
+For most tables, the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history tables, valid operations also 
+include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avaoid errors.  
 
 #### Test  
 	./compOncDB test {paths_to_input_files}/ {--search --eval operation -o path_to_output file}  
