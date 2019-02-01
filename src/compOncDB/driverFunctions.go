@@ -10,6 +10,7 @@ import (
 	"github.com/icwells/go-tools/iotools"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 	"time"
 )
@@ -178,9 +179,10 @@ func testDB() time.Time {
 		}
 	} else {
 		// Get empty database
+		bin, _ := path.Split(*config)
 		c := setConfiguration(true)
 		db = dbIO.ReplaceDatabase(c.host, c.testdb, *user)
-		db.NewTables(c.tables)
+		db.NewTables(path.Join(bin, c.tables))
 		// Replace column names
 		db.GetTableColumns()
 		// Upload taxonomy
