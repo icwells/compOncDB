@@ -89,7 +89,7 @@ func (e *entries) sortRecords(infile, outfile string) {
 		line := string(scanner.Text())
 		if first == false {
 			total++
-			s := strings.Split(line, e.d)
+			s := strings.Split(strings.Replace(line, "\"", "", -1), e.d)
 			rec, write := e.sortLine(s)
 			if write == true {
 				out.WriteString(rec.String() + "\n")
