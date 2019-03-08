@@ -21,7 +21,7 @@ type matcher struct {
 	metastasis *regexp.Regexp
 	primary    *regexp.Regexp
 	necropsy   *regexp.Regexp
-	biopsy	   *regexp.Regexp
+	biopsy     *regexp.Regexp
 }
 
 func newMatcher() matcher {

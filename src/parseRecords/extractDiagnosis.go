@@ -55,11 +55,12 @@ func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []stri
 		mal = "Y"
 	}
 	row = append(row, mal)
-	if met == "N" && t != "NA" {
-		// Store yes for primary if a tumor was found but no metastasis
-		prim = "Y"
-	} else {
-		if e.match.getMatch(e.match.primary, line) != "NA" {
+	if t != "NA" {
+		// Only check for primary tumor if a tumor was found
+		if met == "N" {
+			// Store yes for primary if a tumor was found but no metastasis
+			prim = "Y"
+		} else if e.match.getMatch(e.match.primary, line) != "NA" {
 			prim = "Y"
 		}
 	}
