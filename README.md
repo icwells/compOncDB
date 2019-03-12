@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/icwells/compOncDB.svg?branch=master)](https://travis-ci.com/icwells/compOncDB)
 # Go-based MySQL database CRUD program  
 This program is meant specifically for managing the comparative oncology database for the Maley lab at Arizona State University.  
 It is currently being developed, so many features are not yet available.   
