@@ -47,7 +47,7 @@ func speciesCaps(species string) string {
 		// Save with genus capitalized and species in lower case
 		ret = strings.Title(s[0]) + " " + s[1]
 	} else {
-		ret = strings.Title(species)
+		ret = "NA"
 	}
 	return ret
 }
