@@ -104,21 +104,23 @@ func (u *updater) evaluateRow(row []string) {
 	id := row[0]
 	if len(id) >= 1 {
 		for k, v := range u.columns {
-			var line []string
-			keep := false
-			for _, i := range v {
-				if i <= 0 {
-					// Skip empty/ID fields
-					line = append(line, "")
-				} else if len(row[i]) < 1 {
-					line = append(line, "")
-				} else {
-					line = append(line, row[i])
-					keep = true
+			if k != "Unmatched" {
+				var line []string
+				keep := false
+				for _, i := range v {
+					if i <= 0 {
+						// Skip empty/ID fields
+						line = append(line, "")
+					} else if len(row[i]) < 1 {
+						line = append(line, "")
+					} else {
+						line = append(line, row[i])
+						keep = true
+					}
 				}
-			}
-			if keep == true {
-				u.tables[k].add(id, line)
+				if keep == true {
+					u.tables[k].add(id, line)
+				}
 			}
 		}
 	}
