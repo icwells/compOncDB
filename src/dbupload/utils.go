@@ -4,6 +4,7 @@ package dbupload
 
 import (
 	"github.com/icwells/go-tools/strarray"
+	"strings"
 )
 
 func ToMap(t [][]string) map[string][]string {

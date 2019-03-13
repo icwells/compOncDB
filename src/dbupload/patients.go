@@ -93,6 +93,14 @@ func newEntries(count int) *entries {
 	return e
 }
 
+func checkInt(val string) string {
+	// Makes sure value is an integer
+	if _, err := strconv.Atoi(val); err != nil {
+		val = "-1"
+	}
+	return val
+}
+
 func (e *entries) addUnmatched(row []string) {
 	// Adds row elements to unmatched
 	rec := []string{row[e.col["ID"]]}
@@ -101,8 +109,8 @@ func (e *entries) addUnmatched(row []string) {
 	rec = append(rec, row[e.col["Sex"]])
 	rec = append(rec, row[e.col["Age"]])
 	rec = append(rec, row[e.col["Date"]])
-	rec = append(rec, row[e.col["Masspresent"]])
-	rec = append(rec, row[e.col["Necropsy"]])
+	rec = append(rec, checkInt(row[e.col["Masspresent"]]))
+	rec = append(rec, checkInt(row[e.col["Necropsy"]]))
 	rec = append(rec, row[e.col["Comments"]])
 	e.unmatched = append(e.unmatched, rec)
 }
