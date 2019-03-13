@@ -77,24 +77,26 @@ func (u *updater) setColumns(row []string) {
 	// Correlates input file columns to database tables and columns
 	row = u.formatHeader(row)
 	for k, v := range u.col {
-		keep := false
-		head := strings.Split(v, ",")
-		// Initialize new column header and fill (missing values have an index of -1)
-		for _, i := range head {
-			// Store file header index in index of database table column
-			i = strings.TrimSpace(i)
-			ind := strarray.SliceIndex(row, i)
-			u.columns[k] = append(u.columns[k], ind)
-			if ind > 0 {
-				keep = true
+		if k != "Unmatched" {
+			keep := false
+			head := strings.Split(v, ",")
+			// Initialize new column header and fill (missing values have an index of -1)
+			for _, i := range head {
+				// Store file header index in index of database table column
+				i = strings.TrimSpace(i)
+				ind := strarray.SliceIndex(row, i)
+				u.columns[k] = append(u.columns[k], ind)
+				if ind > 0 {
+					keep = true
+				}
 			}
-		}
-		if keep == false {
-			// Remove empty tables
-			delete(u.columns, k)
-		} else {
-			// Initialize struct
-			u.tables[k] = newTableUpdate(k, row[0])
+			if keep == false {
+				// Remove empty tables
+				delete(u.columns, k)
+			} else {
+				// Initialize struct
+				u.tables[k] = newTableUpdate(k, row[0])
+			}
 		}
 	}
 }
