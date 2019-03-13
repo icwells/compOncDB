@@ -9,15 +9,14 @@ Date TEXT
 Comments TEXT
 
 # Unmatched
-source_id TEXT
-Family TEXT
-Patient_name TEXT
-Sex TEXT
-Age DECIMAL(6,2)
-Date TEXT
-Masspresent TINYINT
-Necropsy TINYINT
-Comments TEXT
+sourceID TEXT
+name TEXT
+sex TEXT
+age DECIMAL(6,2)
+date TEXT
+masspresent TINYINT
+necropsy TINYINT
+comments TEXT
 
 # Taxonomy
 taxa_id INT PRIMARY KEY

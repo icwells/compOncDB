@@ -104,7 +104,6 @@ func checkInt(val string) string {
 func (e *entries) addUnmatched(row []string) {
 	// Adds row elements to unmatched
 	rec := []string{row[e.col["ID"]]}
-	rec = append(rec, row[e.col["Family"]])
 	rec = append(rec, row[e.col["Name"]])
 	rec = append(rec, row[e.col["Sex"]])
 	rec = append(rec, row[e.col["Age"]])

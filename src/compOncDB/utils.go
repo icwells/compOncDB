@@ -102,13 +102,11 @@ func getTable(tables map[string]string, col string) []string {
 		}
 		// Iterate through available column names
 		for k, val := range tables {
-			if k != "Unmatched" {
-				for _, i := range strings.Split(val, ",") {
-					i = strings.TrimSpace(i)
-					if col == i {
-						ret = append(ret, k)
-						break
-					}
+			for _, i := range strings.Split(val, ",") {
+				i = strings.TrimSpace(i)
+				if col == i {
+					ret = append(ret, k)
+					break
 				}
 			}
 		}

@@ -77,26 +77,24 @@ func (u *updater) setColumns(row []string) {
 	// Correlates input file columns to database tables and columns
 	row = u.formatHeader(row)
 	for k, v := range u.col {
-		if k != "Unmatched" {
-			keep := false
-			head := strings.Split(v, ",")
-			// Initialize new column header and fill (missing values have an index of -1)
-			for _, i := range head {
-				// Store file header index in index of database table column
-				i = strings.TrimSpace(i)
-				ind := strarray.SliceIndex(row, i)
-				u.columns[k] = append(u.columns[k], ind)
-				if ind > 0 {
-					keep = true
-				}
+		keep := false
+		head := strings.Split(v, ",")
+		// Initialize new column header and fill (missing values have an index of -1)
+		for _, i := range head {
+			// Store file header index in index of database table column
+			i = strings.TrimSpace(i)
+			ind := strarray.SliceIndex(row, i)
+			u.columns[k] = append(u.columns[k], ind)
+			if ind > 0 {
+				keep = true
 			}
-			if keep == false {
-				// Remove empty tables
-				delete(u.columns, k)
-			} else {
-				// Initialize struct
-				u.tables[k] = newTableUpdate(k, row[0])
-			}
+		}
+		if keep == false {
+			// Remove empty tables
+			delete(u.columns, k)
+		} else {
+			// Initialize struct
+			u.tables[k] = newTableUpdate(k, row[0])
 		}
 	}
 }
@@ -106,23 +104,21 @@ func (u *updater) evaluateRow(row []string) {
 	id := row[0]
 	if len(id) >= 1 {
 		for k, v := range u.columns {
-			if k != "Unmatched" {
-				var line []string
-				keep := false
-				for _, i := range v {
-					if i <= 0 {
-						// Skip empty/ID fields
-						line = append(line, "")
-					} else if len(row[i]) < 1 {
-						line = append(line, "")
-					} else {
-						line = append(line, row[i])
-						keep = true
-					}
+			var line []string
+			keep := false
+			for _, i := range v {
+				if i <= 0 {
+					// Skip empty/ID fields
+					line = append(line, "")
+				} else if len(row[i]) < 1 {
+					line = append(line, "")
+				} else {
+					line = append(line, row[i])
+					keep = true
 				}
-				if keep == true {
-					u.tables[k].add(id, line)
-				}
+			}
+			if keep == true {
+				u.tables[k].add(id, line)
 			}
 		}
 	}
