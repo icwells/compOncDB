@@ -63,15 +63,22 @@ func TestToSlice(t *testing.T) {
 	}
 }
 
+func getExpectedRecords() [][]string {
+	// Return slice of expected values
+	var expected [][]string
+	canis, vulpes := canidTaxa()
+	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "1000.00", "250.00", "50", "50", "15", "10"}...)
+	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "900.00", "300.00", "50", "70", "12", "18"}...)
+	fox := append(vulpes, []string{"Vulpes vulpes", "50", "0", "0.00", "600.00", "0.00", "25", "35", "0", "0"}...)
+	expected = append(expected, wolf)
+	expected = append(expected, coyote)
+	return append(expected, fox)
+}
+
 func TestCalculateRates(t *testing.T) {
 	// Tests calculateRates method
-	canis, vulpes := canidTaxa()
+	expected := getExpectedRecords()
 	rec := testRecords()
-	expected := [][]string{
-		{canis, "Canis lupus", "100", "25", "0.25", "1000.00", "250.00", "50", "50", "15", "10"},
-		{canis, "Canis latrans", "110", "30", "0.27", "900.00", "300.00", "50", "70", "12", "18"},
-		{vulpes, "Vulpes vulpes", "50", "0", "0.00", "600.00", "0.00", "25", "35", "0", "0"},
-	}
 	for ind, r := range rec {
 		actual := r.CalculateRates()
 		for idx, i := range actual {
