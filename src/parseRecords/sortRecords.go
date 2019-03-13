@@ -34,7 +34,7 @@ func (e *entries) sortLine(line []string) (record, bool) {
 		printFatal("Cannot determine species column", 20)
 	}
 	if len(line) >= e.col.max && len(line[idx]) >= 3 && strings.ToUpper(line[idx]) != "N/A" {
-		// Proceed if line is properly formatted and species is present and no NA
+		// Proceed if line is properly formatted and species is present
 		id := subsetLine(e.col.id, line)
 		rec.setID(id)
 		if id != "NA" {
@@ -49,6 +49,7 @@ func (e *entries) sortLine(line []string) (record, bool) {
 		if ex == true {
 			rec.setSpecies(sp)
 		}
+		rec.name = subsetLine(idx, line)
 		rec.setDate(subsetLine(e.col.date, line))
 		rec.setComments(subsetLine(e.col.comments, line))
 		rec.service = e.service
@@ -71,7 +72,7 @@ func (e *entries) sortLine(line []string) (record, bool) {
 
 func (e *entries) getHeader() string {
 	// Returns appropriate header for available data
-	head := "Sex,Age,Castrated,ID,Family,Genus,Species,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
+	head := "Sex,Age,Castrated,ID,Family,Genus,Species,Name,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
 	return head
 }
 

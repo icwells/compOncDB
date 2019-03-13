@@ -39,6 +39,7 @@ type record struct {
 	family      string
 	genus       string
 	species     string
+	name        string
 	date        string
 	comments    string
 	massPresent string
@@ -97,6 +98,8 @@ func (r *record) String() string {
 	buffer.WriteString(r.genus)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.species)
+	buffer.WriteByte(',')
+	buffer.WriteString(r.name)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.date)
 	buffer.WriteByte(',')

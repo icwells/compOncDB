@@ -9,7 +9,7 @@ import (
 )
 
 type Record struct {
-	Taxonomy	 []string
+	Taxonomy     []string
 	Species      string
 	Infant       float64
 	Total        int

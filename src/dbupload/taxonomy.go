@@ -52,15 +52,13 @@ func speciesCaps(species string) string {
 	return ret
 }
 
-func getTaxon(family, genus, species string) string {
+func getTaxon(genus, species string) string {
 	// Returns lowest taxon present
 	var ret string
 	if species != "NA" {
 		ret = speciesCaps(species)
 	} else if genus != "NA" {
 		ret = strings.Title(species)
-	} else if family != "NA" {
-		ret = strings.Title(family)
 	}
 	return ret
 }
@@ -108,7 +106,7 @@ func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (ma
 		spl := strings.Split(line, ",")
 		if first == false {
 			c := strings.Title(spl[col["SearchTerm"]])
-			s := getTaxon(spl[col["Family"]], spl[col["Genus"]], spl[col["Species"]])
+			s := getTaxon(spl[col["Genus"]], spl[col["Species"]])
 			if _, ex := taxaids[s]; ex == false {
 				// Skip entries which are already in db
 				if _, ex := taxa[s]; ex == false {
@@ -123,26 +121,29 @@ func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (ma
 				}
 			}
 			if commonNames == true {
-				if _, ex := taxaids[c]; ex == false {
-					// Add unique common name entries to slice
-					curator := "NA"
-					if cur == true {
-						// Store curator name
-						curator = spl[col["Name"]]
-					}
-					row, ex := common[s]
-					if ex == true {
-						// Add to existing species record
-						if strarray.InSliceSli(row, c, 0) == false {
+				if _, ex := taxa[c]; ex == false {
+					// Make sure entry in cmmon name column is not a scientific name
+					if _, ex := taxaids[c]; ex == false {
+						// Add unique common name entries to slice
+						curator := "NA"
+						if cur == true {
+							// Store curator name
+							curator = spl[col["Name"]]
+						}
+						row, ex := common[s]
+						if ex == true {
+							// Add to existing species record
+							if strarray.InSliceSli(row, c, 0) == false {
+								common[s] = append(common[s], []string{c, curator})
+							}
+						} else {
 							common[s] = append(common[s], []string{c, curator})
 						}
-					} else {
-						common[s] = append(common[s], []string{c, curator})
 					}
 				}
 			}
 		} else {
-			col = getColumns(spl)
+			col = iotools.GetHeader(spl)
 			l = len(spl)
 			if _, ex := col["Name"]; ex == false {
 				col["Name"] = l + 1
@@ -155,11 +156,11 @@ func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (ma
 }
 
 func getTaxaIDs(db *dbIO.DBIO, commonNames bool) map[string]string {
-	// Returns map of taxa ids corresponding to common names, binomial names, genus, or family (whichever is most descriptive)
+	// Returns map of taxa ids corresponding to common names, binomial names, or genus
 	ret := make(map[string]string)
-	taxa := db.GetColumns("Taxonomy", []string{"taxa_id", "Family", "Genus", "Species"})
+	taxa := db.GetColumns("Taxonomy", []string{"taxa_id", "Genus", "Species"})
 	for _, i := range taxa {
-		key := getTaxon(i[1], i[2], i[3])
+		key := getTaxon(i[1], i[2])
 		if len(key) >= 1 {
 			ret[key] = i[0]
 		}

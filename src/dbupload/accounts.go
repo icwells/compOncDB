@@ -61,7 +61,7 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 				accounts[account] = append(accounts[account], client)
 			}
 		} else {
-			col = getColumns(s)
+			col = iotools.GetHeader(s)
 			l = len(s)
 			first = false
 		}

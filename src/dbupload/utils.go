@@ -55,12 +55,3 @@ func EntryMap(t [][]string) map[string]string {
 	}
 	return m
 }
-
-func getColumns(header []string) map[string]int {
-	// Returns column name:index pairs
-	ret := make(map[string]int)
-	for idx, i := range header {
-		ret[i] = idx
-	}
-	return ret
-}

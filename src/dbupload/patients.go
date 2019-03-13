@@ -49,7 +49,7 @@ func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
 			} else {
 				end = ind + idx
 			}
-			vals, ln := dbIO.FormatSlice(list[ind : end])
+			vals, ln := dbIO.FormatSlice(list[ind:end])
 			db.UpdateDB(table, vals, ln)
 			ind = ind + idx
 		}
@@ -72,15 +72,16 @@ func tumorPairs(typ, loc string) [][]string {
 //----------------------------------------------------------------------------
 
 type entries struct {
-	count    int
-	p        [][]string
-	d        [][]string
-	t        [][]string
-	s        [][]string
-	accounts map[string]map[string]string
-	taxa     map[string]string
-	col      map[string]int
-	length   int
+	count     int
+	p         [][]string
+	d         [][]string
+	t         [][]string
+	s         [][]string
+	unmatched [][]string
+	accounts  map[string]map[string]string
+	taxa      map[string]string
+	col       map[string]int
+	length    int
 }
 
 func newEntries(count int) *entries {
@@ -90,6 +91,20 @@ func newEntries(count int) *entries {
 	e.accounts = make(map[string]map[string]string)
 	e.taxa = make(map[string]string)
 	return e
+}
+
+func (e *entries) addUnmatched(row []string) {
+	// Adds row elements to unmatched
+	rec := []string{row[e.col["ID"]]}
+	rec = append(rec, row[e.col["Family"]])
+	rec = append(rec, row[e.col["Name"]])
+	rec = append(rec, row[e.col["Sex"]])
+	rec = append(rec, row[e.col["Age"]])
+	rec = append(rec, row[e.col["Date"]])
+	rec = append(rec, row[e.col["Masspresent"]])
+	rec = append(rec, row[e.col["Necropsy"]])
+	rec = append(rec, row[e.col["Comments"]])
+	e.unmatched = append(e.unmatched, rec)
 }
 
 func (e *entries) addTumors(id string, row []string) {
@@ -137,11 +152,11 @@ func (e *entries) addPatient(id, taxaid string, row []string) {
 	e.p = append(e.p, p)
 }
 
-func (e *entries) evaluateRow(row []string) int {
+func (e *entries) evaluateRow(row []string) {
 	// Appends data to relevent slice
-	miss := 1
+	miss := true
 	if strings.ToUpper(row[4]) != "NA" {
-		t := getTaxon(row[e.col["Family"]], row[e.col["Genus"]], row[e.col["Species"]])
+		t := getTaxon(row[e.col["Genus"]], row[e.col["Species"]])
 		taxaid, exists := e.taxa[t]
 		ac, ex := e.accounts[row[e.col["Account"]]]
 		if len(row) == e.length && exists == true && ex == true {
@@ -154,16 +169,17 @@ func (e *entries) evaluateRow(row []string) int {
 				e.addSource(id, aid, row)
 				e.addDiagnosis(id, row)
 				e.addTumors(id, row)
-				miss--
+				miss = false
 			}
 		}
 	}
-	return miss
+	if miss == true {
+		e.addUnmatched(row)
+	}
 }
 
 func (e *entries) extractPatients(infile string) {
 	// Assigns patient data to appropriate slices with unique entry IDs
-	missed := 0
 	first := true
 	start := e.count
 	fmt.Printf("\n\tExtracting patient data from %s\n", infile)
@@ -173,17 +189,14 @@ func (e *entries) extractPatients(infile string) {
 	for input.Scan() {
 		spl := strings.Split(string(input.Text()), ",")
 		if first == false {
-			missed += e.evaluateRow(spl)
+			e.evaluateRow(spl)
 		} else {
-			e.col = getColumns(spl)
+			e.col = iotools.GetHeader(spl)
 			e.length = len(spl)
 			first = false
 		}
 	}
 	fmt.Printf("\tExtracted %d records.\n", e.count-start)
-	if missed > 0 {
-		fmt.Printf("\t[Warning] Could not find taxa ID or source ID for %d records.\n", missed)
-	}
 }
 
 func LoadPatients(db *dbIO.DBIO, infile string) {
@@ -197,6 +210,7 @@ func LoadPatients(db *dbIO.DBIO, infile string) {
 	uploadPatients(db, "Diagnosis", e.d)
 	uploadPatients(db, "Tumor", e.t)
 	uploadPatients(db, "Source", e.s)
+	uploadPatients(db, "Unmatched", e.unmatched)
 	// Recacluate species totals
 	SpeciesTotals(db)
 }
