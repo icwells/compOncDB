@@ -27,12 +27,12 @@ func TestTumorPairs(t *testing.T) {
 func setEntries() *entries {
 	// Returns test entry struct
 	e := newEntries(0)
-	e.col =  make(map[string]int)
-	e.length = 21
+	e.col = make(map[string]int)
 	s := []string{"Sex", "Age", "Castrated", "ID", "Family", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "Type", "Location", "Primary", "Malignant", "Service", "Account", "Submitter"}
 	for idx, i := range s {
 		e.col[i] = idx
 	}
+	e.length = len(s)
 	e.taxa = map[string]string{
 		"Canis latrans": "1",
 		"Canis lupus":   "2",

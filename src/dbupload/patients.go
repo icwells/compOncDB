@@ -208,7 +208,9 @@ func LoadPatients(db *dbIO.DBIO, infile string) {
 	uploadPatients(db, "Diagnosis", e.d)
 	uploadPatients(db, "Tumor", e.t)
 	uploadPatients(db, "Source", e.s)
-	uploadPatients(db, "Unmatched", e.unmatched)
+	if len(e.unmatched) >= 1 {
+		uploadPatients(db, "Unmatched", e.unmatched)
+	}
 	// Recacluate species totals
 	SpeciesTotals(db)
 }

@@ -1,20 +1,20 @@
-Sex,Age,Castrated,ID,Family,Genus,Species,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter
-male,-1,-1,1,Canidae,Canis,Canis latrans,12-Dec,Biopsy: NORMAL BLOOD SMEAR,0,0,0,-1,NA,NA,0,-1,NWZP,X520,XYZ
-NA,-1,-1,2,Canidae,Canis,Canis latrans,13-Jan,ERYTHROPHAGOCYTOSIS,0,0,-1,-1,NA,NA,0,-1,NWZP,X520,XYZ
-male,24,-1,3,Canidae,Canis,Canis latrans,1-Dec,Lymphoma lymph nodes 2 year old male,1,0,-1,-1,lymphoma,lymph nodes,0,1,NWZP,X520,XYZ
-NA,-1,-1,4,Canidae,Canis,Canis latrans,1-Dec,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,0,0,1,-1,NA,NA,0,-1,NWZP,X520,XYZ
-NA,-1,-1,5,Canidae,Canis,Canis latrans,1-Dec,MICRONED HEPATITIS,0,0,-1,-1,NA,NA,0,-1,NWZP,X520,XYZ
-NA,-1,-1,6,Canidae,Canis,Canis latrans,1-Dec,NA,0,0,1,-1,NA,NA,0,-1,NWZP,X520,XYZ
-NA,-1,-1,7,Canidae,Canis,Canis latrans,1-Dec,ASPERGILLOSIS,0,0,-1,-1,NA,NA,0,-1,NWZP,X520,XYZ
-NA,-1,-1,8,Canidae,Canis,Canis lupus,1-Dec,Ovarian adenoma,1,0,-1,-1,adenoma,ovary,0,0,NWZP,A16,KV Zoo
-NA,-1,-1,9,Canidae,Canis,Canis lupus,1-Dec,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
-female,0,-1,10,Canidae,Canis,Canis lupus,NA,skin biopsy:  squamous cell carcinoma; in situ,1,0,0,-1,carcinoma,skin,0,1,NWZP,A16,KV Zoo
-female,156,-1,11,Canidae,Canis,Canis lupus,NA,Uterus:  Endometrial carcinoma with metastatis,1,0,-1,1,carcinoma,uterus,0,1,NWZP,A16,KV Zoo
-male,60,-1,12,Canidae,Canis,Canis lupus,NA,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
-female,126,1,13,Canidae,Canis,Canis lupus,NA,Spayed biopsy,0,0,0,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
-female,0,-1,14,Canidae,Canis,Canis lupus,NA,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
-NA,192,-1,15,Canidae,Canis,Canis lupus,NA,16 month old,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
-female,132,-1,16,Canidae,Canis,Canis lupus,NA,Malignant liver adenocarcinoma,1,0,-1,-1,adenocarcinoma,liver,0,1,NWZP,A16,KV Zoo
-male,144,1,17,Canidae,Canis,Canis lupus,NA,neutered,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
-male,-1,0,18,Canidae,Canis,Canis lupus,30463,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
-male,-1,0,19,Canidae,Canis,Canis lupus,32688,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
+Sex,Age,Castrated,ID,Family,Genus,Species,Name,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter
+male,-1,-1,1,Canidae,Canis,Canis latrans,Coyote,12-Dec,Biopsy: NORMAL BLOOD SMEAR,0,0,0,-1,NA,NA,0,-1,NWZP,X520,XYZ
+NA,-1,-1,2,Canidae,Canis,Canis latrans,Coyote,13-Jan,ERYTHROPHAGOCYTOSIS,0,0,-1,-1,NA,NA,0,-1,NWZP,X520,XYZ
+male,24,-1,3,Canidae,Canis,Canis latrans,Coyote,1-Dec,Lymphoma lymph nodes 2 year old male,1,0,-1,-1,lymphoma,lymph nodes,0,1,NWZP,X520,XYZ
+NA,-1,-1,4,Canidae,Canis,Canis latrans,Coyote,1-Dec,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,0,0,1,-1,NA,NA,0,-1,NWZP,X520,XYZ
+NA,-1,-1,5,Canidae,Canis,Canis latrans,Coyote,1-Dec,MICRONED HEPATITIS,0,0,-1,-1,NA,NA,0,-1,NWZP,X520,XYZ
+NA,-1,-1,6,Canidae,Canis,Canis latrans,Coyote,1-Dec,NA,0,0,1,-1,NA,NA,0,-1,NWZP,X520,XYZ
+NA,-1,-1,7,Canidae,Canis,Canis latrans,Coyote,1-Dec,ASPERGILLOSIS,0,0,-1,-1,NA,NA,0,-1,NWZP,X520,XYZ
+NA,-1,-1,8,Canidae,Canis,Canis lupus,wolf,1-Dec,Ovarian adenoma,1,0,-1,-1,adenoma,ovary,0,0,NWZP,A16,KV Zoo
+NA,-1,-1,9,Canidae,Canis,Canis lupus,wolf,1-Dec,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
+female,0,-1,10,Canidae,Canis,Canis lupus,wolf,NA,skin biopsy:  squamous cell carcinoma; in situ,1,0,0,-1,carcinoma,skin,0,1,NWZP,A16,KV Zoo
+female,156,-1,11,Canidae,Canis,Canis lupus,wolf,NA,Uterus:  Endometrial carcinoma with metastatis,1,0,-1,1,carcinoma,uterus,0,1,NWZP,A16,KV Zoo
+male,60,-1,12,Canidae,Canis,Canis lupus,wolf,NA,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
+female,126,1,13,Canidae,Canis,Canis lupus,wolf,NA,Spayed biopsy,0,0,0,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
+female,0,-1,14,Canidae,Canis,Canis lupus,wolf,NA,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
+NA,192,-1,15,Canidae,Canis,Canis lupus,GRAY WOLF,NA,16 month old,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
+female,132,-1,16,Canidae,Canis,Canis lupus,GRAY WOLF,NA,Malignant liver adenocarcinoma,1,0,-1,-1,adenocarcinoma,liver,0,1,NWZP,A16,KV Zoo
+male,144,1,17,Canidae,Canis,Canis lupus,GRAY WOLF,NA,neutered,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
+male,-1,0,18,Canidae,Canis,Canis lupus,GRAY WOLF,30463,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
+male,-1,0,19,Canidae,Canis,Canis lupus,GRAY WOLF,32688,NA,0,0,-1,-1,NA,NA,0,-1,NWZP,A16,KV Zoo
