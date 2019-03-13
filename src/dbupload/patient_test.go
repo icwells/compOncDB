@@ -27,7 +27,8 @@ func TestTumorPairs(t *testing.T) {
 func setEntries() *entries {
 	// Returns test entry struct
 	e := newEntries(0)
-	e.length = 18
+	e.col =  make(map[string]int)
+	e.length = 21
 	s := []string{"Sex", "Age", "Castrated", "ID", "Family", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "Type", "Location", "Primary", "Malignant", "Service", "Account", "Submitter"}
 	for idx, i := range s {
 		e.col[i] = idx
@@ -93,10 +94,10 @@ func TestEvaluateRow(t *testing.T) {
 	a := setEntries()
 	e := getExpected()
 	input := [][]string{
-		[]string{"male", "-1", "-1", "1", "Canis latrans", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ"},
-		[]string{"NA", "-1", "-1", "2", "Canis latrans", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ"},
-		[]string{"male", "24", "-1", "3", "Canis latrans", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ"},
-		[]string{"NA", "-1", "-1", "4", "Canis latrans", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ"},
+		[]string{"male", "-1", "-1", "1", "Canidae", "Canis", "Canis latrans", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ"},
+		[]string{"NA", "-1", "-1", "2", "Canidae", "Canis", "Canis latrans", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ"},
+		[]string{"male", "24", "-1", "3", "Canidae", "Canis", "Canis latrans", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ"},
+		[]string{"NA", "-1", "-1", "4", "Canidae", "Canis", "Canis latrans", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ"},
 	}
 	for _, i := range input {
 		a.evaluateRow(i)

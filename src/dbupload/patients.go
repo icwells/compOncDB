@@ -155,22 +155,20 @@ func (e *entries) addPatient(id, taxaid string, row []string) {
 func (e *entries) evaluateRow(row []string) {
 	// Appends data to relevent slice
 	miss := true
-	if strings.ToUpper(row[4]) != "NA" {
-		t := getTaxon(row[e.col["Genus"]], row[e.col["Species"]])
-		taxaid, exists := e.taxa[t]
-		ac, ex := e.accounts[row[e.col["Account"]]]
-		if len(row) == e.length && exists == true && ex == true {
-			// Skip entries without valid species and source data
-			aid, inmap := ac[row[e.col["Submitter"]]]
-			if inmap == true {
-				e.count++
-				id := strconv.Itoa(e.count)
-				e.addPatient(id, taxaid, row)
-				e.addSource(id, aid, row)
-				e.addDiagnosis(id, row)
-				e.addTumors(id, row)
-				miss = false
-			}
+	t := getTaxon(row[e.col["Genus"]], row[e.col["Species"]])
+	taxaid, exists := e.taxa[t]
+	ac, ex := e.accounts[row[e.col["Account"]]]
+	if len(row) == e.length && exists == true && ex == true {
+		// Skip entries without valid species and source data
+		aid, inmap := ac[row[e.col["Submitter"]]]
+		if inmap == true {
+			e.count++
+			id := strconv.Itoa(e.count)
+			e.addPatient(id, taxaid, row)
+			e.addSource(id, aid, row)
+			e.addDiagnosis(id, row)
+			e.addTumors(id, row)
+			miss = false
 		}
 	}
 	if miss == true {
