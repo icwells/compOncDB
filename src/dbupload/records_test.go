@@ -29,11 +29,19 @@ func TestAvgAge(t *testing.T) {
 
 func testRecords() []Record {
 	// Returns slice of records for testing
+	canis, vulpes := canidTaxa()
 	return []Record{
-		{"Canis lupus", 6.2, 105, 1000.0, 50, 50, 25, 250.0, 100, 15, 10},
-		{"Canis latrans", 5.8, 120, 900.0, 50, 70, 30, 300.0, 110, 12, 18},
-		{"Vulpes vulpes", 5.0, 60, 600.0, 25, 35, 0, 0.0, 50, 0, 0},
+		{canis, "Canis lupus", 6.2, 105, 1000.0, 50, 50, 25, 250.0, 100, 15, 10},
+		{canis, "Canis latrans", 5.8, 120, 900.0, 50, 70, 30, 300.0, 110, 12, 18},
+		{vulpes, "Vulpes vulpes", 5.0, 60, 600.0, 25, 35, 0, 0.0, 50, 0, 0},
 	}
+}
+
+func canidTaxa() ([]string, []string) {
+	// Returns taxonomies for records
+	canis := []string{"Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis"}
+	vulpes := []string{"Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Vulpes"}
+	return canis, vulpes
 }
 
 func TestToSlice(t *testing.T) {
@@ -57,11 +65,12 @@ func TestToSlice(t *testing.T) {
 
 func TestCalculateRates(t *testing.T) {
 	// Tests calculateRates method
+	canis, vulpes := canidTaxa()
 	rec := testRecords()
 	expected := [][]string{
-		{"Canis lupus", "100", "25", "0.25", "1000.00", "250.00", "50", "50", "15", "10"},
-		{"Canis latrans", "110", "30", "0.27", "900.00", "300.00", "50", "70", "12", "18"},
-		{"Vulpes vulpes", "50", "0", "0.00", "600.00", "0.00", "25", "35", "0", "0"},
+		{canis, "Canis lupus", "100", "25", "0.25", "1000.00", "250.00", "50", "50", "15", "10"},
+		{canis, "Canis latrans", "110", "30", "0.27", "900.00", "300.00", "50", "70", "12", "18"},
+		{vulpes, "Vulpes vulpes", "50", "0", "0.00", "600.00", "0.00", "25", "35", "0", "0"},
 	}
 	for ind, r := range rec {
 		actual := r.CalculateRates()

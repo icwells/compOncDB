@@ -18,11 +18,12 @@ func formatRates(records map[string]*dbupload.Record) [][]string {
 }
 
 func getSpeciesNames(db *dbIO.DBIO, records map[string]*dbupload.Record) map[string]*dbupload.Record {
-	// Adds species names to structs
-	species := dbupload.EntryMap(db.GetRows("Taxonomy", "taxa_id", dbupload.GetRecKeys(records), "Species,taxa_id"))
+	// Adds taxonomies to structs
+	species := dbupload.ToMap(db.GetRows("Taxonomy", "taxa_id", dbupload.GetRecKeys(records), "*"))
 	for k, v := range species {
 		if dbupload.InMapRec(records, k) == true {
-			records[k].Species = v
+			records[k].Taxonomy = v[:6]
+			records[k].Species = v[6]
 		}
 	}
 	return records

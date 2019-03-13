@@ -9,6 +9,7 @@ import (
 )
 
 type Record struct {
+	Taxonomy	 []string
 	Species      string
 	Infant       float64
 	Total        int
@@ -71,7 +72,8 @@ func (r *Record) ToSlice(id string) []string {
 func (r *Record) CalculateRates() []string {
 	// Returns string slice of rates
 	//"ScientificName,AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
-	ret := []string{r.Species}
+	ret := r.Taxonomy
+	ret = append(ret, r.Species)
 	ret = append(ret, strconv.Itoa(r.Adult))
 	ret = append(ret, strconv.Itoa(r.Cancer))
 	// Calculate rates
