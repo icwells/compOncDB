@@ -89,6 +89,16 @@ testAll () {
 	testUpdates
 }
 
+checkSource () {
+	# Runs go fmt/vet on source files
+	echo ""
+	echo "Running go $1..."
+	go $1 $PRSRC
+	go $1 $DBSRC
+	go $1 $DUSRC
+	go $1 $DESRC
+}
+
 if [ $# -eq 0 ]; then
 	testAll
 elif [ $1 = "install" ]; then
@@ -105,6 +115,10 @@ elif [ $1 = "search" ]; then
 	testSearch
 elif [ $1 = "update" ]; then
 	testUpdates
+elif [ $1 = "fmt" ]; then
+	checkSource $1
+elif [ $1 = "vet" ]; then
+	checkSource $1
 elif [ $1 = "help" ]; then
 	echo ""
 	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
@@ -116,5 +130,7 @@ elif [ $1 = "help" ]; then
 	echo "upload		Runs compOncDB upload black box tests"
 	echo "search		Runs compOncDB search black box tests"
 	echo "update		Runs compOncDB update black box tests"
+	echo "fmt		Runs go fmt on all source files."
+	echo "vet		Runs go vet on all source files."
 fi
 echo ""
