@@ -17,6 +17,7 @@ date TEXT
 masspresent TINYINT
 necropsy TINYINT
 comments TEXT
+Service TEXT
 
 # Taxonomy
 taxa_id INT PRIMARY KEY

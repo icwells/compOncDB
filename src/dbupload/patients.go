@@ -111,6 +111,7 @@ func (e *entries) addUnmatched(row []string) {
 	rec = append(rec, checkInt(row[e.col["Masspresent"]]))
 	rec = append(rec, checkInt(row[e.col["Necropsy"]]))
 	rec = append(rec, row[e.col["Comments"]])
+	rec = append(rec, row[e.col["Service"]])
 	e.unmatched = append(e.unmatched, rec)
 }
 
