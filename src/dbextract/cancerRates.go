@@ -41,11 +41,36 @@ func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
 	return records
 }
 
+func minRecords(records map[string]*dbupload.Record, min int) map[string]*dbupload.Record {
+	// Removes records with < min entries
+	for k, v := range records {
+		if v.Total < min {
+			delete(records, k)
+		}
+	}
+	return records
+}
+
+func getNecropsySpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
+	// Returns species with at least min necropsy records
+	records := make(map[string]*dbupload.Record)
+	fmt.Println("\tCounting necropsy records...")
+	records = dbupload.GetAllSpecies(db)
+	records = dbupload.GetAgeOfInfancy(db, records)
+	records = dbupload.GetTotals(db, records, true)
+	return minRecords(records, min)
+}
+
 func GetCancerRates(db *dbIO.DBIO, min int, nec bool) [][]string {
 	// Returns slice of string slices of cancer rates and related info
 	var ret [][]string
+	var records map[string]*dbupload.Record
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", min)
-	records := getTargetSpecies(db, min)
+	if nec == false {
+		records = getTargetSpecies(db, min)
+	} else {
+		records = getNecropsySpecies(db, min)
+	}
 	if len(records) > 0 {
 		records = getSpeciesNames(db, records)
 		if len(records) > 0 {
