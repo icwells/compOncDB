@@ -48,8 +48,7 @@ func minRecords(records map[string]*dbupload.Record, min int) map[string]*dbuplo
 			delete(records, k)
 		} else {
 			// Calculate average ages
-			records[k].Age = records[k].GetAvgAge()
-			records[k].Cancerage = records[k].GetCancerAge()
+			records[k].CalculateAvgAges()
 		}
 	}
 	return records
