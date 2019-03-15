@@ -55,9 +55,9 @@ func speciesCaps(species string) string {
 func getTaxon(genus, species string) string {
 	// Returns lowest taxon present
 	var ret string
-	if species != "NA" {
+	if species != "NA" && len(species) > 1 {
 		ret = speciesCaps(species)
-	} else if genus != "NA" {
+	} else if genus != "NA" && len(genus) > 1 {
 		ret = strings.Title(species)
 	}
 	return ret
