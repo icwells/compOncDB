@@ -3,7 +3,7 @@
 This program is meant specifically for managing the comparative oncology database for the Maley lab at Arizona State University.  
 It is currently being developed, so many features are not yet available.   
 
-Copyright 2018 by Shawn Rupp
+Copyright 2019 by Shawn Rupp
 
 1. [Description](#Description)
 2. [Installation](#Installation)  

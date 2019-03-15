@@ -60,8 +60,8 @@ var (
 )
 
 func version() {
-	fmt.Println("\n\tCompOncDB v0.1 (~) is a package for managing the ASU comparative oncology database.")
-	fmt.Println("\n\tCopyright 2018 by Shawn Rupp, Maley Lab, Biodesign Institute, Arizona State University.")
+	fmt.Println("\n\tCompOncDB v0.2 (3/15/19) is a package for managing the ASU comparative oncology database.")
+	fmt.Println("\n\tCopyright 2019 by Shawn Rupp, Maley Lab, Biodesign Institute, Arizona State University.")
 	fmt.Println("\tThis program comes with ABSOLUTELY NO WARRANTY.")
 	fmt.Print("\n\tThis is free software, and you are welcome to redistribute it under certain conditions.\n\n")
 	os.Exit(0)
