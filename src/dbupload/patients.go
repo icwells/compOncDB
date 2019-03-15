@@ -32,26 +32,28 @@ func getDenominator(size int) int {
 func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
 	// Uploads patient entries to db
 	l := len(list)
-	den := getDenominator(sizeOf(list))
-	if den <= 1 {
-		// Upload slice at once
-		vals, l := dbIO.FormatSlice(list)
-		db.UpdateDB(table, vals, l)
-	} else {
-		// Upload in chunks
-		var end int
-		idx := l / den
-		ind := 0
-		for i := 0; i < den; i++ {
-			if ind+idx > l {
-				// Get last less than idx rows
-				end = l
-			} else {
-				end = ind + idx
+	if l > 0 {
+		den := getDenominator(sizeOf(list))
+		if den <= 1 {
+			// Upload slice at once
+			vals, l := dbIO.FormatSlice(list)
+			db.UpdateDB(table, vals, l)
+		} else {
+			// Upload in chunks
+			var end int
+			idx := l / den
+			ind := 0
+			for i := 0; i < den; i++ {
+				if ind+idx > l {
+					// Get last less than idx rows
+					end = l
+				} else {
+					end = ind + idx
+				}
+				vals, ln := dbIO.FormatSlice(list[ind:end])
+				db.UpdateDB(table, vals, ln)
+				ind = ind + idx
 			}
-			vals, ln := dbIO.FormatSlice(list[ind:end])
-			db.UpdateDB(table, vals, ln)
-			ind = ind + idx
 		}
 	}
 }
@@ -216,9 +218,7 @@ func LoadPatients(db *dbIO.DBIO, infile string) {
 	uploadPatients(db, "Diagnosis", e.d)
 	uploadPatients(db, "Tumor", e.t)
 	uploadPatients(db, "Source", e.s)
-	if len(e.unmatched) >= 1 {
-		uploadPatients(db, "Unmatched", e.unmatched)
-	}
+	uploadPatients(db, "Unmatched", e.unmatched)
 	// Recacluate species totals
 	SpeciesTotals(db)
 }
