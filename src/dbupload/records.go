@@ -43,12 +43,12 @@ func (r *Record) String() string {
 	return ret
 }
 
-func (r *Record) getAvgAge() string {
+func (r *Record) GetAvgAge() string {
 	// Returns string of avg age
 	return avgAge(r.Age, r.Adult)
 }
 
-func (r *Record) getCancerAge() string {
+func (r *Record) GetCancerAge() string {
 	// Returns string of average cancer record age
 	return avgAge(r.Cancerage, r.Cancer)
 }
@@ -58,12 +58,12 @@ func (r *Record) ToSlice(id string) []string {
 	var ret []string
 	ret = append(ret, id)
 	ret = append(ret, strconv.Itoa(r.Total))
-	ret = append(ret, r.getAvgAge())
+	ret = append(ret, r.GetAvgAge())
 	ret = append(ret, strconv.Itoa(r.Adult))
 	ret = append(ret, strconv.Itoa(r.Male))
 	ret = append(ret, strconv.Itoa(r.Female))
 	ret = append(ret, strconv.Itoa(r.Cancer))
-	ret = append(ret, r.getCancerAge())
+	ret = append(ret, r.GetCancerAge())
 	ret = append(ret, strconv.Itoa(r.Malecancer))
 	ret = append(ret, strconv.Itoa(r.Femalecancer))
 	return ret
