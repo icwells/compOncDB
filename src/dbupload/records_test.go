@@ -12,17 +12,17 @@ func TestAvgAge(t *testing.T) {
 	ages := []struct {
 		num      float64
 		den      int
-		expected string
+		expected float64
 	}{
-		{-1.1, 15, "-1"},
-		{12.8, 0, "-1"},
-		{12.0, 4, "3"},
-		{6.0, 8, "0.75"},
+		{-1.1, 15, -1.0},
+		{12.8, 0, -1.0},
+		{12.0, 4, 3.0},
+		{6.0, 8, 0.75},
 	}
 	for _, i := range ages {
 		actual := avgAge(i.num, i.den)
 		if actual != i.expected {
-			t.Errorf("Actual age %s does not equal expected: %s", actual, i.expected)
+			t.Errorf("Actual age %f does not equal expected: %f", actual, i.expected)
 		}
 	}
 }

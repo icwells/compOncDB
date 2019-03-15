@@ -25,11 +25,11 @@ type Record struct {
 
 func avgAge(n float64, d int) float64 {
 	// Returns n/d
-	var ret string
+	var ret float64
 	if n > 0.0 && d > 0 {
 		ret = n / float64(d)
 	} else {
-		ret = -1
+		ret = -1.0
 	}
 	return ret
 }
@@ -54,12 +54,12 @@ func (r *Record) ToSlice(id string) []string {
 	r.CalculateAvgAges()
 	ret = append(ret, id)
 	ret = append(ret, strconv.Itoa(r.Total))
-	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
+	ret = append(ret, strconv.FormatFloat(r.Age, 'f', -1, 64))
 	ret = append(ret, strconv.Itoa(r.Adult))
 	ret = append(ret, strconv.Itoa(r.Male))
 	ret = append(ret, strconv.Itoa(r.Female))
 	ret = append(ret, strconv.Itoa(r.Cancer))
-	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
+	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', -1, 64))
 	ret = append(ret, strconv.Itoa(r.Malecancer))
 	ret = append(ret, strconv.Itoa(r.Femalecancer))
 	return ret
