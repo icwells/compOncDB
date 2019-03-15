@@ -40,9 +40,9 @@ a local or a remote connection.
 Be sure to change the name of "example_config.txt" to "config.txt" (to prevent git from overwritting it).
 
 ### Testing the Installation  
-Run the following in a terminal:
+Replace "mysql_username" with your username and run the following in a terminal:
 
-	./test.sh
+	./test.sh all mysql_username
 
 You will be prompted the enter your MySQL password several times. All of the output from the test scripts should begin with "ok".  
 
@@ -93,6 +93,7 @@ Make sure tableColumns.txt is in the bin/ directory.
 	--den				Uploads file to denominator table for databases where only cancer records were extracted.  
 	--patient			Upload patient info from input table to database.  
 
+
 	-i infile			Path to appropriate input file (Required).  
 
 Uploads data from input files to appropriate tables. Only one flag may be given to indicate the type of 
@@ -107,7 +108,8 @@ are all the same file which must in the format of uploadTemplate.csv.
 	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 	--count				Recount species totals and update the Totals table.  
-	--delete			Delete records from given table if column = value (must be root).  
+	--delete			Delete records from given table if column = value (must be root). 
+	--table="nil"		Perform operations on this table only.   
 	-c, --column="nil"	Column to be updated with given value if --eval column == value.
 	-v, --value="nil"	Value to write to column if --eval column == value.
 	-e, --eval="nil"	Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <).  
@@ -155,7 +157,7 @@ Extract data from the database and perform optional analyses.
 	--common				Indicates that common species name was given for taxa.  
 	--count					Returns count of target records instead of printing entire records.  
 	-e, --eval="nil"		Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: = <= >= > <).  
-	--table="nil"			Return matching rows from this table only.  
+	--table="nil"		Perform operations on this table only.  
 
 	-o outfile				Name of output file (writes to stdout if not given).  
 
