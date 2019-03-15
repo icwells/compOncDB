@@ -9,6 +9,7 @@
 #
 #	Usage:		./test.sh {install/white/parse/upload/search/update}
 ##############################################################################
+USER="root"
 WD=$(pwd)
 PRSRC="$WD/src/parseRecords/*.go"
 DBSRC="$WD/src/compOncDB/*.go"
@@ -60,7 +61,7 @@ testUpload () {
 	# Upload test data
 	echo ""
 	echo "Running black box tests on database upload..."
-	$CDB test --config $CONFIG -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
+	$CDB test --config $CONFIG -u $USER -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
 	# Compare tables to expected
 	go test $TESTDB --run TestDumpTables --args --indir="$TESTDIR/tables/"
 }
@@ -69,7 +70,7 @@ testSearch () {
 	# Test search output
 	echo ""
 	echo "Running black box tests on database search..."
-	$CDB test --search --config $CONFIG -i $CASES -o "$TESTDIR/searchResults/"
+	$CDB test --search --config $CONFIG -u $USER -i $CASES -o "$TESTDIR/searchResults/"
 	go test $TESTDB --run TestSearches --args --indir="$TESTDIR/searchResults/"
 }
 
@@ -77,7 +78,7 @@ testUpdates () {
 	# Test search output
 	echo ""
 	echo "Running black box tests on database update..."
-	$CDB test --update --config $CONFIG -i $UPDATE -o "$TESTDIR/updateResults/"
+	$CDB test --update --config $CONFIG -u $USER -i $UPDATE -o "$TESTDIR/updateResults/"
 	go test $TESTDB --run TestUpdates --args --indir="$TESTDIR/updateResults/"
 }
 
@@ -98,6 +99,11 @@ checkSource () {
 	go $1 $DUSRC
 	go $1 $DESRC
 }
+
+if [ $# -eq 2 ]; then
+	# Set user to input value
+	USER=$2
+fi
 
 if [ $# -eq 0 ]; then
 	testAll
@@ -122,7 +128,7 @@ elif [ $1 = "vet" ]; then
 elif [ $1 = "help" ]; then
 	echo ""
 	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
-	echo "Usage: ./test.sh {install/white/parse/upload/search/update}"
+	echo "Usage: ./test.sh {install/white/parse/upload/search/update} username"
 	echo ""
 	echo "install		Installs binaries and runs all tests"
 	echo "white		Runs white box tests"
@@ -132,5 +138,6 @@ elif [ $1 = "help" ]; then
 	echo "update		Runs compOncDB update black box tests"
 	echo "fmt		Runs go fmt on all source files."
 	echo "vet		Runs go vet on all source files."
+	echo "username	MySQL username (root by default)."
 fi
 echo ""
