@@ -168,7 +168,7 @@ func (e *entries) evaluateRow(row []string) {
 	t := getTaxon(row[e.col["Genus"]], row[e.col["Species"]])
 	taxaid, exists := e.taxa[t]
 	ac, ex := e.accounts[row[e.col["Account"]]]
-	fmt.Printf("\n%s\t%s\t%d\t%d\t", t, ac, len(row), e.length)
+	fmt.Printf("\n%s\t%s\t%v\t%v\t", t, ac, exists, ex)
 	if len(row) == e.length && exists == true && ex == true {
 		// Skip entries without valid species and source data
 		aid, inmap := ac[row[e.col["Submitter"]]]
