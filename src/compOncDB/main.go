@@ -15,11 +15,13 @@ var (
 	user    = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 	config  = kingpin.Flag("config", "Path to config.txt (Default is in bin directory).").Default("config.txt").String()
 	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: = <= >= > <). ").Short('e').Default("nil").String()
+	table   = kingpin.Flag("table", "Perform operations on this table only.").Default("nil").String()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
-	ver     = kingpin.Command("version", "Prints version info and exits.")
-	bu      = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
-	New     = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
+
+	ver = kingpin.Command("version", "Prints version info and exits.")
+	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
+	New = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
 
 	upload  = kingpin.Command("upload", "Upload data to the database.")
 	taxa    = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
@@ -46,7 +48,6 @@ var (
 	level  = search.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
 	com    = search.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	count  = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
-	table  = search.Flag("table", "Return matching rows from this table only.").Default("nil").String()
 	infant = extract.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 
 	test        = kingpin.Command("test", "Tests database functionality using testDataBase instead of comaprative oncology.")

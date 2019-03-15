@@ -78,13 +78,14 @@ func updateDB() time.Time {
 		tables := getTable(db.Columns, col)
 		dbextract.UpdateSingleTable(db, tables[0], *column, *value, col, op, val)
 	} else if *del == true && *eval != "nil" {
-		if *user == "root" {
-			column, _, value := getOperation(*eval)
-			tables := getTable(db.Columns, column)
-			deleteEntries(db, tables, column, value)
+		var tables []string
+		column, _, value := getOperation(*eval)
+		if *table != "nil" {
+			tables = []string{*table}
 		} else {
-			fmt.Print("\n\t[Error] Must be root to delete entries. Exiting.\n\n")
+			tables = getTable(db.Columns, column)
 		}
+		deleteEntries(db, tables, column, value)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
@@ -95,10 +96,6 @@ func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
 	db := connectToDatabase(setConfiguration(false))
 	if *dump != "nil" {
-		if *dump == "Accounts" && *user != "root" {
-			fmt.Print("\n\t[Error] Must be root to access Accounts table. Exiting.\n\n")
-			os.Exit(1010)
-		}
 		// Extract entire table
 		table := db.GetTable(*dump)
 		if *outfile != "nil" {
