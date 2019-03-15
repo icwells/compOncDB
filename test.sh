@@ -107,6 +107,8 @@ fi
 
 if [ $# -eq 0 ]; then
 	testAll
+elif [ $1 = "all" ]; then
+	testAll
 elif [ $1 = "install" ]; then
 	# Compile binaries and call test functions
 	./install.sh
@@ -130,6 +132,7 @@ elif [ $1 = "help" ]; then
 	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
 	echo "Usage: ./test.sh {install/white/parse/upload/search/update} username"
 	echo ""
+	echo "all		Runs all tests"
 	echo "install		Installs binaries and runs all tests"
 	echo "white		Runs white box tests"
 	echo "parse		Runs parseRecords black box tests"
