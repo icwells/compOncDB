@@ -80,5 +80,6 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec bool) [][]string {
 			ret = formatRates(records)
 		}
 	}
+	fmt.Printf("\tFound %d records with at least %d entries.\n", len(ret), min)
 	return ret
 }
