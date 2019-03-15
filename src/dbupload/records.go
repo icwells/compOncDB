@@ -23,14 +23,13 @@ type Record struct {
 	Femalecancer int
 }
 
-func avgAge(n float64, d int) string {
-	// Returns string of n/d
+func avgAge(n float64, d int) float64 {
+	// Returns n/d
 	var ret string
 	if n > 0.0 && d > 0 {
-		age := n / float64(d)
-		ret = strconv.FormatFloat(age, 'f', -1, 64)
+		ret = n / float64(d)
 	} else {
-		ret = "-1"
+		ret = -1
 	}
 	return ret
 }
@@ -45,31 +44,22 @@ func (r *Record) String() string {
 
 func (r *Record) CalculateAvgAges() {
 	// Sets average age and average cancer age
-	r.Age = r.Age / float64(r.Adult)
-	r.Cancerage = r.Cancerage / float64(r.Cancer)
-}
-
-func (r *Record) getAvgAge() string {
-	// Returns string of avg age
-	return avgAge(r.Age, r.Adult)
-}
-
-func (r *Record) getCancerAge() string {
-	// Returns string of average cancer record age
-	return avgAge(r.Cancerage, r.Cancer)
+	r.Age = avgAge(r.Age, r.Adult)
+	r.Cancerage = avgAge(r.Cancerage, r.Cancer)
 }
 
 func (r *Record) ToSlice(id string) []string {
 	// Returns string slice of values for upload to table
 	var ret []string
+	r.CalculateAvgAges()
 	ret = append(ret, id)
 	ret = append(ret, strconv.Itoa(r.Total))
-	ret = append(ret, r.getAvgAge())
+	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
 	ret = append(ret, strconv.Itoa(r.Adult))
 	ret = append(ret, strconv.Itoa(r.Male))
 	ret = append(ret, strconv.Itoa(r.Female))
 	ret = append(ret, strconv.Itoa(r.Cancer))
-	ret = append(ret, r.getCancerAge())
+	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
 	ret = append(ret, strconv.Itoa(r.Malecancer))
 	ret = append(ret, strconv.Itoa(r.Femalecancer))
 	return ret

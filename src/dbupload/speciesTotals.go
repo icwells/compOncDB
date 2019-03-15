@@ -38,21 +38,19 @@ func addDenominators(db *dbIO.DBIO, records map[string]*Record) map[string]*Reco
 
 func GetTotals(db *dbIO.DBIO, records map[string]*Record, nec bool) map[string]*Record {
 	// Returns struct with number of total, adult, and adult cancer occurances by species
+	var d map[string]string
+	var e bool
 	diag := ToMap(db.GetColumns("Diagnosis", []string{"ID", "Masspresent", "Necropsy"}))
 	rows := db.GetColumns("Patient", []string{"taxa_id", "Age", "ID", "Sex"})
 	for _, i := range rows {
 		pass := false
 		_, exists := records[i[0]]
-		if exists == true {
-			if nec == false {
-				pass = true
-			} else {
-				// Continue if i is necropsy record
-				d, e := diag[i[2]]
-				if e == true && d[1] == "1" {
-					pass = true
-				}
-			}
+		d, e = diag[i[2]]
+		if nec == false {
+			pass = exists
+		} else if exists == true && e == true && d[1] == "1" {
+			// Continue if i is necropsy record
+			pass = true
 		}
 		if pass == true {
 			// Increment total

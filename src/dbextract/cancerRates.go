@@ -44,7 +44,7 @@ func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
 func minRecords(records map[string]*dbupload.Record, min int) map[string]*dbupload.Record {
 	// Removes records with < min entries
 	for k := range records {
-		if records[k].Total < min {
+		if records[k].Adult < min {
 			delete(records, k)
 		} else {
 			// Calculate average ages
