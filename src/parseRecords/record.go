@@ -129,6 +129,11 @@ func (r *record) String() string {
 	return buffer.String()
 }
 
+func (r *record) getDiagnosis() []string {
+	// Returns slice of diagnosis data
+	return []string{r.id, r.age, r.sex, r.castrated, r.location, r.tumorType, r.malignant, r.primary, r.metastasis, r.necropsy}
+}
+
 func (r *record) setPatient(line []string, c columns) {
 	// Attempts to identify patient id
 	if c.patient >= 0 {

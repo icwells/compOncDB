@@ -15,6 +15,7 @@ type entries struct {
 	service     string
 	taxa        map[string][]string
 	diag        map[string][]string
+	rec			[]record
 	match       matcher
 	dups        duplicates
 	dupsPresent bool
@@ -29,6 +30,15 @@ func newEntries(service string) entries {
 	e.dups = newDuplicates()
 	e.dupsPresent = false
 	return e
+}
+
+func (e *entries) toSlice() [][]string {
+	// Returns slice of string slices for printing diagnosis data
+	var ret [][]string
+	for _, i := range e.rec {
+		ret = append(ret, i.getDiagnosis())
+	}
+	return ret
 }
 
 func (e *entries) parseHeader(header string) {

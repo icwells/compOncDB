@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-func countNA(row []string) (bool, bool) {
+func countNA(r record) (bool, bool) {
 	// Determines if any or all fields have been identified
 	var found, complete bool
 	count := 0
-	l := len(row) - 2
-	for _, i := range row {
+	l := len(rec) - 2
+	for _, i := range []string{r.age, r.sex, r.castrated, r.location, r.tumorType, r.malignant, r.primary, r.metastasis, r.necropsy} {
 		if i == "NA" {
 			count++
 		}
@@ -28,55 +28,47 @@ func countNA(row []string) (bool, bool) {
 	return found, complete
 }
 
-func (e *entries) parseDiagnosis(line, age string, cancer, necropsy bool) []string {
+func (e *entries) parseDiagnosis(rec record, line string, cancer, necropsy bool) []string {
 	// Examines line for each diagnosis case
-	var row []string
-	prim := "N"
 	line = strings.ToLower(line)
 	if e.match.infantRecords(line) == true {
-		age = "0"
-	} else if age == "NA" {
+		rec.age = "0.0"
+	} else if rec.age == "-1" {
 		// Try to extract age if it's not given
-		age = e.match.getAge(line)
+		rec.age = e.match.getAge(line)
 	}
-	if ch, _ := strconv.ParseFloat(age, 64); ch < 0.0 {
+	if ch, _ := strconv.ParseFloat(rec.age, 64); ch < 0.0 {
 		// Make sure values aren't below 0
-		age = "0"
+		rec.age = "0"
 	}
-	row = append(row, age)
-	row = append(row, e.match.getMatch(e.match.sex, line))
-	row = append(row, e.match.getCastrated(line))
-	row = append(row, e.match.getLocation(line, cancer))
-	t, mal := e.match.getType(line, cancer)
-	row = append(row, t)
-	met := e.match.binaryMatch(e.match.metastasis, line)
-	if met == "Y" {
+	rec.sex = e.match.getMatch(e.match.sex, line)
+	rec.castrated = e.match.getCastrated(line)
+	rec.tumorType, rec.location, rec.malignant = e.match.getTumor(line, cancer)
+	rec.metastasis := e.match.binaryMatch(e.match.metastasis, line)
+	if rec.metastasis == "1" {
 		// Assume malignancy if metastasis is detected
-		mal = "Y"
+		rec.malignant = "1"
 	}
-	row = append(row, mal)
-	if t != "NA" {
+	if rec.tumorType != "NA" {
 		// Only check for primary tumor if a tumor was found
-		if met == "N" {
+		if rec.metastasis == "0" {
 			// Store yes for primary if a tumor was found but no metastasis
-			prim = "Y"
+			rec.primary = "1"
 		} else if e.match.getMatch(e.match.primary, line) != "NA" {
-			prim = "Y"
+			rec.primary = "1"
 		}
 	}
-	row = append(row, prim)
-	row = append(row, met)
 	if necropsy == true {
-		row = append(row, "Y")
+		rec.necropsy = "1"
 	} else {
-		row = append(row, e.match.getNecropsy(line))
+		rec.necropsy = e.match.getNecropsy(line)
 	}
-	return row
+	return rec
 }
 
 func (e *entries) checkAge(line []string) string {
 	// Returns age from column if given
-	ret := "NA"
+	ret := "-1"
 	if e.col.days >= 0 {
 		age, err := strconv.ParseFloat(line[e.col.days], 64)
 		if err == nil {
@@ -95,9 +87,9 @@ func (e *entries) checkAge(line []string) string {
 	return ret
 }
 
-func (e *entries) parseLine(line []string) ([]string, bool, bool) {
+func (e *entries) parseLine(line []string) (record, bool, bool) {
 	// Extracts diagnosis info from line
-	var row []string
+	rec :=  newRecord()
 	var necropsy, found, complete bool
 	cancer := true
 	idx := e.col.id
@@ -106,8 +98,8 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 		idx = e.col.code
 	}
 	if len(line) > idx {
-		id := line[e.col.id]
-		age := e.checkAge(line)
+		rec.id := line[e.col.id]
+		rec.age := e.checkAge(line)
 		if e.service == "NWZP" {
 			// Get neoplasia and euthnasia codes from NWZP
 			cancer = strings.Contains(line[e.col.code], "8")
@@ -116,12 +108,11 @@ func (e *entries) parseLine(line []string) ([]string, bool, bool) {
 		// Remove ID and join line
 		line = append(line[:e.col.id], line[e.col.id+1:]...)
 		str := strings.Join(line, " ")
-		row = e.parseDiagnosis(str, age, cancer, necropsy)
+		rec = e.parseDiagnosis(rec, str, cancer, necropsy)
 		// Prepend id
-		row = append([]string{id}, row...)
-		found, complete = countNA(row)
+		found, complete = countNA(rec)
 	}
-	return row, found, complete
+	return rec, found, complete
 }
 
 func (e *entries) extractDiagnosis(infile, outfile string) {
@@ -139,9 +130,9 @@ func (e *entries) extractDiagnosis(infile, outfile string) {
 		if first == false {
 			total++
 			s := strings.Split(line, e.d)
-			row, found, com := e.parseLine(s)
+			rec, found, com := e.parseLine(s)
 			if found == true {
-				res = append(res, row)
+				e.rec = append(e.rec, rec)
 				count++
 				if com == true {
 					complete++
