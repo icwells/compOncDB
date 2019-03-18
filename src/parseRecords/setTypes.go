@@ -20,7 +20,7 @@ func (m *matcher) setTypes() {
 		"brain":           regexp.MustCompile(`(?i)brain`),
 		"adrenal":         regexp.MustCompile(`(?i)adrenal`),
 		"bladder":         regexp.MustCompile(`(?i)bladder`),
-		"breast":          regexp.MustCompile(`(?i)(breast|mammary)`),
+		"breast":          regexp.MustCompile(`(?i)breast|mammary`),
 		"colon":           regexp.MustCompile(`(?i)colon|rectum`),
 		"duodenum":        regexp.MustCompile(`(?i)duodenum`),
 		"fat":             regexp.MustCompile(`(?i)fat|adipose.*`),
@@ -44,7 +44,7 @@ func (m *matcher) setTypes() {
 		"thyroid":         regexp.MustCompile(`(?i)thyroid`),
 		"uterus":          regexp.MustCompile(`(?i)uter.*`),
 		"vulva":           regexp.MustCompile(`(?i)vulva|vagina`),
-		"widespread":      regexp.MustCompile(`(?i)widespread|metastatic|(body as a whole)|multiple|disseminated`),
+		"widespread":      regexp.MustCompile(`(?i)widespread|metastatic|body as a whole|multiple|disseminated`),
 	}
 	m.types = map[string]diagnosis{
 		"adenoma":              {regexp.MustCompile(`(?i)adenoma`), "N"},
