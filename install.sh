@@ -22,22 +22,19 @@ SA="github.com/icwells/go-tools/strarray"
 SYS=$(ls $GOPATH/pkg | head -1)
 PDIR=$GOPATH/pkg/$SYS
 
+installPackage () {
+	# Installs go package if it is not present in src directory
+	if [ ! -e "$PDIR/$1.a" ]; then
+		echo "Installing $1..."
+		go get -u $1
+		echo ""
+	fi
+}
+
 installDependencies () {
 # Get dependencies
 	for I in $DR $FZ $IO $KP $PR $SA ; do
-		if [ ! -e "$PDIR/$I.a" ]; then
-			echo "Installing $I..."
-			go get -u $I
-			echo ""
-		fi
-	done
-}
-
-installDBIO () {
-	for I in $DBI $DBU $DBE; do
-		echo "Installing $I..."
-		go get -u $I
-		echo ""
+		installPackage $I
 	done
 }
 
@@ -46,6 +43,11 @@ installMain () {
 	echo "Building $PARSE..."
 	go build -i -o bin/$PARSE src/$PARSE/*.go
 	echo ""
+
+	for I in $DBU $DBE; do
+		# Install submodules
+		installPackage $I
+	done
 
 	# compOncDB 
 	echo "Building main..."
@@ -61,10 +63,10 @@ if [ $# -eq 0 ]; then
 	installMain
 elif [ $1 = "all" ]; then
 	installDependencies
-	installDBIO
+	installPackage $DBI
 	installMain
 elif [ $1 = "db" ]; then
-	installDBIO
+	installPackage $DBI
 	installMain
 elif [ $1 = "help" ]; then
 	echo "Installs Go scripts for compOnDB"
