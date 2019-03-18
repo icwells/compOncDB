@@ -24,17 +24,17 @@ PDIR=$GOPATH/pkg/$SYS
 
 installPackage () {
 	# Installs go package if it is not present in src directory
-	if [ ! -e "$PDIR/$1.a" ]; then
-		echo "Installing $1..."
-		go get -u $1
-		echo ""
-	fi
+	echo "Installing $1..."
+	go get -u $1
+	echo ""
 }
 
 installDependencies () {
 # Get dependencies
 	for I in $DR $FZ $IO $KP $PR $SA ; do
-		installPackage $I
+		if [ ! -e "$PDIR/$1.a" ]; then
+			installPackage $I
+		fi
 	done
 }
 
