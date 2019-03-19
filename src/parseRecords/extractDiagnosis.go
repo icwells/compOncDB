@@ -20,7 +20,7 @@ func countNA(r record) (bool, bool) {
 			count++
 		}
 	}
-	if count < len(targets) - 1 {
+	if count < len(targets) {
 		found = true
 		if count == 0 {
 			complete = true

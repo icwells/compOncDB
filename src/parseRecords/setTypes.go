@@ -58,7 +58,7 @@ func (m *matcher) setTypes() {
 		"trichoepithelioma":    {regexp.MustCompile(`(?i)trichoepithelioma`), "0"},
 		"lipoma":               {regexp.MustCompile(`(?i)lipoma`), "0"},
 		"fibropapilloma ":      {regexp.MustCompile(`(?i)fibropapilloma `), "0"},
-		"fibropapillomatosis":  {regexp.MustCompile(`(?i)fibropapilloma `), "0"},
+		"fibropapillomatosis":  {regexp.MustCompile(`(?i)fibropapillomatosis `), "0"},
 		"epithelioma":          {regexp.MustCompile(`(?i)epithelioma`), "0"},
 		"leiomyoma":            {regexp.MustCompile(`(?i)leiomyoma`), "0"},
 		"hemangioma":           {regexp.MustCompile(`(?i)hemangioma`), "0"},

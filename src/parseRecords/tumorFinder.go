@@ -50,21 +50,46 @@ func (t *tumorFinder) getSearchIndeces(idx int, line string) (int, int) {
 	return start, end
 }
 
+func (t *tumorFinder) removePartials()  {
+	// Removes partial matches from types and matches
+	var rm []int
+	for idx, i := range t.types {
+		for _, s := range []string{"adenoma", "carcinoma", "sarcoma"} {
+			if i == s {
+				for jdx, j := range t.types {
+					if j != s && strings.Contains(j, s) == true {
+						rm = append(rm, idx)
+						break
+					}
+				}
+			}
+		}
+	if len(rm > 0 {
+		for _, i := range rm {
+			t.types = append(t.types[:i], t.types
+		}
+	}
+}
+
 //----------------------------------------------------------------------------
 
 func (m *matcher) getTypes(t *tumorFinder, line string) {
-	// Returns location from map
+	// Returns types from map
 	for k, v := range m.types {
 		match := m.getMatch(v.expression, line)
 		if match != "NA" {
 			t.matches = append(t.matches, match)
 			t.types = append(t.types, k)
-			vm, _ := strconv.Atoi(v.malignant)
-			tm, _ := strconv.Atoi(t.malignant)
-			if vm > tm {
-				// Malignant > non-malignant > NA
-				t.malignant = v.malignant
-			}
+		}
+	}
+	t.removePartials()
+	// Get malignant values after removing partial matches
+	for _, i := range t.types {
+		vm, _ := strconv.Atoi(m.types[i].malignant)
+		tm, _ := strconv.Atoi(t.malignant)
+		if vm > tm {
+			// Malignant > non-malignant > NA
+			t.malignant = m.types[i].malignant
 		}
 	}
 	if t.malignant == "-1" && len(t.types) > 0 {
