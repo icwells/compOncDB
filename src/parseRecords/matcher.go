@@ -135,11 +135,11 @@ func (m *matcher) getAge(line string) string {
 				// Convert back to string
 				ret = strconv.FormatFloat(a, 'f', -1, 64)
 			} else {
-				ret = "0"
+				ret = "-1"
 			}
 		}
 	} else {
-		ret = match
+		ret = "-1"
 	}
 	return ret
 }

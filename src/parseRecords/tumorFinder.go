@@ -40,7 +40,8 @@ func (t *tumorFinder) getSearchIndeces(idx int, line string) (int, int) {
 		start = strings.Index(line, t.matches[last]) + len(t.matches[last])
 	}
 	if start < len(line) {
-		end = strings.Index(line, t.matches[idx])
+		// Include type as it might be informative (i.e. lymphoma)
+		end = strings.Index(line, t.matches[idx]) + len(t.matches[idx])
 	}
 	if start > end {
 		// Reset illogical results
@@ -72,7 +73,7 @@ func (m *matcher) getTypes(t *tumorFinder, line string) {
 }
 
 func (m *matcher) getLocations(t *tumorFinder, line string) {
-	// Combines regexp and fuzzy searching to determine best match for location
+	// Searches line preceding type index for locations
 	for idx, _ := range t.matches {
 		loc := "NA"
 		start, end := t.getSearchIndeces(idx, line)

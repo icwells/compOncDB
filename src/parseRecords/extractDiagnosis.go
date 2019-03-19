@@ -20,7 +20,7 @@ func countNA(r record) (bool, bool) {
 			count++
 		}
 	}
-	if count < len(targets) {
+	if count < len(targets) - 1 {
 		found = true
 		if count == 0 {
 			complete = true
@@ -38,9 +38,9 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 		// Try to extract age if it's not given
 		rec.age = e.match.getAge(line)
 	}
-	if ch, _ := strconv.ParseFloat(rec.age, 64); ch < 0.0 {
+	if ch, _ := strconv.ParseFloat(rec.age, 64); ch < -1.0 {
 		// Make sure values aren't below 0
-		rec.age = "0"
+		rec.age = "-1"
 	}
 	rec.sex = e.match.getMatch(e.match.sex, line)
 	rec.castrated = e.match.getCastrated(line)

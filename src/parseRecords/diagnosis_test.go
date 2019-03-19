@@ -64,13 +64,13 @@ func TestCheckAge(t *testing.T) {
 	}{
 		{[]string{"9", "ABC", "A16", "A99", "7", "1-Dec", "PACIFIC FORD TURTLE", "99-121", "M/F", "", "A99-7"}, 0, getAge(9), getDays(9)},
 		{[]string{"f1212351", "Bongo", "skin biopsy:  squamous cell carcinoma, in situ", "", "Female", "2"}, 5, getAge(2), getDays(2)},
-		{[]string{"6254519", "KV Zoo", "39179", "Arctic Fox", "6211", "", "", "Female"}, 5, "NA", "NA"},
+		{[]string{"6254519", "KV Zoo", "39179", "Arctic Fox", "6211", "", "", "Female"}, 5, "-1", "-1"},
 	}
 	for _, i := range ages {
 		e.col.age = i.idx
 		actual := e.checkAge(i.row)
 		if actual != i.age {
-			t.Errorf("Returned incorect value %s from age column. Expected %s.", actual, i.row[i.idx])
+			t.Errorf("Returned incorect value %s from age column. Expected %s.", actual, i.age)
 		}
 	}
 	for _, i := range ages {
@@ -78,7 +78,7 @@ func TestCheckAge(t *testing.T) {
 		e.col.days = i.idx
 		actual := e.checkAge(i.row)
 		if actual != i.days {
-			t.Errorf("Returned incorect value %s from days column. Expected %s.", actual, i.row[i.idx])
+			t.Errorf("Returned incorect value %s from days column. Expected %s.", actual, i.days)
 		}
 	}
 }
@@ -98,12 +98,12 @@ func TestParseDiagnosis(t *testing.T) {
 			t.Errorf("Actual neuter value %s does not equal expected %s", rec.castrated, i.castrated)
 		} else if rec.location != i.location {
 			t.Errorf("Actual location %s does not equal expected %s", rec.location, i.location)
-		} else if rec.typ != i.typ {
-			t.Errorf("Actual type %s does not equal expected %s", rec.typ, i.typ)
+		} else if rec.tumorType != i.typ {
+			t.Errorf("Actual type %s does not equal expected %s", rec.tumorType, i.typ)
 		} else if rec.malignant != i.malignant {
 			t.Errorf("Actual malignant value %s does not equal expected %s", rec.malignant, i.malignant)
 		} else if rec.primary != i.primary {
-			if rec.typ != "NA" && rec.metastasis == "0" {
+			if rec.tumorType != "NA" && rec.metastasis == "0" {
 				// Skip if function determined a single tumor to be primary
 				if rec.primary != "1" {
 					t.Errorf("Actual primary %s does not equal expected %s", rec.primary, i.primary)

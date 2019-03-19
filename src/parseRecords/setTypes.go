@@ -29,7 +29,7 @@ func (m *matcher) setTypes() {
 		"leukemia":        regexp.MustCompile(`(?i)leukemia`),
 		"liver":           regexp.MustCompile(`(?i)hepa.*|liver.*|hep.*|billia.*`),
 		"lung":            regexp.MustCompile(`(?i)lung.*|pulm.*|mediasti.*|bronchial|alveol.*`),
-		"lymph nodes":     regexp.MustCompile(`(?i)lymph|lymph node`),
+		"lymph nodes":     regexp.MustCompile(`(?i)lymph( node)?`),
 		"muscle":          regexp.MustCompile(`(?i)muscle|.*structure.*`),
 		"nerve":           regexp.MustCompile(`(?i)nerve.*`),
 		"other":           regexp.MustCompile(`(?i)gland|basal.*|islet|multifocal|neck|nasal|neuroendo.*`),

@@ -27,10 +27,10 @@ func newMatches() []matches {
 	line3 := "metastatis lymphoma, infant, 30 days, not castrated, "
 	line4 := "spayed female gray fox, "
 	return []matches{
-		{line1, "spinal cord", "neoplasia", false, "24", "female", "Y", "NA", "NA", "N", "N"},
-		{line2, "liver", "carcinoma", false, "37", "male", "NA", "Y", "NA", "Y", "Y"},
-		{line3, "lymph nodes", "lymphoma", true, "1", "NA", "N", "Y", "Y", "N", "NA"},
-		{line4, "NA", "NA", false, "NA", "female", "Y", "NA", "NA", "N", "NA"},
+		{line1, "spinal cord", "neoplasia", false, "24", "female", "1", "-1", "-1", "0", "0"},
+		{line2, "liver", "carcinoma", false, "37", "male", "-1", "1", "-1", "1", "1"},
+		{line3, "lymph nodes", "lymphoma", true, "1", "NA", "0", "1", "1", "0", "-1"},
+		{line4, "NA", "NA", false, "-1", "female", "1", "-1", "-1", "0", "-1"},
 	}
 }
 
@@ -39,9 +39,11 @@ func TestGetTypes(t *testing.T) {
 	m := newMatcher()
 	matches := newMatches()
 	for _, i := range matches {
-		actual, mal := m.getTypes(i.line, true)
-		if actual != i.typ {
-			t.Errorf("Actual type %s does not equal expected: %s.", actual, i.typ)
+		f := newTumorFinder()
+		m.getTypes(&f, i.line)
+		typ, _, mal := f.toStrings()
+		if typ != i.typ {
+			t.Errorf("Actual type %s does not equal expected: %s.", typ, i.typ)
 		} else if mal != i.malignant {
 			t.Errorf("Actual malignant value %s does not equal expected: %s.", mal, i.malignant)
 		}
@@ -53,9 +55,12 @@ func TestGetLocations(t *testing.T) {
 	m := newMatcher()
 	matches := newMatches()
 	for _, i := range matches {
-		actual := m.getLocations(i.line, true)
-		if actual != i.location {
-			t.Errorf("Actual location %s does not equal expected: %s.", actual, i.location)
+		f := newTumorFinder()
+		m.getTypes(&f, i.line)
+		m.getLocations(&f, i.line)
+		_, loc, _ := f.toStrings()
+		if loc != i.location {
+			t.Errorf("Actual location %s does not equal expected: %s.", loc, i.location)
 		}
 	}
 }
