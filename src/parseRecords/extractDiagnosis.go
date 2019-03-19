@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/go-tools/iotools"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func countNA(r record) (bool, bool) {
@@ -87,8 +88,9 @@ func (e *entries) checkAge(line []string) string {
 	return ret
 }
 
-func (e *entries) parseLine(line []string) (record, bool, bool) {
+func (e *entries) parseLine(wg *sync.WaitGroup, count, complete *int, line []string) {
 	// Extracts diagnosis info from line
+	defer wg.Done()
 	rec :=  newRecord()
 	var necropsy, found, complete bool
 	cancer := true
@@ -109,14 +111,21 @@ func (e *entries) parseLine(line []string) (record, bool, bool) {
 		line = append(line[:e.col.id], line[e.col.id+1:]...)
 		str := strings.Join(line, " ")
 		rec = e.parseDiagnosis(rec, str, cancer, necropsy)
-		// Prepend id
-		found, complete = countNA(rec)
+		found, com = countNA(rec)
+		if found == true {
+			// Append non-empty records and index counts
+			e.rec = append(e.rec, rec)
+			count++
+			if com == true {
+				complete++
+			}
+		}
 	}
-	return rec, found, complete
 }
 
 func (e *entries) extractDiagnosis(infile, outfile string) {
 	// Get diagnosis information using regexp struct
+	var wg sync.WaitGroup
 	var res [][]string
 	var count, total, complete int
 	first := true
@@ -130,19 +139,15 @@ func (e *entries) extractDiagnosis(infile, outfile string) {
 		if first == false {
 			total++
 			s := strings.Split(line, e.d)
-			rec, found, com := e.parseLine(s)
-			if found == true {
-				e.rec = append(e.rec, rec)
-				count++
-				if com == true {
-					complete++
-				}
-			}
+			wg.Add(1)
+			go e.parseLine(wg, &count, &complete, s)
 		} else {
 			e.parseHeader(line)
 			first = false
 		}
 	}
+	fmt.Println("\tWaiting for diagnosis results...")
+	wg.Wait()
 	fmt.Printf("\tFound data for %d of %d records.\n", count, total)
 	fmt.Printf("\tFound complete information for %d records.\n", complete)
 	iotools.WriteToCSV(outfile, head, res)
