@@ -8,6 +8,21 @@ import (
 	"testing"
 )
 
+func toRecord(row []string) record {
+	// Sorts slice into record struct
+	r := newRecord()
+	r.age = row[1]
+	r.sex = row[2]
+	r.castrated = row[3] 
+	r.location = row[4]
+	r.tumorType = row[5]
+	r.malignant = row[6]
+	r.primary = row[7]
+	r.metastasis = row[8]
+	r.necropsy = row[9]
+	return r
+}
+
 func TestCountNA(t *testing.T) {
 	// Tests coutn NA method
 	nas := []struct {
@@ -21,7 +36,7 @@ func TestCountNA(t *testing.T) {
 		{[]string{"NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"}, false, false},
 	}
 	for _, i := range nas {
-		found, complete := countNA(i.row)
+		found, complete := countNA(toRecord(i.row))
 		if found != i.found || complete != i.complete {
 			t.Errorf("countNA returned %v, %v instead of %v, %v.", found, complete, i.found, i.complete)
 		}
@@ -73,32 +88,33 @@ func TestParseDiagnosis(t *testing.T) {
 	e := newEntries("service")
 	matches := newMatches()
 	for _, i := range matches {
-		row := e.parseDiagnosis(strings.ToLower(i.line), "NA", true, false)
-		if row[0] != i.age && i.infant == false {
-			t.Errorf("Actual age %s does not equal expected %s", row[0], i.age)
-		} else if row[1] != i.sex {
-			t.Errorf("Actual sex %s does not equal expected %s", row[1], i.sex)
-		} else if row[2] != i.castrated {
-			t.Errorf("Actual neuter value %s does not equal expected %s", row[2], i.castrated)
-		} else if row[3] != i.location {
-			t.Errorf("Actual location %s does not equal expected %s", row[3], i.location)
-		} else if row[4] != i.typ {
-			t.Errorf("Actual type %s does not equal expected %s", row[4], i.typ)
-		} else if row[5] != i.malignant {
-			t.Errorf("Actual malignant value %s does not equal expected %s", row[5], i.malignant)
-		} else if row[6] != i.primary {
-			if row[4] != "NA" && row[7] == "N" {
+		rec := newRecord()
+		e.parseDiagnosis(&rec, strings.ToLower(i.line), true, false)
+		if rec.age != i.age && i.infant == false {
+			t.Errorf("Actual age %s does not equal expected %s", rec.age, i.age)
+		} else if rec.sex != i.sex {
+			t.Errorf("Actual sex %s does not equal expected %s", rec.sex, i.sex)
+		} else if rec.castrated != i.castrated {
+			t.Errorf("Actual neuter value %s does not equal expected %s", rec.castrated, i.castrated)
+		} else if rec.location != i.location {
+			t.Errorf("Actual location %s does not equal expected %s", rec.location, i.location)
+		} else if rec.typ != i.typ {
+			t.Errorf("Actual type %s does not equal expected %s", rec.typ, i.typ)
+		} else if rec.malignant != i.malignant {
+			t.Errorf("Actual malignant value %s does not equal expected %s", rec.malignant, i.malignant)
+		} else if rec.primary != i.primary {
+			if rec.typ != "NA" && rec.metastasis == "0" {
 				// Skip if function determined a single tumor to be primary
-				if row[6] != "Y" {
-					t.Errorf("Actual primary %s does not equal expected %s", row[6], i.primary)
+				if rec.primary != "1" {
+					t.Errorf("Actual primary %s does not equal expected %s", rec.primary, i.primary)
 				}
 			} else {
-				t.Errorf("Actual primary %s does not equal expected %s", row[6], i.primary)
+				t.Errorf("Actual primary %s does not equal expected %s", rec.primary, i.primary)
 			}
-		} else if row[7] != i.metastasis {
-			t.Errorf("Actual metastasis value %s does not equal expected %s", row[7], i.metastasis)
-		} else if row[8] != i.necropsy {
-			t.Errorf("%s: Actual necropsy value %s does not equal expected %s", i.line, row[8], i.necropsy)
+		} else if rec.metastasis != i.metastasis {
+			t.Errorf("Actual metastasis value %s does not equal expected %s", rec.metastasis, i.metastasis)
+		} else if rec.necropsy != i.necropsy {
+			t.Errorf("%s: Actual necropsy value %s does not equal expected %s", i.line, rec.necropsy, i.necropsy)
 		}
 	}
 }

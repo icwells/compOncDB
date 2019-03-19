@@ -34,12 +34,12 @@ func newMatches() []matches {
 	}
 }
 
-func TestGetType(t *testing.T) {
+func TestGetTypes(t *testing.T) {
 	// Tests getMatch method
 	m := newMatcher()
 	matches := newMatches()
 	for _, i := range matches {
-		actual, mal := m.getType(i.line, true)
+		actual, mal := m.getTypes(i.line, true)
 		if actual != i.typ {
 			t.Errorf("Actual type %s does not equal expected: %s.", actual, i.typ)
 		} else if mal != i.malignant {
@@ -48,12 +48,12 @@ func TestGetType(t *testing.T) {
 	}
 }
 
-func TestGetLocation(t *testing.T) {
+func TestGetLocations(t *testing.T) {
 	// Tests getMatch method
 	m := newMatcher()
 	matches := newMatches()
 	for _, i := range matches {
-		actual := m.getLocation(i.line, true)
+		actual := m.getLocations(i.line, true)
 		if actual != i.location {
 			t.Errorf("Actual location %s does not equal expected: %s.", actual, i.location)
 		}

@@ -15,10 +15,12 @@ type entries struct {
 	service     string
 	taxa        map[string][]string
 	diag        map[string][]string
-	rec			[]record
+	rec         []record
 	match       matcher
 	dups        duplicates
 	dupsPresent bool
+	found		int
+	complete	int
 }
 
 func newEntries(service string) entries {

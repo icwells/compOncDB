@@ -3,9 +3,7 @@
 package main
 
 import (
-	"github.com/lithammer/fuzzysearch/fuzzy"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -97,80 +95,6 @@ func (m *matcher) getMalignancy(line string) string {
 		}
 	}
 	return ret
-}
-
-func (m *matcher) getType(line string) (string, string) {
-	// Returns location from map
-	typ := "NA"
-	mal := "-1"
-	for k, v := range m.types {
-		match := m.getMatch(v.expression, line)
-		if match != "NA" {
-			typ = k
-			mal = v.malignant
-			if strings.Contains(line, " "+typ) == true {
-				// Only break for whole-word matches (i.e. "adenocarcinoma", but not "carcinoma")
-				break
-			}
-		}
-	}
-	if mal == "-1" {
-		mal = m.getMalignancy(line)
-	}
-	return typ, mal
-}
-
-func rankLocations(ranks fuzzy.Ranks) string {
-	// Gets most descriptive match with lowest Levenshtein distance
-	ret := "NA"
-	sort.Sort(ranks)
-	if len(ranks) == 1 {
-		// Return lone match
-		ret = ranks[0].Source
-	} else if ranks[0].Source != "widespread" && ranks[0].Source != "other" {
-		ret = ranks[0].Source
-	} else {
-		// Attempt to find more descriptive match
-		for _, i := range ranks {
-			ret = i.Source
-			if i.Source != "widespread" && i.Source != "other" {
-				break
-			}
-		}
-	}
-	return ret
-}
-
-func (m *matcher) getLocation(line string, cancer bool) string {
-	// Combines regexp and fuzzy searching to determine best match for location
-	ret := "NA"
-	var ranks fuzzy.Ranks
-	for k, v := range m.location {
-		match := m.getMatch(v, line)
-		if match != "NA" {
-			// Call RankFind to get get Ranks struct returned
-			rank := fuzzy.RankFindFold(k, []string{match})
-			if len(rank) >= 1 {
-				ranks = append(ranks, rank[0])
-			}
-		}
-	}
-	if len(ranks) >= 1 {
-		ret = rankLocations(ranks)
-	}
-	return ret
-}
-
-func (m *matcher) getTumor(line string, cancer bool) (string, string, string) {
-	// Returns type, location, and malignancy
-	typ := "NA"
-	loc := "NA"
-	mal = "-1"
-	if cancer == true {
-		typ, mal := m.getType(line)
-		
-	}
-	return typ, loc, mal
 }
 
 func (m *matcher) getCastrated(line string) string {

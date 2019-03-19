@@ -14,13 +14,13 @@ func countNA(r record) (bool, bool) {
 	// Determines if any or all fields have been identified
 	var found, complete bool
 	count := 0
-	l := len(rec) - 2
-	for _, i := range []string{r.age, r.sex, r.castrated, r.location, r.tumorType, r.malignant, r.primary, r.metastasis, r.necropsy} {
-		if i == "NA" {
+	targets := []string{r.age, r.sex, r.castrated, r.location, r.tumorType, r.malignant, r.metastasis, r.necropsy}
+	for _, i := range targets {
+		if i == "NA" || i == "-1" {
 			count++
 		}
 	}
-	if count < l {
+	if count < len(targets) {
 		found = true
 		if count == 0 {
 			complete = true
@@ -29,7 +29,7 @@ func countNA(r record) (bool, bool) {
 	return found, complete
 }
 
-func (e *entries) parseDiagnosis(rec record, line string, cancer, necropsy bool) []string {
+func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool) {
 	// Examines line for each diagnosis case
 	line = strings.ToLower(line)
 	if e.match.infantRecords(line) == true {
@@ -45,7 +45,7 @@ func (e *entries) parseDiagnosis(rec record, line string, cancer, necropsy bool)
 	rec.sex = e.match.getMatch(e.match.sex, line)
 	rec.castrated = e.match.getCastrated(line)
 	rec.tumorType, rec.location, rec.malignant = e.match.getTumor(line, cancer)
-	rec.metastasis := e.match.binaryMatch(e.match.metastasis, line)
+	rec.metastasis = e.match.binaryMatch(e.match.metastasis, line)
 	if rec.metastasis == "1" {
 		// Assume malignancy if metastasis is detected
 		rec.malignant = "1"
@@ -64,7 +64,6 @@ func (e *entries) parseDiagnosis(rec record, line string, cancer, necropsy bool)
 	} else {
 		rec.necropsy = e.match.getNecropsy(line)
 	}
-	return rec
 }
 
 func (e *entries) checkAge(line []string) string {
@@ -88,11 +87,11 @@ func (e *entries) checkAge(line []string) string {
 	return ret
 }
 
-func (e *entries) parseLine(wg *sync.WaitGroup, count, complete *int, line []string) {
+func (e *entries) parseLine(wg *sync.WaitGroup, line []string) {
 	// Extracts diagnosis info from line
 	defer wg.Done()
-	rec :=  newRecord()
-	var necropsy, found, complete bool
+	rec := newRecord()
+	var necropsy bool
 	cancer := true
 	idx := e.col.id
 	if e.service == "NWZP" && e.col.code > idx {
@@ -100,8 +99,8 @@ func (e *entries) parseLine(wg *sync.WaitGroup, count, complete *int, line []str
 		idx = e.col.code
 	}
 	if len(line) > idx {
-		rec.id := line[e.col.id]
-		rec.age := e.checkAge(line)
+		rec.id = line[e.col.id]
+		rec.age = e.checkAge(line)
 		if e.service == "NWZP" {
 			// Get neoplasia and euthnasia codes from NWZP
 			cancer = strings.Contains(line[e.col.code], "8")
@@ -110,14 +109,14 @@ func (e *entries) parseLine(wg *sync.WaitGroup, count, complete *int, line []str
 		// Remove ID and join line
 		line = append(line[:e.col.id], line[e.col.id+1:]...)
 		str := strings.Join(line, " ")
-		rec = e.parseDiagnosis(rec, str, cancer, necropsy)
-		found, com = countNA(rec)
+		e.parseDiagnosis(&rec, str, cancer, necropsy)
+		found, com := countNA(rec)
 		if found == true {
 			// Append non-empty records and index counts
 			e.rec = append(e.rec, rec)
-			count++
+			e.found++
 			if com == true {
-				complete++
+				e.complete++
 			}
 		}
 	}
@@ -126,8 +125,7 @@ func (e *entries) parseLine(wg *sync.WaitGroup, count, complete *int, line []str
 func (e *entries) extractDiagnosis(infile, outfile string) {
 	// Get diagnosis information using regexp struct
 	var wg sync.WaitGroup
-	var res [][]string
-	var count, total, complete int
+	var total int
 	first := true
 	head := "ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Necropsy"
 	fmt.Println("\n\tExtracting diagnosis data...")
@@ -140,7 +138,7 @@ func (e *entries) extractDiagnosis(infile, outfile string) {
 			total++
 			s := strings.Split(line, e.d)
 			wg.Add(1)
-			go e.parseLine(wg, &count, &complete, s)
+			go e.parseLine(&wg, s)
 		} else {
 			e.parseHeader(line)
 			first = false
@@ -148,7 +146,7 @@ func (e *entries) extractDiagnosis(infile, outfile string) {
 	}
 	fmt.Println("\tWaiting for diagnosis results...")
 	wg.Wait()
-	fmt.Printf("\tFound data for %d of %d records.\n", count, total)
-	fmt.Printf("\tFound complete information for %d records.\n", complete)
-	iotools.WriteToCSV(outfile, head, res)
+	fmt.Printf("\tFound data for %d of %d records.\n", e.found, total)
+	fmt.Printf("\tFound complete information for %d records.\n", e.complete)
+	iotools.WriteToCSV(outfile, head, e.toSlice())
 }
