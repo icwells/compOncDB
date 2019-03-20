@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func toRecord(row []string) record {
+func toRecord(row []string) *record {
 	// Sorts slice into record struct
 	r := newRecord()
 	r.age = row[1]
@@ -20,7 +20,7 @@ func toRecord(row []string) record {
 	r.primary = row[7]
 	r.metastasis = row[8]
 	r.necropsy = row[9]
-	return r
+	return &r
 }
 
 func TestCountNA(t *testing.T) {

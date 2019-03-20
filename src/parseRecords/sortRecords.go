@@ -5,7 +5,9 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
+	"os"
 	"strings"
+	"sync"
 )
 
 func subsetLine(idx int, line []string) string {
@@ -20,8 +22,9 @@ func subsetLine(idx int, line []string) string {
 	return ret
 }
 
-func (e *entries) sortLine(line []string) (record, bool) {
+func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, out *os.File, line []string) {
 	// Returns formatted string and true if it should be written
+	defer wg.Done()
 	write := false
 	rec := newRecord()
 	var idx int
@@ -37,13 +40,7 @@ func (e *entries) sortLine(line []string) (record, bool) {
 		// Proceed if line is properly formatted and species is present
 		id := subsetLine(e.col.id, line)
 		rec.setID(id)
-		if id != "NA" {
-			row, ex := e.diag[rec.id]
-			if ex == true {
-				// Assign diagnosis data if id is present in map
-				rec.setDiagnosis(row)
-			}
-		}
+		e.parseLine(&rec, line)
 		// Replace entry with scientific name
 		sp, ex := e.taxa[line[idx]]
 		if ex == true {
@@ -67,19 +64,26 @@ func (e *entries) sortLine(line []string) (record, bool) {
 			write = true
 		}
 	}
-	return rec, write
+	if write == true {
+		mut.Lock()
+		out.WriteString(rec.String() + "\n")
+		mut.Unlock()
+		e.extracted++
+	}
 }
 
 func (e *entries) getHeader() string {
 	// Returns appropriate header for available data
-	head := "Sex,Age,Castrated,ID,Family,Genus,Species,Name,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
+	head := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
 	return head
 }
 
 func (e *entries) sortRecords(infile, outfile string) {
 	// Sorts data and merges if necessary
 	first := true
-	var count, total int
+	var wg sync.WaitGroup
+	var mut sync.RWMutex
+	var total int
 	fmt.Println("\tSorting input records...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -91,25 +95,25 @@ func (e *entries) sortRecords(infile, outfile string) {
 		if first == false {
 			total++
 			s := strings.Split(strings.Replace(line, "\"", "", -1), e.d)
-			rec, write := e.sortLine(s)
-			if write == true {
-				out.WriteString(rec.String() + "\n")
-				count++
-			}
+			wg.Add(1)
+			go e.sortLine(&wg, &mut, out, s)
 		} else {
 			// Get column info and write header
 			e.parseHeader(line)
 			first = false
 		}
 	}
+	wg.Wait()
 	if e.dupsPresent == true {
 		for _, val := range e.dups.records {
 			// Write each stored record before closing
 			for _, v := range val {
 				out.WriteString(v.String() + "\n")
-				count++
+				e.extracted++
 			}
 		}
 	}
-	fmt.Printf("\tExtracted %d records from %d total records.\n", count, total)
+	fmt.Printf("\tExtracted %d records from %d total records.\n", e.extracted, total)
+	fmt.Printf("\tFound diagnosis data for %d of %d records.\n", e.found, total)
+	fmt.Printf("\tFound complete information for %d records.\n", e.complete)
 }

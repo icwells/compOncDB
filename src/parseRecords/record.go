@@ -4,7 +4,6 @@ package main
 
 import (
 	"bytes"
-	"strconv"
 	"strings"
 )
 
@@ -129,10 +128,10 @@ func (r *record) String() string {
 	return buffer.String()
 }
 
-func (r *record) getDiagnosis() []string {
+/*func (r *record) getDiagnosis() []string {
 	// Returns slice of diagnosis data
 	return []string{r.id, r.age, r.sex, r.castrated, r.location, r.tumorType, r.malignant, r.primary, r.metastasis, r.necropsy}
-}
+}*/
 
 func (r *record) setPatient(line []string, c columns) {
 	// Attempts to identify patient id
@@ -211,7 +210,7 @@ func (r *record) setID(val string) {
 	r.id = checkString(val)
 }
 
-func (r *record) setAge(val string) {
+/*func (r *record) setAge(val string) {
 	// Returns age/-1
 	if strings.ToUpper(val) == "NA" || len(val) > 7 {
 		// Set -1 if age is too long (age would be impossible)
@@ -254,4 +253,4 @@ func (r *record) setDiagnosis(row []string) {
 	r.metastasis = checkBinary(row[7])
 	r.necropsy = checkBinary(row[8])
 	r.setMassPresent()
-}
+}*/

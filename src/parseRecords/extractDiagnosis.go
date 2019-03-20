@@ -3,14 +3,11 @@
 package main
 
 import (
-	"fmt"
-	"github.com/icwells/go-tools/iotools"
 	"strconv"
 	"strings"
-	"sync"
 )
 
-func countNA(r record) (bool, bool) {
+func countNA(r *record) (bool, bool) {
 	// Determines if any or all fields have been identified
 	var found, complete bool
 	count := 0
@@ -87,47 +84,34 @@ func (e *entries) checkAge(line []string) string {
 	return ret
 }
 
-func (e *entries) parseLine(wg *sync.WaitGroup, line []string) {
+func (e *entries) parseLine(rec *record, line []string) {
 	// Extracts diagnosis info from line
-	defer wg.Done()
-	rec := newRecord()
 	var necropsy bool
 	cancer := true
-	idx := e.col.id
-	if e.service == "NWZP" && e.col.code > idx {
-		// Get larger index
-		idx = e.col.code
+	rec.age = e.checkAge(line)
+	if e.service == "NWZP" {
+		// Get neoplasia and euthnasia codes from NWZP
+		cancer = strings.Contains(line[e.col.code], "8")
+		necropsy = strings.Contains(line[e.col.code], "14")
 	}
-	if len(line) > idx {
-		rec.id = line[e.col.id]
-		rec.age = e.checkAge(line)
-		if e.service == "NWZP" {
-			// Get neoplasia and euthnasia codes from NWZP
-			cancer = strings.Contains(line[e.col.code], "8")
-			necropsy = strings.Contains(line[e.col.code], "14")
-		}
-		// Remove ID and join line
-		line = append(line[:e.col.id], line[e.col.id+1:]...)
-		str := strings.Join(line, " ")
-		e.parseDiagnosis(&rec, str, cancer, necropsy)
-		found, com := countNA(rec)
-		if found == true {
-			// Append non-empty records and index counts
-			e.rec = append(e.rec, rec)
-			e.found++
-			if com == true {
-				e.complete++
-			}
+	// Remove ID and join line
+	line = append(line[:e.col.id], line[e.col.id+1:]...)
+	str := strings.Join(line, " ")
+	e.parseDiagnosis(rec, str, cancer, necropsy)
+	found, com := countNA(rec)
+	if found == true {
+		e.found++
+		if com == true {
+			e.complete++
 		}
 	}
 }
 
-func (e *entries) extractDiagnosis(infile, outfile string) {
+/*func (e *entries) extractDiagnosis(infile string) {
 	// Get diagnosis information using regexp struct
 	var wg sync.WaitGroup
 	var total int
 	first := true
-	head := "ID,Age(months),Sex,Castrated,Location,Type,Malignant,PrimaryTumor,Metastasis,Necropsy"
 	fmt.Println("\n\tExtracting diagnosis data...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -148,5 +132,4 @@ func (e *entries) extractDiagnosis(infile, outfile string) {
 	wg.Wait()
 	fmt.Printf("\tFound data for %d of %d records.\n", e.found, total)
 	fmt.Printf("\tFound complete information for %d records.\n", e.complete)
-	iotools.WriteToCSV(outfile, head, e.toSlice())
-}
+}*/

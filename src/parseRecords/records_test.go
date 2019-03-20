@@ -111,7 +111,7 @@ func compareRecords(t *testing.T, a, e record) {
 	}
 }
 
-func testRecords(rows [][]string) []record {
+/*func testRecords(rows [][]string) []record {
 	// Returns struct of record test cases
 	var ret []record
 	for idx := range rows {
@@ -172,4 +172,4 @@ func TestSetDiagnosis(t *testing.T) {
 		actual.setDiagnosis(i)
 		compareRecords(t, actual, expected[idx])
 	}
-}
+}*/

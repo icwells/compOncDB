@@ -15,12 +15,7 @@ var (
 	service = kingpin.Flag("service", "Service database name.").Short('s').Required().String()
 	infile  = kingpin.Flag("infile", "Path to input file.").Short('i').Required().String()
 	outfile = kingpin.Flag("outfile", "Path to output file.").Short('o').Required().String()
-
-	extract = kingpin.Command("extract", "Extract diagnosis data from infile.")
-
-	merge = kingpin.Command("merge", "Merges taxonomy and diagnosis info with infile and accounts for duplicate records.")
-	taxa  = merge.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
-	diag  = merge.Flag("diagnoses", "Path to diagnosis data.").Short('d').Required().String()
+	taxa    = kingpin.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
 )
 
 func printFatal(msg string, code int) {
@@ -29,23 +24,11 @@ func printFatal(msg string, code int) {
 	os.Exit(code)
 }
 
-func mergeRecords(ent entries) {
-	// Merges data into upload file
-	fmt.Println("\n\tMerging records...")
-	ent.getTaxonomy(*taxa)
-	ent.getDiagnosis(*diag)
-	ent.sortRecords(*infile, *outfile)
-}
-
 func main() {
 	start := time.Now()
-	switch kingpin.Parse() {
-	case extract.FullCommand():
-		ent := newEntries(*service)
-		ent.extractDiagnosis(*infile, *outfile)
-	case merge.FullCommand():
-		ent := newEntries(*service)
-		mergeRecords(ent)
-	}
+	kingpin.Parse()
+	ent := newEntries(*service)
+	ent.getTaxonomy(*taxa)
+	ent.sortRecords(*infile, *outfile)
 	fmt.Printf("\tFinished. Run time: %s\n\n", time.Since(start))
 }

@@ -14,11 +14,10 @@ type entries struct {
 	col         columns
 	service     string
 	taxa        map[string][]string
-	diag        map[string][]string
-	rec         []record
 	match       matcher
 	dups        duplicates
 	dupsPresent bool
+	extracted	int
 	found       int
 	complete    int
 }
@@ -32,15 +31,6 @@ func newEntries(service string) entries {
 	e.dups = newDuplicates()
 	e.dupsPresent = false
 	return e
-}
-
-func (e *entries) toSlice() [][]string {
-	// Returns slice of string slices for printing diagnosis data
-	var ret [][]string
-	for _, i := range e.rec {
-		ret = append(ret, i.getDiagnosis())
-	}
-	return ret
 }
 
 func (e *entries) parseHeader(header string) {
@@ -75,34 +65,12 @@ func (e *entries) getTaxonomy(infile string) {
 		line := string(scanner.Text())
 		if first == false {
 			s := strings.Split(line, d)
-			e.taxa[s[0]] = []string{s[col["Family"]], s[col["Genus"]], s[col["Species"]]}
+			e.taxa[s[0]] = []string{s[col["Genus"]], s[col["Species"]]}
 		} else {
 			d = iotools.GetDelim(line)
 			for idx, i := range strings.Split(line, d) {
 				col[strings.TrimSpace(i)] = idx
 			}
-			first = false
-		}
-	}
-}
-
-func (e *entries) getDiagnosis(infile string) {
-	// Reads in diagnosis data
-	var d string
-	first := true
-	e.diag = make(map[string][]string)
-	fmt.Println("\tReading diagnosis file...")
-	f := iotools.OpenFile(infile)
-	defer f.Close()
-	scanner := iotools.GetScanner(f)
-	for scanner.Scan() {
-		line := string(scanner.Text())
-		if first == false {
-			s := strings.Split(line, d)
-			// Store daignosis data by ids
-			e.diag[s[0]] = s[1:]
-		} else {
-			d = iotools.GetDelim(line)
 			first = false
 		}
 	}
