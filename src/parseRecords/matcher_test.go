@@ -34,33 +34,18 @@ func newMatches() []matches {
 	}
 }
 
-func TestGetTypes(t *testing.T) {
+func TestTumor(t *testing.T) {
 	// Tests getMatch method
 	m := newMatcher()
 	matches := newMatches()
 	for _, i := range matches {
-		f := newTumorFinder()
-		m.getTypes(&f, i.line)
-		typ, _, mal := f.toStrings()
+		typ, loc, mal := m.getTumor(i.line, true)
 		if typ != i.typ {
 			t.Errorf("Actual type %s does not equal expected: %s.", typ, i.typ)
+		} else if loc != i.location {
+			t.Errorf("Actual location %s does not equal expected: %s.", loc, i.location)
 		} else if mal != i.malignant {
 			t.Errorf("Actual malignant value %s does not equal expected: %s.", mal, i.malignant)
-		}
-	}
-}
-
-func TestGetLocations(t *testing.T) {
-	// Tests getMatch method
-	m := newMatcher()
-	matches := newMatches()
-	for _, i := range matches {
-		f := newTumorFinder()
-		m.getTypes(&f, i.line)
-		m.getLocations(&f, i.line)
-		_, loc, _ := f.toStrings()
-		if loc != i.location {
-			t.Errorf("Actual location %s does not equal expected: %s.", loc, i.location)
 		}
 	}
 }

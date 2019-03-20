@@ -52,7 +52,7 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 	}
 	if rec.tumorType != "NA" {
 		// Only check for primary tumor if a tumor was found
-		if rec.metastasis == "0" {
+		if rec.metastasis == "0" && strings.Count(rec.tumorType, ";") == 0 && strings.Count(rec.location, ";") == 0 {
 			// Store yes for primary if a tumor was found but no metastasis
 			rec.primary = "1"
 		} else if e.match.getMatch(e.match.primary, line) != "NA" {

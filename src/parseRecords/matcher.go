@@ -10,7 +10,7 @@ import (
 
 type matcher struct {
 	location   map[string]*regexp.Regexp
-	types      map[string]diagnosis
+	types      map[string]map[string]diagnosis
 	infant     *regexp.Regexp
 	digit      *regexp.Regexp
 	age        *regexp.Regexp

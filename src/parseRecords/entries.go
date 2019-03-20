@@ -19,8 +19,8 @@ type entries struct {
 	match       matcher
 	dups        duplicates
 	dupsPresent bool
-	found		int
-	complete	int
+	found       int
+	complete    int
 }
 
 func newEntries(service string) entries {

@@ -50,50 +50,53 @@ func (t *tumorFinder) getSearchIndeces(idx int, line string) (int, int) {
 	return start, end
 }
 
-func (t *tumorFinder) removePartials()  {
-	// Removes partial matches from types and matches
-	var rm []int
-	for idx, i := range t.types {
-		for _, s := range []string{"adenoma", "carcinoma", "sarcoma"} {
-			if i == s {
-				for jdx, j := range t.types {
-					if j != s && strings.Contains(j, s) == true {
-						rm = append(rm, idx)
-						break
-					}
+//----------------------------------------------------------------------------
+
+func (m *matcher) setMalignant(t *tumorFinder, line string) {
+	// Sets malignant value for tumorFinder
+	for _, i := range t.types {
+		for k := range m.types {
+			// Get sub-map
+			if _, ex := m.types[k][i]; ex == true {
+				vm, _ := strconv.Atoi(m.types[k][i].malignant)
+				tm, _ := strconv.Atoi(t.malignant)
+				if vm > tm {
+					// Malignant > non-malignant > NA
+					t.malignant = m.types[k][i].malignant
 				}
+				break
 			}
 		}
-	if len(rm > 0 {
-		for _, i := range rm {
-			t.types = append(t.types[:i], t.types
-		}
+	}
+	if t.malignant == "-1" {
+		t.malignant = m.getMalignancy(line)
 	}
 }
 
-//----------------------------------------------------------------------------
-
 func (m *matcher) getTypes(t *tumorFinder, line string) {
 	// Returns types from map
-	for k, v := range m.types {
-		match := m.getMatch(v.expression, line)
-		if match != "NA" {
-			t.matches = append(t.matches, match)
-			t.types = append(t.types, k)
+	for key := range m.types {
+		found := false
+		var term, typ string
+		for k, v := range m.types[key] {
+			match := m.getMatch(v.expression, line)
+			if match != "NA" {
+				if key == "other" || k != key {
+					// Keep specific diagnosis terms
+					t.matches = append(t.matches, match)
+					t.types = append(t.types, k)
+					found = true
+				} else {
+					// Store potentially overlapping terms
+					term = match
+					typ = k
+				}
+			}
 		}
-	}
-	t.removePartials()
-	// Get malignant values after removing partial matches
-	for _, i := range t.types {
-		vm, _ := strconv.Atoi(m.types[i].malignant)
-		tm, _ := strconv.Atoi(t.malignant)
-		if vm > tm {
-			// Malignant > non-malignant > NA
-			t.malignant = m.types[i].malignant
+		if found == false && len(typ) > 1 {
+			t.matches = append(t.matches, term)
+			t.types = append(t.types, typ)
 		}
-	}
-	if t.malignant == "-1" && len(t.types) > 0 {
-		t.malignant = m.getMalignancy(line)
 	}
 }
 
@@ -126,6 +129,7 @@ func (m *matcher) getTumor(line string, cancer bool) (string, string, string) {
 	if cancer == true {
 		m.getTypes(&t, line)
 		if len(t.types) > 0 {
+			m.setMalignant(&t, line)
 			m.getLocations(&t, line)
 		}
 	}

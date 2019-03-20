@@ -13,7 +13,7 @@ func toRecord(row []string) record {
 	r := newRecord()
 	r.age = row[1]
 	r.sex = row[2]
-	r.castrated = row[3] 
+	r.castrated = row[3]
 	r.location = row[4]
 	r.tumorType = row[5]
 	r.malignant = row[6]

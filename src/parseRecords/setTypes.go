@@ -46,15 +46,35 @@ func (m *matcher) setTypes() {
 		"vulva":           regexp.MustCompile(`(?i)vulva|vagina`),
 		"widespread":      regexp.MustCompile(`(?i)widespread|metastatic|body as a whole|multiple|disseminated`),
 	}
-	m.types = map[string]diagnosis{
-		"adenoma":              {regexp.MustCompile(`(?i)adenoma`), "0"},
+	m.types = make(map[string]map[string]diagnosis)
+	m.types["adenoma"] = map[string]diagnosis{
+		"adenoma":     {regexp.MustCompile(`(?i)adenoma`), "0"},
+		"cystadenoma": {regexp.MustCompile(`(?i)cystadenoma`), "0"},
+	}
+	m.types["carcinoma"] = map[string]diagnosis{
+		"adenocarcinoma":      {regexp.MustCompile(`(?i)adenocarcinoma`), "1"},
+		"carcinoma":           {regexp.MustCompile(`(?i)carcinoma|TCC`), "1"},
+		"carcinomatosis":      {regexp.MustCompile(`(?i)carinomatosis`), "1"},
+		"fibroadenocarcinoma": {regexp.MustCompile(`(?i)fibroadenocarcinoma`), "1"},
+	}
+	m.types["sarcoma"] = map[string]diagnosis{
+		"sarcoma":          {regexp.MustCompile(`(?i)sarcoma`), "1"},
+		"lymphoma":         {regexp.MustCompile(`(?i)lymphoma|lymphosarcoma`), "1"},
+		"chondrosarcoma":   {regexp.MustCompile(`(?i)chondrosarcoma`), "1"},
+		"fibrosarcoma":     {regexp.MustCompile(`(?i)fibrosarcoma`), "1"},
+		"hemangiosarcoma":  {regexp.MustCompile(`(?i)Hemangiosarcoma`), "1"},
+		"leiomyosarcoma":   {regexp.MustCompile(`(?i)leiomyosarcoma`), "1"},
+		"myxosarcoma":      {regexp.MustCompile(`(?i)myxosarcoma`), "1"},
+		"osteosarcoma":     {regexp.MustCompile(`(?i)osteosarcoma`), "1"},
+		"rhabdomyosarcoma": {regexp.MustCompile(`(?i)rhabdomyosarcoma`), "1"},
+	}
+	m.types["other"] = map[string]diagnosis{
 		"polyp":                {regexp.MustCompile(`(?i)polyp`), "0"},
 		"cyst":                 {regexp.MustCompile(`(?i)cyst`), "0"},
 		"papilloma":            {regexp.MustCompile(`(?i)papilloma`), "0"},
 		"epulis":               {regexp.MustCompile(`(?i)epuli.*`), "0"},
 		"meningioma":           {regexp.MustCompile(`(?i)meningioma`), "0"},
 		"hyperplasia":          {regexp.MustCompile(`(?i)(meta|dys|hyper)plas(ia|tic)`), "0"},
-		"cystadenoma":          {regexp.MustCompile(`(?i)cystadenoma`), "0"},
 		"trichoepithelioma":    {regexp.MustCompile(`(?i)trichoepithelioma`), "0"},
 		"lipoma":               {regexp.MustCompile(`(?i)lipoma`), "0"},
 		"fibropapilloma ":      {regexp.MustCompile(`(?i)fibropapilloma `), "0"},
@@ -69,27 +89,14 @@ func (m *matcher) setTypes() {
 		"chromatophroma":       {regexp.MustCompile(`(?i)chromatophroma`), "0"},
 		"hamartoma ":           {regexp.MustCompile(`(?i)hamartoma `), "0"},
 		"neoplasia":            {regexp.MustCompile(`(?i)neoplasia|neoplasm|tumor`), "-1"},
-		"adenocarcinoma":       {regexp.MustCompile(`(?i)adenocarcinoma`), "1"},
-		"carcinoma":            {regexp.MustCompile(`(?i)carcinoma|TCC`), "1"},
-		"lymphoma":             {regexp.MustCompile(`(?i)lymphoma|lymphosarcoma`), "1"},
 		"leukemia":             {regexp.MustCompile(`(?i)leukemia`), "1"},
-		"sarcoma":              {regexp.MustCompile(`(?i)sarcoma`), "1"},
-		"carcinomatosis":       {regexp.MustCompile(`(?i)carinomatosis`), "1"},
-		"chondrosarcoma":       {regexp.MustCompile(`(?i)chondrosarcoma`), "1"},
 		"chordoma":             {regexp.MustCompile(`(?i)chordoma`), "1"},
 		"disseminated":         {regexp.MustCompile(`(?i)disseminated`), "1"},
-		"fibroadenocarcinoma":  {regexp.MustCompile(`(?i)fibroadenocarcinoma`), "1"},
-		"fibrosarcoma":         {regexp.MustCompile(`(?i)fibrosarcoma`), "1"},
 		"granulosa cell tumor": {regexp.MustCompile(`(?i)Granulosa cell tumor`), "1"},
-		"hemangiosarcoma":      {regexp.MustCompile(`(?i)Hemangiosarcoma`), "1"},
-		"leiomyosarcoma":       {regexp.MustCompile(`(?i)leiomyosarcoma`), "1"},
 		"fibrous histiocytoma": {regexp.MustCompile(`(?i)(fibrous )?histiocytoma`), "-1"},
 		"melanoma":             {regexp.MustCompile(`(?i)melanoma`), "1"},
-		"myxosarcoma":          {regexp.MustCompile(`(?i)myxosarcoma`), "1"},
 		"nephroblastoma":       {regexp.MustCompile(`(?i)(nephroblastoma|(Wilm’s Tumor ))`), "1"},
-		"osteosarcoma":         {regexp.MustCompile(`(?i)osteosarcoma`), "1"},
 		"pheochromocytoma":     {regexp.MustCompile(`(?i)pheochromocytoma`), "1"},
-		"rhabdomyosarcoma":     {regexp.MustCompile(`(?i)rhabdomyosarcoma`), "1"},
 		"seminoma":             {regexp.MustCompile(`(?i)seminoma`), "1"},
 	}
 }
