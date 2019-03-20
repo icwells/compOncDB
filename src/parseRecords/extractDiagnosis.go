@@ -42,6 +42,9 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 	rec.sex = e.match.getMatch(e.match.sex, line)
 	rec.castrated = e.match.getCastrated(line)
 	rec.tumorType, rec.location, rec.malignant = e.match.getTumor(line, cancer)
+	if rec.tumorType != "NA" {
+		rec.massPresent = "1"
+	}
 	rec.metastasis = e.match.binaryMatch(e.match.metastasis, line)
 	if rec.metastasis == "1" {
 		// Assume malignancy if metastasis is detected

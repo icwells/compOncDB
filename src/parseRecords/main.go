@@ -27,6 +27,7 @@ func printFatal(msg string, code int) {
 func main() {
 	start := time.Now()
 	kingpin.Parse()
+	fmt.Print("\n\tProcessing input records...\n")
 	ent := newEntries(*service)
 	ent.getTaxonomy(*taxa)
 	ent.sortRecords(*infile, *outfile)

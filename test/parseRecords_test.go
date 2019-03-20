@@ -45,21 +45,3 @@ func TestMergeRecords(t *testing.T) {
 		}
 	}
 }
-
-func TestExtractDiagnosis(t *testing.T) {
-	// Compares output of parseRecords extract with expected output
-	flag.Parse()
-	header := []string{"ID", "Age(months)", "Sex", "Castrated", "Location", "Type", "Malignant", "PrimaryTumor", "Metastasis", "Necropsy"}
-	expected := getInput(*exp, 0)
-	actual := getInput(*act, 0)
-	if len(actual) != len(expected) {
-		t.Errorf("Actual length %d does not equal expected: %d", len(actual), len(expected))
-	}
-	for key, line := range actual {
-		for idx, i := range line {
-			if i != expected[key][idx] {
-				t.Errorf("%s: Actual %s value %s does not equal expected: %s", key, header[idx], i, expected[key][idx])
-			}
-		}
-	}
-}

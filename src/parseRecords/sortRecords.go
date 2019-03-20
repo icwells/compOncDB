@@ -84,7 +84,7 @@ func (e *entries) sortRecords(infile, outfile string) {
 	var wg sync.WaitGroup
 	var mut sync.RWMutex
 	var total int
-	fmt.Println("\tSorting input records...")
+	fmt.Println("\tParsing input records...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	out := e.getOutputFile(outfile, e.getHeader())
@@ -114,6 +114,6 @@ func (e *entries) sortRecords(infile, outfile string) {
 		}
 	}
 	fmt.Printf("\tExtracted %d records from %d total records.\n", e.extracted, total)
-	fmt.Printf("\tFound diagnosis data for %d of %d records.\n", e.found, total)
+	fmt.Printf("\tFound diagnosis data for %d records.\n", e.found)
 	fmt.Printf("\tFound complete information for %d records.\n", e.complete)
 }
