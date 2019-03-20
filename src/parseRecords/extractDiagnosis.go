@@ -94,8 +94,10 @@ func (e *entries) parseLine(rec *record, line []string) {
 		cancer = strings.Contains(line[e.col.code], "8")
 		necropsy = strings.Contains(line[e.col.code], "14")
 	}
-	// Remove ID and join line
-	line = append(line[:e.col.id], line[e.col.id+1:]...)
+	// Remove ID and join line (make copy to preserve column indeces)
+	row := make([]string, len(line))
+	copy(row, line)
+	row = append(row[:e.col.id], row[e.col.id+1:]...)
 	str := strings.Join(line, " ")
 	e.parseDiagnosis(rec, str, cancer, necropsy)
 	found, com := countNA(rec)
@@ -106,30 +108,3 @@ func (e *entries) parseLine(rec *record, line []string) {
 		}
 	}
 }
-
-/*func (e *entries) extractDiagnosis(infile string) {
-	// Get diagnosis information using regexp struct
-	var wg sync.WaitGroup
-	var total int
-	first := true
-	fmt.Println("\n\tExtracting diagnosis data...")
-	f := iotools.OpenFile(infile)
-	defer f.Close()
-	scanner := iotools.GetScanner(f)
-	for scanner.Scan() {
-		line := string(scanner.Text())
-		if first == false {
-			total++
-			s := strings.Split(line, e.d)
-			wg.Add(1)
-			go e.parseLine(&wg, s)
-		} else {
-			e.parseHeader(line)
-			first = false
-		}
-	}
-	fmt.Println("\tWaiting for diagnosis results...")
-	wg.Wait()
-	fmt.Printf("\tFound data for %d of %d records.\n", e.found, total)
-	fmt.Printf("\tFound complete information for %d records.\n", e.complete)
-}*/

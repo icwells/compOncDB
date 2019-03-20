@@ -96,7 +96,7 @@ func (e *entries) sortRecords(infile, outfile string) {
 			total++
 			s := strings.Split(strings.Replace(line, "\"", "", -1), e.d)
 			wg.Add(1)
-			go e.sortLine(&wg, &mut, out, s)
+			e.sortLine(&wg, &mut, out, s)
 		} else {
 			// Get column info and write header
 			e.parseHeader(line)

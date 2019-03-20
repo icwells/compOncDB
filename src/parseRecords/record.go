@@ -35,7 +35,6 @@ type record struct {
 	age         string
 	castrated   string
 	id          string
-	family      string
 	genus       string
 	species     string
 	name        string
@@ -62,7 +61,6 @@ func newRecord() record {
 	r.age = "-1"
 	r.castrated = "-1"
 	r.id = "NA"
-	r.family = "NA"
 	r.genus = "NA"
 	r.species = "NA"
 	r.date = "NA"
@@ -91,8 +89,6 @@ func (r *record) String() string {
 	buffer.WriteString(r.castrated)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.id)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.family)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.genus)
 	buffer.WriteByte(',')
@@ -127,11 +123,6 @@ func (r *record) String() string {
 	buffer.WriteString(r.submitter)
 	return buffer.String()
 }
-
-/*func (r *record) getDiagnosis() []string {
-	// Returns slice of diagnosis data
-	return []string{r.id, r.age, r.sex, r.castrated, r.location, r.tumorType, r.malignant, r.primary, r.metastasis, r.necropsy}
-}*/
 
 func (r *record) setPatient(line []string, c columns) {
 	// Attempts to identify patient id
@@ -200,57 +191,11 @@ func (r *record) setType(val string) {
 
 func (r *record) setSpecies(t []string) {
 	// Stores family, genus, and species
-	r.family = t[0]
-	r.genus = t[1]
-	r.species = t[2]
+	r.genus = t[0]
+	r.species = t[1]
 }
 
 func (r *record) setID(val string) {
 	// Stores ID as string
 	r.id = checkString(val)
 }
-
-/*func (r *record) setAge(val string) {
-	// Returns age/-1
-	if strings.ToUpper(val) == "NA" || len(val) > 7 {
-		// Set -1 if age is too long (age would be impossible)
-		r.age = "-1"
-	} else if _, err := strconv.ParseFloat(val, 64); err == nil {
-		r.age = val
-	} else {
-		r.age = "-1"
-	}
-}
-
-func (r *record) setSex(val string) {
-	// Returns male/female/NA
-	val = strings.ToUpper(val)
-	if val == "M" || val == "MALE" {
-		r.sex = "male"
-	} else if val == "F" || val == "FEMALE" {
-		r.sex = "female"
-	} else {
-		r.sex = "NA"
-	}
-}
-
-func (r *record) setMassPresent() {
-	// Determines if mass is present by evaluating diagnosis settings
-	if r.tumorType != "NA" || r.malignant == "1" || r.metastasis == "1" || r.primary == "1" {
-		r.massPresent = "1"
-	}
-}
-
-func (r *record) setDiagnosis(row []string) {
-	// Stores and formats input from diagnosis
-	r.setAge(row[0])
-	r.setSex(row[1])
-	r.castrated = checkBinary(row[2])
-	r.setLocation(row[3])
-	r.setType(row[4])
-	r.malignant = checkBinary(row[5])
-	r.primary = checkBinary(row[6])
-	r.metastasis = checkBinary(row[7])
-	r.necropsy = checkBinary(row[8])
-	r.setMassPresent()
-}*/

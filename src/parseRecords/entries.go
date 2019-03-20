@@ -17,7 +17,7 @@ type entries struct {
 	match       matcher
 	dups        duplicates
 	dupsPresent bool
-	extracted	int
+	extracted   int
 	found       int
 	complete    int
 }

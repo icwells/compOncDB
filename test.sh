@@ -31,7 +31,6 @@ PATIENTS="$TESTDIR/testUpload.csv"
 
 SERVICE="NWZP"
 INPUT="$TESTDIR/testInput.csv"
-DOUT="$TESTDIR/diagnoses.csv"
 MOUT="$TESTDIR/merged.csv"
 CASES="$TESTDIR/searchCases.csv"
 UPDATE="$TESTDIR/testUpdate.csv"
@@ -48,12 +47,9 @@ whiteBoxTests () {
 testParseRecords () {
 	echo ""
 	echo "Running black box tests on parseRecords..."
-	$PR extract -s $SERVICE -i $INPUT -o $DOUT
-	go test $TESTPR --run TestExtractDiagnosis  --args --expected=$DIAG --actual=$DOUT
-	$PR merge -s $SERVICE -i $INPUT -t $TAXA -d $DIAG -o $MOUT
+	$PR -s $SERVICE -i $INPUT -t $TAXA -o $MOUT
 	go test $TESTPR --run TestMergeRecords --args --expected=$PATIENTS --actual=$MOUT
 	# Delete test files
-	rm $DOUT
 	rm $MOUT
 }
 
