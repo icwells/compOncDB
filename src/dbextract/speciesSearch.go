@@ -56,7 +56,7 @@ func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 			sort.Sort(matches)
 			if matches[0].Distance <= 3 {
 				ret = s.taxa[s.species[matches[0].Target]]
-				found++
+				s.found++
 			}
 		}
 	}
