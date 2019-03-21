@@ -127,7 +127,7 @@ func searchDB() time.Time {
 		// Extract all data for a given species
 		var names []string
 		if iotools.Exists(*taxon) == true {
-			names = readList(*taxon)
+			names = readList(*taxon, *names)
 		} else {
 			// Get single term
 			if strings.Contains(*taxon, "_") == true {
@@ -148,6 +148,9 @@ func searchDB() time.Time {
 			res, header = dbextract.SearchSingleTable(db, *table, *user, column, op, value, *com, *infant)
 		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
+	} else if *taxonomies == true {
+		names = readList(*infile, *names)
+		res, header = dbextract.SearchSpeciesNames(db, names)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}

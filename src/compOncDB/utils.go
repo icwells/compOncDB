@@ -127,17 +127,27 @@ func getTable(tables map[string]string, col string) []string {
 	return ret
 }
 
-func readList(infile string) []string {
+func readList(infile string, idx int) []string {
 	// Reads list of queries from file
 	var ret []string
+	var d string
+	first = true
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := iotools.GetScanner(f)
 	for input.Scan() {
 		line := string(input.Text())
-		// Replace underscores if present
-		line = strings.Replace(line, "_", " ", -1)
-		ret = append(ret, strings.TrimSpace(line))
+		if first == false {
+			s := strings.Split(line, d)
+			if len(s) >= idx {
+				// Replace underscores if present
+				name = strings.Replace(s[idx], "_", " ", -1)
+				ret = append(ret, strings.TrimSpace(name))
+			}
+		} else {
+			d = iotools.GetDelim(line)
+			first = false
+		}
 	}
 	return ret
 }

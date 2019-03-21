@@ -155,7 +155,7 @@ func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (ma
 	return taxa, common
 }
 
-func getTaxaIDs(db *dbIO.DBIO, commonNames bool) map[string]string {
+func GetTaxaIDs(db *dbIO.DBIO, commonNames bool) map[string]string {
 	// Returns map of taxa ids corresponding to common names, binomial names, or genus
 	ret := make(map[string]string)
 	taxa := db.GetColumns("Taxonomy", []string{"taxa_id", "Genus", "Species"})
@@ -178,7 +178,7 @@ func LoadTaxa(db *dbIO.DBIO, infile string, commonNames bool) {
 	var taxa map[string][]string
 	var common map[string][][]string
 	m := db.GetMax("Taxonomy", "taxa_id")
-	taxaids := getTaxaIDs(db, commonNames)
+	taxaids := GetTaxaIDs(db, commonNames)
 	taxa, common = extractTaxa(infile, taxaids, commonNames)
 	uploadTable(db, taxa, common, m)
 }

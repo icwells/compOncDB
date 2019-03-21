@@ -211,7 +211,7 @@ func LoadPatients(db *dbIO.DBIO, infile string) {
 	// Loads unique patient info to appropriate tables
 	e := newEntries(db.GetMax("Patient", "ID"))
 	e.accounts = MapOfMaps(db.GetTable("Accounts"))
-	e.taxa = getTaxaIDs(db, false)
+	e.taxa = GetTaxaIDs(db, false)
 	// Get entry slices and upload to db
 	e.extractPatients(infile)
 	uploadPatients(db, "Patient", e.p)
