@@ -131,7 +131,7 @@ func readList(infile string, idx int) []string {
 	// Reads list of queries from file
 	var ret []string
 	var d string
-	first = true
+	first := true
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := iotools.GetScanner(f)
@@ -141,7 +141,7 @@ func readList(infile string, idx int) []string {
 			s := strings.Split(line, d)
 			if len(s) >= idx {
 				// Replace underscores if present
-				name = strings.Replace(s[idx], "_", " ", -1)
+				name := strings.Replace(s[idx], "_", " ", -1)
 				ret = append(ret, strings.TrimSpace(name))
 			}
 		} else {
