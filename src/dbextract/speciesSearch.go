@@ -28,6 +28,7 @@ type speciesSearcher struct {
 	species map[string]string
 	list    []string
 	taxa    map[string][]string
+	found	int
 }
 
 func newSpeciesSearcher(db *dbIO.DBIO) speciesSearcher {
@@ -51,9 +52,12 @@ func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 	} else {
 		// Attempt fuzzy search if there is no literal match
 		matches := fuzzy.RankFindFold(n, s.list)
-		sort.Sort(matches)
-		if matches[0].Distance <= 3 {
-			ret = s.taxa[s.species[matches[0].Target]]
+		if len(matches) > 0 {
+			sort.Sort(matches)
+			if matches[0].Distance <= 3 {
+				ret = s.taxa[s.species[matches[0].Target]]
+				found++
+			}
 		}
 	}
 	ch <- ret
@@ -71,5 +75,6 @@ func SearchSpeciesNames(db *dbIO.DBIO, names []string) ([][]string, string) {
 		row := <-ch
 		ret = append(ret, row)
 	}
+	fmt.Printf("\tFound taxonomy matches for %d of %d queries.\n", s.found, len(names))
 	return ret, header
 }
