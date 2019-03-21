@@ -46,19 +46,23 @@ func newSpeciesSearcher(db *dbIO.DBIO) speciesSearcher {
 func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 	// Attempts to find match for input name
 	var ret []string
-	id, ex := s.species[n]
-	if ex == true {
-		ret = s.taxa[id]
-	} else {
+	k := n
+	id, ex := s.species[k]
+	if ex == false {
 		// Attempt fuzzy search if there is no literal match
 		matches := fuzzy.RankFindFold(n, s.list)
 		if len(matches) > 0 {
 			sort.Sort(matches)
 			if matches[0].Distance <= 3 {
-				ret = s.taxa[s.species[matches[0].Target]]
-				s.found++
+				k = matches[0].Target
+				id = s.species[k]
 			}
 		}
+	}
+	if ex == true {
+		ret = []string{n, k}
+		ret = append(ret, taxa[id]...)
+		s.found++
 	}
 	ch <- ret
 }
@@ -73,7 +77,9 @@ func SearchSpeciesNames(db *dbIO.DBIO, names []string) ([][]string, string) {
 	for _, i := range names {
 		go s.getTaxonomy(ch, i)
 		row := <-ch
-		ret = append(ret, row)
+		if len(row) > 0 {
+			ret = append(ret, row)
+		}
 	}
 	fmt.Printf("\tFound taxonomy matches for %d of %d queries.\n", s.found, len(names))
 	return ret, header
