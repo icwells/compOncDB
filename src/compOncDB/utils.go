@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
+	"github.com/icwells/go-tools/strarray"
 	"os"
 	"strings"
 )
@@ -129,7 +130,7 @@ func getTable(tables map[string]string, col string) []string {
 
 func readList(infile string, idx int) []string {
 	// Reads list of queries from file
-	var ret []string
+	set := strarray.NewSet()
 	var d string
 	first := true
 	f := iotools.OpenFile(infile)
@@ -139,17 +140,17 @@ func readList(infile string, idx int) []string {
 		line := string(input.Text())
 		if first == false {
 			s := strings.Split(line, d)
-			if len(s) >= idx {
+			if len(s) > idx {
 				// Replace underscores if present
 				name := strings.Replace(s[idx], "_", " ", -1)
-				ret = append(ret, strings.TrimSpace(name))
+				set.Add(strings.TrimSpace(name))
 			}
 		} else {
 			d = iotools.GetDelim(line)
 			first = false
 		}
 	}
-	return ret
+	return set.ToSlice()
 }
 
 func printArray(header string, table [][]string) {
