@@ -94,6 +94,9 @@ func (e *entries) sortRecords(infile, outfile string) {
 		line := string(scanner.Text())
 		if first == false {
 			total++
+			if e.d != "," && strings.Contains(line, ",") {
+				line = strings.Replace(line, ",", ";", -1)
+			}
 			s := strings.Split(strings.Replace(line, "\"", "", -1), e.d)
 			wg.Add(1)
 			e.sortLine(&wg, &mut, out, s)
