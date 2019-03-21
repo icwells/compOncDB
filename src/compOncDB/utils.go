@@ -143,7 +143,10 @@ func readList(infile string, idx int) []string {
 			if len(s) > idx {
 				// Replace underscores if present
 				name := strings.Replace(s[idx], "_", " ", -1)
-				set.Add(strings.TrimSpace(name))
+				name = strings.TrimSpace(name)
+				if len(name) > 1 {
+					set.Add(name)
+				}
 			}
 		} else {
 			d = iotools.GetDelim(line)
