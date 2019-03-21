@@ -92,10 +92,13 @@ func (e *entries) parseLine(rec *record, line []string) {
 	var necropsy bool
 	cancer := true
 	rec.age = e.checkAge(line)
-	if e.service == "NWZP" {
+	if e.service == "NWZP" && len(line[e.col.code]) > 0 {
 		// Get neoplasia and euthnasia codes from NWZP
 		cancer = strings.Contains(line[e.col.code], "8")
 		necropsy = strings.Contains(line[e.col.code], "14")
+	} else {
+		// Attempt to find diagnosis if no code is given
+		cancer = true
 	}
 	// Remove ID and join line (make copy to preserve column indeces)
 	row := make([]string, len(line))
