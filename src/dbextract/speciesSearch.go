@@ -28,7 +28,7 @@ type speciesSearcher struct {
 	species map[string]string
 	list    []string
 	taxa    map[string][]string
-	found	int
+	found   int
 }
 
 func newSpeciesSearcher(db *dbIO.DBIO) speciesSearcher {
@@ -61,7 +61,7 @@ func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 	}
 	if ex == true {
 		ret = []string{n, k}
-		ret = append(ret, taxa[id]...)
+		ret = append(ret, s.taxa[id]...)
 		s.found++
 	}
 	ch <- ret
