@@ -74,18 +74,20 @@ func updateDB() time.Time {
 	} else if *infile != "nil" {
 		dbextract.UpdateEntries(db, *infile)
 	} else if *column != "nil" && *value != "nil" && *eval != "nil" {
-		col, op, val := getOperation(*eval)
-		tables := getTable(db.Columns, col)
-		dbextract.UpdateSingleTable(db, tables[0], *column, *value, col, op, val)
+		evaluations := setOperations(*eval)
+		e := evaluations[0]
+		tables := getTable(db.Columns, e.column)
+		dbextract.UpdateSingleTable(db, tables[0], *column, *value, e.column, e.operator, e.value)
 	} else if *del == true && *eval != "nil" {
 		var tables []string
-		column, _, value := getOperation(*eval)
+		evaluations := setOperations(*eval)
+		e := evaluations[0]
 		if *table != "nil" {
 			tables = []string{*table}
 		} else {
-			tables = getTable(db.Columns, column)
+			tables = getTable(db.Columns, e.column)
 		}
-		deleteEntries(db, tables, column, value)
+		deleteEntries(db, tables, e.column, e.value)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
@@ -140,14 +142,17 @@ func searchDB() time.Time {
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *eval != "nil" {
 		// Search for column/value match
-		column, op, value := getOperation(*eval)
+		e := setOperations(*eval)
 		if *table == "nil" {
-			tables := getTable(db.Columns, column)
-			res, header = dbextract.SearchColumns(db, tables, *user, column, op, value, *count, *com, *infant)
+			tables := getTable(db.Columns, e[0].column)
+			res, header = dbextract.SearchColumns(db, tables, *user, e[0].column, e[0].operator, e[0].value, *count, *com, *infant)
 		} else {
-			res, header = dbextract.SearchSingleTable(db, *table, *user, column, op, value, *com, *infant)
+			res, header = dbextract.SearchSingleTable(db, *table, *user, e[0].column, e[0].operator, e[0].value, *com, *infant)
 		}
-		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), column, value)
+		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), e[0].column, e[0].value)
+		if len(e) > 1 {
+			res = filterSearchResults(header, e[1:], res)
+		}
 	} else if *taxonomies == true {
 		names := readList(*infile, *col)
 		res, header = dbextract.SearchSpeciesNames(db, names)

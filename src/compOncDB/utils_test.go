@@ -3,43 +3,8 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
-
-func fmtMessage(field, a, e string) string {
-	// Returns formatted string
-	return fmt.Sprintf("Actual %s %s is not equal to expected: %s", field, a, e)
-}
-
-func TestGetOperation(t *testing.T) {
-	// Tests the getOperation function
-	matches := []struct {
-		input    string
-		column   string
-		operator string
-		value    string
-	}{
-		{"Species == Canis lupus", "Species", "=", "Canis lupus"},
-		{"Sex=male", "Sex", "=", "male"},
-		{"Avgage>=12", "Avgage", ">=", "12"},
-		{" Cancer < 5 ", "Cancer", "<", "5"},
-	}
-	for _, i := range matches {
-		var msg string
-		col, op, val := getOperation(i.input)
-		if col != i.column {
-			msg = fmtMessage("column", col, i.column)
-		} else if op != i.operator {
-			msg = fmtMessage("operator", op, i.operator)
-		} else if val != i.value {
-			msg = fmtMessage("value", val, i.value)
-		}
-		if len(msg) > 1 {
-			t.Error(msg)
-		}
-	}
-}
 
 func getTableColumns() map[string]string {
 	// Returns map of table columns with not types
@@ -76,8 +41,7 @@ func TestGetTable(t *testing.T) {
 		actual := getTable(col, e.column)
 		for idx, i := range actual {
 			if i != e.tables[idx] {
-				msg := fmtMessage("table", i, e.tables[idx])
-				t.Error(msg)
+				t.Errorf("Actual table %s is not equal to expected: %s", i, e.tables[idx])
 			}
 		}
 	}

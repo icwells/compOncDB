@@ -105,7 +105,7 @@ func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (ma
 		line := strings.TrimSpace(string(input.Text()))
 		spl := strings.Split(line, ",")
 		if first == false {
-			c := titleCase(spl[col["SearchTerm"]])
+			c := TitleCase(spl[col["SearchTerm"]])
 			s := getTaxon(spl[col["Genus"]], spl[col["Species"]])
 			if _, ex := taxaids[s]; ex == false {
 				// Skip entries which are already in db

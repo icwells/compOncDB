@@ -8,21 +8,7 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"sort"
-	"strings"
 )
-
-func titleCase(t string) string {
-	// Manually converts term to title case (strings.Title is buggy)
-	var query []string
-	s := strings.Split(t, " ")
-	for _, i := range s {
-		if len(i) > 1 {
-			// Skip stray characters
-			query = append(query, strings.ToUpper(string(i[0]))+strings.ToLower(i[1:]))
-		}
-	}
-	return strings.Join(query, " ")
-}
 
 type speciesSearcher struct {
 	species map[string]string
@@ -46,7 +32,7 @@ func newSpeciesSearcher(db *dbIO.DBIO) speciesSearcher {
 func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 	// Attempts to find match for input name
 	var ret []string
-	k := titleCase(n)
+	k := dbupload.TitleCase(n)
 	id, ex := s.species[k]
 	if ex == false {
 		// Attempt fuzzy search if there is no literal match

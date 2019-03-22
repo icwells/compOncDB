@@ -14,7 +14,7 @@ var (
 	app     = kingpin.New("compOncDB", "Comand line-interface for uploading/extrating/manipulating data from the comparative oncology database.")
 	user    = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 	config  = kingpin.Flag("config", "Path to config.txt (Default is in bin directory).").Default("config.txt").String()
-	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: = <= >= > <). ").Short('e').Default("nil").String()
+	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas). ").Short('e').Default("nil").String()
 	table   = kingpin.Flag("table", "Perform operations on this table only.").Default("nil").String()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
@@ -32,7 +32,7 @@ var (
 
 	update = kingpin.Command("update", "Update or delete existing records from the database (see README for upload file template).")
 	column = update.Flag("column", "Column to be updated with given value if --eval column == value.").Short('c').Default("nil").String()
-	value  = update.Flag("value", "Value to write to column if --eval column == value.").Short('v').Default("nil").String()
+	value  = update.Flag("value", "Value to write to column if --eval column == value (only supply one statement).").Short('v').Default("nil").String()
 	total  = update.Flag("count", "Recount species totals and update the Totals table.").Default("false").Bool()
 	del    = update.Flag("delete", "Delete records if column = value.").Default("false").Bool()
 

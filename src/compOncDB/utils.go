@@ -61,35 +61,6 @@ func connectToDatabase(c configuration) *dbIO.DBIO {
 	return db
 }
 
-func getOperation(eval string) (string, string, string) {
-	// Splits eval into column, operator, value
-	found := false
-	var column, op, value string
-	operators := []string{"==", ">=", "<=", "=", ">", "<"}
-	for _, i := range operators {
-		if strings.Contains(eval, i) == true {
-			op = i
-			if op == "==" {
-				// Convert to single equals sign for sql
-				op = "="
-			}
-			s := strings.Split(eval, i)
-			if len(s) == 2 {
-				// Only store properly formed queries
-				column = strings.TrimSpace(s[0])
-				value = strings.TrimSpace(s[1])
-				found = true
-			}
-			break
-		}
-	}
-	if found == false {
-		fmt.Print("\n\t[Error] Please supply a valid evaluation argument. Exiting.\n\n")
-		os.Exit(1001)
-	}
-	return column, op, value
-}
-
 func getTable(tables map[string]string, col string) []string {
 	// Determines which table column is in
 	var ret []string
