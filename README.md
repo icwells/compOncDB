@@ -108,11 +108,13 @@ are all the same file which must in the format of uploadTemplate.csv.
 	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 	--count				Recount species totals and update the Totals table.  
-	--delete			Delete records from given table if column = value (must be root). 
+	--delete			Delete records from given table if column = value. 
 	--table="nil"		Perform operations on this table only.   
 	-c, --column="nil"	Column to be updated with given value if --eval column == value.
-	-v, --value="nil"	Value to write to column if --eval column == value.
-	-e, --eval="nil"	Searches tables for matches (table is automatically determined) (column operator value; valid operators: = <= >= > <).  
+	-v, --value="nil"	Value to write to column if --eval column == value (only supply one evaluation statement).
+	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: 
+!= = <= >= > <; wrap statement in quotation marks).  
+
 	-i infile			Path to input file (see below for formatting).  
 
 Update or delete existing records from the database. Command line updates (given with the -c, -v, and -e flags) will only perform a single 
@@ -156,14 +158,18 @@ Extract data from the database and perform optional analyses.
 	-t, --taxa="nil"		Name of taxonomic unit to extract data for or path to file with single column of units.  
 	--common				Indicates that common species name was given for taxa.  
 	--count					Returns count of target records instead of printing entire records.  
-	-e, --eval="nil"		Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: = <= >= > <).  
+	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: 
+!= = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas).  
 	--table="nil"		Perform operations on this table only.  
+	--infant			Include infant records in results (excluded by default).  
+	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
+	-n, --names=0		Column of input file containing scientific/common species names to search.  
 
 	-o outfile				Name of output file (writes to stdout if not given).  
 
 Searches database for matches to given criteria. The taxonomy search is given special consideration since it is the most common search type.  
 For most tables, the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history tables, valid operations also 
-include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avaoid errors.  
+include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.  
 
 #### Test  
 	./compOncDB test {paths_to_input_files}/ {--search --eval operation -o path_to_output file}  
@@ -182,21 +188,18 @@ Runs tests using "testDataBase" (make sure it has been created in MySQL first).
 
 ## parseRecords  
 The parseRecords utility has been provided to help with parsing input files before uploading them to the database.  
-The extract functionality will use a regular expression based approach to identify diagnosis information.  
-The merge command will merge the output of the diagnosis command and taxonomy information (output of the [Kestrel](https://github.com/icwells/Kestrel) tool) 
+It will use a regular expression based approach to identify diagnosis information and merge the input and diagnosis 
+information with taxonomy information (output of the [Kestrel](https://github.com/icwells/Kestrel) tool) 
 to make a csv file ready to upload to the MySQL database.  
+Previous versions performed this in two steps, but as of v0.3 they have been merged into one to steamline the process.  
+
 
 ### Usage  
 
 	./parseRecords command -s service_name -i infile -o outfile
 
-	extract							Extract diagnosis data from infile.  
-	merge							Merges taxonomy and diagnosis info with infile.
-
 	--help							Show help.  
 	-i, --infile=INFILE				Path to input file (required).  
 	-o, --outfile=OUTFILE			Path to output file (required).  
 	-s, --service=SERVICE			Database/service name (required).  
-	-d, --dict="cancerdict.tsv"		Path to dictionary of cancer terms (used with the extract command).  
 	-t, --taxa="nil"				Path to kestrel output (used with the merge command).  
-	-d, --diagnoses="nil"			Path to diagnosis data (used with the merge command).  
