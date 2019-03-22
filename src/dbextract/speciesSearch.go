@@ -46,16 +46,17 @@ func newSpeciesSearcher(db *dbIO.DBIO) speciesSearcher {
 func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 	// Attempts to find match for input name
 	var ret []string
-	k := n
+	k := titleCase(n)
 	id, ex := s.species[k]
 	if ex == false {
 		// Attempt fuzzy search if there is no literal match
-		matches := fuzzy.RankFindFold(n, s.list)
-		if len(matches) > 0 {
+		matches := fuzzy.RankFindFold(k, s.list)
+		if matches.Len() > 0 {
 			sort.Sort(matches)
-			if matches[0].Distance <= 3 {
+			if matches[0].Distance <= 2 {
 				k = matches[0].Target
 				id = s.species[k]
+				ex = true
 			}
 		}
 	}
