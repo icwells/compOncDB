@@ -116,7 +116,7 @@ func (e *evaluation) evaluateLine(h map[string]int, row []string) bool {
 			}
 		}
 	} else {
-		fmt.Printf("\t[Warning] Column %s not present in results. Skipping.\n", e.column)
+		fmt.Printf("\t[Warning] Column %s not present in header. Skipping.\n", e.column)
 	}
 	return ret
 }
@@ -124,6 +124,7 @@ func (e *evaluation) evaluateLine(h map[string]int, row []string) bool {
 func filterSearchResults(header string, e []evaluation, res [][]string) [][]string {
 	// Applies filters to search results
 	var ret [][]string
+	fmt.Println("\tFiltering search results...")
 	h := iotools.GetHeader(strings.Split(header, ","))
 	for _, i := range res {
 		keep := true
@@ -137,5 +138,6 @@ func filterSearchResults(header string, e []evaluation, res [][]string) [][]stri
 			ret = append(ret, i)
 		}
 	}
+	fmt.Printf("\tFound %d records that passed additional search parameters.\n", len(ret))
 	return ret
 }
