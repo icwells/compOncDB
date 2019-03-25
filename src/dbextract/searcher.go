@@ -31,7 +31,7 @@ func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string,
 	// Add default header
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Date,Comments,"
 	s.header = s.header + "Masspresent,Hyperplasia,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
-	s.header = s.header + "Kingdom,Phylum,Class,Order,Family,Genus,Species,service_name,account_id"
+	s.header = s.header + "Kingdom,Phylum,Class,Orders,Family,Genus,Species,service_name,account_id"
 	s.db = db
 	s.user = user
 	s.tables = tables

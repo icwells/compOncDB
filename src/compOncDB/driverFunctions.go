@@ -110,7 +110,7 @@ func extractFromDB() time.Time {
 		writeResults(*outfile, "Field,Total,%\n", summary)
 	} else if *cr == true {
 		// Extract cancer rates
-		header := "Kingdom,Phylum,Class,Order,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
+		header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
 		header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
 		rates := dbextract.GetCancerRates(db, *min, *nec)
 		writeResults(*outfile, header, rates)

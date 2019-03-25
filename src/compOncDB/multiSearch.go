@@ -76,7 +76,7 @@ func (e *evaluation) evaluateLine(h map[string]int, row []string) bool {
 	// Applies evaluation to line, return true if it passes
 	ret := false
 	idx, ex := h[e.column]
-	if ex == true {
+	if ex == true && idx < len(row) {
 		switch e.operator {
 		case "!=":
 			if row[idx] != e.value {
