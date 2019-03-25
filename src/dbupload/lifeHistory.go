@@ -56,6 +56,8 @@ func calculateInfancy(weaning, male, female string) string {
 		// Default to 1 month
 		ret = 1.0
 	}
+	fmt.Println(weaing, male, female)
+	os.Exit(0)
 	return strconv.FormatFloat(ret, 'f', -1, 64)
 }
 
@@ -86,7 +88,8 @@ func getColumnIndeces(head []string) map[string]int {
 	for idx, i := range head {
 		if strings.Contains(i, "/") == true {
 			i = i[:strings.Index(i, "/")]
-		} else if strings.Contains(i, "(") == true {
+		}
+		if strings.Contains(i, "(") == true {
 			i = i[:strings.Index(i, "(")]
 		}
 		ret[i] = idx
@@ -124,7 +127,6 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 			l = len(spl)
 			col = getColumnIndeces(spl)
 			fmt.Println(col)
-			os.Exit(0)
 			first = false
 		}
 	}
