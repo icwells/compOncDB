@@ -1,2 +1,2 @@
-taxa_id, female_maturity, male_maturity, Gestation, Weaning, litter_size, litters_year, interbirth_interval, birth_weight, weaning_weight, adult_weight, growth_rate, max_longevity, metabolic_rate
-1,274,274,2.07100591715976,1.9723865877712,5.72,1.1,365,250,1517,13250,0.0183,261.6,19.423
+taxa_id, female_maturity, male_maturity, Gestation, Weaning,Infancy, litter_size, litters_year, interbirth_interval, birth_weight, weaning_weight, adult_weight, growth_rate, max_longevity, metabolic_rate
+1,274,274,2.07100591715976,1.9723865877712,1.9723865877712,5.72,1.1,365,250,1517,13250,0.0183,261.6,19.423
