@@ -20,7 +20,7 @@ func uploadTraits(db *dbIO.DBIO, traits [][]string) {
 	}
 }
 
-func getAvgMaturity(male, female string) float64 {
+func getAvgMaturity(male, female string) string {
 	// Returns age of infancy from average of male and female maturity
 	var ret float64
 	m, er := strconv.ParseFloat(male, 64)
@@ -34,26 +34,20 @@ func getAvgMaturity(male, female string) float64 {
 	} else {
 		ret = (((f + m) / 2) * 0.1)
 	}
-	return ret
+	return strconv.FormatFloat(ret, 'f', -1, 64)
 }
 
 func calculateInfancy(weaning, male, female string) string {
 	// Returns age for infancy column
-	ret := "-1.0"
-	if weaning != "NA" {
-		w, err := strconv.ParseFloat(weaning, 64)
-		if err == nil && w >= 0.0 {
-			// Assign weaning age
-			ret = weaning
-		}
-	}
-	if ret == "-1.0" {
-		avg := getAvgMaturity(male, female)
-		ret = strconv.FormatFloat(avg, 'f', -1, 64)
+	var ret string
+	w, err := strconv.ParseFloat(weaning, 64)
+	if err == nil && w >= 0.0 {
+		// Assign weaning age
+		ret = weaning
 	} else {
-		// Default to 1 month
-		ret = "1"
+		ret = getAvgMaturity(male, female)
 	}
+	fmt.Println(weaning, male, female, ret)
 	return ret
 }
 
