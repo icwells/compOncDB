@@ -144,8 +144,13 @@ func searchDB() time.Time {
 		// Search for column/value match
 		e := setOperations(*eval)
 		if *table == "nil" {
+			count := *count
 			tables := getTable(db.Columns, e[0].column)
-			res, header = dbextract.SearchColumns(db, tables, *user, e[0].column, e[0].operator, e[0].value, *count, *com, *infant)
+			if len(e) > 1 {
+				// Set count to false to allow searching of results
+				count = false
+			}
+			res, header = dbextract.SearchColumns(db, tables, *user, e[0].column, e[0].operator, e[0].value, count, *com, *infant)
 		} else {
 			res, header = dbextract.SearchSingleTable(db, *table, *user, e[0].column, e[0].operator, e[0].value, *com, *infant)
 		}
