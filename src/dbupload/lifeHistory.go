@@ -8,7 +8,6 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -26,39 +25,36 @@ func getAvgMaturity(male, female string) float64 {
 	var ret float64
 	m, er := strconv.ParseFloat(male, 64)
 	f, err := strconv.ParseFloat(female, 64)
-	if er != nil {
-		m = 0.0
-	}
-	if err != nil {
-		f = 0.0
-	}
-	if f > 0.0 && m > 0.0 {
-		ret = (((f + m) / 2) * 0.1)
-	} else {
+	if err != nil && er != nil {
 		ret = 1.0
+	} else if er != nil && err == nil {
+		ret = f
+	} else if err != nil {
+		ret = m
+	} else {
+		ret = (((f + m) / 2) * 0.1)
 	}
 	return ret
 }
 
 func calculateInfancy(weaning, male, female string) string {
 	// Returns age for infancy column
-	ret := -1.0
+	ret := "-1.0"
 	if weaning != "NA" {
 		w, err := strconv.ParseFloat(weaning, 64)
 		if err == nil && w >= 0.0 {
 			// Assign weaning age
-			ret = w
+			ret = weaning
 		}
 	}
-	if ret < 0.0 {
-		ret = getAvgMaturity(male, female)
+	if ret == "-1.0" {
+		avg := getAvgMaturity(male, female)
+		ret = strconv.FormatFloat(avg, 'f', -1, 64)
 	} else {
 		// Default to 1 month
-		ret = 1.0
+		ret = "1"
 	}
-	fmt.Println(weaning, male, female)
-	os.Exit(0)
-	return strconv.FormatFloat(ret, 'f', -1, 64)
+	return ret
 }
 
 func fmtNA(val string) string {
@@ -126,7 +122,6 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 		} else {
 			l = len(spl)
 			col = getColumnIndeces(spl)
-			fmt.Println(col)
 			first = false
 		}
 	}

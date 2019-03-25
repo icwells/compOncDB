@@ -20,13 +20,19 @@ var (
 
 type idtrimmer struct {
 	columns	[]int
+	id		int
 }
 
 func (t *idtrimmer) setColumns(row []string) {
 	// Stores id column indeces
+	first := true
 	for idx, i := range row {
 		if i == "ID" || strings.Contains(i, "_id") == true {
 			t.columns = append(t.columns, idx)
+			if first == true {
+				t.id = idx
+				first = false
+			}
 		}
 	}
 }
@@ -36,11 +42,15 @@ func (t *idtrimmer) trimColumns(row []string) []string {
 	for _, c := range t.columns {
 		// Remove randomly assigned id entries
 		var head []string
-		if c == 1 {
-			head = []string{row[0]}
+		if c >= len(row) - 1 {
+			row = row[:len(row)-1]
 		} else {
-			head = row[:c]
-		row = append(head, row[c+1:]...)
+			if c == 1 {
+				head = []string{row[0]}
+			} else {
+				head = row[:c]
+			row = append(head, row[c+1:]...)
+			}
 		}
 	}
 	return row
@@ -62,10 +72,10 @@ func sortInput(files []string, expected bool) map[string]string {
 	return ret
 }
 
-func loadTable(file string) [][]string {
+func loadTable(file string) map[string][]string {
 	// Returns table as a map of string slices
 	first := true
-	var ret [][]string
+	ret := make(map[string][]string)
 	var trim idtrimmer
 	f := iotools.OpenFile(file)
 	defer f.Close()
@@ -73,10 +83,11 @@ func loadTable(file string) [][]string {
 	for scanner.Scan() {
 		s := strings.Split(string(scanner.Text()), ",")
 		if first == false {
-			s = trim.trimColumns(s)
-			ret = append(ret, s)
+			// Store map entry without id columns
+			ret[s[trim.id]] = trim.trimColumns(s)
 		} else {
 			trim.setColumns(s)
+			first = false
 		}
 	}
 	return ret
@@ -114,20 +125,19 @@ func compareTables(t *testing.T, name, exp, act string) {
 	if len(actual) != len(expected) {
 		t.Errorf("%s: Actual length %d does not equal expected: %d", name, len(actual), len(expected))
 	} else {
-		for k, v := range actual {
+		for k, v := range expected {
 			equal := false
 			var idx int
-			for _, val := range expected {
-				// Ignore randomly assigned IDs and compare to all entries
-				if len(v) == len(val) {
-					equal, idx = compareEntries(v, val)
+			val, ex := actual[k]
+			if ex == false {
+				t.Errorf("%s: Expected key %s does not in actual", name, v)
+			} else if len(v) != len(val) {
+				t.Errorf("%s: Actual line length %d does not equal expected: %d", name, len(val), len(v))
+			} else {
+				equal, idx = compareEntries(val, v)
+				if equal == false {
+					t.Errorf("%s %d: Actual value %s does not equal expected: %s", name, idx, actual[k][idx], expected[k][idx])
 				}
-				if equal == true { 
-					break
-				}
-			}
-			if equal == false {
-				t.Errorf("%s %d: Actual value %s does not equal expected: %s", name, idx, actual[k][idx], expected[k][idx])
 			}
 		}
 	}
