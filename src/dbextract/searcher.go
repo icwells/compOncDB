@@ -3,6 +3,7 @@
 package dbextract
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"strconv"
