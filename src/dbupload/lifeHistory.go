@@ -8,6 +8,7 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -122,6 +123,8 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 		} else {
 			l = len(spl)
 			col = getColumnIndeces(spl)
+			fmt.Println(col)
+			os.Exit(0)
 			first = false
 		}
 	}
