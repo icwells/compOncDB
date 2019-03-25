@@ -56,7 +56,7 @@ func calculateInfancy(weaning, male, female string) string {
 		// Default to 1 month
 		ret = 1.0
 	}
-	fmt.Println(weaing, male, female)
+	fmt.Println(weaning, male, female)
 	os.Exit(0)
 	return strconv.FormatFloat(ret, 'f', -1, 64)
 }
