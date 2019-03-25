@@ -122,7 +122,6 @@ func (e *entries) addTumors(id string, row []string) {
 	t := []string{id, row[e.col["Primary"]], row[e.col["Malignant"]]}
 	pairs := tumorPairs(row[e.col["TumorType"]], row[e.col["Location"]])
 	for _, i := range pairs {
-		fmt.Println(i)
 		tumor := append(t, i...)
 		e.t = append(e.t, tumor)
 	}
