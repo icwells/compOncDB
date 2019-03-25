@@ -8,7 +8,6 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"math"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -121,8 +120,9 @@ func (e *entries) addUnmatched(row []string) {
 func (e *entries) addTumors(id string, row []string) {
 	// Assign ID to all tumor, location pairs tumorPairs
 	t := []string{id, row[e.col["Primary"]], row[e.col["Malignant"]]}
-	pairs := tumorPairs(row[e.col["Type"]], row[e.col["Location"]])
+	pairs := tumorPairs(row[e.col["TumorType"]], row[e.col["Location"]])
 	for _, i := range pairs {
+		fmt.Println(i)
 		tumor := append(t, i...)
 		e.t = append(e.t, tumor)
 	}
@@ -201,8 +201,6 @@ func (e *entries) extractPatients(infile string) {
 			e.evaluateRow(spl)
 		} else {
 			e.col = iotools.GetHeader(spl)
-			fmt.Println(e.col)
-			os.Exit(0)
 			e.length = len(spl)
 			first = false
 		}
