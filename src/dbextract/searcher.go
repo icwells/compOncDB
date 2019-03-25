@@ -3,7 +3,6 @@
 package dbextract
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"strconv"
@@ -140,7 +139,6 @@ func (s *searcher) appendDiagnosis() {
 		}
 		tumor, exists := t[id]
 		if exists == true {
-			fmt.Println(tumor)
 			i = append(i, tumor...)
 		} else {
 			i = append(i, s.na[:5]...)

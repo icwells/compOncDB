@@ -57,7 +57,7 @@ func (s *searchterms) setCase(row []string) {
 			set = true
 		} else if idx == 2 && len(i) >= 1 {
 			if strings.Contains(i, "=") == true || strings.Contains(i, ">") == true || strings.Contains(i, "<") == true {
-				e := setOperations(*eval)
+				e := setOperations(row[idx])
 				c.column, c.op, c.value = e[0].column, e[0].operator, e[0].value
 			} else {
 				c.value = i

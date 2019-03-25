@@ -38,7 +38,7 @@ func (e *evaluation) getOperation(eval string) {
 		}
 	}
 	if found == false {
-		fmt.Print("\n\t[Error] Please supply a valid evaluation argument. Exiting.\n\n")
+		fmt.Printf("\n\t[Error] %s is not a valid evaluation argument. Exiting.\n\n", eval)
 		os.Exit(1001)
 	}
 }
