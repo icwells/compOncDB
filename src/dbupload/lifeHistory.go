@@ -47,7 +47,6 @@ func calculateInfancy(weaning, male, female string) string {
 	} else {
 		ret = getAvgMaturity(male, female)
 	}
-	fmt.Println(weaning, male, female, ret)
 	return ret
 }
 

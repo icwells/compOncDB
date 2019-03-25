@@ -8,6 +8,7 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -200,6 +201,8 @@ func (e *entries) extractPatients(infile string) {
 			e.evaluateRow(spl)
 		} else {
 			e.col = iotools.GetHeader(spl)
+			fmt.Println(e.col)
+			os.Exit(0)
 			e.length = len(spl)
 			first = false
 		}
