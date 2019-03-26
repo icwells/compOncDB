@@ -126,8 +126,8 @@ func (s *searcher) appendTaxonomy() {
 	taxa := s.getTaxonomy(s.taxaids, true)
 	for k, v := range s.res {
 		// Apppend taxonomy to records
-		fmt.Println(k, v)
 		taxonomy, ex := taxa[v[3]]
+		fmt.Println(v[3], taxonomy)
 		if ex == true {
 			s.res[k] = append(v, taxonomy...)
 		} else {
