@@ -22,7 +22,7 @@ func toTitle(names []string) []string {
 
 func (s *searcher) getTaxa() {
 	// Extracts patient data using taxa ids
-	s.res = s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*")
+	s.res = dbupload.ToMap(s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*"))
 	s.setIDs()
 }
 
@@ -92,7 +92,6 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 	taxonomy := s.getTaxonomy(names, false)
 	if len(taxonomy) >= 1 {
 		s.getTaxa()
-		//s.setTaxaIDs()
 		if len(s.res) >= 1 {
 			if s.infant == false {
 				s.filterInfantRecords()
@@ -106,5 +105,5 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 		}
 		fmt.Println(s.res)
 	}
-	return s.res, s.header
+	return s.toSlice(), s.header
 }

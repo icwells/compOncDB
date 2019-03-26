@@ -20,7 +20,7 @@ type searcher struct {
 	operator string
 	common   bool
 	infant   bool
-	res      [][]string
+	res      map[string][]string
 	ids      []string
 	taxaids  []string
 	header   string
@@ -30,6 +30,7 @@ type searcher struct {
 func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string, com, inf bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
+	s.res = make(map[string][]string)
 	// Add default header
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Date,Comments,"
 	s.header = s.header + "Masspresent,Hyperplasia,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
@@ -46,6 +47,16 @@ func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string,
 	return s
 }
 
+func (s *searcher) toSlice() [][]string {
+	// Converts res map to slice
+	var ret [][]string
+	for k, v := range s.res {
+		row := append([]string{k}, v...)
+		ret = append(ret, row)
+	}
+	return ret
+}
+
 func getColumn(idx int, table [][]string) []string {
 	// Stores values in set and returns slice of unique entries
 	tmp := strarray.NewSet()
@@ -58,17 +69,19 @@ func getColumn(idx int, table [][]string) []string {
 func (s *searcher) getIDs() {
 	// Gets ids from target table and get patient records
 	s.ids = getColumn(0, s.db.GetRows(s.tables[0], s.column, s.value, "ID"))
-	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
+	s.res = dbupload.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*"))
 }
 
 func (s *searcher) setIDs() {
 	// Sets IDs from s.res (ID must be in first column)
-	s.ids = getColumn(0, s.res)
+	for k := range s.res {
+		s.ids = append(s.ids, k)
+	}
 }
 
 func (s *searcher) setTaxaIDs() {
 	// Stores taxa ids from patient results
-	s.taxaids = getColumn(4, s.res)
+	s.taxaids = getColumn(3, s.toSlice())
 }
 
 func (s *searcher) filterInfantRecords() {
@@ -76,26 +89,19 @@ func (s *searcher) filterInfantRecords() {
 	// In summary.go
 	ages := getMinAges(s.db, s.taxaids)
 	// Filter results
-	for idx, i := range s.res {
-		if len(i) >= 5 {
-			min, ex := ages[i[4]]
+	for k, v := range s.res {
+		if len(v) >= 4 {
+			min, ex := ages[v[3]]
 			if ex == true {
-				age, err := strconv.ParseFloat(i[2], 64)
+				age, err := strconv.ParseFloat(v[1], 64)
 				if err == nil && age <= min {
 					// Remove infant record
-					if idx < len(s.res)-1 {
-						s.res = append(s.res[:idx], s.res[idx+1:]...)
-					} else {
-						// Drop last element
-						s.res = s.res[:idx]
-					}
+					delete(s.res, k)
 				}
 			}
 		}
 	}
 	// Update ids
-	s.ids = nil
-	s.taxaids = nil
 	s.setIDs()
 	s.setTaxaIDs()
 }
@@ -103,12 +109,12 @@ func (s *searcher) filterInfantRecords() {
 func (s *searcher) appendSource() {
 	// Appends data from source table to res
 	m := dbupload.ToMap(s.db.GetRows("Source", "ID", strings.Join(s.ids, ","), "*"))
-	for idx, i := range s.res {
-		row, ex := m[i[0]]
+	for k, v := range s.res {
+		row, ex := m[k]
 		if ex == true {
-			s.res[idx] = append(i, row...)
+			s.res[k] = append(v, row...)
 		} else {
-			s.res[idx] = append(i, s.na[:2]...)
+			s.res[k] = append(v, s.na[:2]...)
 		}
 	}
 }
@@ -116,13 +122,13 @@ func (s *searcher) appendSource() {
 func (s *searcher) appendTaxonomy() {
 	// Appends raxonomy to s.res
 	taxa := s.getTaxonomy(s.taxaids, true)
-	for idx, i := range s.res {
+	for k, v := range s.res {
 		// Apppend taxonomy to records
-		taxonomy, ex := taxa[i[4]]
+		taxonomy, ex := taxa[v[3]]
 		if ex == true {
-			s.res[idx] = append(i, taxonomy...)
+			s.res[k] = append(v, taxonomy...)
 		} else {
-			s.res[idx] = append(i, s.na...)
+			s.res[k] = append(v, s.na...)
 		}
 	}
 }
@@ -131,21 +137,19 @@ func (s *searcher) appendDiagnosis() {
 	// Appends data from tumor and tumor relation tables
 	d := dbupload.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
 	t := dbupload.ToMap(s.db.GetRows("Tumor", "ID", strings.Join(s.ids, ","), "*"))
-	for idx, i := range s.res {
+	for k, v := range s.res {
 		// Concatenate tables
-		id := i[0]
-		diag, ex := d[id]
+		diag, ex := d[k]
 		if ex == true {
-			i = append(i, diag...)
+			s.res[k] = append(v, diag...)
 		} else {
-			i = append(i, s.na[:5]...)
+			s.res[k] = append(v, s.na[:5]...)
 		}
-		tumor, exists := t[id]
+		tumor, exists := t[k]
 		if exists == true {
-			i = append(i, tumor...)
+			s.res[k] = append(v, tumor...)
 		} else {
-			i = append(i, s.na[:5]...)
+			s.res[k] = append(v, s.na[:5]...)
 		}
-		s.res[idx] = i
 	}
 }

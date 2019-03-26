@@ -4,6 +4,7 @@ package dbextract
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"os"
 	"strings"
@@ -30,7 +31,7 @@ func (s *searcher) searchAccounts() {
 	for _, i := range ids {
 		s.ids = append(s.ids, i[0])
 	}
-	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
+	s.res = dbupload.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*"))
 }
 
 func (s *searcher) searchTaxaIDs() {
@@ -39,13 +40,13 @@ func (s *searcher) searchTaxaIDs() {
 	for _, i := range tids {
 		s.taxaids = append(s.taxaids, i[0])
 	}
-	s.res = s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*")
+	s.res = dbupload.ToMap(s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*"))
 	s.setIDs()
 }
 
 func (s *searcher) searchPatient() {
 	// Searches any match that include the patient table
-	s.res = s.db.GetRows(s.tables[0], s.column, s.value, "*")
+	s.res = dbupload.ToMap(s.db.GetRows(s.tables[0], s.column, s.value, "*"))
 	s.setIDs()
 }
 
@@ -87,7 +88,7 @@ func SearchColumns(db *dbIO.DBIO, tables []string, user, column, op, value strin
 	fmt.Printf("\tSearching for records with '%s' in column %s...\n", value, column)
 	s := newSearcher(db, tables, user, column, op, value, com, inf)
 	s.assignSearch(count)
-	return s.res, s.header
+	return s.toSlice(), s.header
 }
 
 func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, com, inf bool) ([][]string, string) {
@@ -96,11 +97,11 @@ func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, com
 	s := newSearcher(db, []string{table}, user, column, op, value, com, inf)
 	// Overwrite standard header
 	s.header = s.db.Columns[table]
-	s.res = s.db.EvaluateRows(table, s.column, s.operator, s.value, "*")
+	s.res = dbupload.ToMap(s.db.EvaluateRows(table, s.column, s.operator, s.value, "*"))
 	if s.infant == false && table == "Patient" {
 		s.setIDs()
 		s.setTaxaIDs()
 		s.filterInfantRecords()
 	}
-	return s.res, s.header
+	return s.toSlice(), s.header
 }
