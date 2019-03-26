@@ -5,10 +5,21 @@ package dbextract
 import (
 	"bytes"
 	"fmt"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"os"
 	"strings"
 )
+
+
+func toTitle(names []string) []string {
+	// Converts all input names to title case
+	var ret []string
+	for _, i := range names {
+		ret = append(ret, dbupload.TitleCase(i))
+	}
+	return ret
+}
 
 func (s *searcher) getTaxa() {
 	// Extracts patient data using taxa ids
@@ -22,7 +33,7 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 	var table [][]string
 	if s.common == true {
 		// Get taxonomy ids from common name list
-		c := s.db.GetRows("Common", "Name", strings.Join(names, ","), "*")
+		c := s.db.GetRows("Common", "Name", strings.Join(toTitle(names), ","), "*")
 		if len(c) >= 1 {
 			// Colect taxa IDs
 			buffer := bytes.NewBufferString(c[0][0])

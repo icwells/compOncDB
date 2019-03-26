@@ -136,7 +136,7 @@ func compareTables(t *testing.T, name, exp, act string) {
 			} else {
 				equal, idx = compareEntries(val, v)
 				if equal == false {
-					t.Errorf("%s %d: Actual value %s does not equal expected: %s", name, idx, actual[k][idx], expected[k][idx])
+					t.Errorf("%s %s-%d: Actual value %s does not equal expected: %s", name, k, idx, actual[k][idx], expected[k][idx])
 				}
 			}
 		}
