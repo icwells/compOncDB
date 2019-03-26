@@ -3,7 +3,6 @@
 package dbextract
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/strarray"
@@ -127,11 +126,10 @@ func (s *searcher) appendTaxonomy() {
 	for k, v := range s.res {
 		// Apppend taxonomy to records
 		taxonomy, ex := taxa[v[3]]
-		if ex == true {
-			s.res[k] = append(v, taxonomy...)
-		} else {
-			s.res[k] = append(v, s.na...)
+		if ex == false {
+			taxonomy = s.na
 		}
+		s.res[k] = append(s.res[k], taxonomy...)
 	}
 }
 
@@ -151,6 +149,5 @@ func (s *searcher) appendDiagnosis() {
 		}
 		diag = append(diag, tumor...)
 		s.res[k] = append(s.res[k], diag...)
-		fmt.Println(diag)
 	}
 }
