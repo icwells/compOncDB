@@ -150,7 +150,7 @@ func (s *searcher) appendDiagnosis() {
 			tumor = s.na[:4]
 		}
 		diag = append(diag, tumor...)
-		s.res[k] = append(s.res, diag...)
+		s.res[k] = append(s.res[k], diag...)
 		fmt.Println(diag)
 	}
 }
