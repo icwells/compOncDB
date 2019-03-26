@@ -153,6 +153,6 @@ func (s *searcher) appendDiagnosis() {
 		} else {
 			s.res[k] = append(v, s.na[:4]...)
 		}
-		fmt.Println(s.res[k])
+		fmt.Println(tumor, exists)
 	}
 }
