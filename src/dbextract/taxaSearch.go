@@ -53,8 +53,8 @@ func (s *searcher) setTaxonomy(names []string) bool {
 	}
 	if len(s.taxa) > 0 {
 		ret = true
-		for _, row := range s.taxa {
-			s.taxaids = append(s.taxaids, row[0])
+		for k := range s.taxa {
+			s.taxaids = append(s.taxaids, k)
 		}
 	}
 	return ret
