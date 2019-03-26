@@ -139,7 +139,7 @@ func (s *searcher) appendDiagnosis() {
 	// Appends data from tumor and tumor relation tables
 	d := dbupload.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
 	t := dbupload.ToMap(s.db.GetRows("Tumor", "ID", strings.Join(s.ids, ","), "*"))
-	for k, v := range s.res {
+	for k := range s.res {
 		// Concatenate tables
 		diag, ex := d[k]
 		if ex == false {
