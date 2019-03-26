@@ -11,7 +11,6 @@ import (
 	"strings"
 )
 
-
 func toTitle(names []string) []string {
 	// Converts all input names to title case
 	var ret []string

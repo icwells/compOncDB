@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/strarray"
 	"strconv"
 	"strings"
 )
@@ -47,26 +48,31 @@ func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string,
 
 func (s *searcher) getIDs() {
 	// Gets ids from target table and get patient records
+	tmp := strarray.NewSet()
 	ids := s.db.GetRows(s.tables[0], s.column, s.value, "ID")
 	for _, i := range ids {
-		// Convert to single slice
-		s.ids = append(s.ids, i[0])
+		tmp.Add(i[0])
 	}
+	s.ids = tmp.ToSlice()
 	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
 }
 
 func (s *searcher) setIDs() {
 	// Sets IDs from s.res (ID must be in first column)
+	tmp := strarray.NewSet()
 	for _, i := range s.res {
-		s.ids = append(s.ids, i[0])
+		tmp.Add(i[0])
 	}
+	s.ids = tmp.ToSlice()
 }
 
 func (s *searcher) setTaxaIDs() {
 	// Stores taxa ids from patient results
+	tmp := strarray.NewSet()
 	for _, i := range s.res {
-		s.taxaids = append(s.taxaids, i[4])
+		tmp.Add(i[4])
 	}
+	s.taxaids = tmp.ToSlice()
 }
 
 func (s *searcher) filterInfantRecords() {
