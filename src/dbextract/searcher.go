@@ -3,6 +3,7 @@
 package dbextract
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/strarray"
@@ -126,6 +127,7 @@ func (s *searcher) appendTaxonomy() {
 	for k, v := range s.res {
 		// Apppend taxonomy to records
 		taxonomy, ex := taxa[v[3]]
+		fmt.Println(v[3], ex, taxonomy)
 		if ex == false {
 			taxonomy = s.na
 		}
