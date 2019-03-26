@@ -54,7 +54,6 @@ func (s *searcher) setTaxonomy(names []string) bool {
 	if len(s.taxa) > 0 {
 		ret = true
 		for k := range s.taxa {
-			fmt.Println(k)
 			s.taxaids = append(s.taxaids, k)
 		}
 	}
