@@ -3,7 +3,7 @@
 package dbextract
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/strarray"
@@ -102,7 +102,6 @@ func (s *searcher) filterInfantRecords() {
 	s.taxaids = nil
 	s.setIDs()
 	s.setTaxaIDs()
-	fmt.Println(s.ids, s.taxaids)
 }
 
 func (s *searcher) appendSource() {

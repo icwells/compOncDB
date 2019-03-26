@@ -92,7 +92,7 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 	taxonomy := s.getTaxonomy(names, false)
 	if len(taxonomy) >= 1 {
 		s.getTaxa()
-		//s.setTaxaIDs()
+		fmt.Println(s.res)
 		if len(s.res) >= 1 {
 			if s.infant == false {
 				s.filterInfantRecords()
