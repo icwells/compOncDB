@@ -26,36 +26,36 @@ func (s *searcher) getTaxa() {
 	s.setIDs()
 }
 
-func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
-	// Stores taxa ids from species name and returns taxonomy
-	ret := make(map[string][]string)
-	var table [][]string
-	if ids == true {
-		// Get results for appending
-		table = s.db.GetRows("Taxonomy", "taxa_id", strings.Join(names, ","), "*")
-	} else {
-		if s.common == true {
-			// Get taxonomy ids from common name list
-			c := s.db.GetRows("Common", "Name", strings.Join(toTitle(names), ","), "*")
-			if len(c) >= 1 {
-				// Colect taxa IDs
-				buffer := bytes.NewBufferString(c[0][0])
-				for _, i := range c[1:] {
-					buffer.WriteByte(',')
-					buffer.WriteString(i[0])
-				}
-				// Get taxonomy entries
-				table = s.db.GetRows("Taxonomy", "taxa_id", buffer.String(), "*")
+func (s *searcher) getTaxonomy() {
+	// Stores taxonomy (ids must be set first)
+	s.taxa = dbupload.ToMap(s.db.GetRows("Taxonomy", "taxa_id", strings.Join(s.taxaids, ","), "taxa_id,Kingdom,Phylum,Class,Orders,Family,Genus,Species"))
+}
+
+func (s *searcher) setTaxonomy(names []string) bool {
+	// Stores taxa ids and taxonomies from species name
+	var ret bool
+	if s.common == true {
+		// Get taxonomy ids from common name list
+		c := s.db.GetRows("Common", "Name", strings.Join(toTitle(names), ","), "taxa_id")
+		if len(c) >= 1 {
+			// Colect taxa IDs
+			buffer := bytes.NewBufferString(c[0][0])
+			for _, i := range c[1:] {
+				buffer.WriteByte(',')
+				buffer.WriteString(i[0])
 			}
-		} else if ids == false {
-			// Get matching taxonomies
-			table = s.db.GetRows("Taxonomy", s.column, strings.Join(names, ","), "*")
+			// Get taxonomy entries
+			s.taxa = dbupload.ToMap(s.db.GetRows("Taxonomy", "taxa_id", buffer.String(), "taxa_id,Kingdom,Phylum,Class,Orders,Family,Genus,Species"))
 		}
-		s.taxaids = getColumn(0, table)
+	} else {
+		// Get matching taxonomies
+		s.taxa = dbupload.ToMap(s.db.GetRows("Taxonomy", s.column, strings.Join(names, ","), "taxa_id,Kingdom,Phylum,Class,Orders,Family,Genus,Species"))
 	}
-	for _, row := range table {
-		// Exclude taxa id and source
-		ret[row[0]] = row[1:8]
+	if len(s.taxa) > 0 {
+		ret = true
+		for _, row := range s.taxa {
+			s.taxaids = append(s.taxaids, row[0])
+		}
 	}
 	return ret
 }
@@ -89,8 +89,8 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 	s := newSearcher(db, []string{"Taxonomy"}, user, level, "=", "", com, inf)
 	s.checkLevel(level)
 	fmt.Printf("\tExtracting patient information from %s...\n", s.column)
-	taxonomy := s.getTaxonomy(names, false)
-	if len(taxonomy) >= 1 {
+	pass := s.setTaxonomy(names)
+	if pass == true {
 		s.getTaxa()
 		if len(s.res) >= 1 {
 			if s.infant == false {

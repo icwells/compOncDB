@@ -21,6 +21,7 @@ type searcher struct {
 	common   bool
 	infant   bool
 	res      map[string][]string
+	taxa     map[string][]string
 	ids      []string
 	taxaids  []string
 	header   string
@@ -31,6 +32,7 @@ func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string,
 	// Assigns starting values to searcher
 	s := new(searcher)
 	s.res = make(map[string][]string)
+	s.taxa = make(map[string][]string)
 	// Add default header
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,Date,Comments,"
 	s.header = s.header + "Masspresent,Hyperplasia,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
@@ -123,12 +125,14 @@ func (s *searcher) appendSource() {
 
 func (s *searcher) appendTaxonomy() {
 	// Appends raxonomy to s.res
-	taxa := s.getTaxonomy(s.taxaids, true)
+	if len(s.taxa) == 0 && len(s.taxaids) > 0 {
+		s.getTaxonomy()
+	}
 	fmt.Println(s.taxaids)
 	for k, v := range s.res {
 		// Apppend taxonomy to records
-		taxonomy, ex := taxa[v[3]]
-		fmt.Println(v[3], ex, taxonomy)
+		taxonomy, ex := s.taxa[v[3]]
+		//fmt.Println(v[3], ex, taxonomy)
 		if ex == false {
 			taxonomy = s.na
 		}
