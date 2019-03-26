@@ -30,30 +30,30 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 	// Stores taxa ids from species name and returns taxonomy
 	ret := make(map[string][]string)
 	var table [][]string
-	if s.common == true {
-		// Get taxonomy ids from common name list
-		c := s.db.GetRows("Common", "Name", strings.Join(toTitle(names), ","), "*")
-		if len(c) >= 1 {
-			// Colect taxa IDs
-			buffer := bytes.NewBufferString(c[0][0])
-			for _, i := range c[1:] {
-				buffer.WriteByte(',')
-				buffer.WriteString(i[0])
-			}
-			// Get taxonomy entries
-			table = s.db.GetRows("Taxonomy", "taxa_id", buffer.String(), "*")
-		}
-	} else if ids == false {
-		// Get matching taxonomies
-		table = s.db.GetRows("Taxonomy", s.column, strings.Join(names, ","), "*")
-	} else {
+	if ids == true {
+		// Get results for appending
 		table = s.db.GetRows("Taxonomy", "taxa_id", strings.Join(names, ","), "*")
+	} else {
+		if s.common == true {
+			// Get taxonomy ids from common name list
+			c := s.db.GetRows("Common", "Name", strings.Join(toTitle(names), ","), "*")
+			if len(c) >= 1 {
+				// Colect taxa IDs
+				buffer := bytes.NewBufferString(c[0][0])
+				for _, i := range c[1:] {
+					buffer.WriteByte(',')
+					buffer.WriteString(i[0])
+				}
+				// Get taxonomy entries
+				table = s.db.GetRows("Taxonomy", "taxa_id", buffer.String(), "*")
+			}
+		} else if ids == false {
+			// Get matching taxonomies
+			table = s.db.GetRows("Taxonomy", s.column, strings.Join(names, ","), "*")
+		}
+		s.taxaids = getColumn(0, table)
 	}
 	for _, row := range table {
-		if ids == false {
-			// Append taxa id and return map of taxonomy entries
-			s.taxaids = append(s.taxaids, row[0])
-		}
 		// Exclude taxa id and source
 		ret[row[0]] = row[1:8]
 	}
@@ -92,7 +92,7 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 	taxonomy := s.getTaxonomy(names, false)
 	if len(taxonomy) >= 1 {
 		s.getTaxa()
-		fmt.Println(s.res)
+		//s.setTaxaIDs()
 		if len(s.res) >= 1 {
 			if s.infant == false {
 				s.filterInfantRecords()
@@ -104,6 +104,7 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 				s.appendSource()
 			}
 		}
+		fmt.Println(s.res)
 	}
 	return s.res, s.header
 }

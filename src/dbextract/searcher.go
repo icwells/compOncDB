@@ -46,33 +46,29 @@ func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string,
 	return s
 }
 
+func getColumn(idx int, table [][]string) []string {
+	// Stores values in set and returns slice of unique entries
+	tmp := strarray.NewSet()
+	for _, i := range table {
+		tmp.Add(i[idx])
+	}
+	return tmp.ToSlice()
+}
+
 func (s *searcher) getIDs() {
 	// Gets ids from target table and get patient records
-	tmp := strarray.NewSet()
-	ids := s.db.GetRows(s.tables[0], s.column, s.value, "ID")
-	for _, i := range ids {
-		tmp.Add(i[0])
-	}
-	s.ids = tmp.ToSlice()
+	s.ids = getColumn(0, s.db.GetRows(s.tables[0], s.column, s.value, "ID"))
 	s.res = s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*")
 }
 
 func (s *searcher) setIDs() {
 	// Sets IDs from s.res (ID must be in first column)
-	tmp := strarray.NewSet()
-	for _, i := range s.res {
-		tmp.Add(i[0])
-	}
-	s.ids = tmp.ToSlice()
+	s.ids = getColumn(0, s.res)
 }
 
 func (s *searcher) setTaxaIDs() {
 	// Stores taxa ids from patient results
-	tmp := strarray.NewSet()
-	for _, i := range s.res {
-		tmp.Add(i[4])
-	}
-	s.taxaids = tmp.ToSlice()
+	s.taxaids = getColumn(4, s.res)
 }
 
 func (s *searcher) filterInfantRecords() {
