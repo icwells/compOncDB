@@ -34,6 +34,7 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 	if s.common == true {
 		// Get taxonomy ids from common name list
 		c := s.db.GetRows("Common", "Name", strings.Join(toTitle(names), ","), "*")
+		fmt.Println(toTitle(names), c)
 		if len(c) >= 1 {
 			// Colect taxa IDs
 			buffer := bytes.NewBufferString(c[0][0])
