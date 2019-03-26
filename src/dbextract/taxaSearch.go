@@ -43,7 +43,6 @@ func (s *searcher) getTaxonomy(names []string, ids bool) map[string][]string {
 			}
 			// Get taxonomy entries
 			table = s.db.GetRows("Taxonomy", "taxa_id", buffer.String(), "*")
-			fmt.Println(table)
 		}
 	} else if ids == false {
 		// Get matching taxonomies
@@ -94,7 +93,7 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 	taxonomy := s.getTaxonomy(names, false)
 	if len(taxonomy) >= 1 {
 		s.getTaxa()
-		s.setTaxaIDs()
+		//s.setTaxaIDs()
 		if len(s.res) >= 1 {
 			if s.infant == false {
 				s.filterInfantRecords()

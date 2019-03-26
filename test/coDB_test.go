@@ -84,7 +84,8 @@ func loadTable(file string) map[string][]string {
 		s := strings.Split(string(scanner.Text()), ",")
 		if first == false {
 			// Store map entry without id columns
-			ret[s[trim.id]] = trim.trimColumns(s)
+			id := s[trim.id]
+			ret[id] = trim.trimColumns(s)
 		} else {
 			trim.setColumns(s)
 			first = false
