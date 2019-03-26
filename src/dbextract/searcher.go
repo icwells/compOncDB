@@ -142,17 +142,15 @@ func (s *searcher) appendDiagnosis() {
 	for k, v := range s.res {
 		// Concatenate tables
 		diag, ex := d[k]
-		if ex == true {
-			s.res[k] = append(v, diag...)
-		} else {
-			s.res[k] = append(v, s.na[:4]...)
+		if ex == false {
+			diag = s.na[:4]
 		}
 		tumor, exists := t[k]
-		if exists == true {
-			s.res[k] = append(v, tumor...)
-		} else {
-			s.res[k] = append(v, s.na[:4]...)
+		if exists == false {
+			tumor = s.na[:4]
 		}
-		fmt.Println(tumor, exists)
+		diag = append(diag, tumor...)
+		s.res[k] = append(s.res, diag...)
+		fmt.Println(diag)
 	}
 }
