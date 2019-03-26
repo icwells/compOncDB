@@ -126,19 +126,17 @@ func compareTables(t *testing.T, name, exp, act string) {
 	if len(actual) != len(expected) {
 		t.Errorf("%s: Actual length %d does not equal expected: %d", name, len(actual), len(expected))
 	} else {
-		for k, v := range expected {
+		for key, val := range actual {
 			equal := false
 			var idx int
-			val, ex := actual[k]
-			if ex == false {
-				t.Errorf("%s: Expected key %s does not in actual", name, v)
-			} else if len(v) != len(val) {
-				t.Errorf("%s: Actual line length %d does not equal expected: %d", name, len(val), len(v))
-			} else {
+			for _, v := range expected {
 				equal, idx = compareEntries(val, v)
-				if equal == false {
-					t.Errorf("%s %s-%d: Actual value %s does not equal expected: %s", name, k, idx, actual[k][idx], expected[k][idx])
+				if equal == true {
+					break
 				}
+			}
+			if equal == false {
+				t.Errorf("%s %s-%d: Actual value %s does not equal expected: %s", name, key, idx, actual[key][idx], expected[key][idx])
 			}
 		}
 	}
@@ -161,7 +159,7 @@ func TestDumpTables(t *testing.T) {
 		} else {
 			compareTables(t, k, v, act)
 			// Remove test output
-			os.Remove(act)
+			//os.Remove(act)
 		}
 	}
 }

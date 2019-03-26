@@ -1,16 +1,16 @@
 ID, primary_tumor, Malignant, Type, Location
 1,0,-1,NA,NA
 2,0,-1,NA,NA
-3,0,-1,lymphoma,lymph nodes
+3,0,1,lymphoma,lymph nodes
 4,0,-1,NA,NA
 5,0,-1,NA,NA
 6,0,-1,NA,NA
 7,0,-1,NA,NA
-8,0,-1,adenoma,ovary
+8,0,0,adenoma,ovary
 9,0,-1,NA,NA
-10,0,-1,NA,NA
-11,0,-1,carcinoma,skin
-12,0,-1,carcinoma,uterus
+10,0,1,carcinoma,skin
+11,0,1,carcinoma,uterus
+12,0,-1,NA,NA
 13,0,-1,NA,NA
 14,0,-1,NA,NA
 15,0,-1,NA,NA
