@@ -127,7 +127,7 @@ func (s *searcher) appendTaxonomy() {
 	for k, v := range s.res {
 		// Apppend taxonomy to records
 		taxonomy, ex := taxa[v[3]]
-		fmt.Println(v[3], taxonomy)
+		fmt.Println(k, v[3], taxonomy[6])
 		if ex == true {
 			s.res[k] = append(v, taxonomy...)
 		} else {
@@ -146,13 +146,13 @@ func (s *searcher) appendDiagnosis() {
 		if ex == true {
 			s.res[k] = append(v, diag...)
 		} else {
-			s.res[k] = append(v, s.na[:5]...)
+			s.res[k] = append(v, s.na[:4]...)
 		}
 		tumor, exists := t[k]
 		if exists == true {
 			s.res[k] = append(v, tumor...)
 		} else {
-			s.res[k] = append(v, s.na[:5]...)
+			s.res[k] = append(v, s.na[:4]...)
 		}
 	}
 }
