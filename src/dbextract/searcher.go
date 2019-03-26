@@ -3,6 +3,7 @@
 package dbextract
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"strconv"
@@ -95,6 +96,7 @@ func (s *searcher) filterInfantRecords() {
 	s.taxaids = nil
 	s.setIDs()
 	s.setTaxaIDs()
+	fmt.Println(s.ids, s.taxaids)
 }
 
 func (s *searcher) appendSource() {
