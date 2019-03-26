@@ -61,7 +61,7 @@ func getColumn(idx int, table [][]string) []string {
 	// Stores values in set and returns slice of unique entries
 	tmp := strarray.NewSet()
 	for _, i := range table {
-		if i != "-1" {
+		if i[idx] != "-1" {
 			tmp.Add(i[idx])
 		}
 	}
