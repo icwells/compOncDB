@@ -20,19 +20,13 @@ var (
 
 type idtrimmer struct {
 	columns	[]int
-	id		int
 }
 
 func (t *idtrimmer) setColumns(row []string) {
 	// Stores id column indeces
-	first := true
 	for idx, i := range row {
 		if i == "ID" || strings.Contains(i, "_id") == true {
 			t.columns = append(t.columns, idx)
-			if first == true {
-				t.id = idx
-				first = false
-			}
 		}
 	}
 }
@@ -72,10 +66,10 @@ func sortInput(files []string, expected bool) map[string]string {
 	return ret
 }
 
-func loadTable(file string) map[string][]string {
+func loadTable(file string) [][]string {
 	// Returns table as a map of string slices
 	first := true
-	ret := make(map[string][]string)
+	var ret [][]string
 	var trim idtrimmer
 	f := iotools.OpenFile(file)
 	defer f.Close()
@@ -84,8 +78,7 @@ func loadTable(file string) map[string][]string {
 		s := strings.Split(string(scanner.Text()), ",")
 		if first == false {
 			// Store map entry without id columns
-			id := s[trim.id]
-			ret[id] = trim.trimColumns(s)
+			ret = append(ret, trim.trimColumns(s))
 		} else {
 			trim.setColumns(s)
 			first = false
@@ -99,13 +92,15 @@ func compareEntries(actual, expected []string) (bool, int) {
 	ret := true
 	var index int
 	for idx, i := range actual {
-		if i != expected[idx] {
+		i = strings.TrimSpace(i)
+		ex := strings.TrimSpace(expected[idx])
+		if i != ex {
 			ret = false
 			// Attempt to resolve differences in floating point precision
 			a, err := strconv.ParseFloat(i, 64)
 			if err == nil {
 				var e float64
-				e, err = strconv.ParseFloat(expected[idx], 64)
+				e, err = strconv.ParseFloat(ex, 64)
 				if err == nil && a == e {
 					ret = true
 				}
@@ -126,17 +121,28 @@ func compareTables(t *testing.T, name, exp, act string) {
 	if len(actual) != len(expected) {
 		t.Errorf("%s: Actual length %d does not equal expected: %d", name, len(actual), len(expected))
 	} else {
-		for key, val := range actual {
+		for ind, i := range actual {
 			equal := false
 			var idx int
-			for _, v := range expected {
-				equal, idx = compareEntries(val, v)
-				if equal == true {
+			var ex string
+			for _, val := range expected {
+				// Ignore randomly assigned IDs and compare to all entries
+				if len(i) == len(val) {
+					equal, idx = compareEntries(i, val)
+					if idx < len(val) {
+						ex = val[idx]
+					}
+				}
+				if equal == true { 
 					break
 				}
 			}
 			if equal == false {
-				t.Errorf("%s %s-%d: Actual value %s does not equal expected: %s", name, key, idx, actual[key][idx], expected[key][idx])
+				if len(ex) >= 1 {
+					t.Errorf("%s %d: Actual value %s does not equal expected: %s", name, idx, actual[ind][idx], ex)
+				} else {
+					t.Errorf("%s: Actual line length %d does not equal expected: %d", name, len(i), len(expected[0]))
+				}
 			}
 		}
 	}
@@ -159,7 +165,7 @@ func TestDumpTables(t *testing.T) {
 		} else {
 			compareTables(t, k, v, act)
 			// Remove test output
-			//os.Remove(act)
+			os.Remove(act)
 		}
 	}
 }
