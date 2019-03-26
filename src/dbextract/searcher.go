@@ -61,7 +61,9 @@ func getColumn(idx int, table [][]string) []string {
 	// Stores values in set and returns slice of unique entries
 	tmp := strarray.NewSet()
 	for _, i := range table {
-		tmp.Add(i[idx])
+		if i != "-1" {
+			tmp.Add(i[idx])
+		}
 	}
 	return tmp.ToSlice()
 }
@@ -122,9 +124,9 @@ func (s *searcher) appendSource() {
 func (s *searcher) appendTaxonomy() {
 	// Appends raxonomy to s.res
 	taxa := s.getTaxonomy(s.taxaids, true)
-	fmt.Println(s.taxaids, taxa)
 	for k, v := range s.res {
 		// Apppend taxonomy to records
+		fmt.Println(k, v)
 		taxonomy, ex := taxa[v[3]]
 		if ex == true {
 			s.res[k] = append(v, taxonomy...)

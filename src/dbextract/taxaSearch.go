@@ -103,7 +103,7 @@ func SearchTaxonomicLevels(db *dbIO.DBIO, names []string, user, level string, co
 				s.appendSource()
 			}
 		}
-		fmt.Println(s.res)
+		//fmt.Println(s.res)
 	}
 	return s.toSlice(), s.header
 }
