@@ -124,6 +124,7 @@ func (s *searcher) appendSource() {
 func (s *searcher) appendTaxonomy() {
 	// Appends raxonomy to s.res
 	taxa := s.getTaxonomy(s.taxaids, true)
+	fmt.Println(s.taxaids)
 	for k, v := range s.res {
 		// Apppend taxonomy to records
 		taxonomy, ex := taxa[v[3]]
