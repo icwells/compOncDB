@@ -192,7 +192,7 @@ func TestSearches(t *testing.T) {
 		} else {
 			compareTables(t, k, v, act)
 			// Remove test output
-			//os.Remove(act)
+			os.Remove(act)
 		}
 	}
 }
