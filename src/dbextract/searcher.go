@@ -85,7 +85,7 @@ func (s *searcher) setIDs() {
 
 func (s *searcher) setTaxaIDs() {
 	// Stores taxa ids from patient results
-	s.taxaids = getColumn(3, s.toSlice())
+	s.taxaids = getColumn(4, s.toSlice())
 }
 
 func (s *searcher) filterInfantRecords() {
