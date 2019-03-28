@@ -18,36 +18,129 @@ var (
 	tables = flag.String("tables", "", "Path tableColumns.txt file.")
 )
 
-type idtrimmer struct {
-	columns	[]int
+type filepair struct {
+	t			*testing.T
+	name		string
+	columns		map[string]int
+	ids			[]int
+	expected	map[string][]string
+	actual		map[string][]string
+	index		int
+	value		string
+	pass		bool
 }
 
-func (t *idtrimmer) setColumns(row []string) {
-	// Stores id column indeces
-	for idx, i := range row {
+func (f *filepair) setColumns(header []string) {
+	// Stores column value:index pairs
+	for idx, i := range header {
+		f.columns[i] = idx
 		if i == "ID" || strings.Contains(i, "_id") == true {
-			t.columns = append(t.columns, idx)
+			f.ids = append(f.ids, idx)
 		}
 	}
 }
 
-func (t *idtrimmer) trimColumns(row []string) []string {
-	// Removes randomly generated id numbers from column
-	for _, c := range t.columns {
-		// Remove randomly assigned id entries
-		var head []string
-		if c >= len(row) - 1 {
-			row = row[:len(row)-1]
+func (f *filepair) loadTable(file string) map[string][]string {
+	// Returns table as a map of string slices
+	first := true
+	ret := make(map[string][]string)
+	fl := iotools.OpenFile(file)
+	defer fl.Close()
+	scanner := iotools.GetScanner(fl)
+	for scanner.Scan() {
+		s := strings.Split(string(scanner.Text()), ",")
+		if first == false {
+			// Store map entry without id columns
+			ret[s[0]] = s
 		} else {
-			if c == 1 {
-				head = []string{row[0]}
-			} else {
-				head = row[:c]
-			row = append(head, row[c+1:]...)
+			if len(f.columns) == 0 {
+				f.setColumns(s)
+			}
+			first = false
+		}
+	}
+	return ret
+}
+
+func newFilePair(t *testing.T, name, e, a string) filepair {
+	// Initializes struct and reads in data from input files
+	var f filepair
+	f.t = t
+	f.name = name
+	f.index = -1
+	f.pass = true
+	f.columns = make(map[string]int)
+	f.expected = f.loadTable(e)
+	f.actual = f.loadTable(a)
+	return f
+}
+
+//----------------------------------------------------------------------------
+
+func (f *filepair) isID(idx int) bool {
+	// Returns true if column idx is in f.ids
+	for _, i := range f.ids {
+		if i == idx {
+			return true
+		}
+	}
+	return false
+}
+
+func (f *filepair) compareEntries(actual, expected []string)  {
+	// Returns true if both slices are equal
+	equal := true
+	for idx, i := range actual {
+		// Skip randomly assigned IDs
+		if f.isID(idx) == false && i != expected[idx] {
+			equal = false
+			// Attempt to resolve differences in floating point precision
+			a, err := strconv.ParseFloat(i, 64)
+			if err == nil {
+				var e float64
+				e, err = strconv.ParseFloat(expected[idx], 64)
+				if err == nil && a == e {
+					equal = true
+				}
+			}
+		}
+		if equal == false {
+			f.pass = false
+			f.index = idx
+			f.value = expected[idx]
+			break
+		}
+	}
+}
+
+func (f *filepair) compareRows(k string) {
+	// Compares actual[idx] to expected entries
+	row := f.actual[k]
+	e := f.expected[k]
+	if len(row) != len(f.columns) {
+		f.t.Errorf("%s %s: Actual line length %d does not equal expected: %d", f.name, k, len(row), len(f.columns))
+	} else {
+		f.compareEntries(row, e)
+	}
+	if f.pass == false {
+		f.t.Errorf("%s %s-%d: Actual value %s does not equal expected: %s", f.name, k, f.index, row[f.index], f.value)
+	}
+}
+
+func compareTables(t *testing.T, name, exp, act string) {
+	// Compares output of equivalent tables
+	f := newFilePair(t, name, exp, act)
+	if len(f.actual) != len(f.expected) {
+		f.t.Errorf("%s: Actual file length %d does not equal expected: %d", name, len(f.actual), len(f.expected))
+	} else {
+		for k := range f.actual {
+			f.compareRows(k)
+			if f.pass == false {
+				// Report 1 error per file
+				break
 			}
 		}
 	}
-	return row
 }
 
 //----------------------------------------------------------------------------
@@ -64,88 +157,6 @@ func sortInput(files []string, expected bool) map[string]string {
 		ret[base] = i
 	}
 	return ret
-}
-
-func loadTable(file string) [][]string {
-	// Returns table as a map of string slices
-	first := true
-	var ret [][]string
-	var trim idtrimmer
-	f := iotools.OpenFile(file)
-	defer f.Close()
-	scanner := iotools.GetScanner(f)
-	for scanner.Scan() {
-		s := strings.Split(string(scanner.Text()), ",")
-		if first == false {
-			// Store map entry without id columns
-			ret = append(ret, trim.trimColumns(s))
-		} else {
-			trim.setColumns(s)
-			first = false
-		}
-	}
-	return ret
-}
-
-func compareEntries(actual, expected []string) (bool, int) {
-	// Returns true if both slices are equal
-	ret := true
-	var index int
-	for idx, i := range actual {
-		i = strings.TrimSpace(i)
-		ex := strings.TrimSpace(expected[idx])
-		if i != ex {
-			ret = false
-			// Attempt to resolve differences in floating point precision
-			a, err := strconv.ParseFloat(i, 64)
-			if err == nil {
-				var e float64
-				e, err = strconv.ParseFloat(ex, 64)
-				if err == nil && a == e {
-					ret = true
-				}
-			}
-		}
-		if ret == false {
-			index = idx
-			break
-		}
-	}
-	return ret, index
-}
-
-func compareTables(t *testing.T, name, exp, act string) {
-	// Compares output of equivalent tables
-	expected := loadTable(exp)
-	actual := loadTable(act)
-	if len(actual) != len(expected) {
-		t.Errorf("%s: Actual length %d does not equal expected: %d", name, len(actual), len(expected))
-	} else {
-		for ind, i := range actual {
-			equal := false
-			var idx int
-			var ex string
-			for _, val := range expected {
-				// Ignore randomly assigned IDs and compare to all entries
-				if len(i) == len(val) {
-					equal, idx = compareEntries(i, val)
-					if idx < len(val) {
-						ex = val[idx]
-					}
-				}
-				if equal == true { 
-					break
-				}
-			}
-			if equal == false {
-				if len(ex) >= 1 {
-					t.Errorf("%s %d: Actual value %s does not equal expected: %s", name, idx, actual[ind][idx], ex)
-				} else {
-					t.Errorf("%s: Actual line length %d does not equal expected: %d", name, len(i), len(expected[0]))
-				}
-			}
-		}
-	}
 }
 
 func TestDumpTables(t *testing.T) {
@@ -169,8 +180,6 @@ func TestDumpTables(t *testing.T) {
 		}
 	}
 }
-
-//----------------------------------------------------------------------------
 
 func TestSearches(t *testing.T) {
 	// Tests taxonomy search output
