@@ -25,6 +25,7 @@ func (m *matcher) setTypes() {
 		"duodenum":        regexp.MustCompile(`(?i)duodenum`),
 		"fat":             regexp.MustCompile(`(?i)fat|adipose.*`),
 		"heart":           regexp.MustCompile(`(?i)heart|cardiac|atrial`),
+		"small intestine": regexp.MustCompile(`(?i)(small )?intestin(e|al)`),
 		"kidney":          regexp.MustCompile(`(?i)kidney.*|ureter|renal`),
 		"leukemia":        regexp.MustCompile(`(?i)leukemia`),
 		"liver":           regexp.MustCompile(`(?i)hepa.*|liver.*|hep.*|billia.*`),

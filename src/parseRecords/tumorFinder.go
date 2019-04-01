@@ -7,16 +7,58 @@ import (
 	"strings"
 )
 
+type tumorType struct {
+	match		string
+	index		int
+	length		int
+	locations	map[string]int
+	location	string
+}
+
+func newTumorType(m string, i, l int) tumorType {
+	// Initializes new struct
+	var t tumorType
+	t.match = m
+	t.index = i
+	t.locations = make(map[string]int)
+	t.location = "NA"
+	return t
+}
+
+func (t *tumorType) setDistance(l, m, line string) {
+	// Stores location hit and distance from type
+	var dist int
+	idx := strings.Index(line, m)
+	if idx > t.index {
+		// Location index - type index + length of type
+		dist = idx - (t.index + len(t.match))
+	} else {
+		// Type index - (location index + location length)
+		dist = t.index - (idx + len(m))
+	}
+	t.locations[l] = dist
+}
+
+func (t *tumorType) setLocation() {
+	// Determines location with shortest distance from type
+	min := t.length
+	for k, v := range t.locations {
+		if v < min {
+			min = v
+			t.location = k
+		}
+	}
+}
+
 type tumorFinder struct {
-	matches   []string
-	types     []string
-	locations []string
+	types     map[string]tumorType
 	malignant string
 }
 
 func newTumorFinder() tumorFinder {
 	// Initializes new struct
 	var t tumorFinder
+	t.types = make(map[string]tumorType)
 	t.malignant = "-1"
 	return t
 }
@@ -24,37 +66,36 @@ func newTumorFinder() tumorFinder {
 func (t *tumorFinder) toStrings() (string, string, string) {
 	// Returns values as strings
 	if len(t.types) == 0 {
-		t.types = []string{"NA"}
+		return "NA", "NA", t.malignant
+	} else {
+		var types, locations []string
+		for k, v := range t.types {
+			types = append(types, k)
+			locations = append(locations, v.location)
+		}
+		return strings.Join(types, ";"), strings.Join(locations, ";"), t.malignant
 	}
-	if len(t.locations) == 0 {
-		t.locations = []string{"NA"}
-	}
-	return strings.Join(t.types, ";"), strings.Join(t.locations, ";"), t.malignant
-}
-
-func (t *tumorFinder) getSearchIndeces(idx int, line string) (int, int) {
-	// Returns indeces of last match and next match
-	start, end := 0, len(line)
-	if idx > 0 {
-		last := idx - 1
-		start = strings.Index(line, t.matches[last]) + len(t.matches[last])
-	}
-	if start < len(line) {
-		// Include type as it might be informative (i.e. lymphoma)
-		end = strings.Index(line, t.matches[idx]) + len(t.matches[idx])
-	}
-	if start > end {
-		// Reset illogical results
-		start, end = -1, -1
-	}
-	return start, end
 }
 
 //----------------------------------------------------------------------------
 
+func (m *matcher) getLocations(t *tumorFinder, line string) {
+	// Searches line preceding type index for locations
+	for key := range t.matches {
+		for k, v := range m.location {
+			// Search for matches in words between previous and current match
+			match := m.getMatch(v, line)
+			if match != "NA" {
+				t[key].setDistance(k, match, line)
+			}
+		}
+		t[key].setLocation()
+	}
+}
+
 func (m *matcher) setMalignant(t *tumorFinder, line string) {
 	// Sets malignant value for tumorFinder
-	for _, i := range t.types {
+	for i := range t.types {
 		for k := range m.types {
 			// Get sub-map
 			if _, ex := m.types[k][i]; ex == true {
@@ -82,9 +123,8 @@ func (m *matcher) getTypes(t *tumorFinder, line string) {
 			match := m.getMatch(v.expression, line)
 			if match != "NA" {
 				if key == "other" || k != key {
-					// Keep specific diagnosis terms
-					t.matches = append(t.matches, match)
-					t.types = append(t.types, k)
+					// Keep specific diagnosis terms in struct
+					t.types[k] = newTumorType(match, strings.Index(match), len(line))
 					found = true
 				} else {
 					// Store potentially overlapping terms
@@ -94,32 +134,8 @@ func (m *matcher) getTypes(t *tumorFinder, line string) {
 			}
 		}
 		if found == false && len(typ) > 1 {
-			t.matches = append(t.matches, term)
-			t.types = append(t.types, typ)
+			t.types[typ] = newTumorType(term, strings.Index(term), len(line))
 		}
-	}
-}
-
-func (m *matcher) getLocations(t *tumorFinder, line string) {
-	// Searches line preceding type index for locations
-	for idx, _ := range t.matches {
-		loc := "NA"
-		start, end := t.getSearchIndeces(idx, line)
-		if start >= 0 && end < len(line) {
-			for k, v := range m.location {
-				// Search for matches in words between previous and current match
-				match := m.getMatch(v, line[start:end])
-				if match != "NA" {
-					loc = k
-					if loc != "widespread" && loc != "other" {
-						// Break if descriptive match is found
-						break
-					}
-				}
-			}
-		}
-		// Append one location for each type
-		t.locations = append(t.locations, loc)
 	}
 }
 
