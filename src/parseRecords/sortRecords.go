@@ -22,7 +22,7 @@ func subsetLine(idx int, line []string) string {
 	return ret
 }
 
-func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, out *os.File, line []string) {
+func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, out *os.File, line []string) {
 	// Returns formatted string and true if it should be written
 	defer wg.Done()
 	write := false
@@ -52,6 +52,10 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, out *os.File, 
 		rec.service = e.service
 		rec.setAccount(subsetLine(e.col.account, line))
 		rec.setSubmitter(subsetLine(e.col.submitter, line))
+		if len(line[e.col.code]) > 0 {
+			// Store code for debugging
+			rec.code = line[e.col.code]
+		}
 		if e.dupsPresent == true {
 			rec.setPatient(line, e.col)
 			if e.inDuplicates(rec) == true {
@@ -66,19 +70,22 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, out *os.File, 
 	}
 	if write == true {
 		mut.Lock()
-		out.WriteString(rec.String() + "\n")
+		out.WriteString(rec.String(debug) + "\n")
 		mut.Unlock()
 		e.extracted++
 	}
 }
 
-func (e *entries) getHeader() string {
+func (e *entries) getHeader(debug bool) string {
 	// Returns appropriate header for available data
-	head := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter\n"
-	return head
+	head := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter"
+	if debug == true {
+		head += ",Cancer,Code"
+	}
+	return head + "\n"
 }
 
-func (e *entries) sortRecords(infile, outfile string) {
+func (e *entries) sortRecords(debug bool, infile, outfile string) {
 	// Sorts data and merges if necessary
 	first := true
 	var wg sync.WaitGroup
@@ -87,7 +94,7 @@ func (e *entries) sortRecords(infile, outfile string) {
 	fmt.Println("\tParsing input records...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
-	out := e.getOutputFile(outfile, e.getHeader())
+	out := e.getOutputFile(outfile, e.getHeader(debug))
 	defer out.Close()
 	scanner := iotools.GetScanner(f)
 	for scanner.Scan() {
@@ -99,7 +106,7 @@ func (e *entries) sortRecords(infile, outfile string) {
 			}
 			s := strings.Split(strings.Replace(line, "\"", "", -1), e.d)
 			wg.Add(1)
-			e.sortLine(&wg, &mut, out, s)
+			e.sortLine(&wg, &mut, debug, out, s)
 		} else {
 			// Get column info and write header
 			e.parseHeader(line)
@@ -111,7 +118,7 @@ func (e *entries) sortRecords(infile, outfile string) {
 		for _, val := range e.dups.records {
 			// Write each stored record before closing
 			for _, v := range val {
-				out.WriteString(v.String() + "\n")
+				out.WriteString(v.String(debug) + "\n")
 				e.extracted++
 			}
 		}

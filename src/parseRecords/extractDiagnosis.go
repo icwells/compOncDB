@@ -100,6 +100,10 @@ func (e *entries) parseLine(rec *record, line []string) {
 		// Attempt to find diagnosis if no code is given
 		cancer = true
 	}
+	if cancer == true {
+		// Store for debugging
+		rec.cancer = "Y"
+	}
 	// Remove ID and join line (make copy to preserve column indeces)
 	row := make([]string, len(line))
 	copy(row, line)

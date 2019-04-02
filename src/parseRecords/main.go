@@ -16,6 +16,7 @@ var (
 	infile  = kingpin.Flag("infile", "Path to input file.").Short('i').Required().String()
 	outfile = kingpin.Flag("outfile", "Path to output file.").Short('o').Required().String()
 	taxa    = kingpin.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
+	debug   = kingpin.Flag("debug", "Adds cancer and code column (if present) for hand checking.").Short('d').Default("false").Bool()
 )
 
 func printFatal(msg string, code int) {
@@ -30,6 +31,6 @@ func main() {
 	fmt.Print("\n\tProcessing input records...\n")
 	ent := newEntries(*service)
 	ent.getTaxonomy(*taxa)
-	ent.sortRecords(*infile, *outfile)
+	ent.sortRecords(*debug, *infile, *outfile)
 	fmt.Printf("\tFinished. Run time: %s\n\n", time.Since(start))
 }

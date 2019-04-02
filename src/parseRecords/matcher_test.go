@@ -9,7 +9,7 @@ import (
 
 type distcases struct {
 	line, typ, key, match string
-	dist int
+	dist                  int
 }
 
 func newDistCases() []distcases {
@@ -27,7 +27,7 @@ func newDistCases() []distcases {
 }
 
 func TestSetDistance(t *testing.T) {
-	cases := newDistCases()	
+	cases := newDistCases()
 	for _, c := range cases {
 		a := newTumorType(c.typ, strings.Index(c.line, c.typ), len(c.line))
 		a.setDistance(c.key, c.match, c.line)

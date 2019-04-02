@@ -52,6 +52,8 @@ type record struct {
 	account     string
 	submitter   string
 	patient     string
+	cancer		string
+	code		string
 }
 
 func newRecord() record {
@@ -77,10 +79,12 @@ func newRecord() record {
 	r.account = "NA"
 	r.submitter = "NA"
 	r.patient = "NA"
+	r.cancer = "N"
+	r.code = "NA"
 	return r
 }
 
-func (r *record) String() string {
+func (r *record) String(debug bool) string {
 	// Returns formatted string
 	buffer := bytes.NewBufferString(r.sex)
 	buffer.WriteByte(',')
@@ -121,6 +125,12 @@ func (r *record) String() string {
 	buffer.WriteString(r.account)
 	buffer.WriteByte(',')
 	buffer.WriteString(r.submitter)
+	if debug == true {
+		buffer.WriteByte(',')
+		buffer.WriteString(r.cancer)
+		buffer.WriteByte(',')
+		buffer.WriteString(r.code)
+	}
 	return buffer.String()
 }
 
