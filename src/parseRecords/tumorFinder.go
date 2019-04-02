@@ -8,28 +8,31 @@ import (
 )
 
 type tumorType struct {
-	match		string
-	index		int
-	length		int
-	locations	map[string]int
-	location	string
+	match     string
+	index     int
+	length    int
+	locations map[string]int
+	location  string
 }
 
-func newTumorType(m string, i, l int) tumorType {
+func newTumorType(m string, i, l int) *tumorType {
 	// Initializes new struct
 	var t tumorType
 	t.match = m
 	t.index = i
+	t.length = l
 	t.locations = make(map[string]int)
 	t.location = "NA"
-	return t
+	return &t
 }
 
 func (t *tumorType) setDistance(l, m, line string) {
 	// Stores location hit and distance from type
 	var dist int
 	idx := strings.Index(line, m)
-	if idx > t.index {
+	if idx == t.index {
+		dist = 0
+	} else if idx > t.index {
 		// Location index - type index + length of type
 		dist = idx - (t.index + len(t.match))
 	} else {
@@ -46,19 +49,25 @@ func (t *tumorType) setLocation() {
 		if v < min {
 			min = v
 			t.location = k
+			if min <= 1 {
+				// Accept neighboring word
+				break
+			}
 		}
 	}
 }
 
+//----------------------------------------------------------------------------
+
 type tumorFinder struct {
-	types     map[string]tumorType
+	types     map[string]*tumorType
 	malignant string
 }
 
 func newTumorFinder() tumorFinder {
 	// Initializes new struct
 	var t tumorFinder
-	t.types = make(map[string]tumorType)
+	t.types = make(map[string]*tumorType)
 	t.malignant = "-1"
 	return t
 }
@@ -81,15 +90,15 @@ func (t *tumorFinder) toStrings() (string, string, string) {
 
 func (m *matcher) getLocations(t *tumorFinder, line string) {
 	// Searches line preceding type index for locations
-	for key := range t.matches {
+	for key := range t.types {
 		for k, v := range m.location {
 			// Search for matches in words between previous and current match
 			match := m.getMatch(v, line)
 			if match != "NA" {
-				t[key].setDistance(k, match, line)
+				t.types[key].setDistance(k, match, line)
 			}
 		}
-		t[key].setLocation()
+		t.types[key].setLocation()
 	}
 }
 
@@ -124,7 +133,7 @@ func (m *matcher) getTypes(t *tumorFinder, line string) {
 			if match != "NA" {
 				if key == "other" || k != key {
 					// Keep specific diagnosis terms in struct
-					t.types[k] = newTumorType(match, strings.Index(match), len(line))
+					t.types[k] = newTumorType(match, strings.Index(line, match), len(line))
 					found = true
 				} else {
 					// Store potentially overlapping terms
@@ -134,7 +143,7 @@ func (m *matcher) getTypes(t *tumorFinder, line string) {
 			}
 		}
 		if found == false && len(typ) > 1 {
-			t.types[typ] = newTumorType(term, strings.Index(term), len(line))
+			t.types[typ] = newTumorType(term, strings.Index(line, term), len(line))
 		}
 	}
 }

@@ -3,8 +3,43 @@
 package main
 
 import (
+	"strings"
 	"testing"
 )
+
+type distcases struct {
+	line, typ, key, match string
+	dist int
+}
+
+func newDistCases() []distcases {
+	// Returns slice of test cases for setDistance
+	line1 := "spinal neoplasia, biopsy; castration helps to resolve the situation since it is somewhat hormonal dependent, Female, 2 years old"
+	line2 := "cause of death: single Malignant liver carcinoma; retarded growth has also been reported. 37 month old male"
+	line3 := "metastatis lymphoma, infant, 30 days, not castrated, "
+	line4 := "spayed female gray fox cutaneous malignant melanoma, "
+	return []distcases{
+		{line1, "neoplasia", "spinal cord", "spinal", 1},
+		{line2, "carcinoma", "liver", "liver", 1},
+		{line3, "lymphoma", "lymph nodes", "lymphoma", 0},
+		{line4, "melanoma", "skin", "cutaneous", 11},
+	}
+}
+
+func TestSetDistance(t *testing.T) {
+	cases := newDistCases()	
+	for _, c := range cases {
+		a := newTumorType(c.typ, strings.Index(c.line, c.typ), len(c.line))
+		a.setDistance(c.key, c.match, c.line)
+		if a.locations[c.key] != c.dist {
+			t.Errorf("Actual distance %d does not equal expected: %d", a.locations[c.key], c.dist)
+		}
+		a.setLocation()
+		if a.location != c.key {
+			t.Errorf("Actual set location %s does not equal expected: %s", a.location, c.key)
+		}
+	}
+}
 
 type matches struct {
 	line       string
