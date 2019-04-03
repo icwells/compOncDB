@@ -22,6 +22,18 @@ func subsetLine(idx int, line []string) string {
 	return ret
 }
 
+func (e *entries) getSubmitter(line string) string {
+	// Gets corrected submitter name from map
+	ret := subsetLine(e.col.submitter, line)
+	if ret != "NA" {
+		val, ex := e.accounts[ret]
+		if ex == true {
+			ret = val
+		}
+	}
+	return ret
+}
+
 func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, out *os.File, line []string) {
 	// Returns formatted string and true if it should be written
 	defer wg.Done()
@@ -51,7 +63,7 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 		rec.setComments(subsetLine(e.col.comments, line))
 		rec.service = e.service
 		rec.setAccount(subsetLine(e.col.account, line))
-		rec.setSubmitter(subsetLine(e.col.submitter, line))
+		rec.setSubmitter(e.getSubmitter(line))
 		if len(line[e.col.code]) > 0 {
 			// Store code for debugging
 			rec.code = line[e.col.code]
@@ -91,6 +103,7 @@ func (e *entries) sortRecords(debug bool, infile, outfile string) {
 	var wg sync.WaitGroup
 	var mut sync.RWMutex
 	var total int
+	e.setAccounts(infile)
 	fmt.Println("\tParsing input records...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -108,8 +121,6 @@ func (e *entries) sortRecords(debug bool, infile, outfile string) {
 			wg.Add(1)
 			go e.sortLine(&wg, &mut, debug, out, s)
 		} else {
-			// Get column info and write header
-			e.parseHeader(line)
 			first = false
 		}
 	}

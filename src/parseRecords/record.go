@@ -150,29 +150,6 @@ func (r *record) setAccount(val string) {
 
 func (r *record) setSubmitter(val string) {
 	//Store submitter/NA
-	terms := map[string]string{"Animal Clinic": "A. C.", "Animal Hospital": "A. H.", "Veterinary Clinic": "V. C.",
-		"Veterinary Hospital": "V. H.", "Veterinary Services": "V. S.", "Pet Vet": "P. V.", "International": "Intl ", "Animal": "Anim "}
-	val = checkString(val)
-	if val != "NA" {
-		// Resolve abbreviations
-		for k, v := range terms {
-			var alt string
-			if strings.Contains(v, ".") == false {
-				// Add trailing period
-				alt = strings.Replace(v, " ", ".", 1)
-			} else {
-				// Remove space
-				alt = strings.Replace(v, " ", "", 1)
-			}
-			if strings.Contains(val, v) == true {
-				val = strings.Replace(val, v, k, 1)
-				break
-			} else if strings.Contains(val, alt) == true {
-				val = strings.Replace(val, alt, k, 1)
-				break
-			}
-		}
-	}
 	r.submitter = val
 }
 

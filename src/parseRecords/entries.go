@@ -14,6 +14,7 @@ type entries struct {
 	col         columns
 	service     string
 	taxa        map[string][]string
+	accounts	map[string]string
 	match       matcher
 	dups        duplicates
 	dupsPresent bool
@@ -49,6 +50,37 @@ func (e *entries) getOutputFile(outfile, header string) *os.File {
 		f.WriteString(header)
 	}
 	return f
+}
+
+func (e *entries) setAccounts(infile string) {
+	// Reads ina d resolves account names
+	first := true
+	a := newAccounts()
+	fmt.Println("\tReading accounts from input file...")
+	f := iotools.OpenFile(infile)
+	defer f.Close()
+	scanner := iotools.GetScanner(f)
+	for scanner.Scan() {
+		line := string(scanner.Text())
+		if first == false {
+			s := strings.Split(line, d)
+			if e.col.Account != -1 && s[e.col.Account] != "NA" {
+				// Store in map by account id
+				a.sumitters[s[e.col.Account]] = append(a.sumitters[s[e.col.Account]], s[e.col.Submitter])
+			} else {
+				// Store submitter only
+				a.set.Add(s[e.col.Submitter])
+			}
+		} else {
+			e.parseHeader(line)
+			first = false
+			if e.col.Submitter == -1 {
+				// Skip if column is not present
+				break
+			}
+		}
+	}
+	e.accounts = a.resolveAccounts()
 }
 
 func (e *entries) getTaxonomy(infile string) {
