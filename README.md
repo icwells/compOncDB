@@ -19,6 +19,12 @@ compOncDB is a program written to manage veterinary pathology data and identify 
 ### Dependencies  
 Go version 1.11 or higher  
 MySQL 14.14 or higher  
+GNU Aspell  
+
+### Installing GNU Aspell
+parseRecords uses GNU Aspell to assist in resolving spelling errors in account and submitter names.  
+
+	sudo apt-get install aspell libaspell-dev  
 
 ### Download  
 Download the repository:  

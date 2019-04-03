@@ -6,6 +6,7 @@
 # Required programs:	Go 1.11+
 ##############################################################################
 
+AP="github.com/trustmaster/go-aspell"
 DBI="github.com/icwells/dbIO"
 DBU="github.com/icwells/compOncDB/src/dbupload"
 DBE="github.com/icwells/compOncDB/src/dbextract"
@@ -31,7 +32,7 @@ installPackage () {
 
 installDependencies () {
 # Get dependencies
-	for I in $DR $FZ $IO $KP $PR $SA ; do
+	for I in $AP $DR $FZ $IO $KP $PR $SA ; do
 		if [ ! -e "$PDIR/$1.a" ]; then
 			installPackage $I
 		fi
