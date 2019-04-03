@@ -6,8 +6,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
-	"github.com/icwells/go-tools/strarray"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/strarray"
 	"os"
 	"strings"
 )

@@ -5,8 +5,8 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
-	"github.com/icwells/go-tools/strarray"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/strarray"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"sort"
 )

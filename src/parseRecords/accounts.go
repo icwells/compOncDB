@@ -4,7 +4,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/trustmaster/go-aspell"
@@ -14,20 +13,20 @@ import (
 )
 
 type accounts struct {
-	ratio		float64
-	speller		aspell.Speller
-	set			strarray.Set
-	submitters	map[string][]string
-	pool		map[string][]string
-	scores		map[string]int
-	clusters	map[string][]string
-	keys		[]string
+	ratio      float64
+	speller    aspell.Speller
+	set        strarray.Set
+	submitters map[string][]string
+	pool       map[string][]string
+	scores     map[string]int
+	clusters   map[string][]string
+	keys       []string
 }
 
-func newAccounts(infile string) *accounts {
+func newAccounts() *accounts {
 	// Returns pointer to initialized struct
 	var a accounts
-	a.speller, err = aspell.NewSpeller(map[string]string{"lang": "en_US",})
+	a.speller, err = aspell.NewSpeller(map[string]string{"lang": "en_US"})
 	if err != nil {
 		fmt.Printf("\n\t[Error] Cannot initialize speller. Exiting.\n%v", err)
 		os.Exit(500)
@@ -179,7 +178,7 @@ func (a *accounts) clusterNames() {
 	// Clusters set values into submitters map
 	a.setPool(a.set.ToSlice())
 	a.setScores()
-	
+
 }
 
 func (a *accounts) resolveAccounts() map[string]string {

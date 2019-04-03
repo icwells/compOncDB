@@ -52,8 +52,8 @@ type record struct {
 	account     string
 	submitter   string
 	patient     string
-	cancer		string
-	code		string
+	cancer      string
+	code        string
 }
 
 func newRecord() record {

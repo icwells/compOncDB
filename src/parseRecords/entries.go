@@ -14,7 +14,7 @@ type entries struct {
 	col         columns
 	service     string
 	taxa        map[string][]string
-	accounts	map[string]string
+	accounts    map[string]string
 	match       matcher
 	dups        duplicates
 	dupsPresent bool
@@ -63,18 +63,18 @@ func (e *entries) setAccounts(infile string) {
 	for scanner.Scan() {
 		line := string(scanner.Text())
 		if first == false {
-			s := strings.Split(line, d)
-			if e.col.Account != -1 && s[e.col.Account] != "NA" {
+			s := strings.Split(line, e.d)
+			if e.col.account != -1 && s[e.col.account] != "NA" {
 				// Store in map by account id
-				a.sumitters[s[e.col.Account]] = append(a.sumitters[s[e.col.Account]], s[e.col.Submitter])
+				a.sumitters[s[e.col.account]] = append(a.sumitters[s[e.col.Account]], s[e.col.submitter])
 			} else {
 				// Store submitter only
-				a.set.Add(s[e.col.Submitter])
+				a.set.Add(s[e.col.submitter])
 			}
 		} else {
 			e.parseHeader(line)
 			first = false
-			if e.col.Submitter == -1 {
+			if e.col.submitter == -1 {
 				// Skip if column is not present
 				break
 			}
