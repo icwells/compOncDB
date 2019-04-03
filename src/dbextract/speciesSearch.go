@@ -5,6 +5,7 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
+	"github.com/icwells/go-tools/strarray"
 	"github.com/icwells/dbIO"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"sort"
@@ -32,7 +33,7 @@ func newSpeciesSearcher(db *dbIO.DBIO) speciesSearcher {
 func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 	// Attempts to find match for input name
 	var ret []string
-	k := dbupload.TitleCase(n)
+	k := strarray.TitleCase(n)
 	id, ex := s.species[k]
 	if ex == false {
 		// Attempt fuzzy search if there is no literal match

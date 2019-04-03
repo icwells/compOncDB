@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
+	"github.com/icwells/go-tools/strarray"
 	"github.com/icwells/dbIO"
 	"os"
 	"strings"
@@ -15,7 +16,7 @@ func toTitle(names []string) []string {
 	// Converts all input names to title case
 	var ret []string
 	for _, i := range names {
-		ret = append(ret, dbupload.TitleCase(i))
+		ret = append(ret, strings.TitleCase(i))
 	}
 	return ret
 }
