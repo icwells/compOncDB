@@ -15,7 +15,7 @@ func getTestQueries() map[string][]string {
 }
 
 func TestSetQueries(t *testing.T) {
-	// Tests set queries (by extension: checkAmpersand and checkAbbreviations)
+	// Tests setQueries (by extension: checkAmpersand, checkPeriods, and checkAbbreviations)
 	expected := getTestQueries()
 	a := newAccounts()
 	var s []string
@@ -35,4 +35,11 @@ func TestSetQueries(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestClusterNames(t *testing.T) {
+	a := newAccounts()
+	a.queries = getTestQueries()
+	a.clusterNames()
+	t.Error(a.pool)
 }
