@@ -5,22 +5,17 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/go-tools/strarray"
-	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/trustmaster/go-aspell"
 	"os"
-	"sort"
 	"strings"
 )
 
 type accounts struct {
-	ratio      float64
-	speller    aspell.Speller
-	set        strarray.Set
-	submitters map[string][]string
-	pool       map[string][]string
-	scores     map[string]int
-	clusters   map[string][]string
-	keys       []string
+	ratio     							float64
+	speller    							aspell.Speller
+	set        							strarray.Set
+	submitters, pool, queries, terms 	map[string][]string
+	scores     							map[string]int
 }
 
 func newAccounts() *accounts {
@@ -32,20 +27,30 @@ func newAccounts() *accounts {
 		os.Exit(500)
 	}
 	a.set = strarray.NewSet()
+	a.pool := make(map[string][]string)
 	a.submitters = make(map[string][]string)
-	a.clusters = make(map[string][]string)
+	a.queries = make(map[string][]string)
+	a.terms = make(map[string][]string)
 	a.ratio = 0.1
 	return &a
 }
 
 func (a *accounts) getAccounts() map[string]string {
 	// Returns map of original term: corrected term
+	var count, total int
 	ret := make(map[string]string)
-	for k := range a.clusters {
-		for _, i := range a.clusters[k] {
-			ret[i] = k
+	for key, val := range a.terms {
+		count++
+		for _, i := range val {
+			for k, v := range a.queries[i] {
+				for _, j := range v {
+					total++
+					ret[j] = key
+				}
+			}
 		}
 	}
+	fmt.Printf("\tFormatted %d terms form %d total account entries.\n", count, total)
 	return ret
 }
 
@@ -108,89 +113,11 @@ func (a *accounts) checkSpelling(v string) int {
 	return ret
 }
 
-func (a *accounts) resetKeys() {
-	// Updates key slice with keys from pool
+func (a *accounts) mapKeys(m map[string][]string) []string {
+	// Returns slice of keys from map
 	var keys []string
-	for k := range a.pool {
+	for k := range m {
 		keys = append(keys, k)
 	}
-	s.keys = keys
-}
-
-func (a *accounts) setPool(s []string) {
-	// Pools corrected terms from slice
-	pool := make(map[string][]string)
-	for _, i := range s {
-		// Get unique corrected terms
-		term = a.checkAbbreviations(i)
-		a.pool[term] = append(a.pool[term], i)
-	}
-	a.pool = pool
-	a.resetKeys()
-}
-
-func (a *accounts) fuzzymatch(s string) (string, bool) {
-	// Returns target match and whether a match was found
-	ret := false
-	target := s
-	matches := fuzzy.RankFind(s, a.keys)
-	if len(matches) > 1 {
-		sort.Sort(matches)
-		// Skip match to self
-		if float64(matches[1].Distance)/float64(len(s)) < a.ratio {
-			target = matches[1].Target
-			ret = true
-		}
-	}
-	return target, ret
-}
-
-func (a *accounts) setScores() {
-	// Scores keys in pool
-	scores := make(map[string]int)
-	for k := range a.pool {
-		// Greater number of properly spelled words = greater likelihood of being correct
-		scores[k] = a.checkSpelling(k)
-		// Index closest match or self
-		target, _ := a.fuzzymatch(k)
-		scores[target]++
-	}
-}
-
-func (a *accounts) setClusters() {
-	// Determines best candidate for map key
-	var key string
-	var max int
-	a.setScores()
-	for k, v := range a.scores {
-		// Determine consensus key
-		if v > max {
-			key = k
-		}
-	}
-	for _, i := range a.pool {
-		// Append to cluster by key
-		a.clusters[key] = append(a.clusters, i)
-	}
-}
-
-func (a *accounts) clusterNames() {
-	// Clusters set values into submitters map
-	a.setPool(a.set.ToSlice())
-	a.setScores()
-
-}
-
-func (a *accounts) resolveAccounts() map[string]string {
-	// Resolves differneces in account names
-	if a.set.Length() >= 1 {
-		a.clusterNames()
-	}
-	if len(a.submitters) >= 1 {
-		for _, v := range a.submitters {
-			a.setPool(v)
-			a.setClusters()
-		}
-	}
-	return a.getAccounts()
+	return keys
 }
