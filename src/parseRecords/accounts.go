@@ -11,23 +11,23 @@ import (
 )
 
 type accounts struct {
-	ratio     							float64
-	speller    							aspell.Speller
-	set        							strarray.Set
-	submitters, pool, queries, terms 	map[string][]string
-	scores     							map[string]int
+	ratio                            float64
+	speller                          aspell.Speller
+	set                              strarray.Set
+	submitters, pool, queries, terms map[string][]string
+	scores                           map[string]int
 }
 
 func newAccounts() *accounts {
 	// Returns pointer to initialized struct
 	var a accounts
+	var err error
 	a.speller, err = aspell.NewSpeller(map[string]string{"lang": "en_US"})
 	if err != nil {
 		fmt.Printf("\n\t[Error] Cannot initialize speller. Exiting.\n%v", err)
 		os.Exit(500)
 	}
 	a.set = strarray.NewSet()
-	a.pool := make(map[string][]string)
 	a.submitters = make(map[string][]string)
 	a.queries = make(map[string][]string)
 	a.terms = make(map[string][]string)
@@ -42,11 +42,9 @@ func (a *accounts) getAccounts() map[string]string {
 	for key, val := range a.terms {
 		count++
 		for _, i := range val {
-			for k, v := range a.queries[i] {
-				for _, j := range v {
-					total++
-					ret[j] = key
-				}
+			for _, v := range a.queries[i] {
+				total++
+				ret[v] = key
 			}
 		}
 	}
@@ -79,7 +77,7 @@ func (a *accounts) checkAbbreviations(val string) string {
 	// in records.go
 	val = checkString(val)
 	if val != "NA" {
-		val = a.checkAmpersand(starray.TitleCase(val))
+		val = a.checkAmpersand(strarray.TitleCase(val))
 		// Resolve abbreviations
 		for k, v := range terms {
 			var alt string
@@ -111,13 +109,4 @@ func (a *accounts) checkSpelling(v string) int {
 		}
 	}
 	return ret
-}
-
-func (a *accounts) mapKeys(m map[string][]string) []string {
-	// Returns slice of keys from map
-	var keys []string
-	for k := range m {
-		keys = append(keys, k)
-	}
-	return keys
 }

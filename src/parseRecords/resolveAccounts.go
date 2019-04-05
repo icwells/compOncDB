@@ -1,6 +1,6 @@
 // Contains methods for accounts struct
 
-package 
+package main
 
 import (
 	"github.com/icwells/go-tools/strarray"
@@ -8,7 +8,8 @@ import (
 	"sort"
 	"strings"
 )
-func (a *accounts) clearMaps() {
+
+func (a *accounts) clearPool() {
 	// Clears pool map
 	for k := range a.pool {
 		delete(a.pool, k)
@@ -28,16 +29,16 @@ func (a *accounts) fuzzymatch(s string, t []string) string {
 	return target
 }
 
-func (a *accounts) setScores() {
+func (a *accounts) setScores(v []string) {
 	// Scores keys in pool
-	keys := a.mapKeys(a.pool)
-	for k := range a.pool {
+	a.scores = make(map[string]int)
+	for _, i := range v {
 		// Greater number of properly spelled words = greater likelihood of being correct
-		a.scores[k] = a.checkSpelling(k)
+		a.scores[i] = a.checkSpelling(i)
 	}
-	for k := range a.pool {
+	for _, i := range v {
 		// Index closest match or self
-		target := a.fuzzymatch(k, strarray.DeleteSliceValue(keys, k))
+		target := a.fuzzymatch(i, strarray.DeleteSliceValue(v, i))
 		// Add total number of queries
 		l := len(a.queries[target])
 		a.scores[target] += l
@@ -46,56 +47,58 @@ func (a *accounts) setScores() {
 
 func (a *accounts) setTerms() {
 	// Determines best candidate for map key
-	var key string
 	var max int
-	a.setScores()
-	for k, v := range a.scores {
-		// Determine consensus key
-		if v > max {
-			key = k
+	for key, val := range a.pool {
+		a.setScores(val)
+		for k, v := range a.scores {
+			// Determine consensus key
+			if v > max {
+				key = k
+			}
 		}
-	}
-	for _, i := range a.pool {
-		// Append to cluster by key
-		a.terms[key] = append(a.terms, i)
+		for _, i := range val {
+			// Append to cluster by key
+			a.terms[key] = append(a.terms[key], i)
+		}
 	}
 }
 
 func (a *accounts) clusterNames() {
 	// Clusters set values into pool
+	a.pool = make(map[string][]string)
 	bins := make(map[int][]string)
 	// Seperate based on number of words
-	for k := range a.queries {	
+	for k := range a.queries {
 		l := strings.Count(k, " ") + 1
 		bins[l] = append(bins[l], k)
 	}
-	for k, v := range bins {
+	for _, v := range bins {
 		// Score against terms of equal length
 		s := strarray.NewSet()
 		for idx, i := range v {
 			target := strarray.DeleteSliceIndex(v, idx)
-			match := a.fuzzyMatch(i, target)
+			match := a.fuzzymatch(i, target)
 			// Catch all matches
 			s.Add(match)
 		}
 		terms := s.ToSlice()
-		for idx, i := range v {
-			match := a.fuzzyMatch(i, terms)
+		for _, i := range v {
+			match := a.fuzzymatch(i, terms)
 			// Store corrected match to closest fuzzy match/self
 			a.pool[match] = append(a.pool[match], i)
 		}
 	}
 }
 
-func (a *accounts) setQueries(s []string, pool) {
+func (a *accounts) setQueries(s []string, pool bool) {
 	// Pools corrected terms from slice
 	for _, i := range s {
 		// Get unique corrected terms
-		term = a.checkAbbreviations(i)
+		term := a.checkAbbreviations(i)
 		a.queries[term] = append(a.queries[term], i)
 		if pool == true {
 			// Add to pool if skipping clustering
-			a.pool[k] = append(a.pool[k], i)
+			a.pool[term] = append(a.pool[term], i)
 		}
 	}
 }
@@ -109,10 +112,10 @@ func (a *accounts) resolveAccounts() map[string]string {
 	}
 	if len(a.submitters) >= 1 {
 		for _, v := range a.submitters {
+			a.pool = make(map[string][]string)
 			// Get keys for each account ID
 			a.setQueries(v, true)
 			a.setTerms()
-			a.clearPool()
 		}
 	}
 	return a.getAccounts()

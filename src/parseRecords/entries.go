@@ -66,7 +66,7 @@ func (e *entries) setAccounts(infile string) {
 			s := strings.Split(line, e.d)
 			if e.col.account != -1 && s[e.col.account] != "NA" {
 				// Store in map by account id
-				a.sumitters[s[e.col.account]] = append(a.sumitters[s[e.col.Account]], s[e.col.submitter])
+				a.submitters[s[e.col.account]] = append(a.submitters[s[e.col.account]], s[e.col.submitter])
 			} else {
 				// Store submitter only
 				a.set.Add(s[e.col.submitter])

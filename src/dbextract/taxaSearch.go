@@ -16,7 +16,7 @@ func toTitle(names []string) []string {
 	// Converts all input names to title case
 	var ret []string
 	for _, i := range names {
-		ret = append(ret, strings.TitleCase(i))
+		ret = append(ret, strarray.TitleCase(i))
 	}
 	return ret
 }

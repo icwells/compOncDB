@@ -22,7 +22,7 @@ func subsetLine(idx int, line []string) string {
 	return ret
 }
 
-func (e *entries) getSubmitter(line string) string {
+func (e *entries) getSubmitter(line []string) string {
 	// Gets corrected submitter name from map
 	ret := subsetLine(e.col.submitter, line)
 	if ret != "NA" {
