@@ -48,7 +48,7 @@ func (a *accounts) getAccounts() map[string]string {
 			}
 		}
 	}
-	fmt.Printf("\tFormatted %d terms form %d total account entries.\n", count, total)
+	fmt.Printf("\tFormatted %d terms from %d total account entries.\n", count, total)
 	return ret
 }
 
@@ -70,6 +70,22 @@ func (a *accounts) checkAmpersand(val string) string {
 	return val
 }
 
+func (a *accounts) checkPeriods(val string) string {
+	// Fixes capitalization in terms with two letter abbreviations
+	if strings.Contains(val, " ") {
+		s := strings.Split(val, " ")
+		for idx, i := range s {
+			if strings.Count(i, ".") == 1 && len(i) == 2 {
+				s[idx] = strings.ToUpper(i)
+			} else if strings.Count(i, ".") == 2 && len(i) >= 3 && len(i) <= 5 {
+				s[idx] = strings.ToUpper(i)
+			}
+		}
+		val = strings.Join(s, " ")
+	}
+	return val
+}
+
 func (a *accounts) checkAbbreviations(val string) string {
 	//Store submitter/NA
 	terms := map[string]string{"Animal Clinic": "A. C.", "Animal Hospital": "A. H.", "Veterinary Clinic": "V. C.", "University": "Univ",
@@ -78,6 +94,7 @@ func (a *accounts) checkAbbreviations(val string) string {
 	val = checkString(val)
 	if val != "NA" {
 		val = a.checkAmpersand(strarray.TitleCase(val))
+		val = a.checkPeriods(val)
 		// Resolve abbreviations
 		for k, v := range terms {
 			var alt string
@@ -98,15 +115,4 @@ func (a *accounts) checkAbbreviations(val string) string {
 		}
 	}
 	return val
-}
-
-func (a *accounts) checkSpelling(v string) int {
-	// Returns number of correctly spelled words
-	ret := 0
-	for _, i := range strings.Split(v, " ") {
-		if a.speller.Check(i) {
-			ret++
-		}
-	}
-	return ret
 }

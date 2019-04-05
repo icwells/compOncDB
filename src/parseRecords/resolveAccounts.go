@@ -29,6 +29,17 @@ func (a *accounts) fuzzymatch(s string, t []string) string {
 	return target
 }
 
+func (a *accounts) checkSpelling(v string) int {
+	// Returns number of correctly spelled words
+	ret := 0
+	for _, i := range strings.Split(v, " ") {
+		if a.speller.Check(i) {
+			ret++
+		}
+	}
+	return ret
+}
+
 func (a *accounts) setScores(v []string) {
 	// Scores keys in pool
 	a.scores = make(map[string]int)
