@@ -11,7 +11,7 @@ import (
 
 var (
 	// Kingpin arguments
-	app     = kingpin.New("compOncDB", "Comand line-interface for uploading/extrating/manipulating data from the comparative oncology database.")
+	app     = kingpin.New("compOncDB", "Command line-interface for uploading/extrating/manipulating data from the comparative oncology database.")
 	user    = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 	config  = kingpin.Flag("config", "Path to config.txt (Default is in bin directory).").Default("config.txt").String()
 	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas). ").Short('e').Default("nil").String()
