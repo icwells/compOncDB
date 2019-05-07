@@ -12,14 +12,26 @@ Copyright 2019 by Shawn Rupp
 5. [parseRecords](#parseRecords)
 
 ## Description  
-compOncDB is a program written to manage veterinary pathology data and identify cancer records using  a MySQL database. The accompanying parseRecords tool can be used to extract diagnosis information from an input file. It can then be used to merge the source data, diagnosis output, and taxonomy information into a format ready for upload to the MySQL database. The program provides basic CRUD (create, read, update, delete) functionality, as well as specific analysis functions. These include calculating cancer rates per species, calculating summary statistics, and searching for specific records.  
+compOncDB is a program written to manage veterinary pathology data and identify cancer records using  a MySQL database. 
+The accompanying parseRecords tool can be used to extract diagnosis information from an input file. It can then be used 
+to merge the source data, diagnosis output, and taxonomy information into a format ready for upload to the MySQL database. 
+The program provides basic CRUD (create, read, update, delete) functionality, as well as specific analysis functions. 
+These include calculating cancer rates per species, calculating summary statistics, and searching for specific records.  
 
 ## Installation  
 
 ### Dependencies  
 Go version 1.11 or higher  
 MySQL 14.14 or higher  
-GNU Aspell  
+GNU Aspell 
+
+### Installing Go and Setting Paths  
+Go requires a GOPATH environment variable to set to install packages, an compOncDB requires the GOBIN variable to be set as well.  
+Follow the directions [here](https://github.com/golang/go/wiki/SettingGOPATH) to set your GOPATH. Before you close your .bashrc or 
+similar file, add the following lines after you deifne you GOPATH:  
+
+	export GOBIN=$GOPATH/bin  
+	export PATH=$PATH:$GOBIN  
 
 ### Installing GNU Aspell
 parseRecords uses GNU Aspell to assist in resolving spelling errors in account and submitter names.  
@@ -27,8 +39,11 @@ parseRecords uses GNU Aspell to assist in resolving spelling errors in account a
 	sudo apt-get install aspell libaspell-dev  
 
 ### Download  
-Download the repository:  
+Download the repository into correct Go src directory (required for package imports):  
 
+	cd $GOPATH/src
+	mkdir -p github.com/icwells/
+	cd github.com/icwells/
 	git clone https://github.com/icwells/compOncDB.git  
 
 ### Compiling scripts:
@@ -38,7 +53,7 @@ Any missing Go packages will be downloaded and installed when running install.sh
 	./install.sh  
 
 ### Config File  
-The config file is located in the bin directory by default (although a different location can be specified with the --config flag). It contains 
+The config file is located in the utils directory by default (although a different location can be specified with the --config flag). It contains 
 basic connection information which will be used for all connections. This includes the host (leave blank for local host), database name, test database name, 
 and the path to tableColumns.txt (also located in the bin by default). The host is the only field that may need changing, depending on whether you are using 
 a local or a remote connection.  
@@ -92,7 +107,7 @@ Make sure tableColumns.txt is in the bin/ directory.
 	./compOncDB upload {-u username} --{type_from_list_below} -i infile
 
 	-u, --user="root"	MySQL username (default is root).  
-	--config="config.txt"  Path to config.txt (Default is in bin directory).  
+	--config="config.txt"  Path to config.txt (Default is in utils directory).  
 	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.  
 	--common			Additionally extract common names from Kestrel output to update common name tables.  
 	--lh				Upload life history info from merged life history table to the database.   
