@@ -4,11 +4,16 @@ go: "1.10.x"
 
 sudo: required
 
+addons:
+  apt:
+    packages:
+	  - aspell
+	  - libaspell-dev
+
 before_script:
   - export GOBIN=$GOPATH/bin
   - export PATH=$PATH:$GOBIN
-  - apt install aspell libaspell-dev
-  - ./install.sh all
+  - ./install.sh test
 
 script:
   - ./test.sh white

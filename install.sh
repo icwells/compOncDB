@@ -30,7 +30,7 @@ installPackage () {
 
 installDependencies () {
 # Get dependencies
-	for I in $AP $DR $FZ $IO $KP $PR $SA ; do
+	for I in $AP $DBI $DR $FZ $IO $KP $PR $SA ; do
 		if [ ! -e "$PDIR/$1.a" ]; then
 			installPackage $I
 		fi
@@ -57,8 +57,9 @@ if [ $# -eq 0 ]; then
 	installMain
 elif [ $1 = "all" ]; then
 	installDependencies
-	installPackage $DBI
 	installMain
+elif [ $1 = "test" ]; then
+	installDependencies
 elif [ $1 = "db" ]; then
 	installPackage $DBI
 	installMain
@@ -66,6 +67,7 @@ elif [ $1 = "help" ]; then
 	echo "Installs Go scripts for compOnDB"
 	echo ""
 	echo "all	Installs scripts and all depenencies."
+	echo "test	Installs depenencies only (for white box testing)."
 	echo "db	Installs scripts and dbIO only."
 	echo "help	Prints help text and exits."
 	echo ""
