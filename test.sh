@@ -15,8 +15,8 @@ PRSRC="$WD/src/parseRecords/*.go"
 DBSRC="$WD/src/compOncDB/*.go"
 DUSRC="$WD/src/dbupload/*.go"
 DESRC="$WD/src/dbextract/*.go"
-CDB="$WD/bin/compOncDB"
-PR="$WD/bin/parseRecords"
+CDB="compOncDB"
+PR="parseRecords"
 CONFIG="$WD/bin/config.txt"
 
 TESTDIR=$WD/test

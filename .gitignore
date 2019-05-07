@@ -1,12 +1,8 @@
-# Binary 
-bin/compOncDB
-bin/parseRecords
-
 # Config
-bin/config.txt
+utils/config.txt
 
 # Upload script
-bin/upload.sh
+utils/upload.sh
 
 # Test data
 test/diagnoses.csv

@@ -8,8 +8,6 @@
 
 AP="github.com/trustmaster/go-aspell"
 DBI="github.com/icwells/dbIO"
-DBU="github.com/icwells/compOncDB/src/dbupload"
-DBE="github.com/icwells/compOncDB/src/dbextract"
 DR="github.com/go-sql-driver/mysql"
 FZ="github.com/lithammer/fuzzysearch/fuzzy"
 IO="github.com/icwells/go-tools/iotools"
@@ -42,17 +40,12 @@ installDependencies () {
 installMain () {
 	# Install parseRecords
 	echo "Building $PARSE..."
-	go build -i -o bin/$PARSE src/$PARSE/*.go
+	go build -i -o $GOBIN/$PARSE src/$PARSE/*.go
 	echo ""
-
-	for I in $DBU $DBE; do
-		# Install submodules
-		installPackage $I
-	done
 
 	# compOncDB 
 	echo "Building main..."
-	go build -i -o bin/$MAIN src/$MAIN/*.go
+	go build -i -o $GOBIN/$MAIN src/$MAIN/*.go
 }
 
 echo ""
