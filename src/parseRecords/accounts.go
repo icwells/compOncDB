@@ -90,27 +90,31 @@ func (a *accounts) checkAbbreviations(val string) string {
 	//Store submitter/NA
 	terms := map[string]string{"Animal Clinic": "A. C.", "Animal Hospital": "A. H.", "Veterinary Clinic": "V. C.", "University": "Univ",
 		"Veterinary Hospital": "V. H.", "Veterinary Services": "V. S.", "Pet Vet": "P. V.", "International": "Intl ", "Animal": "Anim "}
-	// in records.go
-	val = checkString(val)
-	if val != "NA" {
-		val = a.checkAmpersand(strarray.TitleCase(val))
-		val = a.checkPeriods(val)
-		// Resolve abbreviations
-		for k, v := range terms {
-			var alt string
-			if strings.Contains(v, ".") == false {
-				// Add trailing period
-				alt = strings.Replace(v, " ", ".", 1)
-			} else {
-				// Remove space
-				alt = strings.Replace(v, " ", "", 1)
-			}
-			if strings.Contains(val, v) == true {
-				val = strings.Replace(val, v, k, 1)
-				break
-			} else if strings.Contains(val, alt) == true {
-				val = strings.Replace(val, alt, k, 1)
-				break
+	if strings.Contains(val, "?") || strings.Contains(strings.ToLower(val), "not used") {
+		val = "NA"
+	} else {
+		// in records.go
+		val = checkString(val)
+		if val != "NA" {
+			val = a.checkAmpersand(strarray.TitleCase(val))
+			val = a.checkPeriods(val)
+			// Resolve abbreviations
+			for k, v := range terms {
+				var alt string
+				if strings.Contains(v, ".") == false {
+					// Add trailing period
+					alt = strings.Replace(v, " ", ".", 1)
+				} else {
+					// Remove space
+					alt = strings.Replace(v, " ", "", 1)
+				}
+				if strings.Contains(val, v) == true {
+					val = strings.Replace(val, v, k, 1)
+					break
+				} else if strings.Contains(val, alt) == true {
+					val = strings.Replace(val, alt, k, 1)
+					break
+				}
 			}
 		}
 	}

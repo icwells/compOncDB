@@ -44,7 +44,7 @@ installMain () {
 	echo ""
 
 	# compOncDB 
-	echo "Building main..."
+	echo "Building $MAIN..."
 	go build -i -o $GOBIN/$MAIN src/$MAIN/*.go
 }
 

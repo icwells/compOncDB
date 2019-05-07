@@ -53,7 +53,7 @@ func (e *entries) getOutputFile(outfile, header string) *os.File {
 }
 
 func (e *entries) setAccounts(infile string) {
-	// Reads ina d resolves account names
+	// Resolves account names
 	first := true
 	a := newAccounts()
 	fmt.Println("\tReading accounts from input file...")
