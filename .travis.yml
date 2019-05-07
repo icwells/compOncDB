@@ -5,12 +5,8 @@ go: "1.10.x"
 sudo: required
 
 before_script:
-  - cp -r "src/dbupload" "$GOPATH/src/"
-  - cp -r "src/dbextract" "$GOPATH/src/"
-  - go install dbupload
-  - go install dbextract
+  - ./install.sh all
 
 script:
-  - go test -v src/parseRecords/*.go 
-  - go test -v src/compOncDB/*.go
+  - ./test.sh white
 
