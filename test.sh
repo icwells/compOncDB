@@ -17,7 +17,6 @@ DUSRC="$WD/src/dbupload/*.go"
 DESRC="$WD/src/dbextract/*.go"
 CDB="compOncDB"
 PR="parseRecords"
-CONFIG="$WD/bin/config.txt"
 
 TESTDIR=$WD/test
 TESTPR="$TESTDIR/parseRecords_test.go"
@@ -57,7 +56,7 @@ testUpload () {
 	# Upload test data
 	echo ""
 	echo "Running black box tests on database upload..."
-	$CDB test --config $CONFIG -u $USER -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
+	$CDB test -u $USER -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
 	# Compare tables to expected
 	go test $TESTDB --run TestDumpTables --args --indir="$TESTDIR/tables/"
 }
@@ -66,7 +65,7 @@ testSearch () {
 	# Test search output
 	echo ""
 	echo "Running black box tests on database search..."
-	$CDB test --search --config $CONFIG -u $USER -i $CASES -o "$TESTDIR/searchResults/"
+	$CDB test --search -u $USER -i $CASES -o "$TESTDIR/searchResults/"
 	go test $TESTDB --run TestSearches --args --indir="$TESTDIR/searchResults/"
 }
 
@@ -74,7 +73,7 @@ testUpdates () {
 	# Test search output
 	echo ""
 	echo "Running black box tests on database update..."
-	$CDB test --update --config $CONFIG -u $USER -i $UPDATE -o "$TESTDIR/updateResults/"
+	$CDB test --update -u $USER -i $UPDATE -o "$TESTDIR/updateResults/"
 	go test $TESTDB --run TestUpdates --args --indir="$TESTDIR/updateResults/"
 }
 

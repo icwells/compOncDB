@@ -9,8 +9,26 @@ import (
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"os"
+	"path"
 	"strings"
 )
+
+func getutils() string {
+	// Returns path to utils directory
+	return path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/utils")
+}
+
+func getAbsPath(f string) string {
+	// Prepends GOPATH to file name if needed
+	if !strings.Contains(f, string(os.PathSeparator)) {
+		f = path.Join(getutils(), f)
+	}
+	if iotools.Exists(f) == false {
+		fmt.Printf("\n\t[Error] Cannot find %s file. Exiting.\n", f)
+		os.Exit(1)
+	}
+	return f
+}
 
 type configuration struct {
 	host     string
@@ -24,11 +42,7 @@ func setConfiguration(test bool) configuration {
 	// Gets setting from config.txt
 	var c configuration
 	c.test = test
-	if iotools.Exists(*config) == false {
-		fmt.Print("\n\t[Error] Cannot find config file. Exiting.\n")
-		os.Exit(1)
-	}
-	f := iotools.OpenFile(*config)
+	f := iotools.OpenFile(getAbsPath(*config))
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
 	for scanner.Scan() {
@@ -44,7 +58,7 @@ func setConfiguration(test bool) configuration {
 		case "test_database":
 			c.testdb = s[1]
 		case "table_columns":
-			c.tables = s[1]
+			c.tables = getAbsPath(s[1])
 		}
 	}
 	return c

@@ -21,7 +21,7 @@ These include calculating cancer rates per species, calculating summary statisti
 ## Installation  
 
 ### Dependencies  
-Go version 1.11 or higher  
+[Go version 1.11 or higher](https://golang.org/doc/install)  
 MySQL 14.14 or higher  
 GNU Aspell 
 

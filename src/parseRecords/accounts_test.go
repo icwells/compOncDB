@@ -5,11 +5,12 @@ package main
 import (
 	"testing"
 )
+
 func getTestQueries() map[string][]string {
 	// Returns map of expected queries
 	return map[string][]string{
-		"Payson Animal Hospital": {"payson animal hospital", "Payson A. H.", "Payson anim. Hospital"},
-		"Phoenix Veterinary Services": {"phoenix v.s.", "phoenix v. s."},
+		"Payson Animal Hospital":        {"payson animal hospital", "Payson A. H.", "Payson anim. Hospital"},
+		"Phoenix Veterinary Services":   {"phoenix v.s.", "phoenix v. s."},
 		"Phoenix Veterinarian Services": {"phoenix Veterinarian services"},
 	}
 }
@@ -17,8 +18,8 @@ func getTestQueries() map[string][]string {
 func getTestPool() map[string][]string {
 	// Returns map of expected pool
 	return map[string][]string{
-		"Payson Animal Hospital": {"Payson Animal Hospital", "Payson Animal Hospital", "Payson Animal Hospital"},
-		"Phoenix Veterinary Services": {"Phoenix Veterinary Services", "Phoenix Veterinary Services"},
+		"Payson Animal Hospital":        {"Payson Animal Hospital", "Payson Animal Hospital", "Payson Animal Hospital"},
+		"Phoenix Veterinary Services":   {"Phoenix Veterinary Services", "Phoenix Veterinary Services"},
 		"Phoenix Veterinarian Services": {"Phoenix Veterinarian Services"},
 	}
 }
@@ -26,20 +27,20 @@ func getTestPool() map[string][]string {
 func getTestScores() map[string]int {
 	// Returns map of expected scores
 	return map[string]int{
-		"Payson Animal Hospital": 5,
-		"Phoenix Veterinary Services": 5,
+		"Payson Animal Hospital":        5,
+		"Phoenix Veterinary Services":   5,
 		"Phoenix Veterinarian Services": 4,
 	}
 }
 
 func getTestTerms() map[string]string {
 	// Returns map of expected terms
-	return map[string]string {
-		"payson animal hospital": "Payson Animal Hospital",
-		"Payson A. H.": "Payson Animal Hospital",
-		"Payson anim. Hospital": "Payson Animal Hospital",
-		"phoenix v.s.": "Phoenix Veterinary Services",
-		"phoenix v. s.": "Phoenix Veterinary Services",
+	return map[string]string{
+		"payson animal hospital":        "Payson Animal Hospital",
+		"Payson A. H.":                  "Payson Animal Hospital",
+		"Payson anim. Hospital":         "Payson Animal Hospital",
+		"phoenix v.s.":                  "Phoenix Veterinary Services",
+		"phoenix v. s.":                 "Phoenix Veterinary Services",
 		"phoenix Veterinarian services": "Phoenix Veterinary Services",
 	}
 }
@@ -62,7 +63,7 @@ func TestSetScores(t *testing.T) {
 		} else if v != a {
 			t.Errorf("Actual score %d does not equal expected: %d.", a, v)
 		}
-	}	
+	}
 }
 
 func TestSetQueries(t *testing.T) {
