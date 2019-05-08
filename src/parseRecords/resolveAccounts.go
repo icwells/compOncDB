@@ -103,13 +103,17 @@ func (a *accounts) clusterNames() {
 
 func (a *accounts) setQueries(s []string, pool bool) {
 	// Pools corrected terms from slice
+	var key string
 	for _, i := range s {
 		// Get unique corrected terms
 		term := a.checkAbbreviations(i)
 		a.queries[term] = append(a.queries[term], i)
 		if pool == true {
-			// Add to pool if skipping clustering
-			a.pool[term] = append(a.pool[term], i)
+			// Add to pool with placeholder key if skipping clustering
+			if len(key) == 0 {
+				key = term
+			}
+			a.pool[key] = append(a.pool[key], term)
 		}
 	}
 }

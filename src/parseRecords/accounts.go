@@ -31,7 +31,7 @@ func newAccounts() *accounts {
 	a.submitters = make(map[string][]string)
 	a.queries = make(map[string][]string)
 	a.terms = make(map[string][]string)
-	a.ratio = 0.1
+	a.ratio = 0.05
 	return &a
 }
 
@@ -43,8 +43,11 @@ func (a *accounts) getAccounts() map[string]string {
 		count++
 		for _, i := range val {
 			for _, v := range a.queries[i] {
-				total++
-				ret[v] = key
+				if _, ex := ret[v]; ex == false {
+					// Store original term and consensus term
+					total++
+					ret[v] = key
+				}
 			}
 		}
 	}
@@ -52,20 +55,32 @@ func (a *accounts) getAccounts() map[string]string {
 	return ret
 }
 
+//----------------------------------------------------------------------------
+
+func (a *accounts) checkCaps(val string) string {
+	// Recapitalizes abbreviations
+	s := strings.Split(val, " ")
+	for idx, i := range s {
+		if len(i) <= 4 && !strings.Contains(i, ".") && !a.speller.Check(i) {
+			// Recapitalize words under 5 charaters without periods and aren't present in dictionary
+			s[idx] = strings.ToUpper(i)
+		}
+	}
+	return strings.Join(s, " ")
+}
+
 func (a *accounts) checkAmpersand(val string) string {
 	// Replaces ampersand with "and" and corrects spacing
-	var rep string
-	if strings.Contains(val, "&") == true {
-		if strings.Contains(val, " & ") == true {
-			rep = "And"
-		} else if strings.Contains(val, " &") == true {
-			rep = "And "
-		} else if strings.Contains(val, "& ") == true {
-			rep = " And"
-		} else {
-			rep = " And "
+	t := "&"
+	rep := " And "
+	if strings.Contains(val, t) == true {
+		for _, i := range []string{" & ", " &", "& "} {
+			if strings.Contains(val, i) {
+				t = i
+				break
+			}
 		}
-		val = strings.Replace(val, "&", rep, -1)
+		val = strings.Replace(val, t, rep, 1)
 	}
 	return val
 }
@@ -118,5 +133,5 @@ func (a *accounts) checkAbbreviations(val string) string {
 			}
 		}
 	}
-	return val
+	return a.checkCaps(val)
 }
