@@ -11,8 +11,8 @@
 ##############################################################################
 USER="root"
 WD=$(pwd)
-PRSRC="$WD/src/parseRecords/*.go"
-DBSRC="$WD/src/compOncDB/*.go"
+PRSRC="$WD/parseRecords/*.go"
+DBSRC="$WD/src/*.go"
 DUSRC="$WD/src/dbupload/*.go"
 DESRC="$WD/src/dbextract/*.go"
 CDB="compOncDB"

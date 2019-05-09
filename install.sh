@@ -40,12 +40,12 @@ installDependencies () {
 installMain () {
 	# Install parseRecords
 	echo "Building $PARSE..."
-	go build -i -o $GOBIN/$PARSE src/$PARSE/*.go
+	go build -i -o $GOBIN/$PARSE $PARSE/*.go
 	echo ""
 
 	# compOncDB 
 	echo "Building $MAIN..."
-	go build -i -o $GOBIN/$MAIN src/$MAIN/*.go
+	go build -i -o $GOBIN/$MAIN src/*.go
 }
 
 echo ""
