@@ -23,7 +23,7 @@ func (m *matcher) setTypes() {
 		"breast":          regexp.MustCompile(`(?i)breast|mammary`),
 		"colon":           regexp.MustCompile(`(?i)colon|rectum`),
 		"duodenum":        regexp.MustCompile(`(?i)duodenum`),
-		"fat":             regexp.MustCompile(`(?i)fat|adipose.*`),
+		"fat":             regexp.MustCompile(`(?i)adipose.*`),
 		"heart":           regexp.MustCompile(`(?i)heart|cardiac|atrial`),
 		"kidney":          regexp.MustCompile(`(?i)kidney.*|ureter|renal`),
 		"leukemia":        regexp.MustCompile(`(?i)leukemia`),
@@ -70,8 +70,8 @@ func (m *matcher) setTypes() {
 		"sarcoma":          {regexp.MustCompile(`(?i)sarcoma`), "1"},
 	}
 	m.types["fibropapilloma"] = map[string]diagnosis{
-		"fibropapilloma ":      {regexp.MustCompile(`(?i)fibropapilloma`), "0"},
-		"fibropapillomatosis":  {regexp.MustCompile(`(?i)fibropapillomatosis`), "0"},
+		"fibropapilloma":      {regexp.MustCompile(`(?i)fibropapilloma`), "0"},
+		"fibropapillomatosis": {regexp.MustCompile(`(?i)fibropapillomatosis`), "0"},
 	}
 	m.types["other"] = map[string]diagnosis{
 		"chordoma":             {regexp.MustCompile(`(?i)chordoma`), "1"},

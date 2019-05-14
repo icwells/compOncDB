@@ -26,7 +26,7 @@ func newTumorType(m string, i, l int) *tumorType {
 	return &t
 }
 
-func (t *tumorType) setDistance(l, m, line string) {
+func (t *tumorType) setDistance(k, m, line string) {
 	// Stores location hit and distance from type
 	var dist int
 	idx := strings.Index(line, m)
@@ -39,21 +39,30 @@ func (t *tumorType) setDistance(l, m, line string) {
 		// Type index - (location index + location length)
 		dist = t.index - (idx + len(m))
 	}
-	t.locations[l] = dist
+	t.locations[k] = dist
 }
 
 func (t *tumorType) setLocation() {
 	// Determines location with shortest distance from type
+	var loc string
 	min := t.length
 	for k, v := range t.locations {
 		if v < min {
-			min = v
-			t.location = k
-			if min <= 1 {
-				// Accept neighboring word
-				break
+			if k == "abdomen" || k == "fat" {
+				// Only keep vague terms if there are no other potential matches
+				loc = k
+			} else {
+				min = v
+				t.location = k
+				if min <= 1 {
+					// Accept neighboring word
+					break
+				}
 			}
 		}
+	}
+	if t.location == "NA" && len(loc) > 0 {
+		t.location = loc
 	}
 }
 

@@ -42,15 +42,13 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 	rec.sex = e.match.getMatch(e.match.sex, line)
 	rec.castrated = e.match.getCastrated(line)
 	rec.tumorType, rec.location, rec.malignant = e.match.getTumor(line, cancer)
-	if rec.tumorType != "NA" {
-		rec.massPresent = "1"
-	}
 	rec.metastasis = e.match.binaryMatch(e.match.metastasis, line)
 	if rec.metastasis == "1" {
 		// Assume malignancy if metastasis is detected
 		rec.malignant = "1"
 	}
 	if rec.tumorType != "NA" {
+		rec.massPresent = "1"
 		// Only check for primary tumor if a tumor was found
 		if rec.metastasis == "0" && strings.Count(rec.tumorType, ";") == 0 && strings.Count(rec.location, ";") == 0 {
 			// Store yes for primary if a tumor was found but no metastasis
@@ -64,6 +62,15 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 	} else {
 		rec.necropsy = e.match.getNecropsy(line)
 	}
+}
+
+func (e *entries) getSearchRow(line []string) string {
+	// Returns line without id column for regexp searching
+	// Remove ID and join line (make copy to preserve column indeces)
+	row := make([]string, len(line))
+	copy(row, line)
+	row = append(row[:e.col.id], row[e.col.id+1:]...)
+	return strings.Join(line, " ")
 }
 
 func (e *entries) checkAge(line []string) string {
@@ -89,27 +96,21 @@ func (e *entries) checkAge(line []string) string {
 
 func (e *entries) parseLine(rec *record, line []string) {
 	// Extracts diagnosis info from line
-	var necropsy bool
+	necropsy := false
 	cancer := true
 	rec.age = e.checkAge(line)
-	if e.service == "NWZP" && len(line[e.col.code]) > 0 {
+	if e.service == "NWZP" {
 		// Get neoplasia and euthnasia codes from NWZP
-		cancer = strings.Contains(line[e.col.code], "8")
+		if len(line[e.col.code]) > 0 {
+			cancer = strings.Contains(line[e.col.code], "8")
+		}
 		necropsy = strings.Contains(line[e.col.code], "14")
-	} else {
-		// Attempt to find diagnosis if no code is given
-		cancer = true
 	}
 	if cancer == true {
 		// Store for debugging
 		rec.cancer = "Y"
 	}
-	// Remove ID and join line (make copy to preserve column indeces)
-	row := make([]string, len(line))
-	copy(row, line)
-	row = append(row[:e.col.id], row[e.col.id+1:]...)
-	str := strings.Join(line, " ")
-	e.parseDiagnosis(rec, str, cancer, necropsy)
+	e.parseDiagnosis(rec, e.getSearchRow(line), cancer, necropsy)
 	found, com := countNA(rec)
 	if found == true {
 		e.found++
