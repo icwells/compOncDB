@@ -52,6 +52,7 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 		// Proceed if line is properly formatted and species is present
 		id := subsetLine(e.col.id, line)
 		rec.setID(id)
+		// Set diagnosis info
 		e.parseLine(&rec, line)
 		// Replace entry with scientific name
 		sp, ex := e.taxa[line[idx]]
