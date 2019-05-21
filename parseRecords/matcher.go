@@ -1,4 +1,4 @@
-// This script defiens a struct for matching diagnosis data with regular expressions
+// This script defines a struct for matching diagnosis data with regular expressions
 
 package main
 
@@ -114,7 +114,7 @@ func (m *matcher) infantRecords(line string) bool {
 
 func (m *matcher) getAge(line string) string {
 	// Returns formatted age in months
-	var ret string
+	ret := "-1"
 	match := m.getMatch(m.age, line)
 	if match != "NA" {
 		age := m.digit.FindString(match)
@@ -123,8 +123,8 @@ func (m *matcher) getAge(line string) string {
 			ret = age
 		} else {
 			// Convert to float, determine units, convert to months
-			a, _ := strconv.ParseFloat(age, 64)
-			if a > 0 {
+			a, err := strconv.ParseFloat(age, 64)
+			if err == nil && a > 0 {
 				if strings.Contains(match, "year") == true {
 					a = a * 12.0
 				} else if strings.Contains(match, "week") == true {
@@ -134,12 +134,8 @@ func (m *matcher) getAge(line string) string {
 				}
 				// Convert back to string
 				ret = strconv.FormatFloat(a, 'f', -1, 64)
-			} else {
-				ret = "-1"
 			}
 		}
-	} else {
-		ret = "-1"
 	}
 	return ret
 }

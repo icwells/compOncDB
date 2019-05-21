@@ -29,11 +29,13 @@ func countNA(r *record) (bool, bool) {
 func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool) {
 	// Examines line for each diagnosis case
 	line = strings.ToLower(line)
-	if e.match.infantRecords(line) == true {
-		rec.age = "0.0"
-	} else if rec.age == "-1" {
+	if rec.age == "-1" {
 		// Try to extract age if it's not given
 		rec.age = e.match.getAge(line)
+		if rec.age == "-1" && e.match.infantRecords(line) == true {
+			// Check for infancy terms if age is not found
+			rec.age = "0"
+		}
 	}
 	if ch, _ := strconv.ParseFloat(rec.age, 64); ch < -1.0 {
 		// Make sure values aren't below 0
