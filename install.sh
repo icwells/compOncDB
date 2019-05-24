@@ -10,6 +10,8 @@ AP="github.com/trustmaster/go-aspell"
 DBI="github.com/icwells/dbIO"
 DR="github.com/go-sql-driver/mysql"
 FZ="github.com/lithammer/fuzzysearch/fuzzy"
+GM="github.com/gorilla/mux"
+GS="github.com/gorilla/securecookie"
 IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"
 MAIN="compOncDB"
@@ -30,7 +32,7 @@ installPackage () {
 
 installDependencies () {
 # Get dependencies
-	for I in $AP $DBI $DR $FZ $IO $KP $PR $SA ; do
+	for I in $AP $DBI $DR $FZ $GM $GS $IO $KP $PR $SA ; do
 		if [ ! -e "$PDIR/$1.a" ]; then
 			installPackage $I
 		fi
