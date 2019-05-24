@@ -8,9 +8,15 @@
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
   {% endfor %}
-  <!--Introduction -->
-  <hr>
-  {% block content %}{% endblock %}
+  <!--Login -->
+  <h1>Login</h1>
+  <form method="post" action="/login">
+    <label for="name">User name</label>
+     <input type="text" id="name" name="name">
+     <label for="password">Password</label>
+     <input type="password" id="password" name="password">
+     <button type="submit">Login</button>
+  </form>
 </section>
 <footer>
   <p>

@@ -11,6 +11,7 @@
 ##############################################################################
 USER="root"
 WD=$(pwd)
+APP="$WD/app/*.go"
 PRSRC="$WD/parseRecords/*.go"
 DBSRC="$WD/src/*.go"
 DUSRC="$WD/src/dbupload/*.go"
@@ -37,10 +38,9 @@ UPDATE="$TESTDIR/testUpdate.csv"
 whiteBoxTests () {
 	echo ""
 	echo "Running white box tests..."
-	go test $PRSRC
-	go test $DBSRC
-	go test $DUSRC
-	go test $DESRC
+	for I in $PRSRC $DBSRC $DUSRC $DESRC; do
+		go test $I
+	done
 }
 
 testParseRecords () {
@@ -86,13 +86,15 @@ testAll () {
 }
 
 checkSource () {
-	# Runs go fmt/vet on source files
+	# Runs go fmt/vet on source files (vet won't run in loop)
 	echo ""
 	echo "Running go $1..."
+	go $1 $APP
 	go $1 $PRSRC
 	go $1 $DBSRC
 	go $1 $DUSRC
 	go $1 $DESRC
+	go $1 $PRSRC
 }
 
 if [ $# -eq 2 ]; then
