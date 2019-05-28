@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
@@ -57,8 +58,8 @@ func (s *searchterms) setCase(row []string) {
 			set = true
 		} else if idx == 2 && len(i) >= 1 {
 			if strings.Contains(i, "=") == true || strings.Contains(i, ">") == true || strings.Contains(i, "<") == true {
-				e := setOperations(row[idx])
-				c.column, c.op, c.value = e[0].column, e[0].operator, e[0].value
+				e := codbutils.SetOperations(row[idx])
+				c.column, c.op, c.value = e[0].Column, e[0].Operator, e[0].Value
 			} else {
 				c.value = i
 			}
@@ -106,7 +107,7 @@ func (s *searchterms) searchTestCases(db *dbIO.DBIO) {
 				res, header = dbextract.SearchSingleTable(db, c.table, *user, c.column, c.op, c.value, false, false)
 			} else {
 				// Perform column search
-				tables := getTable(db.Columns, c.column)
+				tables := codbutils.GetTable(db.Columns, c.column)
 				res, header = dbextract.SearchColumns(db, tables, *user, c.column, c.op, c.value, false, false, false)
 			}
 		} else {
@@ -114,7 +115,7 @@ func (s *searchterms) searchTestCases(db *dbIO.DBIO) {
 			res, header = dbextract.SearchTaxonomicLevels(db, []string{c.value}, *user, c.level, false, c.common, false)
 		}
 		if len(res) >= 1 {
-			writeResults(outfile, header, res)
+			codbutils.WriteResults(outfile, header, res)
 		}
 	}
 }

@@ -1,6 +1,6 @@
 // Tests multiSearch functions and methods
 
-package main
+package codbutils
 
 import (
 	"github.com/icwells/go-tools/iotools"
@@ -23,7 +23,7 @@ func TestSetOperations(t *testing.T) {
 	}
 	for _, i := range matches {
 		var msg string
-		evaluations := setOperations(i.input)
+		evaluations := SetOperations(i.input)
 		e := evaluations[0]
 		if e.column != i.column {
 			t.Errorf("Actual table column %s is not equal to expected: %s", e.column, i.column)

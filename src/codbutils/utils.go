@@ -1,6 +1,6 @@
 // Contains functions for convertng slice of string slices to map
 
-package main
+package codbutils
 
 import (
 	"bufio"
@@ -30,19 +30,21 @@ func getAbsPath(f string) string {
 	return f
 }
 
-type configuration struct {
-	host     string
-	database string
-	testdb   string
-	tables   string
-	test     bool
+type Configuration struct {
+	Host     string
+	Database string
+	User	 string
+	Testdb   string
+	Tables   string
+	Test     bool
 }
 
-func setConfiguration(test bool) configuration {
+func SetConfiguration(config, user string, test bool) Configuration {
 	// Gets setting from config.txt
-	var c configuration
-	c.test = test
-	f := iotools.OpenFile(getAbsPath(*config))
+	var c Configuration
+	c.Test = test
+	c.User = user
+	f := iotools.OpenFile(getAbsPath(config))
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
 	for scanner.Scan() {
@@ -52,30 +54,30 @@ func setConfiguration(test bool) configuration {
 		}
 		switch s[0] {
 		case "host":
-			c.host = s[1]
+			c.Host = s[1]
 		case "database":
-			c.database = s[1]
+			c.Database = s[1]
 		case "test_database":
-			c.testdb = s[1]
+			c.Testdb = s[1]
 		case "table_columns":
-			c.tables = getAbsPath(s[1])
+			c.Tables = getAbsPath(s[1])
 		}
 	}
 	return c
 }
 
-func connectToDatabase(c configuration) *dbIO.DBIO {
+func ConnectToDatabase(c Configuration) *dbIO.DBIO {
 	// Manages call to Connect and GetTableColumns
-	d := c.database
-	if c.test == true {
-		d = c.testdb
+	d := c.Database
+	if c.Test == true {
+		d = c.Testdb
 	}
-	db := dbIO.Connect(c.host, d, *user, "")
+	db := dbIO.Connect(c.Host, d, c.User, "")
 	db.GetTableColumns()
 	return db
 }
 
-func getTable(tables map[string]string, col string) []string {
+func GetTable(tables map[string]string, col string) []string {
 	// Determines which table column is in
 	var ret []string
 	col = strings.ToLower(col)
@@ -113,7 +115,7 @@ func getTable(tables map[string]string, col string) []string {
 	return ret
 }
 
-func readList(infile string, idx int) []string {
+func ReadList(infile string, idx int) []string {
 	// Reads list of queries from file
 	set := strarray.NewSet()
 	var d string
@@ -153,7 +155,7 @@ func printArray(header string, table [][]string) {
 	fmt.Println()
 }
 
-func writeResults(outfile, header string, table [][]string) {
+func WriteResults(outfile, header string, table [][]string) {
 	// Wraps calls to writeCSV/printArray
 	if len(table) > 0 {
 		if outfile != "nil" {
@@ -164,7 +166,7 @@ func writeResults(outfile, header string, table [][]string) {
 	}
 }
 
-func deleteEntries(d *dbIO.DBIO, tables []string, column, value string) {
+func DeleteEntries(d *dbIO.DBIO, tables []string, column, value string) {
 	// Deletes matches from appropriate tables
 	t := strings.Join(tables, ", ")
 	reader := bufio.NewReader(os.Stdin)

@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"time"
@@ -75,7 +76,7 @@ func main() {
 	case ver.FullCommand():
 		version()
 	case bu.FullCommand():
-		db := connectToDatabase(setConfiguration(false))
+		db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 		start = db.Starttime
 		backup(db.Password)
 	case New.FullCommand():

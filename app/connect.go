@@ -8,16 +8,10 @@ import (
 	"github.com/icwells/dbIO"
 )
 
-func newDatabase() time.Time {
-	// Creates new database and tables
-	c := setConfiguration(false)
-	db := dbIO.CreateDatabase("", c.database, *user)
-	db.NewTables(c.tables)
-	return db.Starttime
-}
-
 func ping(name, pw string) bool {
 	// Returns true if credentials are valid
+
+	return dbIO.Ping
 }
 
 func extractFromDB() time.Time {
@@ -95,4 +89,3 @@ func searchDB() time.Time {
 	}
 	return db.Starttime
 }
-

@@ -1,6 +1,6 @@
 // Performs white box tests on functions in the compOncDB utils script
 
-package main
+package codbutils
 
 import (
 	"testing"
@@ -38,7 +38,7 @@ func TestGetTable(t *testing.T) {
 		{"Primary_Tumor", []string{"Tumor_relation"}},
 	}
 	for _, e := range matches {
-		actual := getTable(col, e.column)
+		actual := GetTable(col, e.column)
 		for idx, i := range actual {
 			if i != e.tables[idx] {
 				t.Errorf("Actual table %s is not equal to expected: %s", i, e.tables[idx])

@@ -5,7 +5,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
-	"html/template"
+	//"html/template"
 	"log"
 	"net/http"
 )
@@ -26,7 +26,7 @@ var (
 
 func newCookie() *http.Cookie {
 	// Returns empty cookie struct
-	return 	&http.Cookie{
+	return &http.Cookie{
 		Name:  SESSION,
 		Value: "",
 		Path:  SOURCE,

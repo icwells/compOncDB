@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
@@ -17,13 +18,13 @@ import (
 
 func backup(pw string) {
 	// Backup database to local machine
-	c := setConfiguration(false)
-	fmt.Printf("\n\tBacking up %s database to local machine...\n", c.database)
+	c := codbutils.SetConfiguration(*config, *user, false)
+	fmt.Printf("\n\tBacking up %s database to local machine...\n", c.Database)
 	datestamp := time.Now().Format("2006-01-02")
 	password := fmt.Sprintf("-p%s", pw)
-	host := fmt.Sprintf("-h%s", c.host)
-	res := fmt.Sprintf("--result-file=%s.%s.sql", c.database, datestamp)
-	bu := exec.Command("mysqldump", "-uroot", host, password, res, c.database)
+	host := fmt.Sprintf("-h%s", c.Host)
+	res := fmt.Sprintf("--result-file=%s.%s.sql", c.Database, datestamp)
+	bu := exec.Command("mysqldump", "-uroot", host, password, res, c.Database)
 	err := bu.Run()
 	if err == nil {
 		fmt.Println("\tBackup complete.")
@@ -34,9 +35,9 @@ func backup(pw string) {
 
 func newDatabase() time.Time {
 	// Creates new database and tables
-	c := setConfiguration(false)
-	db := dbIO.CreateDatabase("", c.database, *user)
-	db.NewTables(c.tables)
+	c := codbutils.SetConfiguration(*config, *user, false)
+	db := dbIO.CreateDatabase("", c.Database, *user)
+	db.NewTables(c.Tables)
 	return db.Starttime
 }
 
@@ -46,7 +47,7 @@ func uploadToDB() time.Time {
 		fmt.Print("\n\t[Error] Please specify input file. Exiting.\n\n")
 		os.Exit(1)
 	}
-	db := connectToDatabase(setConfiguration(false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 	if *taxa == true {
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *infile, *common)
@@ -68,26 +69,26 @@ func uploadToDB() time.Time {
 
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
-	db := connectToDatabase(setConfiguration(false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 	if *total == true {
 		dbupload.SpeciesTotals(db)
 	} else if *infile != "nil" {
 		dbextract.UpdateEntries(db, *infile)
 	} else if *column != "nil" && *value != "nil" && *eval != "nil" {
-		evaluations := setOperations(*eval)
+		evaluations := codbutils.SetOperations(*eval)
 		e := evaluations[0]
-		tables := getTable(db.Columns, e.column)
-		dbextract.UpdateSingleTable(db, tables[0], *column, *value, e.column, e.operator, e.value)
+		tables := codbutils.GetTable(db.Columns, e.Column)
+		dbextract.UpdateSingleTable(db, tables[0], *column, *value, e.Column, e.Operator, e.Value)
 	} else if *del == true && *eval != "nil" {
 		var tables []string
-		evaluations := setOperations(*eval)
+		evaluations := codbutils.SetOperations(*eval)
 		e := evaluations[0]
 		if *table != "nil" {
 			tables = []string{*table}
 		} else {
-			tables = getTable(db.Columns, e.column)
+			tables = codbutils.GetTable(db.Columns, e.Column)
 		}
-		deleteEntries(db, tables, e.column, e.value)
+		codbutils.DeleteEntries(db, tables, e.Column, e.Value)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
@@ -96,24 +97,20 @@ func updateDB() time.Time {
 
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
-	db := connectToDatabase(setConfiguration(false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 	if *dump != "nil" {
 		// Extract entire table
 		table := db.GetTable(*dump)
-		if *outfile != "nil" {
-			iotools.WriteToCSV(*outfile, db.Columns[*dump], table)
-		} else {
-			printArray(db.Columns[*dump], table)
-		}
+		codbutils.WriteResults(*outfile, db.Columns[*dump], table)
 	} else if *sum == true {
 		summary := dbextract.GetSummary(db)
-		writeResults(*outfile, "Field,Total,%\n", summary)
+		codbutils.WriteResults(*outfile, "Field,Total,%\n", summary)
 	} else if *cr == true {
 		// Extract cancer rates
 		header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
 		header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
 		rates := dbextract.GetCancerRates(db, *min, *nec)
-		writeResults(*outfile, header, rates)
+		codbutils.WriteResults(*outfile, header, rates)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
@@ -124,12 +121,12 @@ func searchDB() time.Time {
 	// Performs search functions on database
 	var res [][]string
 	var header string
-	db := connectToDatabase(setConfiguration(false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 	if *taxon != "nil" {
 		// Extract all data for a given species
 		var names []string
 		if iotools.Exists(*taxon) == true {
-			names = readList(*taxon, *col)
+			names = codbutils.ReadList(*taxon, *col)
 		} else {
 			// Get single term
 			if strings.Contains(*taxon, "_") == true {
@@ -142,30 +139,30 @@ func searchDB() time.Time {
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
 	} else if *eval != "nil" {
 		// Search for column/value match
-		e := setOperations(*eval)
+		e := codbutils.SetOperations(*eval)
 		if *table == "nil" {
 			count := *count
-			tables := getTable(db.Columns, e[0].column)
+			tables := codbutils.GetTable(db.Columns, e[0].Column)
 			if len(e) > 1 {
 				// Set count to false to allow searching of results
 				count = false
 			}
-			res, header = dbextract.SearchColumns(db, tables, *user, e[0].column, e[0].operator, e[0].value, count, *com, *infant)
+			res, header = dbextract.SearchColumns(db, tables, *user, e[0].Column, e[0].Operator, e[0].Value, count, *com, *infant)
 		} else {
-			res, header = dbextract.SearchSingleTable(db, *table, *user, e[0].column, e[0].operator, e[0].value, *com, *infant)
+			res, header = dbextract.SearchSingleTable(db, *table, *user, e[0].Column, e[0].Operator, e[0].Value, *com, *infant)
 		}
-		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), e[0].column, e[0].value)
+		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), e[0].Column, e[0].Value)
 		if len(e) > 1 {
-			res = filterSearchResults(header, e[1:], res)
+			res = codbutils.FilterSearchResults(header, e[1:], res)
 		}
 	} else if *taxonomies == true {
-		names := readList(*infile, *col)
+		names := codbutils.ReadList(*infile, *col)
 		res, header = dbextract.SearchSpeciesNames(db, names)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
 	if *count == false && len(res) >= 1 {
-		writeResults(*outfile, header, res)
+		codbutils.WriteResults(*outfile, header, res)
 	}
 	return db.Starttime
 }
@@ -176,12 +173,12 @@ func testDB() time.Time {
 	if *testsearch == true {
 		var terms searchterms
 		fmt.Print("\n\tTesting search functions...\n\n")
-		db = connectToDatabase(setConfiguration(true))
+		db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))
 		terms.readSearchTerms(*infile, *outfile)
 		terms.searchTestCases(db)
 	} else if *updates == true {
 		fmt.Print("\n\tTesting update functions...\n\n")
-		db = connectToDatabase(setConfiguration(true))
+		db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))
 		dbextract.UpdateEntries(db, *infile)
 		for _, i := range []string{"Patient", "Diagnosis"} {
 			table := db.GetTable(i)
@@ -191,9 +188,9 @@ func testDB() time.Time {
 	} else {
 		// Get empty database
 		bin, _ := path.Split(*config)
-		c := setConfiguration(true)
-		db = dbIO.ReplaceDatabase(c.host, c.testdb, *user)
-		db.NewTables(path.Join(bin, c.tables))
+		c := codbutils.SetConfiguration(*config, *user, true)
+		db = dbIO.ReplaceDatabase(c.Host, c.Testdb, *user)
+		db.NewTables(path.Join(bin, c.Tables))
 		// Replace column names
 		db.GetTableColumns()
 		// Upload taxonomy
