@@ -1,29 +1,21 @@
+{{define "base"}}
 <!doctype html>
-<title>{% block title %}{% endblock %} - Comparative Oncology Database</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<title>Comparative Oncology Database</title>
+<link rel="stylesheet" href="../static/style.css">
 <section class="content">
   <header>
-    {% block header %}{% endblock %}
+    Comparative Oncology Database
   </header>
-  {% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
-  {% endfor %}
-  <!--Login -->
-  <h1>Login</h1>
-  <form method="post" action="/login">
-    <label for="name">User name</label>
-     <input type="text" id="name" name="name">
-     <label for="password">Password</label>
-     <input type="password" id="password" name="password">
-     <button type="submit">Login</button>
-  </form>
+{{template "content"}}
 </section>
 <footer>
   <p>
-    <img src="{{ url_for('static', filename='biodesign.png') }}" width="30%" align="right">
+    <img src="../static/biodesign.png" width="30%" align="right">
     <small>&copy; Copyright 2019, Maley Lab</small><br/>
     <small>Biodesign Center for Biocomputing, Security, and Society</small><br/>
     <small>Arizona Cancer and Evolution Center</small><br/>
     <small>Arizona State University</small>
+    <small>maleylabcancer@asu.edu</small>
   </p>
 </footer>
+{{end}}

@@ -5,6 +5,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
+	"github.com/icwells/compOncDB/src/codbutils"
 	//"html/template"
 	"log"
 	"net/http"
@@ -15,12 +16,13 @@ var (
 		securecookie.GenerateRandomKey(64),
 		securecookie.GenerateRandomKey(32),
 	)
+	CONFIG  = codbutils.SetConfiguration("config.txt", "", false)
 	ROUTER  = mux.NewRouter()
-	SOURCE  = "/"
-	SEARCH  = "/search"
-	OUTPUT  = "/output"
-	LOGIN   = "/login"
-	LOGOUT  = "/logout"
+	SOURCE  = "/codb"
+	SEARCH  = "/codb/search"
+	OUTPUT  = "/codb/output"
+	LOGIN   = "/codb/login"
+	LOGOUT  = "/codb/logout"
 	SESSION = "session"
 )
 
@@ -88,6 +90,14 @@ func logoutHandler(response http.ResponseWriter, request *http.Request) {
 
 func searchHandler(response http.ResponseWriter, request *http.Request) {
 	// Reads search form
+	redirect := SEARCH
+	if request.Method == http.MethodPost {
+		// Parse search form
+		
+	} else {
+		// Render search form
+		http.Redirect(response, request, redirect, 302)
+	}
 }
 
 func main() {
@@ -97,6 +107,7 @@ func main() {
 	router.HandleFunc(LOGOUT, logoutHandler).Methods("POST")
 	router.HandleFunc(SEARCH, searchHandler)
 	// Serve and log errors to terminal
-	http.Handle("/", ROUTER)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.Handle(SOURCE, ROUTER)
 	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }

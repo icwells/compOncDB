@@ -1,0 +1,57 @@
+{{define "content"}}
+  <h1>Search Database</h1>
+  <form method="post" action="/search">
+    <div>
+      <label for="Column">Name of column containing target value (table is automatically determined).</label>
+      <input type="text" id="Column" name="Column">
+    </div>
+    <div>
+      <label for="Operator">Operation to perform.</label>
+      <input type="text" id="Operator" name="Operator">
+    </div>
+    <div>
+      <label for="Value">Target value to search for.</label>
+      <input type="text" id="Value" name="Value">
+    </div>
+    <div>
+      <input type="checkbox" name="Taxon">
+      <label for="Taxon">Search specifically for taxonomic matches (enter the taxonomic level in the field and the taxon in the value field).</label>
+    </div>
+    <div>
+      <input type="checkbox" name="Common">
+      <label for="Common">Indicates that common species name was given for taxa.</label>
+    </div>
+    <div>
+      <label for="Table">Perform operations on this table only.</label>
+      <input type="text" id="Table" name="Table">
+    </div>
+    <div>
+      <input type="checkbox" name="Dump">
+      <label for="Dump">Extract entire target table.</label>
+    </div>
+    <div>
+      <input type="checkbox" name="Summary">
+      <label for="Summary">Compiles basic summary statistics of the database.</label>
+    </div>
+    <div>
+      <input type="checkbox" name="Cancerrate">
+      <label for="Cancerrate">Calculates cancer rates for species with greater than min entries.</label>
+    </div>
+    <div>
+      <input type="number" name="Min" min="0" value="50">
+      <label for="Min">The minimum number of entries required to examine a species.</label>
+    </div>
+    <div>
+      <input type="checkbox" name="Necropsy">
+      <label for="Necropsy">Extract only necropsy records (extracts all matches by default).</label>
+    </div>
+    <div>
+      <input type="checkbox" name="Count">
+      <label for="Count">Returns count of target records instead of printing entire records.</label>
+    </div>
+    <div>
+      <input type="checkbox" name="Infant">
+      <label for="Infant">Include infant records in results (excluded by default).</label>
+    </div>
+  </form>
+{{end}}
