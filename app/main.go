@@ -21,7 +21,6 @@ var (
 	SOURCE  = "/codb"
 	SEARCH  = "/codb/search"
 	OUTPUT  = "/codb/output"
-	LOGIN   = "/codb/login"
 	LOGOUT  = "/codb/logout"
 	SESSION = "session"
 )
@@ -62,11 +61,6 @@ func getCredentials(request *http.Request) (string, string) {
 	return name, pw
 }
 
-func indexHandler(response http.ResponseWriter, request *http.Request) {
-	fileServer := http.FileServer(http.Dir("static/"))
-	fileServer.ServeHTTP(response, request)
-}
-
 func loginHandler(response http.ResponseWriter, request *http.Request) {
 	// Handles login request
 	redirect := SOURCE
@@ -102,8 +96,7 @@ func searchHandler(response http.ResponseWriter, request *http.Request) {
 
 func main() {
 	// Register handler functions
-	router.HandleFunc(SOURCE, indexHandler)
-	router.HandleFunc(LOGIN, loginHandler).Methods("POST")
+	router.HandleFunc(SOURCE, loginHandler).Methods("POST")
 	router.HandleFunc(LOGOUT, logoutHandler).Methods("POST")
 	router.HandleFunc(SEARCH, searchHandler)
 	// Serve and log errors to terminal
