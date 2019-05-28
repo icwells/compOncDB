@@ -38,9 +38,12 @@ UPDATE="$TESTDIR/testUpdate.csv"
 whiteBoxTests () {
 	echo ""
 	echo "Running white box tests..."
-	for I in $PRSRC $DBSRC $DUSRC $DESRC; do
-		go test $I
-	done
+	#go test $APP
+	go test $PRSRC
+	go test $DBSRC
+	go test $DUSRC
+	go test $DESRC
+	go test $PRSRC
 }
 
 testParseRecords () {
@@ -110,7 +113,7 @@ elif [ $1 = "install" ]; then
 	# Compile binaries and call test functions
 	./install.sh
 	testAll
-elif [ $1 = "white" ]; then
+elif [ $1 = "whitebox" ]; then
 	whiteBoxTests
 elif [ $1 = "parse" ]; then
 	testParseRecords
@@ -131,7 +134,7 @@ elif [ $1 = "help" ]; then
 	echo ""
 	echo "all		Runs all tests"
 	echo "install		Installs binaries and runs all tests"
-	echo "white		Runs white box tests"
+	echo "whitebox		Runs white box tests"
 	echo "parse		Runs parseRecords black box tests"
 	echo "upload		Runs compOncDB upload black box tests"
 	echo "search		Runs compOncDB search black box tests"

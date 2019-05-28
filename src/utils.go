@@ -70,7 +70,7 @@ func connectToDatabase(c configuration) *dbIO.DBIO {
 	if c.test == true {
 		d = c.testdb
 	}
-	db := dbIO.Connect(c.host, d, *user)
+	db := dbIO.Connect(c.host, d, *user, "")
 	db.GetTableColumns()
 	return db
 }
