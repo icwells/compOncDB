@@ -3,11 +3,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
-	"github.com/icwells/compOncDB/src/codbutils"
-	"html/template"
 	"log"
 	"net/http"
 	"strings"
@@ -48,28 +45,21 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		// Parse search form
 		form := setSearchForm(r)
-		if form.search == true {
-
-		} else {
-
-		}
+		out := extractFromDB(form)
+		S.renderTemplate(w, S.resulttemp, out)
 	} else {
 		// Render search form
-		t, err := template.ParseFile(fmt.Sprintf("%s%s.html", S.template, S.search))
-		if err == nil {
-			t.Execute(w, S)
-		}
-		//http.Redirect(w, r, S.search, 302)
+		S.renderTemplate(w, S.searchtemp, newOutput())
 	}
 }
 
 func main() {
 	// Register handler functions
-	router.HandleFunc(S.source, loginHandler).Methods("POST")
-	router.HandleFunc(S.logout, logoutHandler).Methods("POST")
-	router.HandleFunc(S.search, searchHandler)
+	ROUTER.HandleFunc(S.source, loginHandler).Methods("POST")
+	ROUTER.HandleFunc(S.logout, logoutHandler).Methods("POST")
+	ROUTER.HandleFunc(S.search, searchHandler)
 	// Serve and log errors to terminal
 	http.Handle(S.static, http.StripPrefix(S.static, http.FileServer(http.Dir(strings.Replace(S.static, "/", "", 2)))))
 	http.Handle(S.source, ROUTER)
-	log.Fatal(http.ListenAndServe(S.host, nil))
+	log.Fatal(http.ListenAndServe(S.config.Host, nil))
 }
