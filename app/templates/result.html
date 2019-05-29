@@ -1,0 +1,21 @@
+{{template "content"}}
+  <div align="right">
+    <small>User: {{.User}} </small>
+    <form method="post" action="/logout">
+    <button type="submit">Logout</button>
+  </div>
+  <h1>Search Reults:</h1>
+  {{if .File}}
+    <p>Output csv file:</p>
+    <a href={{.Outfile}} download={{.Filename}}>{{.Filename}}</a>
+  {{else}}
+  <p>
+  {{range $line := .Results}}
+    {{$line}}
+  {{end}}
+  </p>
+  <p>
+    <form method="post" action="/search">
+    <button type="submit">Start a new search</button>
+  </p>
+{{end}}

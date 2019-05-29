@@ -17,6 +17,7 @@ func ping() bool {
 
 type Output struct {
 	User     string
+	File     bool
 	Outfile  string
 	Filename string
 	Results  []string
@@ -33,6 +34,7 @@ func (o *Output) getTempFile(name string) {
 	// Returns path to named file in tmp directory
 	o.Outfile = fmt.Sprintf("/tmp/%s.csv", name)
 	o.Filename = fmt.Sprintf("%s.csv", name)
+	o.File = true
 }
 
 func (o *Output) searchDB(db *dbIO.DBIO, f SearchForm) {
