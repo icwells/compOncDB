@@ -1,4 +1,9 @@
 {{define "content"}}
+  <div align="right">
+    <small>User: {{.User}} </small>
+    <form method="post" action="/logout">
+    <button type="submit">Logout</button>
+  </div>
   <h1>Search Database</h1>
   <form method="post" action="/search">
     <div>
@@ -60,5 +65,6 @@
       <input type="checkbox" name="Infant">
       <label for="Infant">Include infant records in results (excluded by default).</label>
     </div>
+   <button type="submit">Submit</button>
   </form>
 {{end}}

@@ -25,24 +25,19 @@ func setBool(v string) bool {
 }
 
 type SearchForm struct {
-	Column		string
-	Operator	string
-	Value		string
-	Taxon		bool
-	Table		string
-	Dump		bool
-	Summary		bool
-	Cancerrate	bool
-	Min			int
-	Necropsy	bool
-	Common		bool
-	Count		bool
-	Infant		bool
-	search		bool
-}
-
-func (s *SearchForm) setSearch() {
-	// Determines what type of search should be run
+	Column     string
+	Operator   string
+	Value      string
+	Taxon      bool
+	Table      string
+	Dump       bool
+	Summary    bool
+	Cancerrate bool
+	Min        int
+	Necropsy   bool
+	Common     bool
+	Count      bool
+	Infant     bool
 }
 
 func setSearchForm(request *http.Request) SearchForm {
@@ -61,6 +56,5 @@ func setSearchForm(request *http.Request) SearchForm {
 	s.Common = setBool(request.FormValue("Common"))
 	s.Count = setBool(request.FormValue("Count"))
 	s.Infant = setBool(request.FormValue("Infant"))
-	s.setSearch()
 	return s
 }
