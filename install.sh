@@ -7,6 +7,7 @@
 ##############################################################################
 
 AP="github.com/trustmaster/go-aspell"
+APP="codbApplication"
 DBI="github.com/icwells/dbIO"
 DR="github.com/go-sql-driver/mysql"
 FZ="github.com/lithammer/fuzzysearch/fuzzy"
@@ -48,6 +49,11 @@ installMain () {
 	# compOncDB 
 	echo "Building $MAIN..."
 	go build -i -o $GOBIN/$MAIN src/*.go
+	echo ""
+
+	# Application
+	echo "Building $APP..."
+	go build -i -o $GOBIN/$APP app/*.go
 }
 
 echo ""
