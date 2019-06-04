@@ -36,7 +36,7 @@ func backup(pw string) {
 func newDatabase() time.Time {
 	// Creates new database and tables
 	c := codbutils.SetConfiguration(*config, *user, false)
-	db := dbIO.CreateDatabase("", c.Database, *user)
+	db := dbIO.CreateDatabase(c.Host, c.Database, *user)
 	db.NewTables(c.Tables)
 	return db.Starttime
 }
