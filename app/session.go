@@ -16,26 +16,17 @@ type Session struct {
 	password   string
 	source     string
 	search     string
-	searchtemp *template.Template
+	searchtemp string
 	output     string
 	appdir     string
-	resulttemp *template.Template
+	resulttemp string
 	login      string
-	logintemp  *template.Template
+	logintemp  string
 	logout     string
 	static     string
+	tmpl       string
+	templates  *template.Template
 	config     codbutils.Configuration
-}
-
-func (s *Session) setTemplates() {
-	// Stores templates for rendering
-	base := path.Join(s.appdir, "/templates/base.html")
-	login := path.Join(s.appdir, "/templates/login.html")
-	search := path.Join(s.appdir, "/templates/search.html")
-	result := path.Join(s.appdir, "/templates/result.html")
-	s.logintemp = template.Must(template.ParseFiles(base, login))
-	s.searchtemp = template.Must(template.ParseFiles(base, search))
-	s.resulttemp = template.Must(template.ParseFiles(base, result))
 }
 
 func setSession() *Session {
@@ -49,8 +40,12 @@ func setSession() *Session {
 	s.logout = "/codb/logout"
 	s.appdir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/app")
 	s.static = "/static/"
+	s.tmpl = path.Join(s.appdir, "templates/*.html")
+	s.logintemp = "login.html"
+	s.searchtemp = "search.html"
+	s.resulttemp = "result.html"
+	s.templates = template.Must(template.ParseGlob(s.tmpl))
 	s.config = codbutils.SetConfiguration("config.txt", "", false)
-	s.setTemplates()
 	return &s
 }
 
@@ -88,9 +83,9 @@ func (s *Session) getCredentials(r *http.Request) {
 	}
 }
 
-func (s *Session) renderTemplate(w http.ResponseWriter, tmpl *template.Template, out *Output) {
+func (s *Session) renderTemplate(w http.ResponseWriter, tmpl string, out *Output) {
 	// Renders template and handles errrors
-	err := tmpl.Execute(w, out)
+	err := s.templates.ExecuteTemplate(w, tmpl, out)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
