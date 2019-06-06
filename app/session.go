@@ -23,7 +23,6 @@ type Session struct {
 	login      string
 	logintemp  *template.Template
 	logout     string
-	template   string
 	static     string
 	config     codbutils.Configuration
 }
