@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/securecookie"
 	"log"
 	"net/http"
-	"strings"
+	"path"
 )
 
 var (
@@ -19,8 +19,13 @@ var (
 	S      = setSession()
 )
 
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	// Serves login page
+	S.renderTemplate(w, S.logintemp, newOutput())
+}
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	// Handles login r
+	// Handles login
 	redirect := S.source
 	S.User = r.FormValue("name")
 	S.password = r.FormValue("password")
@@ -55,11 +60,14 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Register handler functions
-	ROUTER.HandleFunc(S.source, loginHandler).Methods("POST")
+	fileserver := http.FileServer(http.Dir(path.Join(S.appdir, S.static)))
+	ROUTER.HandleFunc(S.source, indexHandler).Methods("GET")
+	ROUTER.HandleFunc(S.login, loginHandler).Methods("POST")
 	ROUTER.HandleFunc(S.logout, logoutHandler).Methods("POST")
 	ROUTER.HandleFunc(S.search, searchHandler)
 	// Serve and log errors to terminal
-	http.Handle(S.static, http.StripPrefix(S.static, http.FileServer(http.Dir(strings.Replace(S.static, "/", "", 2)))))
+	http.Handle(S.static, http.StripPrefix(S.static, fileserver))
 	http.Handle(S.source, ROUTER)
-	log.Fatal(http.ListenAndServe(S.config.Host, nil))
+	//log.Fatal(http.ListenAndServe(S.config.Host + ":8080", nil))
+	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
 }

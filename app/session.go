@@ -4,8 +4,10 @@ package main
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/go-tools/iotools"
 	"html/template"
 	"net/http"
+	"path"
 )
 
 type Session struct {
@@ -14,14 +16,27 @@ type Session struct {
 	password   string
 	source     string
 	search     string
-	searchtemp string
+	searchtemp *template.Template
 	output     string
-	resulttemp string
+	appdir     string
+	resulttemp *template.Template
+	login      string
+	logintemp  *template.Template
 	logout     string
 	template   string
 	static     string
 	config     codbutils.Configuration
-	templates  *template.Template
+}
+
+func (s *Session) setTemplates() {
+	// Stores templates for rendering
+	base := path.Join(s.appdir, "/templates/base.html")
+	login := path.Join(s.appdir, "/templates/login.html")
+	search := path.Join(s.appdir, "/templates/search.html")
+	result := path.Join(s.appdir, "/templates/result.html")
+	s.logintemp = template.Must(template.ParseFiles(base, login))
+	s.searchtemp = template.Must(template.ParseFiles(base, search))
+	s.resulttemp = template.Must(template.ParseFiles(base, result))
 }
 
 func setSession() *Session {
@@ -31,12 +46,12 @@ func setSession() *Session {
 	s.source = "/codb"
 	s.search = "/codb/search"
 	s.output = "/codb/results"
+	s.login = "/codb/login"
 	s.logout = "/codb/logout"
-	s.searchtemp = "/templates/search.html"
-	s.resulttemp = "/templates/result.html"
+	s.appdir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/app")
 	s.static = "/static/"
 	s.config = codbutils.SetConfiguration("config.txt", "", false)
-	s.templates = template.Must(template.ParseFiles(s.searchtemp, s.resulttemp))
+	s.setTemplates()
 	return &s
 }
 
@@ -74,9 +89,9 @@ func (s *Session) getCredentials(r *http.Request) {
 	}
 }
 
-func (s *Session) renderTemplate(w http.ResponseWriter, tmpl string, out *Output) {
+func (s *Session) renderTemplate(w http.ResponseWriter, tmpl *template.Template, out *Output) {
 	// Renders template and handles errrors
-	err := S.templates.ExecuteTemplate(w, tmpl, out)
+	err := tmpl.Execute(w, out)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
