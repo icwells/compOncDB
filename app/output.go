@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-func ping() bool {
+func ping(user, password string) bool {
 	// Returns true if credentials are valid
-	return dbIO.Ping(C.config.Host, C.config.Database, C.User, C.password)
+	return dbIO.Ping(C.config.Host, C.config.Database, user, password)
 }
 
 type Output struct {
@@ -23,10 +23,10 @@ type Output struct {
 	Results  []string
 }
 
-func newOutput() *Output {
+func newOutput(user string) *Output {
 	// Returns empty output struct
 	o := new(Output)
-	o.User = C.User
+	o.User = user
 	return o
 }
 
@@ -45,15 +45,15 @@ func (o *Output) searchDB(db *dbIO.DBIO, f SearchForm) {
 		// Extract all data for a given species
 		// Get single term (replace underscores in case terms are copied and pasted)
 		names := []string{strings.Replace(f.Value, "_", " ", -1)}
-		res, header = dbextract.SearchTaxonomicLevels(db, names, C.User, f.Column, f.Count, f.Common, f.Infant)
+		res, header = dbextract.SearchTaxonomicLevels(db, names, o.User, f.Column, f.Count, f.Common, f.Infant)
 	} else if len(f.Operator) >= 1 {
 		// Search for column/value match
 		if f.Table == "" {
 			tables := codbutils.GetTable(db.Columns, f.Column)
 			// Set count to false to allow searching of results
-			res, header = dbextract.SearchColumns(db, tables, C.User, f.Column, f.Operator, f.Value, false, f.Common, f.Infant)
+			res, header = dbextract.SearchColumns(db, tables, o.User, f.Column, f.Operator, f.Value, false, f.Common, f.Infant)
 		} else {
-			res, header = dbextract.SearchSingleTable(db, f.Table, C.User, f.Column, f.Operator, f.Value, f.Common, f.Infant)
+			res, header = dbextract.SearchSingleTable(db, f.Table, o.User, f.Column, f.Operator, f.Value, f.Common, f.Infant)
 		}
 		/*if len(e) > 1 {
 			res = codbutils.FilterSearchResults(header, e[1:], res)
@@ -67,10 +67,10 @@ func (o *Output) searchDB(db *dbIO.DBIO, f SearchForm) {
 	}
 }
 
-func extractFromDB(f SearchForm) *Output {
+func extractFromDB(f SearchForm, user, password string) *Output {
 	// Extracts data to outfile/stdout
-	ret := newOutput()
-	db := dbIO.Connect(C.config.Host, C.config.Database, C.User, C.password)
+	ret := newOutput(user)
+	db := dbIO.Connect(C.config.Host, C.config.Database, ret.User, password)
 	db.GetTableColumns()
 	if f.Dump == true {
 		// Extract entire table

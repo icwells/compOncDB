@@ -41,21 +41,22 @@ type SearchForm struct {
 	Infant     bool
 }
 
-func setSearchForm(request *http.Request) SearchForm {
+func setSearchForm(r *http.Request) SearchForm {
 	// Populates struct from request data
 	var s SearchForm
-	s.Column = request.FormValue("Column")
-	s.Operator = request.FormValue("Operator")
-	s.Value = request.FormValue("Value")
-	s.Taxon = setBool(request.FormValue("Taxon"))
-	s.Table = request.FormValue("Table")
-	s.Dump = setBool(request.FormValue("Dump"))
-	s.Summary = setBool(request.FormValue("Summary"))
-	s.Cancerrate = setBool(request.FormValue("Cancerrate"))
-	s.Min = setInt(request.FormValue("Min"))
-	s.Necropsy = setBool(request.FormValue("Necropsy"))
-	s.Common = setBool(request.FormValue("Common"))
-	s.Count = setBool(request.FormValue("Count"))
-	s.Infant = setBool(request.FormValue("Infant"))
+	r.ParseForm()
+	s.Column = r.PostForm.Get("Column")
+	s.Operator = r.PostForm.Get("Operator")
+	s.Value = r.PostForm.Get("Value")
+	s.Taxon = setBool(r.PostForm.Get("Taxon"))
+	s.Table = r.PostForm.Get("Table")
+	s.Dump = setBool(r.PostForm.Get("Dump"))
+	s.Summary = setBool(r.PostForm.Get("Summary"))
+	s.Cancerrate = setBool(r.PostForm.Get("Cancerrate"))
+	s.Min = setInt(r.PostForm.Get("Min"))
+	s.Necropsy = setBool(r.PostForm.Get("Necropsy"))
+	s.Common = setBool(r.PostForm.Get("Common"))
+	s.Count = setBool(r.PostForm.Get("Count"))
+	s.Infant = setBool(r.PostForm.Get("Infant"))
 	return s
 }

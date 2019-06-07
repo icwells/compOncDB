@@ -15,17 +15,19 @@ var (
 	C = setConfiguration()
 )
 
-func getCredentials(r *http.Request) {
+func getCredentials(r *http.Request) (string, string) {
 	// Stores username and password from cookie
-	session, err := C.store.Get(r, C.name)
-	if err == nil {
-		value := make(map[string]string)
-		// Extract cookie.Value to value map
-		if err = cookieHandler.Decode(c.name, cookie.Value, &value); err == nil {
-			c.User = value["name"]
-			c.password = value["password"]
-		}
+	session, _ := STORE.Get(r, C.name)
+	name, ex := session.Values["username"]
+	if !ex {
+		return "", ""
 	}
+	pw, e := session.Values["password"]
+	if !e {
+		return "", ""
+	}
+	return name.(string), pw.(string)
+	
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,15 +39,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// Handles login
 	redirect := C.source
 	r.ParseForm()
-	user = r.PostForm.Get("name")
-	ps = r.PostForm.Get("password")
-	if C.User != "" && C.password != "" {
+	user := r.PostForm.Get("name")
+	pw := r.PostForm.Get("password")
+	if user != "" && pw != "" {
 		// Check credentials
-		if ping() {
+		if ping(user, pw) {
 			// Store cookie
-			session, _ := store.Get(r, C.name)
+			session, _ := STORE.Get(r, C.name)
 			session.Values["username"] = user
-			// bcrypt later on
+			// encrypt later on
 			session.Values["password"] = pw
 			session.Save(r, w)
 			redirect = C.search
@@ -56,19 +58,21 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Clears session and returns to login page
-	http.SetCookie(w, C.newCookie())
+	//http.SetCookie(w, C.newCookie())
 	http.Redirect(w, r, C.source, 302)
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
-	// Renders search form
-	C.renderTemplate(w, C.searchtemp, newOutput())
+	// Renders search form (newOutput supplies username)
+	user, _ := getCredentials(r)
+	C.renderTemplate(w, C.searchtemp, newOutput(user))
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
+	user, pw := getCredentials(r)
 	form := setSearchForm(r)
-	out := extractFromDB(form)
+	out := extractFromDB(form, user, pw)
 	C.renderTemplate(w, C.resulttemp, out)
 }
 
