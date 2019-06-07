@@ -1,11 +1,36 @@
-{{define "content"}}
+<!doctype html>
+<html lang="en">
+<title>Comparative Oncology Database</title>
+<link rel="stylesheet" type="text/css" href="../static/style.css">
+<section class="content">
+  <header>
+    Comparative Oncology Database
+  </header>
   <!--Login -->
   <h1>Login</h1>
   <form method="post" action="/login">
-    <label for="name">User Name:</label>
-     <input type="text" id="name" name="name">
-     <label for="password">Password:</label>
-     <input type="password" id="password" name="password">
-     <button type="submit">Login</button>
+    <div>
+      <label for="name">User Name:</label>
+      <input type="text" id="name" name="name">
+     </div>
+     <div>
+       <label for="password">Password:</label>
+       <input type="password" id="password" name="password">
+     </div>
+     <div>
+      <button type="submit">Login</button>
+     </div>
   </form>
-{{end}}
+</section>
+<footer>
+  <p>
+    <img src="../static/biodesign.png" width="30%" align="right">
+    <small>&copy; Copyright 2019, Maley Lab</small><br/>
+    <small>Biodesign Center for Biocomputing, Security, and Society</small><br/>
+    <small>Arizona Cancer and Evolution Center</small><br/>
+    <small>Arizona State University</small>
+    <small>maleylabcancer@asu.edu</small>
+  </p>
+</footer>
+</html>
+

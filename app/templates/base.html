@@ -1,12 +1,13 @@
 {{define "base"}}
 <!doctype html>
+<html lang="en">
 <title>Comparative Oncology Database</title>
 <link rel="stylesheet" href="../static/style.css">
 <section class="content">
   <header>
     Comparative Oncology Database
   </header>
-{{template "content"}}
+{{template "content" .}}
 </section>
 <footer>
   <p>
@@ -18,4 +19,5 @@
     <small>maleylabcancer@asu.edu</small>
   </p>
 </footer>
+</html>
 {{end}}

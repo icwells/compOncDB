@@ -13,6 +13,7 @@ DR="github.com/go-sql-driver/mysql"
 FZ="github.com/lithammer/fuzzysearch/fuzzy"
 GM="github.com/gorilla/mux"
 GS="github.com/gorilla/securecookie"
+GS="github.com/gorilla/sessions"
 IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"
 MAIN="compOncDB"
@@ -53,7 +54,7 @@ installMain () {
 
 	# Application
 	echo "Building $APP..."
-	go build -i -o $GOBIN/$APP app/*.go
+	go build -i -o app/$APP app/*.go
 }
 
 echo ""

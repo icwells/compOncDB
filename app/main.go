@@ -5,34 +5,50 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
+	"github.com/gorilla/sessions"
 	"log"
 	"net/http"
-	"path"
 )
 
 var (
-	cookieHandler = securecookie.New(
-		securecookie.GenerateRandomKey(64),
-		securecookie.GenerateRandomKey(32),
-	)
-	S = setSession()
+	STORE = sessions.NewCookieStore(securecookie.GenerateRandomKey(64))
+	C = setConfiguration()
 )
+
+func getCredentials(r *http.Request) {
+	// Stores username and password from cookie
+	session, err := C.store.Get(r, C.name)
+	if err == nil {
+		value := make(map[string]string)
+		// Extract cookie.Value to value map
+		if err = cookieHandler.Decode(c.name, cookie.Value, &value); err == nil {
+			c.User = value["name"]
+			c.password = value["password"]
+		}
+	}
+}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves login page
-	S.renderTemplate(w, S.logintemp, nil)
+	C.renderTemplate(w, C.logintemp, nil)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// Handles login
-	redirect := S.source
-	S.User = r.FormValue("name")
-	S.password = r.FormValue("password")
-	if S.User != "" && S.password != "" {
+	redirect := C.source
+	r.ParseForm()
+	user = r.PostForm.Get("name")
+	ps = r.PostForm.Get("password")
+	if C.User != "" && C.password != "" {
 		// Check credentials
 		if ping() {
-			S.storeSession(w)
-			redirect = S.search
+			// Store cookie
+			session, _ := store.Get(r, C.name)
+			session.Values["username"] = user
+			// bcrypt later on
+			session.Values["password"] = pw
+			session.Save(r, w)
+			redirect = C.search
 		}
 	}
 	http.Redirect(w, r, redirect, 302)
@@ -40,35 +56,34 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Clears session and returns to login page
-	http.SetCookie(w, S.newCookie())
-	http.Redirect(w, r, S.source, 302)
+	http.SetCookie(w, C.newCookie())
+	http.Redirect(w, r, C.source, 302)
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders search form
-	S.renderTemplate(w, S.searchtemp, nil)
+	C.renderTemplate(w, C.searchtemp, newOutput())
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
 	form := setSearchForm(r)
 	out := extractFromDB(form)
-	S.renderTemplate(w, S.resulttemp, out)
+	C.renderTemplate(w, C.resulttemp, out)
 }
 
 func main() {
 	// Register handler functions
 	r := mux.NewRouter()
-
-	fileserver := http.FileServer(http.Dir(path.Join(S.appdir, S.static)))
-	r.PathPrefix(S.static).Handler(http.StripPrefix(S.static, fileserver))
-	r.HandleFunc(S.source, indexHandler).Methods("GET")
-	r.HandleFunc(S.login, loginHandler).Methods("POST")
-	r.HandleFunc(S.logout, logoutHandler).Methods("POST")
-	r.HandleFunc(S.search, formHandler).Methods("GET")
-	r.HandleFunc(S.search, searchHandler).Methods("POST")
+	fileserver := http.FileServer(http.Dir("." + C.static))
+	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fileserver))
+	r.HandleFunc(C.source, indexHandler).Methods("GET")
+	r.HandleFunc(C.source, loginHandler).Methods("POST")
+	r.HandleFunc(C.logout, logoutHandler).Methods("POST")
+	r.HandleFunc(C.search, formHandler).Methods("GET")
+	r.HandleFunc(C.search, searchHandler).Methods("POST")
 	// Serve and log errors to terminal
-	http.Handle(S.source, r)
-	//log.Fatal(http.ListenAndServe(S.config.Host + ":8080", nil))
+	http.Handle(C.source, r)
+	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
 }
