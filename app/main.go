@@ -3,13 +3,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"log"
 	"net/http"
-	"strings"
 )
 
 var (
@@ -34,7 +32,6 @@ func getCredentials(r *http.Request) (string, string) {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves login page
-	//w.Header().Set("Content-Type", "text/css; charset=utf-8")
 	C.renderTemplate(w, C.logintemp, newOutput(""))
 }
 
@@ -85,7 +82,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	C.renderTemplate(w, C.resulttemp, out)
 }
 
-func staticCache(h http.Handler) http.Handler {
+/*func staticCache(h http.Handler) http.Handler {
 	// Adds cache time and content type to static files
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var ct string
@@ -101,19 +98,19 @@ func staticCache(h http.Handler) http.Handler {
         w.Header().Set("Cache-Control", "max-age=172800")
         h.ServeHTTP(w, r)
     })
-}
+}*/
 
 func main() {
 	// Initilaize multiplexer and fileserver
 	r := mux.NewRouter()
+	fs := http.FileServer(http.Dir("." + C.static))
+	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fs))
 	// Register handler functions
 	r.HandleFunc(C.source, indexHandler).Methods("GET")
 	r.HandleFunc(C.source, loginHandler).Methods("POST")
 	r.HandleFunc(C.logout, logoutHandler).Methods("POST")
 	r.HandleFunc(C.search, formHandler).Methods("GET")
 	r.HandleFunc(C.search, searchHandler).Methods("POST")
-	fs := staticCache(http.FileServer(http.Dir("." + C.static)))
-	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fs))
 	// Serve and log errors to terminal
 	http.Handle(C.source, r)
 	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))
