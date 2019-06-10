@@ -1,11 +1,6 @@
-<!doctype html>
-<html lang="en">
-<title>Comparative Oncology Database</title>
-<link rel="stylesheet" type="text/css" href="/static/style.css">
-<section class="content">
-  <header>
-    Comparative Oncology Database
-  </header>
+{{define "login"}}
+{{template "header"}}
+<section>
   <!--Login -->
   <h1>Login</h1>
   {{if eq .Flash ""}}
@@ -25,15 +20,5 @@
      </div>
   </form>
 </section>
-<footer>
-  <p>
-    <img src="/static/biodesign.png" alt="Error loading image." width="30%" align="right">
-    <small>&copy; Copyright 2019, Maley Lab</small><br/>
-    <small>Biodesign Center for Biocomputing, Security, and Society</small><br/>
-    <small>Arizona Cancer and Evolution Center</small><br/>
-    <small>Arizona State University</small><br/>
-    <small>maleylabcancer@asu.edu</small>
-  </p>
-</footer>
-</html>
-
+{{template "footer"}}
+{{end}}

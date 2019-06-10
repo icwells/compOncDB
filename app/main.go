@@ -3,16 +3,17 @@
 package main
 
 import (
-	"github.com/GeertJohan/go.rice"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"log"
 	"net/http"
+	"strings"
 )
 
 var (
-	STORE = sessions.NewCookieStore(securecookie.GenerateRandomKey(64))
+	STORE = sessions.NewCookieStore(securecookie.GenerateRandomKey(64), securecookie.GenerateRandomKey(32))
 	C     = setConfiguration()
 )
 
@@ -39,7 +40,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// Handles login
-	redirect := C.source
+	pass := false
 	r.ParseForm()
 	user := r.PostForm.Get("name")
 	pw := r.PostForm.Get("password")
@@ -49,18 +50,24 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			// Store cookie
 			session, _ := STORE.Get(r, C.name)
 			session.Values["username"] = user
-			// encrypt later on
 			session.Values["password"] = pw
 			session.Save(r, w)
-			redirect = C.search
+			pass = true
 		}
 	}
-	http.Redirect(w, r, redirect, 302)
+	if pass {
+		http.Redirect(w, r, C.search, 302)
+	} else {
+		C.renderTemplate(w, C.logintemp, newFlash("", "Username or password is incorrect."))
+	}
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Clears session and returns to login page
-	//http.SetCookie(w, C.newCookie())
+	session, _ := STORE.Get(r, C.name)
+	session.Values["username"] = ""
+	session.Values["password"] = ""
+	session.Save(r, w)
 	http.Redirect(w, r, C.source, 302)
 }
 
@@ -78,17 +85,35 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	C.renderTemplate(w, C.resulttemp, out)
 }
 
+func staticCache(h http.Handler) http.Handler {
+	// Adds cache time and content type to static files
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var ct string
+		path := r.URL.Path[1:]
+		fmt.Println(path)
+		if strings.HasSuffix(path, ".css") {
+			ct = "text/css"
+		} else if strings.HasSuffix(path, "png") {
+			ct = "image/png"
+		}
+		w.Header().Add("Content-Type", ct)
+		// 2 Days
+        w.Header().Set("Cache-Control", "max-age=172800")
+        h.ServeHTTP(w, r)
+    })
+}
+
 func main() {
 	// Initilaize multiplexer and fileserver
 	r := mux.NewRouter()
-	fs := http.FileServer(rice.MustFindBox("static").HTTPBox())
-	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fs))
 	// Register handler functions
 	r.HandleFunc(C.source, indexHandler).Methods("GET")
 	r.HandleFunc(C.source, loginHandler).Methods("POST")
 	r.HandleFunc(C.logout, logoutHandler).Methods("POST")
 	r.HandleFunc(C.search, formHandler).Methods("GET")
 	r.HandleFunc(C.search, searchHandler).Methods("POST")
+	fs := staticCache(http.FileServer(http.Dir("." + C.static)))
+	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fs))
 	// Serve and log errors to terminal
 	http.Handle(C.source, r)
 	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))

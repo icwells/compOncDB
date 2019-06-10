@@ -1,4 +1,6 @@
-{{template "content"}}
+{{define "result"}}
+{{template "header"}}
+<section>
   <div align="right">
     <small>User: {{.User}} </small>
     <form method="post" action="/logout">
@@ -18,4 +20,6 @@
     <form method="post" action="/search">
     <button type="submit">Start a new search</button>
   </p>
+</section>
+{{template "footer"}}
 {{end}}

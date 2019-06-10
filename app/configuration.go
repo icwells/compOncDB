@@ -37,9 +37,9 @@ func setConfiguration() *configuration {
 	c.logout = "/codb/logout"
 	c.static = "/static/"
 	c.tmpl = "templates/*.html"
-	c.logintemp = "login.html"
-	c.searchtemp = "search.html"
-	c.resulttemp = "result.html"
+	c.logintemp = "login"
+	c.searchtemp = "search"
+	c.resulttemp = "result"
 	c.templates = template.Must(template.ParseGlob(c.tmpl))
 	c.config = codbutils.SetConfiguration("config.txt", "", false)
 	return &c
