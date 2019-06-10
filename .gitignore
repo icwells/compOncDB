@@ -4,6 +4,9 @@ utils/config.txt
 # Upload script
 utils/upload.sh
 
+# Rice Box
+app/rice-box.go
+
 # Test data
 test/diagnoses.csv
 test/merged.csv

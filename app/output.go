@@ -17,6 +17,7 @@ func ping(user, password string) bool {
 
 type Output struct {
 	User     string
+	Flash    string
 	File     bool
 	Outfile  string
 	Filename string
@@ -30,6 +31,13 @@ func newOutput(user string) *Output {
 	return o
 }
 
+func newFlash(user, msg string) *Output {
+	// Returns output with flash error message
+	o := newOutput(user)
+	o.Flash = msg
+	return o
+}
+
 func (o *Output) getTempFile(name string) {
 	// Returns path to named file in tmp directory
 	o.Outfile = fmt.Sprintf("/tmp/%s.csv", name)
@@ -37,7 +45,7 @@ func (o *Output) getTempFile(name string) {
 	o.File = true
 }
 
-func (o *Output) searchDB(db *dbIO.DBIO, f SearchForm) {
+func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
 	// Searches database for results
 	var res [][]string
 	var header string
@@ -67,7 +75,7 @@ func (o *Output) searchDB(db *dbIO.DBIO, f SearchForm) {
 	}
 }
 
-func extractFromDB(f SearchForm, user, password string) *Output {
+func extractFromDB(f *SearchForm, user, password string) *Output {
 	// Extracts data to outfile/stdout
 	ret := newOutput(user)
 	db := dbIO.Connect(C.config.Host, C.config.Database, ret.User, password)

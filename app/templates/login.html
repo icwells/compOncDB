@@ -1,14 +1,17 @@
 <!doctype html>
 <html lang="en">
 <title>Comparative Oncology Database</title>
-<link rel="stylesheet" type="text/css" href="../static/style.css">
+<link rel="stylesheet" type="text/css" href="/static/style.css">
 <section class="content">
   <header>
     Comparative Oncology Database
   </header>
   <!--Login -->
   <h1>Login</h1>
-  <form method="post" action="/login">
+  {{if eq .Flash ""}}
+  <div class="flash">{{.Flash}}</div>
+  {{end}}
+  <form method="post" action="/codb">
     <div>
       <label for="name">User Name:</label>
       <input type="text" id="name" name="name">
@@ -24,11 +27,11 @@
 </section>
 <footer>
   <p>
-    <img src="../static/biodesign.png" width="30%" align="right">
+    <img src="/static/biodesign.png" alt="Error loading image." width="30%" align="right">
     <small>&copy; Copyright 2019, Maley Lab</small><br/>
     <small>Biodesign Center for Biocomputing, Security, and Society</small><br/>
     <small>Arizona Cancer and Evolution Center</small><br/>
-    <small>Arizona State University</small>
+    <small>Arizona State University</small><br/>
     <small>maleylabcancer@asu.edu</small>
   </p>
 </footer>

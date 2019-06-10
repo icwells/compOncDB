@@ -5,7 +5,7 @@
     <button type="submit">Logout</button>
   </div>
   <h1>Search Reults:</h1>
-  {{if .File}}
+  {{if eq .File}}
     <p>Output csv file:</p>
     <a href={{.Outfile}} download={{.Filename}}>{{.Filename}}</a>
   {{else}}

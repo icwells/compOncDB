@@ -3,6 +3,7 @@
 package main
 
 import (
+	"github.com/GeertJohan/go.rice"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -12,7 +13,7 @@ import (
 
 var (
 	STORE = sessions.NewCookieStore(securecookie.GenerateRandomKey(64))
-	C = setConfiguration()
+	C     = setConfiguration()
 )
 
 func getCredentials(r *http.Request) (string, string) {
@@ -27,12 +28,13 @@ func getCredentials(r *http.Request) (string, string) {
 		return "", ""
 	}
 	return name.(string), pw.(string)
-	
+
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves login page
-	C.renderTemplate(w, C.logintemp, nil)
+	//w.Header().Set("Content-Type", "text/css; charset=utf-8")
+	C.renderTemplate(w, C.logintemp, newOutput(""))
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -77,10 +79,11 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Register handler functions
+	// Initilaize multiplexer and fileserver
 	r := mux.NewRouter()
-	fileserver := http.FileServer(http.Dir("." + C.static))
-	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fileserver))
+	fs := http.FileServer(rice.MustFindBox("static").HTTPBox())
+	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fs))
+	// Register handler functions
 	r.HandleFunc(C.source, indexHandler).Methods("GET")
 	r.HandleFunc(C.source, loginHandler).Methods("POST")
 	r.HandleFunc(C.logout, logoutHandler).Methods("POST")

@@ -12,13 +12,16 @@ DBI="github.com/icwells/dbIO"
 DR="github.com/go-sql-driver/mysql"
 FZ="github.com/lithammer/fuzzysearch/fuzzy"
 GM="github.com/gorilla/mux"
-GS="github.com/gorilla/securecookie"
+GC="github.com/gorilla/securecookie"
 GS="github.com/gorilla/sessions"
+GSC="github.com/gorilla/schema"
 IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"
 MAIN="compOncDB"
 PARSE="parseRecords"
 PR="github.com/Songmu/prompter"
+GRICE="github.com/GeertJohan/go.rice"
+RICE="github.com/GeertJohan/go.rice/rice"
 SA="github.com/icwells/go-tools/strarray"
 
 # Get install location
@@ -34,7 +37,7 @@ installPackage () {
 
 installDependencies () {
 # Get dependencies
-	for I in $AP $DBI $DR $FZ $GM $GS $IO $KP $PR $SA ; do
+	for I in $AP $DBI $DR $FZ $GM $GC $GS $GSC $IO $KP $PR $GRICE $RICE $SA ; do
 		if [ ! -e "$PDIR/$1.a" ]; then
 			installPackage $I
 		fi
@@ -54,7 +57,9 @@ installMain () {
 
 	# Application
 	echo "Building $APP..."
-	go build -i -o app/$APP app/*.go
+	cd app/
+	rice embed-go
+	go build -i -o $APP *.go
 }
 
 echo ""

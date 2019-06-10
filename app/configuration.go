@@ -4,12 +4,15 @@ package main
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/go-tools/iotools"
 	"html/template"
 	"net/http"
+	"path"
 )
 
 type configuration struct {
 	name       string
+	appdir     string
 	source     string
 	search     string
 	searchtemp string
@@ -27,6 +30,7 @@ func setConfiguration() *configuration {
 	// Returns pointer to initialized configuration struct
 	var c configuration
 	c.name = "session"
+	c.appdir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/app")
 	c.source = "/codb"
 	c.search = "/codb/search"
 	c.output = "/codb/results"
@@ -39,15 +43,6 @@ func setConfiguration() *configuration {
 	c.templates = template.Must(template.ParseGlob(c.tmpl))
 	c.config = codbutils.SetConfiguration("config.txt", "", false)
 	return &c
-}
-
-func (c *configuration) newCookie() *http.Cookie {
-	// Populates cookie struct from configuration
-	return &http.Cookie{
-		Name:  c.name,
-		Value: "",
-		Path:  c.source,
-	}
 }
 
 func (c *configuration) renderTemplate(w http.ResponseWriter, tmpl string, out *Output) {
