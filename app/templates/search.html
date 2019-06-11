@@ -4,11 +4,11 @@
   <h1>Search Database</h1>
   <form method="POST" action="/search">
     <div>
-      <label for="Column">Name of column containing target value (table is automatically determined).</label>
+      <label for="Column">Name of column containing target value (table is automatically determined):</label>
       <input type="text" id="Column" name="Column">
     </div>
     <div>
-      <label for="Operator">Operation to perform.</label>
+      <label for="Operator">Operation to perform:</label>
       <select>
         <option name="Operator" value="=">=</option>
         <option name="Operator" value=">=">>=</option>
@@ -16,12 +16,12 @@
         <option name="Operator" value=">">></option>
         <option name="Operator" value="<"><</option>
       </select>
-      <input type="text" id="Operator" name="Operator">
     </div>
     <div>
-      <label for="Value">Target value to search for.</label>
+      <label for="Value">Target value to search for:</label>
       <input type="text" id="Value" name="Value">
     </div>
+    <hr>
     <div>
       <input type="checkbox" name="Taxon">
       <label for="Taxon">Search specifically for taxonomic matches (enter the taxonomic level in the field and the taxon in the value field).</label>
@@ -30,14 +30,16 @@
       <input type="checkbox" name="Common">
       <label for="Common">Indicates that common species name was given for taxa.</label>
     </div>
+    <hr>
     <div>
-      <label for="Table">Perform operations on this table only.</label>
+      <label for="Table">Perform operations on this table only:</label>
       <input type="text" id="Table" name="Table">
     </div>
     <div>
       <input type="checkbox" name="Dump">
       <label for="Dump">Extract entire target table.</label>
     </div>
+    <hr>
     <div>
       <input type="checkbox" name="Summary">
       <label for="Summary">Compiles basic summary statistics of the database.</label>
@@ -47,8 +49,8 @@
       <label for="Cancerrate">Calculates cancer rates for species with greater than min entries.</label>
     </div>
     <div>
+      <label for="Min">The minimum number of entries required to examine a species:</label>
       <input type="number" name="Min" min="0" value="50">
-      <label for="Min">The minimum number of entries required to examine a species.</label>
     </div>
     <div>
       <input type="checkbox" name="Necropsy">
@@ -62,7 +64,7 @@
       <input type="checkbox" name="Infant">
       <label for="Infant">Include infant records in results (excluded by default).</label>
     </div>
-   <button type="submit">Submit</button>
+    <button type="submit">Submit</button>
   </form>
 </section>
 {{template "footer"}}

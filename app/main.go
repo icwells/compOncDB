@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -53,7 +54,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if pass {
-		http.Redirect(w, r, C.search, 302)
+		http.Redirect(w, r, C.search, http.StatusFound)
 	} else {
 		C.renderTemplate(w, C.logintemp, newFlash("", "Username or password is incorrect."))
 	}
@@ -65,21 +66,30 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["username"] = ""
 	session.Values["password"] = ""
 	session.Save(r, w)
-	http.Redirect(w, r, C.source, 302)
+	http.Redirect(w, r, C.source, http.StatusFound)
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders search form (newOutput supplies username)
 	user, _ := getCredentials(r)
-	C.renderTemplate(w, C.searchtemp, newOutput(user))
+	if user != "" {
+		fmt.Println(user)
+		C.renderTemplate(w, C.searchtemp, newOutput(user))
+	} else {
+		C.renderTemplate(w, C.logintemp, newFlash("", "Please login to access database."))
+	}
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
 	user, pw := getCredentials(r)
-	form := setSearchForm(r)
-	out := extractFromDB(form, user, pw)
-	C.renderTemplate(w, C.resulttemp, out)
+	if user != "" && pw != "" {
+		form := setSearchForm(r)
+		out := extractFromDB(form, user, pw)
+		C.renderTemplate(w, C.resulttemp, out)
+	} else {
+		C.renderTemplate(w, C.logintemp, newFlash("", "Please login to access database."))
+	}
 }
 
 /*func staticCache(h http.Handler) http.Handler {
@@ -106,11 +116,11 @@ func main() {
 	fs := http.FileServer(http.Dir("." + C.static))
 	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fs))
 	// Register handler functions
-	r.HandleFunc(C.source, indexHandler).Methods("GET")
-	r.HandleFunc(C.source, loginHandler).Methods("POST")
-	r.HandleFunc(C.logout, logoutHandler).Methods("POST")
-	r.HandleFunc(C.search, formHandler).Methods("GET")
-	r.HandleFunc(C.search, searchHandler).Methods("POST")
+	r.HandleFunc(C.source, indexHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.source, loginHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.logout, logoutHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.search, formHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.search, searchHandler).Methods(http.MethodPost)
 	// Serve and log errors to terminal
 	http.Handle(C.source, r)
 	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))

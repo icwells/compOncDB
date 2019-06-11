@@ -12,7 +12,7 @@ import (
 
 func ping(user, password string) bool {
 	// Returns true if credentials are valid
-	return dbIO.Ping(C.config.Host, C.config.Database, user, password)
+	return dbIO.Ping("", C.config.Database, user, password)
 }
 
 type Output struct {
