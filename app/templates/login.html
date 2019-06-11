@@ -3,10 +3,11 @@
 <section>
   <!--Login -->
   <h1>Login</h1>
-  {{if eq .Flash ""}}
-  <div class="flash">{{.Flash}}</div>
+  {{if .Flash}}
+    <div class="flash">{{.Flash}}</div>
   {{end}}
-  <form method="post" action="/codb">
+  <hr>
+  <form method="POST" action="/codb">
     <div>
       <label for="name">User Name:</label>
       <input type="text" id="name" name="name">

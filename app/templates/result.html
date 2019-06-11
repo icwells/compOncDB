@@ -1,25 +1,18 @@
 {{define "result"}}
 {{template "header"}}
 <section>
-  <div align="right">
-    <small>User: {{.User}} </small>
-    <form method="post" action="/logout">
-    <button type="submit">Logout</button>
-  </div>
   <h1>Search Reults:</h1>
-  {{if eq .File}}
+  {{if .File}}
     <p>Output csv file:</p>
-    <a href={{.Outfile}} download={{.Filename}}>{{.Filename}}</a>
+    <a href={{.Outfile}} download={{.File}}>{{.File}}</a>
   {{else}}
-  <p>
-  {{range $line := .Results}}
-    {{$line}}
+    <p>
+    {{range $line := .Results}}
+      {{$line}}<br/>
+    {{end}}
   {{end}}
   </p>
-  <p>
-    <form method="post" action="/search">
-    <button type="submit">Start a new search</button>
-  </p>
+  <p><a href="/codb/search">Start a new search</a></p>
 </section>
 {{template "footer"}}
 {{end}}

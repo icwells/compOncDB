@@ -1,13 +1,8 @@
 {{define "search"}}
 {{template "header"}}
 <section>
-  <div align="right">
-    <small>User: {{.User}} </small>
-    <form method="post" action="/logout">
-    <button type="submit">Logout</button>
-  </div>
   <h1>Search Database</h1>
-  <form method="post" action="/search">
+  <form method="POST" action="/search">
     <div>
       <label for="Column">Name of column containing target value (table is automatically determined).</label>
       <input type="text" id="Column" name="Column">

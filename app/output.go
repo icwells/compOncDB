@@ -18,9 +18,8 @@ func ping(user, password string) bool {
 type Output struct {
 	User     string
 	Flash    string
-	File     bool
+	File     string
 	Outfile  string
-	Filename string
 	Results  []string
 }
 
@@ -41,8 +40,7 @@ func newFlash(user, msg string) *Output {
 func (o *Output) getTempFile(name string) {
 	// Returns path to named file in tmp directory
 	o.Outfile = fmt.Sprintf("/tmp/%s.csv", name)
-	o.Filename = fmt.Sprintf("%s.csv", name)
-	o.File = true
+	o.File = fmt.Sprintf("%s.csv", name)
 }
 
 func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
