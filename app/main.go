@@ -18,17 +18,17 @@ var (
 
 func getCredentials(r *http.Request) (string, string) {
 	// Stores username and password from cookie
+	var user, password string
 	session, _ := STORE.Get(r, C.name)
 	name, ex := session.Values["username"]
-	if !ex {
-		return "", ""
+	if ex {
+		user = name.(string)
 	}
 	pw, e := session.Values["password"]
-	if !e {
-		return "", ""
+	if e {
+		password = pw.(string)
 	}
-	return name.(string), pw.(string)
-
+	return user, password
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -92,29 +92,11 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-/*func staticCache(h http.Handler) http.Handler {
-	// Adds cache time and content type to static files
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var ct string
-		path := r.URL.Path[1:]
-		fmt.Println(path)
-		if strings.HasSuffix(path, ".css") {
-			ct = "text/css"
-		} else if strings.HasSuffix(path, "png") {
-			ct = "image/png"
-		}
-		w.Header().Add("Content-Type", ct)
-		// 2 Days
-        w.Header().Set("Cache-Control", "max-age=172800")
-        h.ServeHTTP(w, r)
-    })
-}*/
-
 func main() {
 	// Initilaize multiplexer and fileserver
 	r := mux.NewRouter()
 	fs := http.FileServer(http.Dir("." + C.static))
-	r.PathPrefix(C.static).Handler(http.StripPrefix(C.static, fs))
+	http.Handle(C.static, http.StripPrefix(C.static, fs))
 	// Register handler functions
 	r.HandleFunc(C.source, indexHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.source, loginHandler).Methods(http.MethodPost)

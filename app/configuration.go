@@ -32,7 +32,7 @@ func setConfiguration() *configuration {
 	c.name = "session"
 	c.appdir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/app")
 	c.source = "/codb"
-	c.search = "/codb/search"
+	c.search = "/codb/search/"
 	c.output = "/codb/results"
 	c.logout = "/codb/logout"
 	c.static = "/static/"
