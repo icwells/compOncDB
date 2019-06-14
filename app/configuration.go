@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/schema"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/iotools"
