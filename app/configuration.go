@@ -3,12 +3,41 @@
 package main
 
 import (
+	"github.com/gorilla/schema"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/iotools"
 	"html/template"
 	"net/http"
 	"path"
 )
+
+type SearchForm struct {
+	Column     string
+	Operator   string
+	Value      string
+	Taxon      bool
+	Table      string
+	Dump       bool
+	Summary    bool
+	Cancerrate bool
+	Min        int
+	Necropsy   bool
+	Common     bool
+	Count      bool
+	Infant     bool
+}
+
+func setSearchForm(r *http.Request) *SearchForm {
+	// Populates struct from request data
+	s := new(SearchForm)
+	decoder := schema.NewDecoder()
+	r.ParseForm()
+	decoder.Decode(s, r.PostForm)
+	fmt.Println(s.Column, s.Operator, s.Value)
+	return s
+}
+
+//----------------------------------------------------------------------------
 
 type configuration struct {
 	name       string
