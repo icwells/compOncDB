@@ -1,8 +1,14 @@
 {{define "search"}}
 {{template "header"}}
+{{if .User}}
+  <div class="username" align="right">
+    <small>User: {{.User}} | <a href="/codb/logout">Logout</a></small>
+  </div>
+<hr>
+{{end}}
 <section>
   <h1>Search Database</h1>
-  <form method="POST" action="/search">
+  <form method="POST" action="/codb/search">
     <div>
       <label for="Column">Name of column containing target value (table is automatically determined):</label>
       <input type="text" id="Column" name="Column">
@@ -42,11 +48,11 @@
     <hr>
     <div>
       <input type="checkbox" name="Summary">
-      <label for="Summary">Compiles basic summary statistics of the database.</label>
+      <label for="Summary">Compile basic summary statistics of the database.</label>
     </div>
     <div>
       <input type="checkbox" name="Cancerrate">
-      <label for="Cancerrate">Calculates cancer rates for species with greater than min entries.</label>
+      <label for="Cancerrate">Calculate cancer rates for species with greater than min entries.</label>
     </div>
     <div>
       <label for="Min">The minimum number of entries required to examine a species:</label>
@@ -58,7 +64,7 @@
     </div>
     <div>
       <input type="checkbox" name="Count">
-      <label for="Count">Returns count of target records instead of printing entire records.</label>
+      <label for="Count">Return count of target records instead of printing entire records.</label>
     </div>
     <div>
       <input type="checkbox" name="Infant">

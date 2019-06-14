@@ -1,5 +1,11 @@
 {{define "result"}}
 {{template "header"}}
+{{if .User}}
+  <div class="username" align="right">
+    <small>User: {{.User}} | <a href="/codb/logout">Logout</a></small>
+  </div>
+<hr>
+{{end}}
 <section>
   <h1>Search Reults:</h1>
   {{if .File}}

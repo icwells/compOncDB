@@ -16,11 +16,11 @@ func ping(user, password string) bool {
 }
 
 type Output struct {
-	User     string
-	Flash    string
-	File     string
-	Outfile  string
-	Results  []string
+	User    string
+	Flash   string
+	File    string
+	Outfile string
+	Results []string
 }
 
 func newOutput(user string) *Output {
@@ -30,9 +30,9 @@ func newOutput(user string) *Output {
 	return o
 }
 
-func newFlash(user, msg string) *Output {
+func newFlash(msg string) *Output {
 	// Returns output with flash error message
-	o := newOutput(user)
+	o := newOutput("")
 	o.Flash = msg
 	return o
 }

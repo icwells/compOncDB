@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -17,7 +16,7 @@ var (
 )
 
 func getCredentials(r *http.Request) (string, string) {
-	// Stores username and password from cookie
+	// Reads username and password from cookie
 	var user, password string
 	session, _ := STORE.Get(r, C.name)
 	name, ex := session.Values["username"]
@@ -33,7 +32,14 @@ func getCredentials(r *http.Request) (string, string) {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves login page
-	C.renderTemplate(w, C.logintemp, newOutput(""))
+	user, pw := getCredentials(r)
+	if user != "" && pw != "" && ping(user, pw) {
+		// Forward to search form if logged in
+		http.Redirect(w, r, C.search, http.StatusFound)
+	} else {
+		// Render login template
+		C.renderTemplate(w, C.logintemp, newOutput(""))
+	}
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +62,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if pass {
 		http.Redirect(w, r, C.search, http.StatusFound)
 	} else {
-		C.renderTemplate(w, C.logintemp, newFlash("", "Username or password is incorrect."))
+		C.renderTemplate(w, C.logintemp, newFlash("Username or password is incorrect."))
 	}
 }
 
@@ -66,17 +72,16 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["username"] = ""
 	session.Values["password"] = ""
 	session.Save(r, w)
-	http.Redirect(w, r, C.source, http.StatusFound)
+	http.Redirect(w, r, C.login, http.StatusFound)
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders search form (newOutput supplies username)
 	user, _ := getCredentials(r)
 	if user != "" {
-		fmt.Println(user)
 		C.renderTemplate(w, C.searchtemp, newOutput(user))
 	} else {
-		C.renderTemplate(w, C.logintemp, newFlash("", "Please login to access database."))
+		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
 	}
 }
 
@@ -88,7 +93,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		out := extractFromDB(form, user, pw)
 		C.renderTemplate(w, C.resulttemp, out)
 	} else {
-		C.renderTemplate(w, C.logintemp, newFlash("", "Please login to access database."))
+		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
 	}
 }
 
@@ -98,13 +103,13 @@ func main() {
 	fs := http.FileServer(http.Dir("." + C.static))
 	http.Handle(C.static, http.StripPrefix(C.static, fs))
 	// Register handler functions
-	r.HandleFunc(C.source, indexHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.source, loginHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.logout, logoutHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.login, indexHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.login, loginHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.logout, logoutHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.search, formHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.search, searchHandler).Methods(http.MethodPost)
 	// Serve and log errors to terminal
-	http.Handle(C.source, r)
+	http.Handle("/", r)
 	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
 }
