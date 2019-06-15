@@ -20,8 +20,6 @@ KP="gopkg.in/alecthomas/kingpin.v2"
 MAIN="compOncDB"
 PARSE="parseRecords"
 PR="github.com/Songmu/prompter"
-GRICE="github.com/GeertJohan/go.rice"
-RICE="github.com/GeertJohan/go.rice/rice"
 SA="github.com/icwells/go-tools/strarray"
 
 # Get install location
@@ -37,7 +35,7 @@ installPackage () {
 
 installDependencies () {
 # Get dependencies
-	for I in $AP $DBI $DR $FZ $GM $GC $GS $GSC $IO $KP $PR $GRICE $RICE $SA ; do
+	for I in $AP $DBI $DR $FZ $GM $GC $GS $GSC $IO $KP $PR $SA ; do
 		if [ ! -e "$PDIR/$1.a" ]; then
 			installPackage $I
 		fi
@@ -58,7 +56,6 @@ installMain () {
 	# Application
 	echo "Building $APP..."
 	cd app/
-	rice embed-go
 	go build -i -o $APP *.go
 }
 
