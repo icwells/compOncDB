@@ -90,8 +90,13 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	user, pw := getCredentials(r)
 	if user != "" && pw != "" {
 		form := setSearchForm(r)
-		out := extractFromDB(form, user, pw)
-		C.renderTemplate(w, C.resulttemp, out)
+		out, err := extractFromDB(form, user, pw)
+		if err == nil {
+			C.renderTemplate(w, C.resulttemp, out)
+		} else {
+			// Return to login page if an error is encoutered
+			C.renderTemplate(w, C.logintemp, newFlash(err.Error()))
+		}
 	} else {
 		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
 	}

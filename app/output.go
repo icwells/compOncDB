@@ -12,7 +12,7 @@ import (
 
 func ping(user, password string) bool {
 	// Returns true if credentials are valid
-	return dbIO.Ping("", C.config.Database, user, password)
+	return dbIO.Ping(C.config.Host, C.config.Database, user, password)
 }
 
 type Output struct {
@@ -73,30 +73,32 @@ func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
 	}
 }
 
-func extractFromDB(f *SearchForm, user, password string) *Output {
+func extractFromDB(f *SearchForm, user, password string) (*Output, error) {
 	// Extracts data to outfile/stdout
 	ret := newOutput(user)
-	db := dbIO.Connect(C.config.Host, C.config.Database, ret.User, password)
-	db.GetTableColumns()
-	if f.Dump == true {
-		// Extract entire table
-		table := db.GetTable(f.Table)
-		ret.getTempFile(f.Table)
-		codbutils.WriteResults(ret.Outfile, db.Columns[f.Table], table)
-	} else if f.Summary == true {
-		ret.Results = []string{"Field\tTotal\t%\n"}
-		summary := dbextract.GetSummary(db)
-		for _, i := range summary {
-			ret.Results = append(ret.Results, strings.Join(i, "\t"))
+	db, err := dbIO.Connect(C.config.Host, C.config.Database, ret.User, password)
+	if err == nil {
+		db.GetTableColumns()
+		if f.Dump == true {
+			// Extract entire table
+			table := db.GetTable(f.Table)
+			ret.getTempFile(f.Table)
+			codbutils.WriteResults(ret.Outfile, db.Columns[f.Table], table)
+		} else if f.Summary == true {
+			ret.Results = []string{"Field\tTotal\t%\n"}
+			summary := dbextract.GetSummary(db)
+			for _, i := range summary {
+				ret.Results = append(ret.Results, strings.Join(i, "\t"))
+			}
+		} else if f.Cancerrate == true {
+			// Extract cancer rates
+			ret.getTempFile(fmt.Sprintf("cancerRates.min%d.csv", f.Min))
+			header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
+			header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
+			codbutils.WriteResults(ret.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))
+		} else {
+			ret.searchDB(db, f)
 		}
-	} else if f.Cancerrate == true {
-		// Extract cancer rates
-		ret.getTempFile(fmt.Sprintf("cancerRates.min%d.csv", f.Min))
-		header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
-		header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
-		codbutils.WriteResults(ret.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))
-	} else {
-		ret.searchDB(db, f)
 	}
-	return ret
+	return ret, err
 }

@@ -72,7 +72,11 @@ func ConnectToDatabase(c Configuration) *dbIO.DBIO {
 	if c.Test == true {
 		d = c.Testdb
 	}
-	db := dbIO.Connect(c.Host, d, c.User, "")
+	db, err := dbIO.Connect(c.Host, d, c.User, "")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1000)
+	}
 	db.GetTableColumns()
 	return db
 }
