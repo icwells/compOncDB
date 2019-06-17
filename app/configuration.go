@@ -38,6 +38,13 @@ func setSearchForm(r *http.Request) *SearchForm {
 	return s
 }
 
+func (s *SearchForm String() string {
+	// Returns formatted string of options
+	ret := fmt.Sprintf("Column:\t%s\n", s.Column)
+
+	return ret
+}
+
 //----------------------------------------------------------------------------
 
 type configuration struct {
