@@ -10,7 +10,7 @@
   <h1>Search Reults:</h1>
   {{if .File}}
     <p>Output csv file:</p>
-    <a href={{.Outfile}} download={{.File}}>{{.File}}</a>
+    <a href=/codb/get/{{.File}} download={{.File}}>{{.File}}</a>
   {{else}}
     <p>
     {{range $line := .Results}}

@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -102,6 +103,17 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func downloadHandler(w http.ResponseWriter, r *http.Request) {
+	// Serves output files for download
+	user, pw := getCredentials(r)
+	if user != "" && pw != "" {
+		vars := mux.Vars(r)
+		http.ServeFile(w, r, fmt.Sprintf("/tmp/%s", vars["filename"]))
+	} else {
+		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
+	}
+}
+
 func main() {
 	// Initilaize multiplexer and fileserver
 	r := mux.NewRouter()
@@ -113,6 +125,7 @@ func main() {
 	r.HandleFunc(C.logout, logoutHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.search, formHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.search, searchHandler).Methods(http.MethodPost)
+	r.HandleFunc("/codb/get/{filename}", downloadHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal
 	http.Handle("/", r)
 	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))
