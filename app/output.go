@@ -8,6 +8,7 @@ import (
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
 	"strings"
+	"time"
 )
 
 func ping(user, password string) bool {
@@ -38,12 +39,14 @@ func newFlash(msg string) *Output {
 }
 
 func (o *Output) getTempFile(name string) {
-	// Returns path to named file in tmp directory
-	o.Outfile = fmt.Sprintf("/tmp/%s.csv", name)
-	o.File = fmt.Sprintf("%s.csv", name)
+	// Stores path to named file in tmp directory
+	t := time.Now()
+	stamp := strings.Replace(t.Format(time.Stamp), " ", "_", -1)
+	o.File = fmt.Sprintf("%s_%s.csv", name, stamp)
+	o.Outfile = fmt.Sprintf("/tmp/%s", o.File)
 }
 
-func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
+func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm, user string) {
 	// Searches database for results
 	var res [][]string
 	var header string
@@ -66,7 +69,7 @@ func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
 		}*/
 	}
 	if f.Count == false && len(res) >= 1 {
-		o.getTempFile(f.Value)
+		o.getTempFile(user)
 		codbutils.WriteResults(o.Outfile, header, res)
 	} else {
 		o.Results = []string{fmt.Sprintf("\tFound %d records where %s is %s.\n", len(res), f.Column, f.Value)}
@@ -82,7 +85,7 @@ func extractFromDB(f *SearchForm, user, password string) (*Output, error) {
 		if f.Dump == true {
 			// Extract entire table
 			table := db.GetTable(f.Table)
-			ret.getTempFile(f.Table)
+			ret.getTempFile(user)
 			codbutils.WriteResults(ret.Outfile, db.Columns[f.Table], table)
 		} else if f.Summary == true {
 			ret.Results = []string{"Field\tTotal\t%\n"}
@@ -97,7 +100,7 @@ func extractFromDB(f *SearchForm, user, password string) (*Output, error) {
 			header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
 			codbutils.WriteResults(ret.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))
 		} else {
-			ret.searchDB(db, f)
+			ret.searchDB(db, f, user)
 		}
 	}
 	return ret, err
