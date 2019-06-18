@@ -1,5 +1,6 @@
 {{define "search"}}
 {{template "header"}}
+<script type=text/javascript src="/static/addFields.js"></script>
 {{if .User}}
   <div class="username" align="right">
     <small>User: {{.User}} | <a href="/codb/logout">Logout</a></small>
@@ -9,12 +10,9 @@
 <section>
   <h1>Search Database</h1>
   <form method="POST" action="/codb/search">
-    <div>
-      <label for="Column">Name of column containing target value (table is automatically determined):</label>
+    <p>Enter the name of column containing target value (table is automatically determined), the operation to perform, and the value to search for:
+    <div id="searchField">
       <input type="text" id="Column" name="Column">
-    </div>
-    <div>
-      <label for="Operator">Operation to perform:</label>
       <select id="Operator" name="Operator">
         <option name="Operator" value="=" selected="selected">=</option>
         <option name="Operator" value=">=">>=</option>
@@ -22,11 +20,9 @@
         <option name="Operator" value=">">></option>
         <option name="Operator" value="<"><</option>
       </select>
-    </div>
-    <div>
-      <label for="Value">Target value to search for:</label>
       <input type="text" id="Value" name="Value">
     </div>
+    <input type="button" value="Add search field" onClick="addField('searchField');">
     <hr>
     <div>
       <input type="checkbox" name="Taxon">
