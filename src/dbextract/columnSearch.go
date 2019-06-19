@@ -104,10 +104,10 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 	s.setTaxaIDs()
 }
 
-func SearchColumns(db *dbIO.DBIO, user string, eval []codbutils.Evaluation, count, com, inf bool) ([][]string, string) {
+func SearchColumns(db *dbIO.DBIO, user string, eval []codbutils.Evaluation, count, inf bool) ([][]string, string) {
 	// Determines search procedure
-	fmt.Println("\tSearching for mathcing records...\n")
-	s := newSearcher(db, user, com, inf)
+	fmt.Println("\tSearching for mathcing records...")
+	s := newSearcher(db, user, inf)
 	s.assignSearch(eval)
 	if len(s.res) >= 1 {
 		if s.infant == false {
@@ -123,10 +123,10 @@ func SearchColumns(db *dbIO.DBIO, user string, eval []codbutils.Evaluation, coun
 	return s.toSlice(), s.header
 }
 
-func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, com, inf bool) ([][]string, string) {
+func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, inf bool) ([][]string, string) {
 	// Returns results from single table
 	fmt.Printf("\tSearching table %s for records where %s %s %s...\n", table, column, op, value)
-	s := newSearcher(db, user, com, inf)
+	s := newSearcher(db, user, inf)
 	// Overwrite standard header
 	s.header = s.db.Columns[table]
 	s.res = dbupload.ToMap(s.db.EvaluateRows(table, column, op, value, "*"))

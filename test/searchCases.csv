@@ -1,6 +1,6 @@
-Level,Common,Value,Table
-Species,TRUE,Gray fox,
-Genus,,canis,
-,,Sex==male,
-,, litter_size>=5,Life_history
-species,TRUE,coyote,
+Value
+Name = Gray fox
+Genus = canis
+Sex==male
+ litter_size>=5
+Species == coyote

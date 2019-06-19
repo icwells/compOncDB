@@ -12,7 +12,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strings"
 	"time"
 )
 
@@ -75,12 +74,12 @@ func updateDB() time.Time {
 	} else if *infile != "nil" {
 		dbextract.UpdateEntries(db, *infile)
 	} else if *column != "nil" && *value != "nil" && *eval != "nil" {
-		evaluations := codbutils.SetOperations(*eval)
+		evaluations := codbutils.SetOperations(db.Columns, *eval)
 		e := evaluations[0]
 		dbextract.UpdateSingleTable(db, e.Table, *column, *value, e.Column, e.Operator, e.Value)
 	} else if *del == true && *eval != "nil" {
 		var tables []string
-		evaluations := codbutils.SetOperations(*eval)
+		evaluations := codbutils.SetOperations(db.Columns, *eval)
 		e := evaluations[0]
 		if *table != "nil" {
 			tables = []string{*table}
@@ -121,28 +120,13 @@ func searchDB() time.Time {
 	var res [][]string
 	var header string
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
-	if *taxon != "nil" {
-		// Extract all data for a given species
-		var names []string
-		if iotools.Exists(*taxon) == true {
-			names = codbutils.ReadList(*taxon, *col)
-		} else {
-			// Get single term
-			if strings.Contains(*taxon, "_") == true {
-				names = []string{strings.Replace(*taxon, "_", " ", -1)}
-			} else {
-				names = []string{*taxon}
-			}
-		}
-		res, header = dbextract.SearchTaxonomicLevels(db, names, *user, *level, *count, *com, *infant)
-		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), *level, *taxon)
-	} else if *eval != "nil" {
+	if *eval != "nil" {
 		// Search for column/value match
 		e := codbutils.SetOperations(db.Columns, *eval)
 		if *table == "nil" {
-			res, header = dbextract.SearchColumns(db, *user, e, count, *com, *infant)
+			res, header = dbextract.SearchColumns(db, *user, e, *count, *infant)
 		} else {
-			res, header = dbextract.SearchSingleTable(db, *table, *user, e[0].Column, e[0].Operator, e[0].Value, *com, *infant)
+			res, header = dbextract.SearchSingleTable(db, *table, *user, e[0].Column, e[0].Operator, e[0].Value, *infant)
 		}
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), e[0].Column, e[0].Value)
 	} else if *taxonomies == true {
@@ -164,7 +148,7 @@ func testDB() time.Time {
 		var terms searchterms
 		fmt.Print("\n\tTesting search functions...\n\n")
 		db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))
-		terms.readSearchTerms(*infile, *outfile)
+		terms.readSearchTerms(db.Columns, *infile, *outfile)
 		terms.searchTestCases(db)
 	} else if *updates == true {
 		fmt.Print("\n\tTesting update functions...\n\n")

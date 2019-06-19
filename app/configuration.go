@@ -17,14 +17,12 @@ type SearchForm struct {
 	Column     string
 	Operator   string
 	Value      string
-	Taxon      bool
 	Table      string
 	Dump       bool
 	Summary    bool
 	Cancerrate bool
 	Min        int
 	Necropsy   bool
-	Common     bool
 	Count      bool
 	Infant     bool
 }
@@ -44,14 +42,12 @@ func (s *SearchForm) String() string {
 	ret.WriteString(fmt.Sprintf("Column:\t%s\n", s.Column))
 	ret.WriteString(fmt.Sprintf("Operator:\t%s\n", s.Operator))
 	ret.WriteString(fmt.Sprintf("Value:\t%s\n", s.Value))
-	ret.WriteString(fmt.Sprintf("Taxon:\t%v\n", s.Taxon))
 	ret.WriteString(fmt.Sprintf("Table:\t%s\n", s.Table))
 	ret.WriteString(fmt.Sprintf("Dump:\t%v\n", s.Dump))
 	ret.WriteString(fmt.Sprintf("Summary:\t%v\n", s.Summary))
 	ret.WriteString(fmt.Sprintf("Cancerrate:\t%v\n", s.Cancerrate))
 	ret.WriteString(fmt.Sprintf("Min:\t%d\n", s.Min))
 	ret.WriteString(fmt.Sprintf("Necropsy:\t%v\n", s.Necropsy))
-	ret.WriteString(fmt.Sprintf("Common:\t%v\n", s.Common))
 	ret.WriteString(fmt.Sprintf("Count:\t%v\n", s.Count))
 	ret.WriteString(fmt.Sprintf("Infant:\t%v\n", s.Infant))
 	return ret.String()

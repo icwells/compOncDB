@@ -45,9 +45,6 @@ var (
 	nec     = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
 
 	search     = kingpin.Command("search", "Searches database for matches to given term.")
-	taxon      = search.Flag("taxa", "Name of taxonomic unit to extract data for or path to file. Specify column with -n.").Short('t').Default("nil").String()
-	level      = search.Flag("level", "Taxonomic level of taxon (or entries in taxon file)(default = Species).").Short('l').Default("Species").String()
-	com        = search.Flag("common", "Indicates that common species name was given for taxa.").Default("false").Bool()
 	count      = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
 	infant     = search.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 	taxonomies = search.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()

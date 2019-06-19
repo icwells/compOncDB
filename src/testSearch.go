@@ -3,7 +3,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
@@ -12,70 +11,29 @@ import (
 	"strings"
 )
 
-type testcase struct {
-	level  string
-	common bool
-	column string
-	op     string
-	value  string
-	table  string
-}
-
-func (c *testcase) String() string {
-	// Returns formatted string
-	ret := bytes.NewBufferString(c.level)
-	if c.common == true {
-		ret.WriteString(", true, ")
-	} else {
-		ret.WriteString(", false, ")
-	}
-	ret.WriteString(c.op)
-	ret.WriteString(", ")
-	ret.WriteString(c.value)
-	ret.WriteString(", ")
-	ret.WriteString(c.table)
-	return ret.String()
-}
-
 type searchterms struct {
 	outdir string
-	cases  []*testcase
+	cases  []codbutils.Evaluation
 }
 
-func (s *searchterms) setCase(row []string) {
+func (s *searchterms) setCase(columns map[string]string, row []string) {
 	// Adds new test case to slice
 	set := false
-	c := new(testcase)
+	var e []codbutils.Evaluation
 	for idx, i := range row {
 		i = strings.TrimSpace(i)
 		if idx == 0 && len(i) >= 1 {
-			c.level = i
-			set = true
-		} else if idx == 1 {
-			if strings.ToLower(i) == "true" {
-				c.common = true
-			}
-			set = true
-		} else if idx == 2 && len(i) >= 1 {
-			if strings.Contains(i, "=") == true || strings.Contains(i, ">") == true || strings.Contains(i, "<") == true {
-				e := codbutils.SetOperations(row[idx])
-				c.column, c.op, c.value = e[0].Column, e[0].Operator, e[0].Value
-			} else {
-				c.value = i
-			}
-			set = true
-		} else if idx == 3 && len(i) >= 1 {
-			c.table = i
+			e = codbutils.SetOperations(columns, i)
 			set = true
 		}
 	}
 	if set == true {
 		// Skip empty lines
-		s.cases = append(s.cases, c)
+		s.cases = append(s.cases, e[0])
 	}
 }
 
-func (s *searchterms) readSearchTerms(infile, outdir string) {
+func (s *searchterms) readSearchTerms(columns map[string]string, infile, outdir string) {
 	// Loads test cases from file
 	s.outdir = outdir
 	first := true
@@ -85,7 +43,7 @@ func (s *searchterms) readSearchTerms(infile, outdir string) {
 	for scanner.Scan() {
 		if first == false {
 			row := strings.Split(string(scanner.Text()), ",")
-			s.setCase(row)
+			s.setCase(columns, row)
 		} else {
 			first = false
 		}
@@ -99,20 +57,14 @@ func (s *searchterms) searchTestCases(db *dbIO.DBIO) {
 		var header string
 		outfile := "nil"
 		if s.outdir != "nil" {
-			outfile = fmt.Sprintf("%s%s.csv", s.outdir, strings.Replace(c.value, " ", "_", 1))
+			outfile = fmt.Sprintf("%s%s.csv", s.outdir, strings.Replace(c.Value, " ", "_", 1))
 		}
-		if len(c.column) >= 1 {
-			if len(c.table) >= 1 {
-				// Perform single table search
-				res, header = dbextract.SearchSingleTable(db, c.table, *user, c.column, c.op, c.value, false, false)
-			} else {
-				// Perform column search
-				tables := codbutils.GetTable(db.Columns, c.column)
-				res, header = dbextract.SearchColumns(db, tables, *user, c.column, c.op, c.value, false, false, false)
-			}
+		if c.Table == "Life_history" {
+			// Perform single table search
+			res, header = dbextract.SearchSingleTable(db, c.Table, *user, c.Column, c.Operator, c.Value, false)
 		} else {
-			// Perform taxonomy search
-			res, header = dbextract.SearchTaxonomicLevels(db, []string{c.value}, *user, c.level, false, c.common, false)
+			// Perform column search
+			res, header = dbextract.SearchColumns(db, *user, []codbutils.Evaluation{c}, false, false)
 		}
 		if len(res) >= 1 {
 			codbutils.WriteResults(outfile, header, res)

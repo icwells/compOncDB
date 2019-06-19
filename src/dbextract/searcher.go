@@ -13,7 +13,6 @@ import (
 type searcher struct {
 	db       *dbIO.DBIO
 	user     string
-	common   bool
 	infant   bool
 	res      map[string][]string
 	taxa     map[string][]string
@@ -23,7 +22,7 @@ type searcher struct {
 	na       []string
 }
 
-func newSearcher(db *dbIO.DBIO, user string, com, inf bool) *searcher {
+func newSearcher(db *dbIO.DBIO, user string, inf bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	s.res = make(map[string][]string)
@@ -34,7 +33,6 @@ func newSearcher(db *dbIO.DBIO, user string, com, inf bool) *searcher {
 	s.header = s.header + "Kingdom,Phylum,Class,Orders,Family,Genus,Species,service_name,account_id"
 	s.db = db
 	s.user = user
-	s.common = com
 	s.infant = inf
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s
@@ -111,6 +109,11 @@ func (s *searcher) appendSource() {
 			s.res[k] = append(v, s.na[:2]...)
 		}
 	}
+}
+
+func (s *searcher) getTaxonomy() {
+	// Stores taxonomy (ids must be set first)
+	s.taxa = dbupload.ToMap(s.db.GetRows("Taxonomy", "taxa_id", strings.Join(s.taxaids, ","), "taxa_id,Kingdom,Phylum,Class,Orders,Family,Genus,Species"))
 }
 
 func (s *searcher) appendTaxonomy() {

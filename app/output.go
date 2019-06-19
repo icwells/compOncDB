@@ -50,23 +50,12 @@ func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm, user string) {
 	// Searches database for results
 	var res [][]string
 	var header string
-	if f.Taxon == true {
-		// Extract all data for a given species
-		// Get single term (replace underscores in case terms are copied and pasted)
-		names := []string{strings.Replace(f.Value, "_", " ", -1)}
-		res, header = dbextract.SearchTaxonomicLevels(db, names, o.User, f.Column, f.Count, f.Common, f.Infant)
-	} else if len(f.Operator) >= 1 {
-		// Search for column/value match
-		if f.Table == "" {
-			tables := codbutils.GetTable(db.Columns, f.Column)
-			// Set count to false to allow searching of results
-			res, header = dbextract.SearchColumns(db, tables, o.User, f.Column, f.Operator, f.Value, false, f.Common, f.Infant)
-		} else {
-			res, header = dbextract.SearchSingleTable(db, f.Table, o.User, f.Column, f.Operator, f.Value, f.Common, f.Infant)
-		}
-		/*if len(e) > 1 {
-			res = codbutils.FilterSearchResults(header, e[1:], res)
-		}*/
+	// Search for column/value match
+	if f.Table == "" {
+		// Set count to false to allow searching of results
+		res, header = dbextract.SearchColumns(db, o.User, eval, f.Count, f.Infant)
+	} else {
+		res, header = dbextract.SearchSingleTable(db, f.Table, o.User, f.Column, f.Operator, f.Value, f.Infant)
 	}
 	if f.Count == false && len(res) >= 1 {
 		o.getTempFile(user)
