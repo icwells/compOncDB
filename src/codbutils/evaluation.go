@@ -9,12 +9,26 @@ import (
 )
 
 type Evaluation struct {
+	Table    string
+	ID       string
 	Column   string
 	Operator string
 	Value    string
 }
 
-func (e *Evaluation) getOperation(eval string) {
+func (e *Evaluation) setTable(columns map[string]string) {
+	// Wraps call to GetTable to set table and id type
+	tid := "taxa_id"
+	tables := GetTable(columns, e.Column)
+	e.Table = tables[0]
+	if e.Table != "Patient" && strings.Contains(columns[e.Table], tid) {
+		e.ID = tid
+	} else {
+		e.ID = "ID"
+	}
+}
+
+func (e *Evaluation) setOperation(eval string) {
 	// Splits eval into column, operator, value
 	found := false
 	operators := []string{"!=", "==", ">=", "<=", "=", ">", "<"}
@@ -41,12 +55,13 @@ func (e *Evaluation) getOperation(eval string) {
 	}
 }
 
-func SetOperations(eval string) []Evaluation {
+func SetOperations(columns map[string]string, eval string) []Evaluation {
 	// Returns slice of evaluation targets
 	var ret []Evaluation
 	for _, i := range strings.Split(eval, ",") {
 		var e Evaluation
-		e.getOperation(i)
+		e.setOperation(i)
+		e.setTable(columns)
 		ret = append(ret, e)
 	}
 	if len(ret) == 0 {

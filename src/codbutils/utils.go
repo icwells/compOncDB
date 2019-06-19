@@ -33,7 +33,7 @@ func getAbsPath(f string) string {
 type Configuration struct {
 	Host     string
 	Database string
-	User	 string
+	User     string
 	Testdb   string
 	Tables   string
 	Test     bool

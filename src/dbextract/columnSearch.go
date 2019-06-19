@@ -4,6 +4,7 @@ package dbextract
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"os"
@@ -83,11 +84,16 @@ func (s *searcher) assignSearch(count bool) {
 	}
 }
 
-func SearchColumns(db *dbIO.DBIO, tables []string, user, column, op, value string, count, com, inf bool) ([][]string, string) {
+func SearchColumns(db *dbIO.DBIO, tables []string, user, eval []codbutils.Evaluation, count, com, inf bool) ([][]string, string) {
 	// Determines search procedure
-	fmt.Printf("\tSearching for records with '%s' in column %s...\n", value, column)
-	s := newSearcher(db, tables, user, column, op, value, com, inf)
-	s.assignSearch(count)
+	if len(eval) > 1 {
+
+	} else {
+		e := eval[0]
+		fmt.Printf("\tSearching for records with '%s' in column %s...\n", e.Value, e.Column)
+		s := newSearcher(db, tables, user, e.Column, e.Operator, e.Value, com, inf)
+		s.assignSearch(count)
+	}
 	return s.toSlice(), s.header
 }
 

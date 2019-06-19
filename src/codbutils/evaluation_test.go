@@ -10,20 +10,27 @@ func TestSetOperations(t *testing.T) {
 	// Tests the getOperation function
 	matches := []struct {
 		input    string
+		table    string
+		id       string
 		column   string
 		operator string
 		value    string
 	}{
-		{"Species == Canis lupus", "Species", "=", "Canis lupus"},
-		{"Sex=male", "Sex", "=", "male"},
-		{"Avgage>=12", "Avgage", ">=", "12"},
-		{" Cancer < 5 ", "Cancer", "<", "5"},
+		{"Species == Canis lupus", "Taxonomy", "taxa_id", "Species", "=", "Canis lupus"},
+		{"Sex=male", "Patient", "ID", "Sex", "=", "male"},
+		{"Avgage>=12", "Totals", "taxa_id", "Avgage", ">=", "12"},
+		{" Cancer < 5 ", "Totals", "taxa_id", "Cancer", "<", "5"},
 	}
+	columns := getTableColumns()
 	for _, i := range matches {
 		var msg string
-		evaluations := SetOperations(i.input)
+		evaluations := SetOperations(columns, i.input)
 		e := evaluations[0]
-		if e.Column != i.column {
+		if e.Table != i.table {
+			t.Errorf("Actual table %s is not equal to expected: %s", e.Table, i.table)
+		} else if e.ID != i.id {
+			t.Errorf("Actual id type %s is not equal to expected: %s", e.ID, i.id)
+		} else if e.Column != i.column {
 			t.Errorf("Actual table column %s is not equal to expected: %s", e.Column, i.column)
 		} else if e.Operator != i.operator {
 			t.Errorf("Actual table operator %s is not equal to expected: %s", e.Operator, i.operator)
@@ -36,7 +43,7 @@ func TestSetOperations(t *testing.T) {
 	}
 }
 
-func TestConvertValues(t *testing.T) {
+/*func TestConvertValues(t *testing.T) {
 	cases := []struct {
 		v1, v2 string
 		f1, f2 float64
@@ -58,7 +65,7 @@ func TestConvertValues(t *testing.T) {
 	}
 }
 
-/*type filtercases struct {
+type filtercases struct {
 	row      string
 	eval     evaluation
 	expected bool

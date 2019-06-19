@@ -3,6 +3,7 @@
 package dbextract
 
 import (
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/strarray"
@@ -14,9 +15,7 @@ type searcher struct {
 	db       *dbIO.DBIO
 	user     string
 	tables   []string
-	column   string
-	value    string
-	operator string
+	eval	 []codbutils.Evaluation
 	common   bool
 	infant   bool
 	res      map[string][]string
@@ -27,7 +26,7 @@ type searcher struct {
 	na       []string
 }
 
-func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string, com, inf bool) *searcher {
+func newSearcher(db *dbIO.DBIO, tables []string, user, e []codbutils.Evaluation, com, inf bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	s.res = make(map[string][]string)
@@ -39,9 +38,7 @@ func newSearcher(db *dbIO.DBIO, tables []string, user, column, op, value string,
 	s.db = db
 	s.user = user
 	s.tables = tables
-	s.column = column
-	s.value = value
-	s.operator = op
+	s.eval = e
 	s.common = com
 	s.infant = inf
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
