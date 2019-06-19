@@ -3,8 +3,6 @@
 package codbutils
 
 import (
-	"github.com/icwells/go-tools/iotools"
-	"strings"
 	"testing"
 )
 
@@ -25,12 +23,12 @@ func TestSetOperations(t *testing.T) {
 		var msg string
 		evaluations := SetOperations(i.input)
 		e := evaluations[0]
-		if e.column != i.column {
-			t.Errorf("Actual table column %s is not equal to expected: %s", e.column, i.column)
-		} else if e.operator != i.operator {
-			t.Errorf("Actual table operator %s is not equal to expected: %s", e.operator, i.operator)
-		} else if e.value != i.value {
-			t.Errorf("Actual table value %s is not equal to expected: %s", e.value, i.value)
+		if e.Column != i.column {
+			t.Errorf("Actual table column %s is not equal to expected: %s", e.Column, i.column)
+		} else if e.Operator != i.operator {
+			t.Errorf("Actual table operator %s is not equal to expected: %s", e.Operator, i.operator)
+		} else if e.Value != i.value {
+			t.Errorf("Actual table value %s is not equal to expected: %s", e.Value, i.value)
 		}
 		if len(msg) > 1 {
 			t.Error(msg)
@@ -60,7 +58,7 @@ func TestConvertValues(t *testing.T) {
 	}
 }
 
-type filtercases struct {
+/*type filtercases struct {
 	row      string
 	eval     evaluation
 	expected bool
@@ -97,4 +95,4 @@ func TestEvaluateLine(t *testing.T) {
 			t.Errorf("Actual evaluation %v for case %d does not equal expected: %v", actual, idx, i.expected)
 		}
 	}
-}
+}*/

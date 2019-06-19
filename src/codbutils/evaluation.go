@@ -4,9 +4,7 @@ package codbutils
 
 import (
 	"fmt"
-	"github.com/icwells/go-tools/iotools"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -58,7 +56,7 @@ func SetOperations(eval string) []Evaluation {
 	return ret
 }
 
-func convertValues(v1, v2 string) (float64, float64, bool) {
+/*func convertValues(v1, v2 string) (float64, float64, bool) {
 	// Converts values to float for comparison
 	var r2 float64
 	var ret bool
@@ -140,4 +138,4 @@ func FilterSearchResults(header string, e []Evaluation, res [][]string) [][]stri
 	}
 	fmt.Printf("\tFound %d records that passed additional search parameters.\n", len(ret))
 	return ret
-}
+}*/
