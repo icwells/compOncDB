@@ -77,8 +77,7 @@ func updateDB() time.Time {
 	} else if *column != "nil" && *value != "nil" && *eval != "nil" {
 		evaluations := codbutils.SetOperations(*eval)
 		e := evaluations[0]
-		tables := codbutils.GetTable(db.Columns, e.Column)
-		dbextract.UpdateSingleTable(db, tables[0], *column, *value, e.Column, e.Operator, e.Value)
+		dbextract.UpdateSingleTable(db, e.Table, *column, *value, e.Column, e.Operator, e.Value)
 	} else if *del == true && *eval != "nil" {
 		var tables []string
 		evaluations := codbutils.SetOperations(*eval)

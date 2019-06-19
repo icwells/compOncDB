@@ -3,7 +3,6 @@
 package dbextract
 
 import (
-	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/strarray"
@@ -14,8 +13,6 @@ import (
 type searcher struct {
 	db       *dbIO.DBIO
 	user     string
-	tables   []string
-	eval	 []codbutils.Evaluation
 	common   bool
 	infant   bool
 	res      map[string][]string
@@ -26,7 +23,7 @@ type searcher struct {
 	na       []string
 }
 
-func newSearcher(db *dbIO.DBIO, tables []string, user, e []codbutils.Evaluation, com, inf bool) *searcher {
+func newSearcher(db *dbIO.DBIO, user string, com, inf bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	s.res = make(map[string][]string)
@@ -37,8 +34,6 @@ func newSearcher(db *dbIO.DBIO, tables []string, user, e []codbutils.Evaluation,
 	s.header = s.header + "Kingdom,Phylum,Class,Orders,Family,Genus,Species,service_name,account_id"
 	s.db = db
 	s.user = user
-	s.tables = tables
-	s.eval = e
 	s.common = com
 	s.infant = inf
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
@@ -66,10 +61,9 @@ func getColumn(idx int, table [][]string) []string {
 	return tmp.ToSlice()
 }
 
-func (s *searcher) getIDs() {
+func (s *searcher) getIDs(table, column, value string) {
 	// Gets ids from target table and get patient records
-	s.ids = getColumn(0, s.db.GetRows(s.tables[0], s.column, s.value, "ID"))
-	s.res = dbupload.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*"))
+	s.ids = getColumn(0, s.db.GetRows(table, column, value, "ID"))
 }
 
 func (s *searcher) setIDs() {
