@@ -9,11 +9,12 @@
 #
 #	Usage:		./test.sh {install/white/parse/upload/search/update}
 ##############################################################################
-USER="root"
+USER=""
 WD=$(pwd)
 APP="$WD/app/*.go"
 PRSRC="$WD/parseRecords/*.go"
 DBSRC="$WD/src/*.go"
+CUSRC="$WD/src/codbutils/*.go"
 DUSRC="$WD/src/dbupload/*.go"
 DESRC="$WD/src/dbextract/*.go"
 CDB="compOncDB"
@@ -35,15 +36,20 @@ MOUT="$TESTDIR/merged.csv"
 CASES="$TESTDIR/searchCases.csv"
 UPDATE="$TESTDIR/testUpdate.csv"
 
+getUser () {
+	# Reads mysql user name from command line
+	echo "Enter MySQL username: "
+	read USER
+}
+
 whiteBoxTests () {
 	echo ""
 	echo "Running white box tests..."
-	#go test $APP
 	go test $PRSRC
-	go test $DBSRC
+	go test $CUSRC
 	go test $DUSRC
 	go test $DESRC
-	go test $PRSRC
+	#go test $APP
 }
 
 testParseRecords () {
@@ -83,6 +89,7 @@ testUpdates () {
 testAll () {
 	whiteBoxTests
 	testParseRecords
+	getUser
 	testUpload
 	testSearch
 	testUpdates
@@ -118,10 +125,13 @@ elif [ $1 = "whitebox" ]; then
 elif [ $1 = "parse" ]; then
 	testParseRecords
 elif [ $1 = "upload" ]; then
+	getUser
 	testUpload
 elif [ $1 = "search" ]; then
+	getUser
 	testSearch
 elif [ $1 = "update" ]; then
+	getUser
 	testUpdates
 elif [ $1 = "fmt" ]; then
 	checkSource $1
