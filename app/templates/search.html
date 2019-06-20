@@ -13,7 +13,8 @@
 <section>
   <h1>Search Database</h1>
   <form method="POST" action="/codb/search">
-    <p>Enter the name of column containing target value (table is automatically determined), the operation to perform, and the value to search for:
+    <p>Enter the name of column containing target value (table is automatically determined), the operation to perform, and the value to search for. 
+See <a href="/static/databaseSchema.pdf">this diagram</a> for column names.</p>
     <div id="searchField">
       <input type="text" id="Column0" name="Column0">
       <select id="Operator0" name="Operator0">
@@ -26,6 +27,8 @@
       <input type="text" id="Value0" name="Value0">
     </div>
     <input type="button" value="Add search field" onClick="addField('searchField');">
+    <p>Note: Additional search fileds are cumulative and all fields will be applied together. 
+In order to search matches against seperate criteria, submit each search seperately.</p>
     <hr>
     <div>
       <label for="Table">Perform operations on this table only:</label>
