@@ -1,0 +1,45 @@
+#!/bin/bash
+
+##############################################################################
+# Runs golang web application
+##############################################################################
+
+LOG="../serverLog.txt"
+PID=".codb_pid.txt"
+
+killProc () {
+	kill -9 $(cat $PID)
+	rm $PID
+}
+
+runHost () {
+	# Start gunicorn with nohup and append stderr and stdout to serverLog
+	echo "Starting production server..."
+	cd app/
+	nohup ./codbApplication > $LOG 2>&1 &
+	# Save process ids for easy termination later
+	echo $! > ../$PID
+}
+
+helpText () {
+	echo "Runs hosting server for the comparative oncology database."
+	echo ""
+	echo "host	Runs host on local server to be proxied by nginx."
+	echo "kill	Kills process using pid in $PID."
+	echo "restart	Kills running processes and starts new server."
+	echo "help	Prints help text and exits."
+	echo ""
+}
+
+if [ $# -eq 0 ]; then
+	helpText
+elif [ $1 = "help" ]; then
+	helpText
+elif [ $1 = "host" ]; then
+	runHost
+elif [ $1 = "kill" ]; then
+	killProc
+elif [ $1 = "restart" ]; then
+	killProc
+	runHost
+fi

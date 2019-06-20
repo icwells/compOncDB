@@ -4,8 +4,10 @@ utils/config.txt
 # Upload script
 utils/upload.sh
 
-# Application binary
+# Application binary and server files
 app/codbApplication
+serverLog.txt
+.codb_pid.txt
 
 # Test data
 test/diagnoses.csv
