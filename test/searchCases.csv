@@ -1,6 +1,6 @@
 Value
 Name = Gray fox
-Genus = canis
+Genus = Canis
 Sex==male
  litter_size>=5
-Species == coyote
+Name == coyote
