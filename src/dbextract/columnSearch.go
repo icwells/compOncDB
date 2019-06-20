@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-/*func (s *searcher) searchAccounts() {
+/*func (s *searcher) searchAccounts(e codbutils.Evaluation) {
 	// Searches source tables
 	if s.user != "root" {
 		fmt.Print("\n\t[Error] Must be root to access Accounts table. Exiting.\n\n")
@@ -22,7 +22,7 @@ import (
 	target := s.value
 	if s.column != "account_id" {
 		// Get target account IDs
-		aids := s.db.GetRows(s.tables[0], s.column, s.value, "ID")
+		aids := s.db.GetRows(e.Table, e.Column, e.Value, "ID")
 		for _, i := range aids {
 			accounts = append(accounts, i[0])
 		}
