@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -53,24 +54,23 @@ func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm, user string) {
 	// Search for column/value match
 	if f.Table == "" {
 		// Set count to false to allow searching of results
-		res, header = dbextract.SearchColumns(db, o.User, eval, f.Count, f.Infant)
-	} else {
-		res, header = dbextract.SearchSingleTable(db, f.Table, o.User, f.Column, f.Operator, f.Value, f.Infant)
+		res, header = dbextract.SearchColumns(db, o.User, f.Table, f.eval, f.Count, f.Infant)
 	}
 	if f.Count == false && len(res) >= 1 {
 		o.getTempFile(user)
 		codbutils.WriteResults(o.Outfile, header, res)
 	} else {
-		o.Results = []string{fmt.Sprintf("\tFound %d records where %s is %s.\n", len(res), f.Column, f.Value)}
+		o.Results = []string{fmt.Sprintf("\tFound %d records matching search criteria.\n", len(res))}
 	}
 }
 
-func extractFromDB(f *SearchForm, user, password string) (*Output, error) {
+func extractFromDB(r *http.Request, user, password string) (*Output, error) {
 	// Extracts data to outfile/stdout
 	ret := newOutput(user)
 	db, err := dbIO.Connect(C.config.Host, C.config.Database, ret.User, password)
 	if err == nil {
 		db.GetTableColumns()
+		f := setSearchForm(r, db.Columns)
 		if f.Dump == true {
 			// Extract entire table
 			table := db.GetTable(f.Table)

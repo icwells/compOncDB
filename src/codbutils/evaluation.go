@@ -16,7 +16,7 @@ type Evaluation struct {
 	Value    string
 }
 
-func (e *Evaluation) setTable(columns map[string]string) {
+func (e *Evaluation) SetTable(columns map[string]string) {
 	// Wraps call to GetTable to set table and id type
 	tid := "taxa_id"
 	tables := GetTable(columns, e.Column)
@@ -61,7 +61,7 @@ func SetOperations(columns map[string]string, eval string) []Evaluation {
 	for _, i := range strings.Split(eval, ",") {
 		var e Evaluation
 		e.setOperation(i)
-		e.setTable(columns)
+		e.SetTable(columns)
 		ret = append(ret, e)
 	}
 	if len(ret) == 0 {

@@ -11,15 +11,15 @@ import (
 )
 
 type searcher struct {
-	db       *dbIO.DBIO
-	user     string
-	infant   bool
-	res      map[string][]string
-	taxa     map[string][]string
-	ids      []string
-	taxaids  []string
-	header   string
-	na       []string
+	db      *dbIO.DBIO
+	user    string
+	infant  bool
+	res     map[string][]string
+	taxa    map[string][]string
+	ids     []string
+	taxaids []string
+	header  string
+	na      []string
 }
 
 func newSearcher(db *dbIO.DBIO, user string, inf bool) *searcher {

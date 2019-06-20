@@ -123,11 +123,7 @@ func searchDB() time.Time {
 	if *eval != "nil" {
 		// Search for column/value match
 		e := codbutils.SetOperations(db.Columns, *eval)
-		if *table == "nil" {
-			res, header = dbextract.SearchColumns(db, *user, e, *count, *infant)
-		} else {
-			res, header = dbextract.SearchSingleTable(db, *table, *user, e[0].Column, e[0].Operator, e[0].Value, *infant)
-		}
+		res, header = dbextract.SearchColumns(db, *user, *table, e, *count, *infant)
 		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), e[0].Column, e[0].Value)
 	} else if *taxonomies == true {
 		names := codbutils.ReadList(*infile, *col)

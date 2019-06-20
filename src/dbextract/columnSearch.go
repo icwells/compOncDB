@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
-	"github.com/icwells/go-tools/strarray"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/strarray"
 	//"os"
 	"strings"
 )
@@ -80,7 +80,7 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 			s.taxaids = s.submitEvaluation(i)
 		} else {
 			s.taxaids = s.filterIDs(s.taxaids, s.submitEvaluation(i))
-		}		
+		}
 	}
 	// Populate patient ids
 	if len(s.taxaids) > 0 {
@@ -104,36 +104,38 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 	s.setTaxaIDs()
 }
 
-func SearchColumns(db *dbIO.DBIO, user string, eval []codbutils.Evaluation, count, inf bool) ([][]string, string) {
+func (s *searcher) searchSingleTable(table string) {
+	// Stores value from single table
+	var ids string
+	typ := "taxa_id"
+	s.header = s.db.Columns[table]
+	if table == "Patient" || !strings.Contains(s.header, typ) {
+		typ = "ID"
+		ids = strings.Join(s.ids, ",")
+	} else {
+		ids = strings.Join(s.taxaids, ",")
+	}
+	s.res = dbupload.ToMap(s.db.GetRows(table, typ, ids, "*"))
+}
+
+func SearchColumns(db *dbIO.DBIO, user, table string, eval []codbutils.Evaluation, count, inf bool) ([][]string, string) {
 	// Determines search procedure
-	fmt.Println("\tSearching for mathcing records...")
+	fmt.Println("\tSearching for matching records...")
 	s := newSearcher(db, user, inf)
 	s.assignSearch(eval)
 	if len(s.res) >= 1 {
 		if s.infant == false {
 			s.filterInfantRecords()
 		}
-		if count == false {
+		if table != "" {
+			// Return results from single table
+			s.searchSingleTable(table)
+		} else if count == false {
 			// res and ids must be set first
 			s.appendDiagnosis()
 			s.appendTaxonomy()
 			s.appendSource()
 		}
-	}
-	return s.toSlice(), s.header
-}
-
-func SearchSingleTable(db *dbIO.DBIO, table, user, column, op, value string, inf bool) ([][]string, string) {
-	// Returns results from single table
-	fmt.Printf("\tSearching table %s for records where %s %s %s...\n", table, column, op, value)
-	s := newSearcher(db, user, inf)
-	// Overwrite standard header
-	s.header = s.db.Columns[table]
-	s.res = dbupload.ToMap(s.db.EvaluateRows(table, column, op, value, "*"))
-	if s.infant == false && table == "Patient" {
-		s.setIDs()
-		s.setTaxaIDs()
-		s.filterInfantRecords()
 	}
 	return s.toSlice(), s.header
 }

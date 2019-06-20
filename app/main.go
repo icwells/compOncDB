@@ -90,8 +90,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
 	user, pw := getCredentials(r)
 	if user != "" && pw != "" {
-		form := setSearchForm(r)
-		out, err := extractFromDB(form, user, pw)
+		out, err := extractFromDB(r, user, pw)
 		if err == nil {
 			C.renderTemplate(w, C.resulttemp, out)
 		} else {

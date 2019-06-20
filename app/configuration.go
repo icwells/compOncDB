@@ -10,13 +10,12 @@ import (
 	"html/template"
 	"net/http"
 	"path"
+	"strconv"
 	"strings"
 )
 
 type SearchForm struct {
-	Column     string
-	Operator   string
-	Value      string
+	eval       []codbutils.Evaluation
 	Table      string
 	Dump       bool
 	Summary    bool
@@ -27,21 +26,51 @@ type SearchForm struct {
 	Infant     bool
 }
 
-func setSearchForm(r *http.Request) *SearchForm {
+func (s *SearchForm) setEvaluation(n string, r *http.Request, columns map[string]string) bool {
+	// Populates evalutaiton struct if matching term is found
+	var e codbutils.Evaluation
+	ret := false
+	c := "Column"
+	o := "Operator"
+	v := "Value"
+	e.Column = r.PostForm.Get(c + n)
+	e.Operator = r.PostForm.Get(o + n)
+	e.Value = r.PostForm.Get(v + n)
+	if e.Column != "" && e.Operator != "" && e.Value != "" {
+		e.SetTable(columns)
+		ret = true
+	}
+	return ret
+}
+
+func (s *SearchForm) checkEvaluations(r *http.Request, columns map[string]string) {
+	// Reads in variable number of search parameters
+	found := true
+	count := 0
+	for found == true {
+		// Keep checking until count exceeds number of fields
+		found = s.setEvaluation(strconv.Itoa(count), r, columns)
+		count++
+	}
+}
+
+func setSearchForm(r *http.Request, columns map[string]string) *SearchForm {
 	// Populates struct from request data
 	s := new(SearchForm)
 	decoder := schema.NewDecoder()
 	r.ParseForm()
 	decoder.Decode(s, r.PostForm)
+	s.checkEvaluations(r, columns)
 	return s
 }
 
 func (s *SearchForm) String() string {
 	// Returns formatted string of options
 	var ret strings.Builder
-	ret.WriteString(fmt.Sprintf("Column:\t%s\n", s.Column))
-	ret.WriteString(fmt.Sprintf("Operator:\t%s\n", s.Operator))
-	ret.WriteString(fmt.Sprintf("Value:\t%s\n", s.Value))
+	ret.WriteString("Search Criteria:\n")
+	for _, i := range s.eval {
+		ret.WriteString(fmt.Sprintf("\t\t%s.%s %s %s return %s\n", i.Table, i.Column, i.Operator, i.Value, i.ID))
+	}
 	ret.WriteString(fmt.Sprintf("Table:\t%s\n", s.Table))
 	ret.WriteString(fmt.Sprintf("Dump:\t%v\n", s.Dump))
 	ret.WriteString(fmt.Sprintf("Summary:\t%v\n", s.Summary))

@@ -54,18 +54,16 @@ func (s *searchterms) searchTestCases(db *dbIO.DBIO) {
 	// Assigns each case to an appriate search type
 	for _, c := range s.cases {
 		var res [][]string
-		var header string
+		var header, table string
 		outfile := "nil"
 		if s.outdir != "nil" {
 			outfile = fmt.Sprintf("%s%s.csv", s.outdir, strings.Replace(c.Value, " ", "_", 1))
 		}
 		if c.Table == "Life_history" {
 			// Perform single table search
-			res, header = dbextract.SearchSingleTable(db, c.Table, *user, c.Column, c.Operator, c.Value, false)
-		} else {
-			// Perform column search
-			res, header = dbextract.SearchColumns(db, *user, []codbutils.Evaluation{c}, false, false)
+			table = c.Table
 		}
+		res, header = dbextract.SearchColumns(db, *user, table, []codbutils.Evaluation{c}, false, false)
 		if len(res) >= 1 {
 			codbutils.WriteResults(outfile, header, res)
 		}
