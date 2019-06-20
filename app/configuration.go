@@ -26,9 +26,10 @@ type SearchForm struct {
 	Infant     bool
 }
 
-func (s *SearchForm) setEvaluation(n string, r *http.Request, columns map[string]string) bool {
+func (s *SearchForm) setEvaluation(n string, r *http.Request, columns map[string]string) (bool, string) {
 	// Populates evalutaiton struct if matching term is found
 	var e codbutils.Evaluation
+	var msg string
 	ret := false
 	c := "Column"
 	o := "Operator"
@@ -38,30 +39,37 @@ func (s *SearchForm) setEvaluation(n string, r *http.Request, columns map[string
 	e.Value = r.PostForm.Get(v + n)
 	if e.Column != "" && e.Operator != "" && e.Value != "" {
 		e.SetTable(columns)
-		ret = true
+		if e.Table != "Accounts" {
+			s.eval = append(s.eval, e)
+			ret = true
+		} else {
+			msg = "Cannot access Accounts table."
+		}
 	}
-	return ret
+	return ret, msg
 }
 
-func (s *SearchForm) checkEvaluations(r *http.Request, columns map[string]string) {
+func (s *SearchForm) checkEvaluations(r *http.Request, columns map[string]string) string {
 	// Reads in variable number of search parameters
+	var msg string
 	found := true
 	count := 0
 	for found == true {
 		// Keep checking until count exceeds number of fields
-		found = s.setEvaluation(strconv.Itoa(count), r, columns)
+		found, msg = s.setEvaluation(strconv.Itoa(count), r, columns)
 		count++
 	}
+	return msg
 }
 
-func setSearchForm(r *http.Request, columns map[string]string) *SearchForm {
+func setSearchForm(r *http.Request, columns map[string]string) (*SearchForm, string) {
 	// Populates struct from request data
 	s := new(SearchForm)
 	decoder := schema.NewDecoder()
 	r.ParseForm()
 	decoder.Decode(s, r.PostForm)
-	s.checkEvaluations(r, columns)
-	return s
+	msg := s.checkEvaluations(r, columns)
+	return s, msg
 }
 
 func (s *SearchForm) String() string {

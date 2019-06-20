@@ -92,9 +92,14 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	if user != "" && pw != "" {
 		out, err := extractFromDB(r, user, pw)
 		if err == nil {
-			C.renderTemplate(w, C.resulttemp, out)
+			if out.Flash != "" {
+				// Return to search page with flash message
+				C.renderTemplate(w, C.searchtemp, out)
+			} else {
+				C.renderTemplate(w, C.resulttemp, out)
+			}
 		} else {
-			// Return to login page if an error is encoutered
+			// Return to login page if an error is encoutered (error occurs at connection)
 			C.renderTemplate(w, C.logintemp, newFlash(err.Error()))
 		}
 	} else {

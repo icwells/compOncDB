@@ -70,26 +70,30 @@ func extractFromDB(r *http.Request, user, password string) (*Output, error) {
 	db, err := dbIO.Connect(C.config.Host, C.config.Database, ret.User, password)
 	if err == nil {
 		db.GetTableColumns()
-		f := setSearchForm(r, db.Columns)
-		if f.Dump == true {
-			// Extract entire table
-			table := db.GetTable(f.Table)
-			ret.getTempFile(user)
-			codbutils.WriteResults(ret.Outfile, db.Columns[f.Table], table)
-		} else if f.Summary == true {
-			ret.Results = []string{"Field\tTotal\t%\n"}
-			summary := dbextract.GetSummary(db)
-			for _, i := range summary {
-				ret.Results = append(ret.Results, strings.Join(i, "\t"))
-			}
-		} else if f.Cancerrate == true {
-			// Extract cancer rates
-			ret.getTempFile(fmt.Sprintf("cancerRates.min%d.csv", f.Min))
-			header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
-			header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
-			codbutils.WriteResults(ret.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))
+		f, msg := setSearchForm(r, db.Columns)
+		if msg != "" {
+			ret.Flash = msg
 		} else {
-			ret.searchDB(db, f, user)
+			if f.Dump == true {
+				// Extract entire table
+				table := db.GetTable(f.Table)
+				ret.getTempFile(user)
+				codbutils.WriteResults(ret.Outfile, db.Columns[f.Table], table)
+			} else if f.Summary == true {
+				ret.Results = []string{"Field\tTotal\t%\n"}
+				summary := dbextract.GetSummary(db)
+				for _, i := range summary {
+					ret.Results = append(ret.Results, strings.Join(i, "\t"))
+				}
+			} else if f.Cancerrate == true {
+				// Extract cancer rates
+				ret.getTempFile(fmt.Sprintf("cancerRates.min%d.csv", f.Min))
+				header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
+				header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
+				codbutils.WriteResults(ret.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))
+			} else {
+				ret.searchDB(db, f, user)
+			}
 		}
 	}
 	return ret, err
