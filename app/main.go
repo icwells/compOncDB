@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
+	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"net/http"
 )
@@ -120,6 +121,12 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Initilaize multiplexer and fileserver
+	var (
+		app  = kingpin.New("codbApplication", "Web interface for extrating data from the comparative oncology database.")
+		host = app.Flag("host", "Host IP (default is localHost).").Short('h').Default("127.0.0.1").String()
+		port = app.Flag("port", "Host port (default is 8080).").Short('p').Default("8080").String()
+	)
+	kingpin.Parse()
 	r := mux.NewRouter()
 	fs := http.FileServer(http.Dir("." + C.static))
 	http.Handle(C.static, http.StripPrefix(C.static, fs))
@@ -133,5 +140,5 @@ func main() {
 	// Serve and log errors to terminal
 	http.Handle("/", r)
 	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))
-	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", *host, *port), nil))
 }

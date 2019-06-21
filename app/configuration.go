@@ -113,10 +113,10 @@ func setConfiguration() *configuration {
 	var c configuration
 	c.name = "session"
 	c.appdir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/app")
-	c.login = "/codb"
-	c.search = "/codb/search"
-	c.output = "/codb/results"
-	c.logout = "/codb/logout"
+	c.login = "/codb/"
+	c.search = "/codb/search/"
+	c.output = "/codb/results/"
+	c.logout = "/codb/logout/"
 	c.static = "/static/"
 	c.tmpl = "templates/*.html"
 	c.logintemp = "login"
