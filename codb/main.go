@@ -130,12 +130,12 @@ func main() {
 	fs := http.FileServer(http.Dir("." + C.static))
 	http.Handle(C.static, http.StripPrefix(C.static, fs))
 	// Register handler functions
-	r.HandleFunc(C.login, indexHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.source, indexHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.login, loginHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.logout, logoutHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.search, formHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.search, searchHandler).Methods(http.MethodPost)
-	r.HandleFunc("/codb/get/{filename}", downloadHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.output, searchHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.get + "{filename}", downloadHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal
 	http.Handle("/", r)
 	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))

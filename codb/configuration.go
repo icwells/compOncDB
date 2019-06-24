@@ -95,10 +95,12 @@ func (s *SearchForm) String() string {
 type configuration struct {
 	name       string
 	appdir     string
+	source     string
 	login      string
 	search     string
 	searchtemp string
 	output     string
+	get        string
 	resulttemp string
 	logintemp  string
 	logout     string
@@ -113,10 +115,12 @@ func setConfiguration() *configuration {
 	var c configuration
 	c.name = "session"
 	c.appdir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/app")
-	c.login = "/codb/"
+	c.source = "/codb/"
+	c.login = "/codb/login"
 	c.search = "/codb/search/"
 	c.output = "/codb/results/"
-	c.logout = "/codb/logout/"
+	c.get = "/codb/get/"
+	c.logout = "/codb/logout"
 	c.static = "/static/"
 	c.tmpl = "templates/*.html"
 	c.logintemp = "login"
