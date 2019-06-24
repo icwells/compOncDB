@@ -11,7 +11,7 @@
 ##############################################################################
 USER=""
 WD=$(pwd)
-APP="$WD/app/*.go"
+APP="$WD/codb/*.go"
 PRSRC="$WD/parseRecords/*.go"
 DBSRC="$WD/src/*.go"
 CUSRC="$WD/src/codbutils/*.go"

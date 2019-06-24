@@ -52,6 +52,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	pw := r.PostForm.Get("password")
 	if user != "" && pw != "" {
 		// Check credentials
+		fmt.Println(user, len(pw))
 		if ping(user, pw) {
 			// Store cookie
 			session, _ := STORE.Get(r, C.name)
@@ -59,6 +60,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			session.Values["password"] = pw
 			session.Save(r, w)
 			pass = true
+			fmt.Println(pass)
 		}
 	}
 	if pass {
@@ -135,7 +137,7 @@ func main() {
 	r.HandleFunc(C.logout, logoutHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.search, formHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.output, searchHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.get + "{filename}", downloadHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.get+"{filename}", downloadHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal
 	http.Handle("/", r)
 	//log.Fatal(http.ListenAndServe(C.config.Host + ":8080", nil))
