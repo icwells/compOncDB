@@ -122,9 +122,8 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	// Initilaize multiplexer and fileserver
 	var (
-		app  = kingpin.New("codbApplication", "Web interface for extrating data from the comparative oncology database.")
-		host = app.Flag("host", "Host IP (default is localHost).").Short('h').Default("127.0.0.1").String()
-		port = app.Flag("port", "Host port (default is 8080).").Short('p').Default("8080").String()
+		host = kingpin.Flag("host", "Host IP (default is localHost).").Short('h').Default("127.0.0.1").String()
+		port = kingpin.Flag("port", "Host port (default is 8080).").Short('p').Default("8080").String()
 	)
 	kingpin.Parse()
 	r := mux.NewRouter()
