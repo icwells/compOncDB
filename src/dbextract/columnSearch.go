@@ -8,33 +8,8 @@ import (
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/strarray"
-	//"os"
 	"strings"
 )
-
-/*func (s *searcher) searchAccounts(e codbutils.Evaluation) {
-	// Searches source tables
-	if s.user != "root" {
-		fmt.Print("\n\t[Error] Must be root to access Accounts table. Exiting.\n\n")
-		os.Exit(1010)
-	}
-	var accounts []string
-	target := s.value
-	if s.column != "account_id" {
-		// Get target account IDs
-		aids := s.db.GetRows(e.Table, e.Column, e.Value, "ID")
-		for _, i := range aids {
-			accounts = append(accounts, i[0])
-		}
-		target = strings.Join(accounts, ",")
-	}
-	// Get target patient IDs
-	ids := s.db.GetRows("Source", "account_id", target, "ID")
-	for _, i := range ids {
-		s.ids = append(s.ids, i[0])
-	}
-	s.res = dbupload.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*"))
-}*/
 
 func (s *searcher) setPatient() {
 	// Reads all patient records with ids in s.ids
