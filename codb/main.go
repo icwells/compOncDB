@@ -52,6 +52,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	pw := r.PostForm.Get("password")
 	if user != "" && pw != "" {
 		// Check credentials
+		fmt.Println(user, C.config.Host, ping(user, pw))
 		if ping(user, pw) {
 			// Store cookie
 			session, _ := STORE.Get(r, C.name)
