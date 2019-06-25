@@ -10,6 +10,7 @@ LOG="../serverLog.txt"
 PID=".codb_pid.txt"
 
 killProc () {
+	echo "Stopping server process."
 	kill -9 $(cat $PID)
 	rm $PID
 }
