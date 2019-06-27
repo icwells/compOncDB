@@ -1,6 +1,6 @@
 // Contains methods for accounts struct
 
-package main
+package parserecords
 
 import (
 	"github.com/icwells/go-tools/strarray"

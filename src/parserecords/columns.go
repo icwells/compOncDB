@@ -1,6 +1,6 @@
 // Defines a struct for extracting and storing column data from a file header
 
-package main
+package parserecords
 
 import (
 	"strings"

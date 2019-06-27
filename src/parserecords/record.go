@@ -1,6 +1,6 @@
 // This script defines a struct for handling single pathology records
 
-package main
+package parserecords
 
 import (
 	"bytes"

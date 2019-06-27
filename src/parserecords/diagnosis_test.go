@@ -1,6 +1,6 @@
 // This script will perform white box tests on parseRecords diagnosis functions
 
-package main
+package parserecords
 
 import (
 	"strconv"
@@ -55,7 +55,7 @@ func getDays(n int) string {
 
 func TestCheckAge(t *testing.T) {
 	// Tests checkAge for age in days and years
-	e := newEntries("service")
+	e := NewEntries("service")
 	ages := []struct {
 		row  []string
 		idx  int
@@ -85,7 +85,7 @@ func TestCheckAge(t *testing.T) {
 
 func TestParseDiagnosis(t *testing.T) {
 	// Tests parseDiagnosis with matches from matcher_test.go
-	e := newEntries("service")
+	e := NewEntries("service")
 	matches := newMatches()
 	for _, i := range matches {
 		rec := newRecord()

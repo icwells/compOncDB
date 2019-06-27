@@ -1,6 +1,6 @@
 // This script will extract diagnosis information from a given input file
 
-package main
+package parserecords
 
 import (
 	"strconv"

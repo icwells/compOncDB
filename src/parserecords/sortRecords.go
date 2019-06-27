@@ -1,6 +1,6 @@
 // This script defines functions for sorting entries data
 
-package main
+package parserecords
 
 import (
 	"fmt"
@@ -98,7 +98,7 @@ func (e *entries) getHeader(debug bool) string {
 	return head + "\n"
 }
 
-func (e *entries) sortRecords(debug bool, infile, outfile string) {
+func (e *entries) SortRecords(debug bool, infile, outfile string) {
 	// Sorts data and merges if necessary
 	first := true
 	var wg sync.WaitGroup

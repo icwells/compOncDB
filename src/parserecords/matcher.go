@@ -1,6 +1,6 @@
 // This script defines a struct for matching diagnosis data with regular expressions
 
-package main
+package parserecords
 
 import (
 	"regexp"

@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
+	"github.com/icwells/compOncDB/src/parserecords"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"os"
@@ -38,6 +39,16 @@ func newDatabase() time.Time {
 	db := dbIO.CreateDatabase(c.Host, c.Database, *user)
 	db.NewTables(c.Tables)
 	return db.Starttime
+}
+
+func parseRecords() time.Time {
+	// Parses raw input for unpload to database
+	start := time.Now()
+	fmt.Print("\n\tProcessing input records...\n")
+	ent := parserecords.NewEntries(*service)
+	ent.GetTaxonomy(*taxaFile)
+	ent.SortRecords(*debug, *infile, *outfile)
+	return start
 }
 
 func uploadToDB() time.Time {

@@ -12,13 +12,12 @@
 USER=""
 WD=$(pwd)
 APP="$WD/codb/*.go"
-PRSRC="$WD/parseRecords/*.go"
+PRSRC="$WD/src/parserecords/*.go"
 DBSRC="$WD/src/*.go"
 CUSRC="$WD/src/codbutils/*.go"
 DUSRC="$WD/src/dbupload/*.go"
 DESRC="$WD/src/dbextract/*.go"
 CDB="compOncDB"
-PR="parseRecords"
 
 TESTDIR=$WD/test
 TESTPR="$TESTDIR/parseRecords_test.go"
@@ -55,7 +54,7 @@ whiteBoxTests () {
 testParseRecords () {
 	echo ""
 	echo "Running black box tests on parseRecords..."
-	$PR -s $SERVICE -i $INPUT -t $TAXA -o $MOUT
+	$CDB parse -s $SERVICE -i $INPUT -t $TAXA -o $MOUT
 	go test $TESTPR --run TestMergeRecords --args --expected=$PATIENTS --actual=$MOUT
 	# Delete test files
 	rm $MOUT

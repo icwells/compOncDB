@@ -1,6 +1,6 @@
 // Contians tumorFinder strcut and methods for parseRecords
 
-package main
+package parserecords
 
 import (
 	"strconv"

@@ -1,6 +1,6 @@
 // PErforms white box tests on the records struct's methods
 
-package main
+package parserecords
 
 import (
 	"testing"

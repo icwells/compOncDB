@@ -1,6 +1,6 @@
 // Uses spell checking and fuzzy matching to condense submitter names
 
-package main
+package parserecords
 
 import (
 	"fmt"

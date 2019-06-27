@@ -24,6 +24,11 @@ var (
 	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
 	New = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
 
+	parse    = kingpin.Command("parse", "Parse and organize records for upload to the database.")
+	service  = parse.Flag("service", "Service database name.").Short('s').Required().String()
+	taxaFile = parse.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
+	debug    = parse.Flag("debug", "Adds cancer and code column (if present) for hand checking.").Short('d').Default("false").Bool()
+
 	upload  = kingpin.Command("upload", "Upload data to the database.")
 	taxa    = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
 	common  = upload.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
@@ -78,6 +83,8 @@ func main() {
 		backup(db.Password)
 	case New.FullCommand():
 		start = newDatabase()
+	case parse.FullCommand():
+		start = parseRecords()
 	case upload.FullCommand():
 		start = uploadToDB()
 	case update.FullCommand():

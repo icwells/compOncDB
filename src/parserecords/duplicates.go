@@ -1,6 +1,6 @@
 // This script defines a struct for identifying duplicate entries
 
-package main
+package parserecords
 
 import (
 	"fmt"

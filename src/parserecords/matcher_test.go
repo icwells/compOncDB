@@ -1,6 +1,6 @@
 // This script will perform white box tests on the mathcer struct's methods
 
-package main
+package parserecords
 
 import (
 	"strings"

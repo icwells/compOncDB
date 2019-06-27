@@ -1,6 +1,6 @@
 // Test functions for accounts struct
 
-package main
+package parserecords
 
 import (
 	"testing"

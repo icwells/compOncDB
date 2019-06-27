@@ -1,6 +1,6 @@
 // This script defines a struct for managing comparative oncology records
 
-package main
+package parserecords
 
 import (
 	"fmt"
@@ -8,6 +8,12 @@ import (
 	"os"
 	"strings"
 )
+
+func printFatal(msg string, code int) {
+	// Prints error and exits
+	fmt.Printf("\n\t[Error] %s. Exiting. \n\n", msg)
+	os.Exit(code)
+}
 
 type entries struct {
 	d           string
@@ -23,7 +29,7 @@ type entries struct {
 	complete    int
 }
 
-func newEntries(service string) entries {
+func NewEntries(service string) entries {
 	// Initializes new struct
 	var e entries
 	e.service = service
@@ -83,7 +89,7 @@ func (e *entries) setAccounts(infile string) {
 	e.accounts = a.resolveAccounts()
 }
 
-func (e *entries) getTaxonomy(infile string) {
+func (e *entries) GetTaxonomy(infile string) {
 	// Reads in map of species
 	var d string
 	col := make(map[string]int)

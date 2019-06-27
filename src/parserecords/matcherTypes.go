@@ -1,6 +1,6 @@
 // Regular expression dictionaries for the matcher struct
 
-package main
+package parserecords
 
 import (
 	"regexp"

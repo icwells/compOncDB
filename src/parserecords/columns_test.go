@@ -1,6 +1,6 @@
 // This script will perform black box tests on parseRecords
 
-package main
+package parserecords
 
 import (
 	"fmt"
