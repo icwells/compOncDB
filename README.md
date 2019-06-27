@@ -75,12 +75,13 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 
 ### Overview  
 
-	./compOncDB command {flags} {args...}  
+	compOncDB command {flags} {args...}  
 
 	--help {command}	Show help {for given command}.  
 	version			Prints version info and exits.  
 	backup			Backs up database to local machine.  
 	new				Initializes new tables in new database.
+	parse			Parse and organize records for upload to the comparative oncology database.  
 	upload			Upload data to the database.  
 	update			Update or delete existing records from the database.  
 	extract			Extract data from the database and perform optional analyses.  
@@ -90,12 +91,12 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 ### Commands  
 
 #### Backup  
-	./compOncDB backup
+	compOncDB backup
 
 Backs up database to local machine. Must use root password. Output is written to current directory.  
 
 #### New  
-	./compOncDB new {-u username}  
+	compOncDB new {-u username}  
 
 	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"  Path to config.txt (Default is in bin directory).  
@@ -103,8 +104,21 @@ Backs up database to local machine. Must use root password. Output is written to
 Initializes new tables in new database. The database itself must be initialized manually.  
 Make sure tableColumns.txt is in the bin/ directory.  
 
+#### parse  
+Uses a regular expression based approach to identify diagnosis information and merge the input and diagnosis 
+information with taxonomy information (output of the [Kestrel](https://github.com/icwells/Kestrel) tool) 
+to make a csv file ready to upload to the MySQL database.  
+
+	compOncDB parse -s service_name -t taxa_file -i infile -o outfile
+
+	--help							Show help.  
+	-i, --infile=INFILE				Path to input file (required).  
+	-o, --outfile=OUTFILE			Path to output file (required).  
+	-s, --service=SERVICE			Database/service name (required).  
+	-t, --taxa="nil"				Path to kestrel output (used with the merge command).  
+
 #### Upload  
-	./compOncDB upload {-u username} --{type_from_list_below} -i infile
+	compOncDB upload {-u username} --{type_from_list_below} -i infile
 
 	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"  Path to config.txt (Default is in utils directory).  
@@ -124,7 +138,7 @@ names and should be uploaded to the common names table. The input for --accounts
 are all the same file which must in the format of uploadTemplate.csv.  
 
 #### Update  
-	./compOncDB update {-u username} {infile}
+	compOncDB update {-u username} {infile}
 
 	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"  Path to config.txt (Default is in bin directory).  
@@ -156,7 +170,7 @@ changed to "0". Since ID is a unique identifier this will only change one record
 a matching taxonomic level would be updated.  
 
 #### Extract  
-	./compOncDB extract {-u username} {--flags...} {-o outfile}
+	compOncDB extract {-u username} {--flags...} {-o outfile}
 
 	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"  Path to config.txt (Default is in bin directory).  
@@ -171,7 +185,7 @@ a matching taxonomic level would be updated.
 Extract data from the database and perform optional analyses.  
 
 #### Search  
-	./compOncDB search {-u username} {--column/level --value/species ...} {-o outfile}
+	compOncDB search {-u username} {--column/level --value/species ...} {-o outfile}
 
 	-u, --user="root"		MySQL username (default is root).   
 	--config="config.txt"  Path to config.txt (Default is in bin directory).  
@@ -193,7 +207,7 @@ For most tables, the only valid operator for the eval flag is = (or ==). For sea
 include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.  
 
 #### Test  
-	./compOncDB test {paths_to_input_files}/ {--search --eval operation -o path_to_output file}  
+	compOncDB test {paths_to_input_files}/ {--search --eval operation -o path_to_output file}  
 
 	-u, --user="root"				MySQL username (default is root).  
 	--config="config.txt"  Path to config.txt (Default is in bin directory).  
@@ -206,21 +220,3 @@ include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Op
 	--search						Search for matches using above commands.  
 
 Runs tests using "testDataBase" (make sure it has been created in MySQL first).  
-
-## parseRecords  
-The parseRecords utility has been provided to help with parsing input files before uploading them to the database.  
-It will use a regular expression based approach to identify diagnosis information and merge the input and diagnosis 
-information with taxonomy information (output of the [Kestrel](https://github.com/icwells/Kestrel) tool) 
-to make a csv file ready to upload to the MySQL database.  
-Previous versions performed this in two steps, but as of v0.3 they have been merged into one to steamline the process.  
-
-
-### Usage  
-
-	./parseRecords command -s service_name -i infile -o outfile
-
-	--help							Show help.  
-	-i, --infile=INFILE				Path to input file (required).  
-	-o, --outfile=OUTFILE			Path to output file (required).  
-	-s, --service=SERVICE			Database/service name (required).  
-	-t, --taxa="nil"				Path to kestrel output (used with the merge command).  
