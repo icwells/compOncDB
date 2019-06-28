@@ -104,7 +104,7 @@ Backs up database to local machine. Must use root password. Output is written to
 Initializes new tables in new database. The database itself must be initialized manually.  
 Make sure tableColumns.txt is in the bin/ directory.  
 
-#### parse  
+#### Parse  
 Uses a regular expression based approach to identify diagnosis information and merge the input and diagnosis 
 information with taxonomy information (output of the [Kestrel](https://github.com/icwells/Kestrel) tool) 
 to make a csv file ready to upload to the MySQL database.  
@@ -147,8 +147,7 @@ are all the same file which must in the format of uploadTemplate.csv.
 	--table="nil"		Perform operations on this table only.   
 	-c, --column="nil"	Column to be updated with given value if --eval column == value.
 	-v, --value="nil"	Value to write to column if --eval column == value (only supply one evaluation statement).
-	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: 
-!= = <= >= > <; wrap statement in quotation marks).  
+	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks).  
 
 	-i infile			Path to input file (see below for formatting).  
 
@@ -193,8 +192,7 @@ Extract data from the database and perform optional analyses.
 	-t, --taxa="nil"		Name of taxonomic unit to extract data for or path to file with single column of units.  
 	--common				Indicates that common species name was given for taxa.  
 	--count					Returns count of target records instead of printing entire records.  
-	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: 
-!= = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas).  
+	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas).  
 	--table="nil"		Perform operations on this table only.  
 	--infant			Include infant records in results (excluded by default).  
 	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
