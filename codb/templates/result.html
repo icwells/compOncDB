@@ -11,13 +11,9 @@
   {{if .File}}
     <p>Output csv file:</p>
     <a href=/codb/get/{{.File}} download={{.File}}>{{.File}}</a>
-  {{else}}
-    <p>
-    {{range $line := .Results}}
-      {{$line}}<br/>
-    {{end}}
+  {{else if .Count}}
+      <p>{{.Count}}</p>
   {{end}}
-  </p>
   <p><a href="/codb/search/">Start a new search</a></p>
 </section>
 {{template "footer"}}

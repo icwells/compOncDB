@@ -28,7 +28,7 @@ helpText () {
 	echo "Runs hosting server for the comparative oncology database."
 	echo ""
 	echo "start	Runs host on local server to be proxied by nginx."
-	echo "kill	Kills process using pid in $PID."
+	echo "stop	Kills process using pid in $PID."
 	echo "restart	Kills running processes and starts new server."
 	echo "help	Prints help text and exits."
 	echo ""
@@ -40,7 +40,7 @@ elif [ $1 = "help" ]; then
 	helpText
 elif [ $1 = "start" ]; then
 	runHost
-elif [ $1 = "kill" ]; then
+elif [ $1 = "stop" ]; then
 	killProc
 elif [ $1 = "restart" ]; then
 	killProc

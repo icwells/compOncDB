@@ -46,7 +46,7 @@ type Output struct {
 	Flash   string
 	File    string
 	Outfile string
-	Results []string
+	Count   string
 }
 
 func newOutput(user string) *Output {
@@ -84,7 +84,7 @@ func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm, user string) {
 		o.getTempFile(user)
 		codbutils.WriteResults(o.Outfile, header, res)
 	} else {
-		o.Results = []string{fmt.Sprintf("\tFound %d records matching search criteria.\n", len(res))}
+		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", len(res))
 	}
 }
 
@@ -104,14 +104,12 @@ func extractFromDB(r *http.Request, user, password string) (*Output, error) {
 				ret.getTempFile(user)
 				codbutils.WriteResults(ret.Outfile, db.Columns[f.Table], table)
 			} else if f.Summary == true {
-				ret.Results = []string{"Field\tTotal\t%\n"}
-				summary := dbextract.GetSummary(db)
-				for _, i := range summary {
-					ret.Results = append(ret.Results, strings.Join(i, "\t"))
-				}
+				ret.getTempFile("databaseSummary")
+				header := "Field,Total,%"
+				codbutils.WriteResults(ret.Outfile, header, dbextract.GetSummary(db))
 			} else if f.Cancerrate == true {
 				// Extract cancer rates
-				ret.getTempFile(fmt.Sprintf("cancerRates.min%d.csv", f.Min))
+				ret.getTempFile(fmt.Sprintf("cancerRates.min%d", f.Min))
 				header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
 				header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
 				codbutils.WriteResults(ret.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))

@@ -17,7 +17,7 @@ var (
 	C     = setConfiguration()
 )
 
-func clearSession(w http.ResponseWriter,r *http.Request) {
+func clearSession(w http.ResponseWriter, r *http.Request) {
 	// Deletes username and password cookies
 	session, _ := STORE.Get(r, C.name)
 	session.Values["username"] = ""
