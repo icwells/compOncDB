@@ -18,7 +18,6 @@ GSC="github.com/gorilla/schema"
 IO="github.com/icwells/go-tools/iotools"
 KP="gopkg.in/alecthomas/kingpin.v2"
 MAIN="compOncDB"
-PARSE="parseRecords"
 PR="github.com/Songmu/prompter"
 SA="github.com/icwells/go-tools/strarray"
 
@@ -43,11 +42,6 @@ installDependencies () {
 }
 
 installMain () {
-	# Install parseRecords
-	echo "Building $PARSE..."
-	go build -i -o $GOBIN/$PARSE $PARSE/*.go
-	echo ""
-
 	# compOncDB 
 	echo "Building $MAIN..."
 	go build -i -o $GOBIN/$MAIN src/*.go
