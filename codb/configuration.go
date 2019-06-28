@@ -125,7 +125,7 @@ func setConfiguration() *configuration {
 	c.get = "/codb/get/"
 	c.logout = "/codb/logout"
 	c.newpw = "/codb/newpassword"
-	c.changepw = "/codb/changepassword/"
+	c.changepw = "/codb/changepassword"
 	c.static = "/static/"
 	c.tmpl = "templates/*.html"
 	c.logintemp = "login"
