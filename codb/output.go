@@ -17,6 +17,30 @@ func ping(user, password string) bool {
 	return dbIO.Ping(C.config.Host, C.config.Database, user, password)
 }
 
+func changePassword(r *http.Request, user, password string) string {
+	// Changes suer password or returns flash message
+	var ret string
+	db, err := dbIO.Connect(C.config.Host, C.config.Database, user, password)
+	if err == nil {
+		r.ParseForm()
+		newpw := r.PostForm.Get("password")
+		confpw := r.PostForm.Get("newpassword")
+		if newpw != confpw {
+			ret = "Passwords do not match."
+		} else {
+			cmd := fmt.Sprintf("SET PASSWORD = PASSWORD('%s')", newpw)
+			_, er := db.DB.Exec(cmd)
+			if er != nil {
+				ret = er.Error()
+			}
+		}
+	} else {
+		// Convert error to string
+		ret = err.Error()
+	}
+	return ret
+}
+
 type Output struct {
 	User    string
 	Flash   string

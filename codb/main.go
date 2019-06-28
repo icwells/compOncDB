@@ -17,6 +17,14 @@ var (
 	C     = setConfiguration()
 )
 
+func clearSession(w http.ResponseWriter,r *http.Request) {
+	// Deletes username and password cookies
+	session, _ := STORE.Get(r, C.name)
+	session.Values["username"] = ""
+	session.Values["password"] = ""
+	session.Save(r, w)
+}
+
 func getCredentials(r *http.Request) (string, string) {
 	// Reads username and password from cookie
 	var user, password string
@@ -70,11 +78,37 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Clears session and returns to login page
-	session, _ := STORE.Get(r, C.name)
-	session.Values["username"] = ""
-	session.Values["password"] = ""
-	session.Save(r, w)
+	clearSession(w, r)
 	http.Redirect(w, r, C.source, http.StatusFound)
+}
+
+func changeHandler(w http.ResponseWriter, r *http.Request) {
+	// Renders change password form
+	user, _ := getCredentials(r)
+	if user != "" {
+		C.renderTemplate(w, C.changetemp, newOutput(user))
+	} else {
+		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
+	}
+}
+
+func passwordHandler(w http.ResponseWriter, r *http.Request) {
+	// Renders change password form
+	msg := "Please login to access database."
+	template := C.logintemp
+	user, pw := getCredentials(r)
+	if user != "" && pw != "" {
+		// Redirect to same page if an error occurs
+		template = C.changetemp
+		msg = changePassword(r, user, pw)
+		if msg == "" {
+			// Logout and return to login page
+			msg = "Successfully changed password."
+			template = C.logintemp
+			clearSession(w, r)
+		}
+	}
+	C.renderTemplate(w, template, newFlash(msg))
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
@@ -133,6 +167,8 @@ func main() {
 	r.HandleFunc(C.source, indexHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.login, loginHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.logout, logoutHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.changepw, changeHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.newpw, passwordHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.search, formHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.output, searchHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.get+"{filename}", downloadHandler).Methods(http.MethodGet)

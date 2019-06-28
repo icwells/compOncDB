@@ -104,6 +104,9 @@ type configuration struct {
 	resulttemp string
 	logintemp  string
 	logout     string
+	newpw      string
+	changepw   string
+	changetemp string
 	static     string
 	tmpl       string
 	templates  *template.Template
@@ -121,11 +124,14 @@ func setConfiguration() *configuration {
 	c.output = "/codb/results/"
 	c.get = "/codb/get/"
 	c.logout = "/codb/logout"
+	c.newpw = "/codb/newpassword"
+	c.changepw = "/codb/changepassword/"
 	c.static = "/static/"
 	c.tmpl = "templates/*.html"
 	c.logintemp = "login"
 	c.searchtemp = "search"
 	c.resulttemp = "result"
+	c.changetemp = "changepassword"
 	c.templates = template.Must(template.ParseGlob(c.tmpl))
 	c.config = codbutils.SetConfiguration("config.txt", "", false)
 	return &c

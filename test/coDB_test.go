@@ -92,23 +92,25 @@ func (f *filepair) compareEntries(actual, expected []string)  {
 	equal := true
 	for idx, i := range actual {
 		// Skip randomly assigned IDs
-		if f.isID(idx) == false && i != expected[idx] {
-			equal = false
-			// Attempt to resolve differences in floating point precision
-			a, err := strconv.ParseFloat(i, 64)
-			if err == nil {
-				var e float64
-				e, err = strconv.ParseFloat(expected[idx], 64)
-				if err == nil && a == e {
-					equal = true
+		if idx < len(expected) {
+			if f.isID(idx) == false && i != expected[idx] {
+				equal = false
+				// Attempt to resolve differences in floating point precision
+				a, err := strconv.ParseFloat(i, 64)
+				if err == nil {
+					var e float64
+					e, err = strconv.ParseFloat(expected[idx], 64)
+					if err == nil && a == e {
+						equal = true
+					}
 				}
 			}
-		}
-		if equal == false {
-			f.pass = false
-			f.index = idx
-			f.value = expected[idx]
-			break
+			if equal == false {
+				f.pass = false
+				f.index = idx
+				f.value = expected[idx]
+				break
+			}
 		}
 	}
 }
