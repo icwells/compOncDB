@@ -81,44 +81,6 @@ func ConnectToDatabase(c Configuration) *dbIO.DBIO {
 	return db
 }
 
-func GetTable(tables map[string]string, col string) []string {
-	// Determines which table column is in
-	var ret []string
-	col = strings.ToLower(col)
-	if col == "id" {
-		// Return tables for uid
-		ret = []string{"Patient", "Source", "Diagnosis", "Tumor_relation"}
-	} else if strings.Contains(col, "_id") == false {
-		if strings.Contains(col, "_") == false {
-			col = strings.Title(col)
-		}
-		// Iterate through available column names
-		for k, val := range tables {
-			for _, i := range strings.Split(val, ",") {
-				i = strings.TrimSpace(i)
-				if col == i {
-					ret = append(ret, k)
-					break
-				}
-			}
-		}
-	} else {
-		// Return multiple tables for ids
-		if col == "taxa_id" {
-			ret = []string{"Patient", "Taxonomy", "Common", "Totals", "Life_history"}
-		} else if col == "account_id" {
-			ret = []string{"Source", "Accounts"}
-		} else if col == "source_id" {
-			ret = append(ret, "Patient")
-		}
-	}
-	if len(ret) == 0 {
-		fmt.Printf("\n\t[Error] Cannot find table with column %s. Exiting.\n\n", col)
-		os.Exit(999)
-	}
-	return ret
-}
-
 func ReadList(infile string, idx int) []string {
 	// Reads list of queries from file
 	set := strarray.NewSet()
@@ -170,17 +132,14 @@ func WriteResults(outfile, header string, table [][]string) {
 	}
 }
 
-func DeleteEntries(d *dbIO.DBIO, tables []string, column, value string) {
+func DeleteEntries(d *dbIO.DBIO, table string, column, value string) {
 	// Deletes matches from appropriate tables
-	t := strings.Join(tables, ", ")
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("\tAre you sure you want to delete all records from %s where %s equals %s (Enter Y for yes)? ", t, column, value)
+	fmt.Printf("\tAre you sure you want to delete all records from %s where %s equals %s (Enter Y for 'yes')? ", table, column, value)
 	input, _ := reader.ReadString('\n')
 	if strings.TrimSpace(strings.ToUpper(input)) == "Y" {
 		fmt.Println("\tProceeding with deletion...")
-		for _, i := range tables {
-			d.DeleteRow(i, column, value)
-		}
+		d.DeleteRow(table, column, value)
 	} else {
 		fmt.Println("\tSkipping deletion.")
 	}

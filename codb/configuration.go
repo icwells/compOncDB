@@ -34,16 +34,23 @@ func (s *SearchForm) setEvaluation(n string, r *http.Request, columns map[string
 	c := "Column"
 	o := "Operator"
 	v := "Value"
-	e.Column = r.PostForm.Get(c + n)
-	e.Operator = r.PostForm.Get(o + n)
-	e.Value = r.PostForm.Get(v + n)
-	if e.Column != "" && e.Operator != "" && e.Value != "" {
-		e.SetTable(columns)
-		if e.Table != "Accounts" {
-			s.eval = append(s.eval, e)
-			ret = true
+	e.Column = strings.TrimSpace(r.PostForm.Get(c + n))
+	e.Operator = strings.TrimSpace(r.PostForm.Get(o + n))
+	e.Value = strings.TrimSpace(r.PostForm.Get(v + n))
+	if e.Column != "" || e.Operator != "" || e.Value != "" {
+		if e.Column != "" && e.Operator != "" && e.Value != "" {
+			// Assign table and id type
+			msg = e.SetTable(columns, false)
+			if msg == "" {
+				if e.Table != "Accounts" {
+					s.eval = append(s.eval, e)
+					ret = true
+				} else {
+					msg = "Cannot access Accounts table."
+				}
+			}
 		} else {
-			msg = "Cannot access Accounts table."
+			msg = "Please specify column and value fields."
 		}
 	}
 	return ret, msg

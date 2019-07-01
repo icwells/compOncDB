@@ -28,21 +28,19 @@ func TestGetTable(t *testing.T) {
 	col := getTableColumns()
 	matches := []struct {
 		column string
-		tables []string
+		table string
 	}{
-		{"sex", []string{"Patient"}},
-		{"taxa_id", []string{"Patient", "Taxonomy", "Common", "Totals", "Life_history"}},
-		{"TOTAL", []string{"Totals"}},
-		{"account_ID", []string{"Source", "Accounts"}},
-		{"Id", []string{"Patient", "Source", "Diagnosis", "Tumor_relation"}},
-		{"Primary_Tumor", []string{"Tumor_relation"}},
+		{"sex", "Patient"},
+		{"taxa_id", "Taxonomy"},
+		{"TOTAL", "Totals"},
+		{"account_ID", "Source"},
+		{"Id", "Patient"},
+		{"Primary_Tumor", "Tumor_relation"},
 	}
 	for _, e := range matches {
 		actual := GetTable(col, e.column)
-		for idx, i := range actual {
-			if i != e.tables[idx] {
-				t.Errorf("Actual table %s is not equal to expected: %s", i, e.tables[idx])
-			}
+		if actual != e.table {
+			t.Errorf("Actual table %s is not equal to expected: %s", actual, e.table)
 		}
 	}
 }

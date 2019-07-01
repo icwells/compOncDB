@@ -89,15 +89,12 @@ func updateDB() time.Time {
 		e := evaluations[0]
 		dbextract.UpdateSingleTable(db, e.Table, *column, *value, e.Column, e.Operator, e.Value)
 	} else if *del == true && *eval != "nil" {
-		var tables []string
 		evaluations := codbutils.SetOperations(db.Columns, *eval)
 		e := evaluations[0]
-		if *table != "nil" {
-			tables = []string{*table}
-		} else {
-			tables = codbutils.GetTable(db.Columns, e.Column)
+		if *table == "nil" {
+			*table = codbutils.GetTable(db.Columns, e.Column)
 		}
-		codbutils.DeleteEntries(db, tables, e.Column, e.Value)
+		codbutils.DeleteEntries(db, *table, e.Column, e.Value)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}

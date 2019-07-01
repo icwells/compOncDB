@@ -93,11 +93,10 @@ func extractFromDB(r *http.Request, user, password string) (*Output, error) {
 	ret := newOutput(user)
 	db, err := dbIO.Connect(C.config.Host, C.config.Database, ret.User, password)
 	if err == nil {
+		var f *SearchForm
 		db.GetTableColumns()
-		f, msg := setSearchForm(r, db.Columns)
-		if msg != "" {
-			ret.Flash = msg
-		} else {
+		f, ret.Flash = setSearchForm(r, db.Columns)
+		if ret.Flash == "" {
 			if f.Dump == true {
 				// Extract entire table
 				table := db.GetTable(f.Table)

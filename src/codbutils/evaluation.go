@@ -16,16 +16,24 @@ type Evaluation struct {
 	Value    string
 }
 
-func (e *Evaluation) SetTable(columns map[string]string) {
+func (e *Evaluation) SetTable(columns map[string]string, quit bool) string {
 	// Wraps call to GetTable to set table and id type
+	var ret string
 	tid := "taxa_id"
-	tables := GetTable(columns, e.Column)
-	e.Table = tables[0]
-	if e.Table != "Patient" && strings.Contains(columns[e.Table], tid) {
-		e.ID = tid
+	if quit == true {
+		e.Table = GetTable(columns, e.Column)
 	} else {
-		e.ID = "ID"
+		e.Table, ret = FindTable(columns, e.Column)
 	}
+	if e.Table != "" {
+		ret = ""
+		if e.Table != "Patient" && strings.Contains(columns[e.Table], tid) {
+			e.ID = tid
+		} else {
+			e.ID = "ID"
+		}
+	}
+	return ret
 }
 
 func (e *Evaluation) setOperation(eval string) {
@@ -61,7 +69,7 @@ func SetOperations(columns map[string]string, eval string) []Evaluation {
 	for _, i := range strings.Split(eval, ",") {
 		var e Evaluation
 		e.setOperation(i)
-		e.SetTable(columns)
+		e.SetTable(columns, true)
 		ret = append(ret, e)
 	}
 	if len(ret) == 0 {
@@ -71,86 +79,55 @@ func SetOperations(columns map[string]string, eval string) []Evaluation {
 	return ret
 }
 
-/*func convertValues(v1, v2 string) (float64, float64, bool) {
-	// Converts values to float for comparison
-	var r2 float64
-	var ret bool
-	r1, err := strconv.ParseFloat(v1, 64)
-	if err == nil {
-		r2, err = strconv.ParseFloat(v2, 64)
-		if err == nil {
-			ret = true
-		}
+//----------------------------------------------------------------------------
+
+func tableFromID(col string) string {
+	// Returns table for id columns present in multiple tables
+	var ret string
+	switch col {
+	case "id":
+		ret = "Patient"
+	case "taxa_id":
+		ret = "Taxonomy"
+	case "account_id":
+		ret = "Source"
+	case "source_id":
+		ret = "Patient"
 	}
-	return r1, r2, ret
+	return ret
 }
 
-func (e *Evaluation) evaluateLine(h map[string]int, row []string) bool {
-	// Applies evaluation to line, return true if it passes
-	ret := false
-	idx, ex := h[e.Column]
-	if ex == true && idx < len(row) {
-		switch e.Operator {
-		case "!=":
-			if row[idx] != e.Value {
-				ret = true
-			}
-		case "=":
-			if row[idx] == e.Value {
-				ret = true
-			}
-		case ">=":
-			v1, v2, pass := convertValues(row[idx], e.Value)
-			if pass == true {
-				if v1 >= v2 {
-					ret = true
-				}
-			}
-		case "<=":
-			v1, v2, pass := convertValues(row[idx], e.Value)
-			if pass == true {
-				if v1 <= v2 {
-					ret = true
-				}
-			}
-		case ">":
-			v1, v2, pass := convertValues(row[idx], e.Value)
-			if pass == true {
-				if v1 > v2 {
-					ret = true
-				}
-			}
-		case "<":
-			v1, v2, pass := convertValues(row[idx], e.Value)
-			if pass == true {
-				if v1 < v2 {
-					ret = true
-				}
-			}
-		}
+func FindTable(tables map[string]string, col string) (string, string) {
+	// Returns single table name and error message. Exits if there is an error and quit is true
+	var ret string
+	msg := fmt.Sprintf("Cannot find table with column %s.", col)
+	col = strings.ToLower(col)
+	if col == "id" || strings.Contains(col, "_id") {
+		ret = tableFromID(col)
 	} else {
-		fmt.Printf("\t[Warning] Column %s not present in header. Skipping.\n", e.Column)
+		if strings.Contains(col, "_") == false {
+			col = strings.Title(col)
+		}
+		// Iterate through available column names
+		for k, val := range tables {
+			for _, i := range strings.Split(val, ",") {
+				i = strings.TrimSpace(i)
+				if col == i {
+					ret = k
+					break
+				}
+			}
+		}
+	}
+	return ret, msg
+}
+
+func GetTable(tables map[string]string, col string) string {
+	// Determines which table column is in, exits if there is an error
+	ret, msg := FindTable(tables, col)
+	if len(ret) == 0 {
+		fmt.Printf("\n\t[Error] %s Exiting.\n\n", msg)
+		os.Exit(1001)
 	}
 	return ret
 }
-
-func FilterSearchResults(header string, e []Evaluation, res [][]string) [][]string {
-	// Applies filters to search results
-	var ret [][]string
-	fmt.Println("\tFiltering search results...")
-	h := iotools.GetHeader(strings.Split(header, ","))
-	for _, i := range res {
-		keep := true
-		for idx := range e {
-			keep = e[idx].evaluateLine(h, i)
-			if keep == false {
-				break
-			}
-		}
-		if keep == true {
-			ret = append(ret, i)
-		}
-	}
-	fmt.Printf("\tFound %d records that passed additional search parameters.\n", len(ret))
-	return ret
-}*/
