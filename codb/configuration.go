@@ -37,7 +37,7 @@ func (s *SearchForm) setEvaluation(n string, r *http.Request, columns map[string
 	e.Column = strings.TrimSpace(r.PostForm.Get(c + n))
 	e.Operator = strings.TrimSpace(r.PostForm.Get(o + n))
 	e.Value = strings.TrimSpace(r.PostForm.Get(v + n))
-	if e.Column != "" || e.Operator != "" || e.Value != "" {
+	if e.Column != "" || e.Value != "" {
 		if e.Column != "" && e.Operator != "" && e.Value != "" {
 			// Assign table and id type
 			msg = e.SetTable(columns, false)
