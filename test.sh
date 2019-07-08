@@ -106,6 +106,23 @@ checkSource () {
 	go $1 $PRSRC
 }
 
+helpText () {
+	echo ""
+	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
+	echo "Usage: ./test.sh {install/white/parse/upload/search/update} username"
+	echo ""
+	echo "all		Runs all tests"
+	echo "install		Installs binaries and runs all tests"
+	echo "whitebox		Runs white box tests"
+	echo "parse		Runs parseRecords black box tests"
+	echo "upload		Runs compOncDB upload black box tests"
+	echo "search		Runs compOncDB search black box tests"
+	echo "update		Runs compOncDB update black box tests"
+	echo "fmt		Runs go fmt on all source files."
+	echo "vet		Runs go vet on all source files."
+	echo "username	MySQL username (root by default)."
+}
+
 if [ $# -eq 2 ]; then
 	# Set user to input value
 	USER=$2
@@ -137,19 +154,8 @@ elif [ $1 = "fmt" ]; then
 elif [ $1 = "vet" ]; then
 	checkSource $1
 elif [ $1 = "help" ]; then
-	echo ""
-	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
-	echo "Usage: ./test.sh {install/white/parse/upload/search/update} username"
-	echo ""
-	echo "all		Runs all tests"
-	echo "install		Installs binaries and runs all tests"
-	echo "whitebox		Runs white box tests"
-	echo "parse		Runs parseRecords black box tests"
-	echo "upload		Runs compOncDB upload black box tests"
-	echo "search		Runs compOncDB search black box tests"
-	echo "update		Runs compOncDB update black box tests"
-	echo "fmt		Runs go fmt on all source files."
-	echo "vet		Runs go vet on all source files."
-	echo "username	MySQL username (root by default)."
+	helpText
+else
+	helpText
 fi
 echo ""
