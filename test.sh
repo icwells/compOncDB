@@ -114,6 +114,7 @@ helpText () {
 	echo "all		Runs all tests"
 	echo "install		Installs binaries and runs all tests"
 	echo "whitebox		Runs white box tests"
+	echo "blackbox		Runs all black box tests (parse, upload, search, and update)"
 	echo "parse		Runs parseRecords black box tests"
 	echo "upload		Runs compOncDB upload black box tests"
 	echo "search		Runs compOncDB search black box tests"
@@ -138,6 +139,12 @@ elif [ $1 = "install" ]; then
 	testAll
 elif [ $1 = "whitebox" ]; then
 	whiteBoxTests
+elif [ $1 = "blackbox" ]; then
+	getUser
+	testParseRecords
+	testUpload
+	testSearch
+	testUpdates
 elif [ $1 = "parse" ]; then
 	testParseRecords
 elif [ $1 = "upload" ]; then
