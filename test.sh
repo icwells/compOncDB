@@ -109,7 +109,7 @@ checkSource () {
 helpText () {
 	echo ""
 	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
-	echo "Usage: ./test.sh {install/white/parse/upload/search/update} username"
+	echo "Usage: ./test.sh {install/white/parse/upload/search/update}"
 	echo ""
 	echo "all		Runs all tests"
 	echo "install		Installs binaries and runs all tests"
@@ -123,11 +123,6 @@ helpText () {
 	echo "vet		Runs go vet on all source files."
 	echo "username	MySQL username (root by default)."
 }
-
-if [ $# -eq 2 ]; then
-	# Set user to input value
-	USER=$2
-fi
 
 if [ $# -eq 0 ]; then
 	testAll
