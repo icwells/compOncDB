@@ -1,8 +1,6 @@
 // Contains functions for dynamically presenting logical search options 
 
 var count = 0;
-const addrow = "addRow";
-const tableindeces = ["Patient", "Diagnosis", "Tumor"];
 
 const tables = {
 	Patient: [["ID", "INT"], ["Sex", "TEXT"], ["Age", "DOUBLE"], ["Castrated", "TINYINT"], ["taxa_id", "INT"], ["source_id", "TEXT"], ["Date", "TEXT"], ["Comments", "TEXT"]],
@@ -18,175 +16,151 @@ const tables = {
 	Unmatched: [["sourceID", "TEXT"], ["name", "TEXT"], ["sex", "TEXT"], ["age", "DOUBLE"], ["date", "TEXT"], ["masspresent", "TINYINT"], ["necropsy", "TINYINT"], ["comments", "TEXT"], ["Service", "TEXT"]]
 };
 
-//-----------------------Session----------------------------------------------
+const template = () => `      <select id="Table${count}" name="Table${count}" onchange="addColumns('searchField', this.id);">
+        <option name="Table${count}" value="Empty"></option>
+      </select>
+      <select id="Column${count}" name="Column${count}" onchange="addValue('searchField', this.id);">
+        <option name="Column${count}" value="Empty"></option>
+      </select>
+      <select id="Operator${count}" name="Operator${count}">
+        <option name="Operator${count}" value="=" selected="selected">=</option>
+        <option name="Operator${count}" value="!=">!=</option>
+      </select>
+      <input type="text" id="Value${count}" name="Value${count}">
+`;
+
+//----------------------------------------------------------------------------
 
 class Session {
 	// Stores values for single search field
-	constructor(n) {
-		this.count = n;
-		this.table = localStorage.getItem(`Table${this.count}`);
-		this.column = localStorage.getItem(`Column${this.count}`);
-		this.operator = localStorage.getItem(`Operator${this.count}`);
-		this.value = localStorage.getItem(`Value${this.count}`);
-		console.log(this.count, this.table, this.column);
+	constructor(id) {
+		// Isolate count and input field type 
+		this.count = id.slice(-1);
+		this.field = id.replace(this.count, "");
+		this.table = document.getElementById(`Table${this.count}`).value;
+		this.column = document.getElementById(`Column${this.count}`).value;
+		this.clearFields();
 	}
 
-	setSelected(id, option) {
-		document.getElementById(id).selectedIndex = 1;
+	clearSelect(id, end) {
+		// Removes all but empty line from select field
+		let sel = document.getElementById(id)
+		for (let i = sel.options.length-1; i > end; i--) {
+			// Remove existing element
+			sel.remove(i);
+		}
 	}
 
-	setField(id) {
-		// Returns value at given field and stores locally
-		let val = document.getElementById(id).value;
-		localStorage.setItem(id, val);
-		this.setSelected(id, val);
-		return val
-	}
-
-	setTable(id) {
-		// Gets selected table from form
-		this.table = this.setField(id);
-	}
-
-	setColumn(id) {
-		// Gets selected column from form
-		this.column = this.setField(id);
-	}
-
-	setValue(id) {
-		// Gets selected operator and value from form
-		this.operator = this.setField(`Operator${this.count}`);
-		this.value = this.setField(id);
+	clearFields() {
+		// Removes existing and subsequent select fields
+		if (this.field === "Table") {
+			this.clearSelect(`Column${this.count}`, 0);
+			this.clearSelect(`Operator${this.count}`, 1);
+		} else if (this.field === "Column") {
+			this.clearSelect(`Operator${this.count}`, 1);
+		}
 	}
 }
 
 //-----------------------Values-----------------------------------------------
 
-function getOperation(n, type) {
-	// Returns formatted operation block for given data type
-	let ops = ["=", "!=", ">=", "<=", ">", "<"];
-	let end = 2;
-	let ret = [`      <select id="Operator${n}" name="Operator${n}">`];
-	if (type === "DOUBLE" || type === "INT") {
-		// Add valid comparisons for floating point numbers
-		end = ops.length;
-	}
-	for (let i = 0; i < end; i++) {
-		// Add each formatted option
-		if (i === 0) {
-			// Select "="
-			ret.push(`        <option name="Operator${n}" value="${ops[i]}" selected="selected">${ops[i]}</option>`);
-		} else {
-			ret.push(`        <option name="Operator${n}" value="${ops[i]}">${ops[i]}</option>`);
-		}
-	}
-	ret.push(`      </select>`);
-	return ret.join("\n");
-}
-	
-function getValue(n, type) {
-	// Returns appropriate input value field
-	let ret = "";
-	let action = `onchange="addField('searchField', this.id);"`;
-	if (type === "TEXT") {
-      ret = `      <input type="text" id="Value${n}" name="Value${n}" ${action}>`;
-	} else if (type === "TINYINT") {
-		// Return selected for true/false/na
-		ret = `      <select id="Value${n}" name="Value${n} ${action}">
-        <option name="Value${n}" value="1" selected="selected">1</option>
-        <option name="Value${n}" value="0">0</option>
-        <option name="Value${n}" value="-1">-1</option>
-      </select>`;
-	} else if (type === "INT") {
-		ret = `      <input type="number" name="Value${n}" min="0" ${action}>`;
-	} else {
-		// Return number for decimal
-		ret = `      <input type="number" name="Value${n}" min="0" step="0.01" ${action}>`;
-	}
-	ret += "<br/>"
-	// Index count after last input is formatted
-	count++
-	return ret;
+function addOperations(n) {
+	// Adds values to dropdown
+	let ops = [">=", "<=", ">", "<"];
+	ops.forEach(o => {
+		let opt = document.createElement("option");
+		opt.text = o;
+		document.getElementById(`Operator${n}`).add(opt);
+	});
 }
 
 function getDataType(table, column) {
 	// Returns data type of given column value
-	for (let i in tables[table]) {
-		//console.log(i, column, table);
-		if (i[0] === column) {
-			return i[1];
+	let t = tables[table];
+	for (let i in t) {
+		if (t[i][0] === column) {
+			return t[i][1];
 		} 
 	}
 	return null;
 }
 
-function addValue(divname, s) {
-	// Adds operation and value inputs
-	console.log(s.count, s.column, s.table);
-	let type = getDataType(s.table, s.column);
-	if (type != null) {
-		document.getElementById(divname).innerHTML += getOperation(self.count, type);
-		document.getElementById(divname).innerHTML += getValue(self.count, type);
-		// Enable add field button
-		document.getElementById(addrow).disabled = null;
-	}
-}
-
-//-----------------------Tables-----------------------------------------------
-
-function addColumns(divname, s) {
-	// Adds selector for columns from given table
-	if (document.getElementById(`Column${s.count}`)) {
-		// Replace existing elment
-		document.getElementById(`Column${s.count}`).outerHTML = "";
-	}
-	let body = tables[s.table].map(name => {
-		return `        <option name="Column${s.count}" value="${name[0]}">${name[0]}</option>`;
+function toSelect(id) {
+	// Changes value input to select
+	let opts = ["1", "0", "-1"];
+	let old = document.getElementById(id);
+	old.parentElement.removeChild(old);
+	let sel = document.createElement("select");
+	opts.forEach(o => {
+		let opt = document.createElement("option");
+		opt.text = o;
+		sel.add(opt);
 	});
-	// Append close and prepend opening
-	body.push(`      </select>`);
-	body.unshift(`        <option name="Column${s.count}" value="Empty"></option>`);
-	body.unshift(`      <select id="Column${s.count}" name="Column${s.count}" onchange="addValue('searchField', this.id);">`);
-	document.getElementById(divname).innerHTML += body.join("\n");
 }
+
+function addValue(divname, id) {
+	// Adds operation and value inputs
+	let s = new Session(id);
+	let type = getDataType(s.table, s.column);
+	//console.log(s.count, s.column, s.table, type);
+	if (type != null) {
+		if (type === "TEXT") {
+			document.getElementId(id).type = "text";
+		} else if (type === "TINYINT") {
+			// Convert to select for true/false/na
+			toSelect(id)
+		} else {
+			// Format number input for decimal/integer
+			addOperations(n);
+			document.getElementId(id).type = "number";
+			document.getElementId(id).min = "0";
+			if (type === "DOUBLE") {
+				// Add step
+				document.getElementId(id).step = "0.01";
+			}
+		}
+	}
+}
+
+function addColumns(divname, id) {
+	// Adds selector for columns from given table
+	let s = new Session(id);
+	if (s.table) {
+		tables[s.table].forEach(name => {
+			let opt = document.createElement("option");
+			opt.text = name[0];
+			document.getElementById(`Column${s.count}`).add(opt);
+		});
+	}
+}
+
+//--------------------------NewRow--------------------------------------------
 
 function getTables(divname, n) {
 	// Formats select field for tables
 	let tablenames = Object.keys(tables);
-	let body = tablenames.map(name => {
-		return `        <option name="Table${n}" value="${name}">${name}</option>`;
+	tablenames.forEach(name => {
+		let opt = document.createElement("option");
+		opt.text = name;
+		document.getElementById(`Table${n}`).add(opt);
 	});
-	// Append close and prepend opening
-	body.push(`      </select>`);
-	body.unshift(`        <option name="Table${n}" value="Empty"></option>`);
-	body.unshift(`      <select id="Table${n}" name="Table${n}" onchange="addField('searchField', this.id);">`);
-	// Add select field to div and index count
-	document.getElementById(divname).innerHTML = body.join("\n");
-	// Disable button
-	document.getElementById(addrow).disabled = true;
-	count++;
 }
 
-function addField(divname, id = null) {
-	// Adds new table field
-	if (id == null && count < 10) {
+function addRow(divname) {
+	// Adds new row to table search
+	if (count < 10) {
 		// Limit to ten search fields
-		getTables(divname, count);
-	} else if (id != "Empty") {
-		// Isolate count and input field type
-		let n = id.slice(-1);
-		let field = id.replace(n, "");
-		let session = new Session(n);
-		if (field === "Table") {
-			session.setTable(id)
-			addColumns(divname, session);
-		} else if (field === "Column") {
-			session.setColumn(id)
-			console.log(session.table, session.column);
-			addValue(divname, session);
+		if (count === 0) {
+			// Insert template into existing div
+			document.getElementById(divname).innerHTML = template();
 		} else {
-			// Record selected values
-			session.setValue(id)
+			// Create new div
+			let newdiv = document.createElement("div");
+			newdiv.innerHTML = template();
+			document.getElementById(divname).appendChild(newdiv);
 		}
+		// Populate tables list
+		getTables(divname, count);
+		count++;
 	}
 }
