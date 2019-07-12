@@ -27,6 +27,11 @@ const template = () => `      <select id="Table${count}" name="Table${count}" on
         <option name="Operator${count}" value="!=">!=</option>
       </select>
       <input type="text" id="Value${count}" name="Value${count}">
+      <select id="Select${count}" name="Select${count}">
+        <option name="Select${count}" value="1">1</option>
+        <option name="Select${count}" value="0">0</option>
+        <option name="Select${count}" value="-1">-1</option>
+      </select>
 `;
 
 //----------------------------------------------------------------------------
@@ -74,6 +79,22 @@ function addOperations(n) {
 	});
 }
 
+function toggleInputs(type, n) {
+	// Switches between select/text input
+	let value = document.getElementById(`Value${n}`);
+	let select = document.getElementById(`Select${n}`);
+	if (type === "TINYINT") {
+		// Reveal select block
+		select.style.display = "inline";
+		value.style.display = "none";
+	} else {
+		// Reveal text input
+		select.style.display = "none";
+		value.style.display = "inline";
+		value.type = "text";
+	}
+}
+
 function getDataType(table, column) {
 	// Returns data type of given column value
 	let t = tables[table];
@@ -85,38 +106,22 @@ function getDataType(table, column) {
 	return null;
 }
 
-function toSelect(id) {
-	// Changes value input to select
-	let opts = ["1", "0", "-1"];
-	let old = document.getElementById(id);
-	old.parentElement.removeChild(old);
-	let sel = document.createElement("select");
-	opts.forEach(o => {
-		let opt = document.createElement("option");
-		opt.text = o;
-		sel.add(opt);
-	});
-}
-
 function addValue(divname, id) {
 	// Adds operation and value inputs
 	let s = new Session(id);
 	let type = getDataType(s.table, s.column);
-	//console.log(s.count, s.column, s.table, type);
 	if (type != null) {
-		if (type === "TEXT") {
-			document.getElementId(id).type = "text";
-		} else if (type === "TINYINT") {
-			// Convert to select for true/false/na
-			toSelect(id)
-		} else {
+		let val = `Value${s.count}`;
+		let sel = `Select${s.count}`;
+		toggleInputs(type, s.count);
+		if (type === "INT" || type === "DOUBLE") {
 			// Format number input for decimal/integer
-			addOperations(n);
-			document.getElementId(id).type = "number";
-			document.getElementId(id).min = "0";
+			addOperations(s.count);
+			document.getElementById(val).type = "number";
+			document.getElementById(val).min = "0";
 			if (type === "DOUBLE") {
 				// Add step
-				document.getElementId(id).step = "0.01";
+				document.getElementById(val).step = "0.01";
 			}
 		}
 	}
@@ -138,11 +143,12 @@ function addColumns(divname, id) {
 
 function getTables(divname, n) {
 	// Formats select field for tables
+	let tableselect = document.getElementById(`Table${n}`);
 	let tablenames = Object.keys(tables);
 	tablenames.forEach(name => {
 		let opt = document.createElement("option");
 		opt.text = name;
-		document.getElementById(`Table${n}`).add(opt);
+		tableselect.add(opt);
 	});
 }
 
@@ -161,6 +167,8 @@ function addRow(divname) {
 		}
 		// Populate tables list
 		getTables(divname, count);
+		// Hide value select
+		toggleInputs("TEXT", count);
 		count++;
 	}
 }
