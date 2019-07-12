@@ -26,31 +26,31 @@ type SearchForm struct {
 	Infant     bool
 }
 
-func (s *SearchForm) setEvaluation(n string, r *http.Request, columns map[string]string) (bool, string) {
+func (s *SearchForm) setEvaluation(r *http.Request, columns map[string]string, n string) (bool, string) {
 	// Populates evalutaiton struct if matching term is found
 	var e codbutils.Evaluation
 	var msg string
 	ret := false
-	c := "Column"
-	o := "Operator"
-	v := "Value"
-	e.Column = strings.TrimSpace(r.PostForm.Get(c + n))
-	e.Operator = strings.TrimSpace(r.PostForm.Get(o + n))
-	e.Value = strings.TrimSpace(r.PostForm.Get(v + n))
-	if e.Column != "" || e.Value != "" {
-		if e.Column != "" && e.Operator != "" && e.Value != "" {
-			// Assign table and id type
-			msg = e.SetTable(columns, false)
-			if msg == "" {
-				if e.Table != "Accounts" {
-					s.eval = append(s.eval, e)
-					ret = true
-				} else {
-					msg = "Cannot access Accounts table."
-				}
+	e.Table = strings.TrimSpace(r.PostForm.Get("Table" + n))
+	e.Column = strings.TrimSpace(r.PostForm.Get("Column" + n))
+	e.Operator = strings.TrimSpace(r.PostForm.Get("Operator" + n))
+	e.Value = strings.TrimSpace(r.PostForm.Get("Value" + n))
+	slct := strings.TrimSpace(r.PostForm.Get("Select" + n))
+	if e.Value != "" || slct != "" {
+		if e.Value == "" {
+			// Assign selected value to input value
+			e.Value = slct
+		}
+		if e.Table != "" && e.Column != "" && e.Operator != "" && e.Value != "" {
+			e.SetIDType(columns)
+			if e.Table != "Accounts" {
+				s.eval = append(s.eval, e)
+				ret = true
+			} else {
+				msg = "Cannot access Accounts table."
 			}
 		} else {
-			msg = "Please specify column and value fields."
+			msg = "Please supply valid table, column, and value."
 		}
 	}
 	return ret, msg
@@ -63,7 +63,7 @@ func (s *SearchForm) checkEvaluations(r *http.Request, columns map[string]string
 	count := 0
 	for found == true {
 		// Keep checking until count exceeds number of fields
-		found, msg = s.setEvaluation(strconv.Itoa(count), r, columns)
+		found, msg = s.setEvaluation(r, columns, strconv.Itoa(count))
 		count++
 	}
 	return msg

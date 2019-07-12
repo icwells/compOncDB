@@ -130,12 +130,14 @@ function addValue(divname, id) {
 function addColumns(divname, id) {
 	// Adds selector for columns from given table
 	let s = new Session(id);
-	if (s.table) {
-		tables[s.table].forEach(name => {
-			let opt = document.createElement("option");
-			opt.text = name[0];
-			document.getElementById(`Column${s.count}`).add(opt);
-		});
+	if (document.getElementById(id).value != "Empty") {
+		if (s.table) {
+			tables[s.table].forEach(name => {
+				let opt = document.createElement("option");
+				opt.text = name[0];
+				document.getElementById(`Column${s.count}`).add(opt);
+			});
+		}		
 	}
 }
 

@@ -16,10 +16,19 @@ type Evaluation struct {
 	Value    string
 }
 
+func (e *Evaluation) SetIDType(columns map[string]string) {
+	// Sets target id type
+	tid := "taxa_id"
+	if e.Table != "Patient" && strings.Contains(columns[e.Table], tid) {
+		e.ID = tid
+	} else {
+		e.ID = "ID"
+	}
+}
+
 func (e *Evaluation) SetTable(columns map[string]string, quit bool) string {
 	// Wraps call to GetTable to set table and id type
 	var ret string
-	tid := "taxa_id"
 	if quit == true {
 		e.Table = GetTable(columns, e.Column)
 	} else {
@@ -27,11 +36,7 @@ func (e *Evaluation) SetTable(columns map[string]string, quit bool) string {
 	}
 	if e.Table != "" {
 		ret = ""
-		if e.Table != "Patient" && strings.Contains(columns[e.Table], tid) {
-			e.ID = tid
-		} else {
-			e.ID = "ID"
-		}
+		e.SetIDType(columns)
 	}
 	return ret
 }
