@@ -159,6 +159,8 @@ func main() {
 		host = kingpin.Flag("host", "Host IP (default is localHost).").Short('h').Default("127.0.0.1").String()
 		port = kingpin.Flag("port", "Host port (default is 8080).").Short('p').Default("8080").String()
 	)
+	// Set max cookie age to 4 hours
+	STORE.MaxAge(14400)
 	kingpin.Parse()
 	r := mux.NewRouter()
 	fs := http.FileServer(http.Dir("." + C.static))
