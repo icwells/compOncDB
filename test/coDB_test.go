@@ -34,6 +34,7 @@ func (f *filepair) setColumns(header []string) {
 	// Stores column value:index pairs
 	for idx, i := range header {
 		f.columns[i] = idx
+		i := strings.TrimSpace(i)
 		if i == "ID" || strings.Contains(i, "_id") == true {
 			f.ids = append(f.ids, idx)
 		}
