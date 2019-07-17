@@ -15,13 +15,13 @@
   <form method="POST" action="/codb/results/">
     <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
 See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
-    <div id="searchField">
-      <body onload="addRow('searchField');"></body>
+    <div id="Search">
+      <body onload="addRow();"></body>
     </div>
     <div id="addRow">
-      <input type="button" value="Add search field" onClick="addRow('searchField');">
+      <input type="button" value="Add search parameter" onClick="addRow();">
     </div>
-    <p>Note: Additional search fileds are cumulative and all fields will be applied together. 
+    <p>Note: Additional search parameters are cumulative and all fields will be applied together. 
 In order to search matches against seperate criteria, submit each search seperately.</p>
     <hr>
     <div>

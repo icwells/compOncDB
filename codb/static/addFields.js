@@ -18,10 +18,11 @@ const tables = {
 	Unmatched: [["sourceID", "TEXT"], ["name", "TEXT"], ["sex", "TEXT"], ["age", "DOUBLE"], ["date", "TEXT"], ["masspresent", "TINYINT"], ["necropsy", "TINYINT"], ["comments", "TEXT"], ["Service", "TEXT"]]
 };
 
-const template = (n) => `      <select id="Table${n}" name="Table${n}" onchange="addColumns('searchField', this.id);">
+const template = (n) => `    <div id="searchField${n}">
+      <select id="Table${n}" name="Table${n}" onchange="addColumns('searchField${n}', this.id);">
         <option name="Table${n}" value="Empty"></option>
       </select>
-      <select id="Column${n}" name="Column${n}" onchange="addValue('searchField', this.id);">
+      <select id="Column${n}" name="Column${n}" onchange="addValue('searchField${n}', this.id);">
         <option name="Column${n}" value="Empty"></option>
       </select>
       <select id="Operator${n}" name="Operator${n}">
@@ -34,7 +35,8 @@ const template = (n) => `      <select id="Table${n}" name="Table${n}" onchange=
         <option name="Select${n}" value="0">0</option>
         <option name="Select${n}" value="-1">-1</option>
       </select>
-`;
+      <input type="button" value="Remove" onClick="removeRow('searchField${n}');">
+    </div>`;
 
 //----------------------------------------------------------------------------
 
@@ -145,7 +147,16 @@ function addColumns(divname, id) {
 
 //--------------------------NewRow--------------------------------------------
 
-function getTables(divname, n) {
+function removeRow(divname) {
+	// Removes row and adds number back to array
+	let n = divname.slice(-1);
+	let child = document.getElementById(divname);
+	let parent = child.parentNode;
+	parent.removeChild(child);
+	counter.unshift(n);
+}
+
+function getTables(n) {
 	// Formats select field for tables
 	let tableselect = document.getElementById(`Table${n}`);
 	let tablenames = Object.keys(tables);
@@ -156,24 +167,18 @@ function getTables(divname, n) {
 	});
 }
 
-function addRow(divname) {
+function addRow() {
 	// Adds new row to table search
 	if (counter.length > 0) {
 		// Limit to ten search fields
 		let n = counter[0];
 		counter.shift();
-		if (first === true) {
-			// Insert template into existing div
-			document.getElementById(divname).innerHTML = template(n);
-			first = false;
-		} else {
-			// Create new div
-			let newdiv = document.createElement("div");
-			newdiv.innerHTML = template(n);
-			document.getElementById(divname).appendChild(newdiv);
-		}
+		// Create new div
+		let newdiv = document.createElement("div");
+		newdiv.innerHTML = template(n);
+		document.getElementById("Search").appendChild(newdiv);
 		// Populate tables list
-		getTables(divname, n);
+		getTables(n);
 		// Hide value select
 		toggleInputs("TEXT", n);
 	}
