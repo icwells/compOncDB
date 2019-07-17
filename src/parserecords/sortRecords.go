@@ -91,7 +91,8 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 
 func (e *entries) getHeader(debug bool) string {
 	// Returns appropriate header for available data
-	head := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Comments,MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter"
+	head := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Comments,"
+	head += "MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant,Service,Account,Submitter,Zoo,Institute"
 	if debug == true {
 		head += ",Cancer,Code"
 	}

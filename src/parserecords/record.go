@@ -3,7 +3,6 @@
 package parserecords
 
 import (
-	"bytes"
 	"strings"
 )
 
@@ -51,6 +50,8 @@ type record struct {
 	service     string
 	account     string
 	submitter   string
+	zoo         string
+	institute   string
 	patient     string
 	cancer      string
 	code        string
@@ -78,6 +79,8 @@ func newRecord() record {
 	r.service = "NA"
 	r.account = "NA"
 	r.submitter = "NA"
+	r.zoo = "-1"
+	r.institute = "-1"
 	r.patient = "NA"
 	r.cancer = "N"
 	r.code = "NA"
@@ -86,45 +89,16 @@ func newRecord() record {
 
 func (r *record) String(debug bool) string {
 	// Returns formatted string
-	buffer := bytes.NewBufferString(r.sex)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.age)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.castrated)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.id)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.genus)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.species)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.name)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.date)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.comments)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.massPresent)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.hyperplasia)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.necropsy)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.metastasis)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.tumorType)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.location)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.primary)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.malignant)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.service)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.account)
-	buffer.WriteByte(',')
-	buffer.WriteString(r.submitter)
+	var buffer strings.Builder
+	columns := []string{r.sex, r.age, r.castrated, r.id, r.genus, r.species, r.name, r.date, r.comments}
+	columns = append(columns, []string{r.massPresent, r.hyperplasia, r.necropsy, r.metastasis, r.tumorType, r.location, r.primary, r.malignant}...)
+	columns = append(columns, []string{r.service, r.account, r.submitter, r.zoo, r.institute}...)
+	for idx, i := range columns {
+		if idx > 0 {
+			buffer.WriteByte(',')
+		}
+		buffer.WriteString(i)
+	}
 	if debug == true {
 		buffer.WriteByte(',')
 		buffer.WriteString(r.cancer)

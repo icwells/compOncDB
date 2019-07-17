@@ -54,6 +54,8 @@ Noncancer INT
 # Source
 ID INT
 service_name TEXT
+Zoo TINYINT
+Institute TINYINT
 account_id INT
 
 # Accounts
