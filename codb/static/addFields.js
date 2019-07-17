@@ -1,6 +1,8 @@
 // Contains functions for dynamically presenting logical search options 
 
-var count = 0;
+//var count = 0;
+let counter = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+let first = true;
 
 const tables = {
 	Patient: [["ID", "INT"], ["Sex", "TEXT"], ["Age", "DOUBLE"], ["Castrated", "TINYINT"], ["taxa_id", "INT"], ["source_id", "TEXT"], ["Date", "TEXT"], ["Comments", "TEXT"]],
@@ -16,21 +18,21 @@ const tables = {
 	Unmatched: [["sourceID", "TEXT"], ["name", "TEXT"], ["sex", "TEXT"], ["age", "DOUBLE"], ["date", "TEXT"], ["masspresent", "TINYINT"], ["necropsy", "TINYINT"], ["comments", "TEXT"], ["Service", "TEXT"]]
 };
 
-const template = () => `      <select id="Table${count}" name="Table${count}" onchange="addColumns('searchField', this.id);">
-        <option name="Table${count}" value="Empty"></option>
+const template = (n) => `      <select id="Table${n}" name="Table${n}" onchange="addColumns('searchField', this.id);">
+        <option name="Table${n}" value="Empty"></option>
       </select>
-      <select id="Column${count}" name="Column${count}" onchange="addValue('searchField', this.id);">
-        <option name="Column${count}" value="Empty"></option>
+      <select id="Column${n}" name="Column${n}" onchange="addValue('searchField', this.id);">
+        <option name="Column${n}" value="Empty"></option>
       </select>
-      <select id="Operator${count}" name="Operator${count}">
-        <option name="Operator${count}" value="=" selected="selected">=</option>
-        <option name="Operator${count}" value="!=">!=</option>
+      <select id="Operator${n}" name="Operator${n}">
+        <option name="Operator${n}" value="=" selected="selected">=</option>
+        <option name="Operator${n}" value="!=">!=</option>
       </select>
-      <input type="text" id="Value${count}" name="Value${count}">
-      <select id="Select${count}" name="Select${count}">
-        <option name="Select${count}" value="1">1</option>
-        <option name="Select${count}" value="0">0</option>
-        <option name="Select${count}" value="-1">-1</option>
+      <input type="text" id="Value${n}" name="Value${n}">
+      <select id="Select${n}" name="Select${n}">
+        <option name="Select${n}" value="1">1</option>
+        <option name="Select${n}" value="0">0</option>
+        <option name="Select${n}" value="-1">-1</option>
       </select>
 `;
 
@@ -156,21 +158,23 @@ function getTables(divname, n) {
 
 function addRow(divname) {
 	// Adds new row to table search
-	if (count < 10) {
+	if (counter.length > 0) {
 		// Limit to ten search fields
-		if (count === 0) {
+		let n = counter[0];
+		counter.shift();
+		if (first === true) {
 			// Insert template into existing div
-			document.getElementById(divname).innerHTML = template();
+			document.getElementById(divname).innerHTML = template(n);
+			first = false;
 		} else {
 			// Create new div
 			let newdiv = document.createElement("div");
-			newdiv.innerHTML = template();
+			newdiv.innerHTML = template(n);
 			document.getElementById(divname).appendChild(newdiv);
 		}
 		// Populate tables list
-		getTables(divname, count);
+		getTables(divname, n);
 		// Hide value select
-		toggleInputs("TEXT", count);
-		count++;
+		toggleInputs("TEXT", n);
 	}
 }
