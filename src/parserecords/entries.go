@@ -20,7 +20,7 @@ type entries struct {
 	col         columns
 	service     string
 	taxa        map[string][]string
-	accounts    map[string]string
+	accounts    map[string][]string
 	match       matcher
 	dups        duplicates
 	dupsPresent bool

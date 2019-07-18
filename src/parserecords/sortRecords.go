@@ -22,11 +22,12 @@ func subsetLine(idx int, line []string) string {
 	return ret
 }
 
-func (e *entries) getSubmitter(line []string) string {
-	// Gets corrected submitter name from map
-	ret := subsetLine(e.col.submitter, line)
-	if ret != "NA" {
-		val, ex := e.accounts[ret]
+func (e *entries) getSubmitter(line []string) []string {
+	// Gets corrected submitter name and type from map
+	var ret []string
+	key := subsetLine(e.col.submitter, line)
+	if key != "NA" {
+		val, ex := e.accounts[key]
 		if ex == true {
 			ret = val
 		}

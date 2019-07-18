@@ -35,18 +35,32 @@ func newAccounts() *accounts {
 	return &a
 }
 
-func (a *accounts) getAccounts() map[string]string {
+func (a *accounts) setAccountType(term string) (string, string) {
+	// Returns 1/0 for zoo/institute columns
+	zoo := "0"
+	inst := "0"
+	term = strings.ToLower(term)
+	if strings.Contains(term, "zoo") {
+		zoo = "1"
+	} else if strings.Contains(term, "center") || strings.Contains(term, "institute") {
+		inst = "1"
+	}
+	return zoo, inst
+}
+
+func (a *accounts) getAccounts() map[string][]string {
 	// Returns map of original term: corrected term
 	var count, total int
-	ret := make(map[string]string)
+	ret := make(map[string][]string)
 	for key, val := range a.terms {
 		count++
+		zoo, inst := a.setAccountType(key)
 		for _, i := range val {
 			for _, v := range a.queries[i] {
 				if _, ex := ret[v]; ex == false {
 					// Store original term and consensus term
 					total++
-					ret[v] = key
+					ret[v] = []string{key, zoo, inst}
 				}
 			}
 		}

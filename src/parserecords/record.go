@@ -122,9 +122,13 @@ func (r *record) setAccount(val string) {
 	r.account = checkString(val)
 }
 
-func (r *record) setSubmitter(val string) {
+func (r *record) setSubmitter(v []string) {
 	//Store submitter/NA
-	r.submitter = val
+	if len(v) == 3 {
+		r.submitter = v[0]
+		r.zoo = v[1]
+		r.institute = v[2]
+	}
 }
 
 func (r *record) setDate(val string) {
