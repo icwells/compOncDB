@@ -28,7 +28,7 @@ func setEntries() *entries {
 	// Returns test entry struct
 	e := newEntries(0)
 	e.col = make(map[string]int)
-	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter"}
+	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "Institute"}
 	for idx, i := range s {
 		e.col[i] = idx
 	}
@@ -65,10 +65,10 @@ func getExpected() *entries {
 		[]string{"4", "0", "-1", "NA", "NA"},
 	}
 	e.s = [][]string{
-		[]string{"1", "NWZP", "1"},
-		[]string{"2", "NWZP", "1"},
-		[]string{"3", "NWZP", "1"},
-		[]string{"4", "NWZP", "1"},
+		[]string{"1", "NWZP", "-1", "-1", "1"},
+		[]string{"2", "NWZP", "-1", "-1", "1"},
+		[]string{"3", "NWZP", "-1", "-1", "1"},
+		[]string{"4", "NWZP", "-1", "-1", "1"},
 	}
 	return e
 }
@@ -94,10 +94,10 @@ func TestEvaluateRow(t *testing.T) {
 	a := setEntries()
 	e := getExpected()
 	input := [][]string{
-		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ"},
-		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ"},
-		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ"},
-		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ"},
+		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
+		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
+		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "-1"},
+		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
 	}
 	for _, i := range input {
 		a.evaluateRow(i)
