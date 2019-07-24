@@ -150,12 +150,7 @@ class Parameter {
 	getTables() {
 		// Formats select field for tables
 		let tableselect = document.getElementById(`${this.num}Table${this.count}`);
-		let tablenames = Object.keys(TABLES);
-		tablenames.forEach(name => {
-			let opt = document.createElement("option");
-			opt.text = name;
-			tableselect.add(opt);
-		});
+		setTableNames(tableselect);
 	}
 }
 
@@ -195,9 +190,24 @@ class Search {
 
 //--------------------------Functions-----------------------------------------
 
+function setTableNames(tableselect) {
+	// Assigns table names as options to given select
+	let tablenames = Object.keys(TABLES);
+	tablenames.forEach(name => {
+		let opt = document.createElement("option");
+		opt.text = name;
+		tableselect.add(opt);
+	});
+}
+
 function newSearch(divname) {
 	// Adds new search to form
 	if (COUNT < 10) {
+		if (COUNT === 0){
+			// Add options to single table select
+			let tableselect = document.getElementById("Table");
+			setTableNames(tableselect);
+		}
 		// Create new div
 		let newdiv = document.createElement("div");
 		newdiv.innerHTML = SEARCH(COUNT);
