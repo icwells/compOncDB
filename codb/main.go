@@ -10,6 +10,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"net/http"
+	"time"
 )
 
 var (
@@ -20,29 +21,59 @@ var (
 func clearSession(w http.ResponseWriter, r *http.Request) {
 	// Deletes username and password cookies
 	session, _ := STORE.Get(r, C.name)
+	session.Values["timestamp"] = ""
 	session.Values["username"] = ""
 	session.Values["password"] = ""
 	session.Save(r, w)
 }
 
-func getCredentials(r *http.Request) (string, string) {
+func getTimestamp() string {
+	// Returns date and time as string
+	return time.Now().Format(time.Stamp)
+}
+
+func updateTimestamp(w http.ResponseWriter, r *http.Request) {
+	// Updates timestamp cookie
+	session, _ := STORE.Get(r, C.name)
+	session.Values["timestamp"] = getTimestamp()
+	session.Save(r, w)
+}
+
+func checkTimestamp(stamp string) bool {
+	// Requires login after one hour of inactivity
+	timestamp, err := time.Parse(time.Stamp, stamp)
+	if err == nil {
+		fmt.Println(time.Now().UTC(), stamp)
+		fmt.Println(time.Now().UTC().Sub(timestamp))
+		return time.Duration(timestamp) < time.Hour
+	} else {
+		return false
+	}
+}
+
+func getCredentials(w http.ResponseWriter, r *http.Request) (string, string) {
 	// Reads username and password from cookie
 	var user, password string
 	session, _ := STORE.Get(r, C.name)
-	name, ex := session.Values["username"]
-	if ex {
-		user = name.(string)
-	}
-	pw, e := session.Values["password"]
-	if e {
-		password = pw.(string)
+	stamp, exists := session.Values["timestamp"]
+	if (exists && checkTimestamp(stamp.(string))) || exists == false {
+		// Proceed if stamp has been updated in the last hour
+		name, ex := session.Values["username"]
+		if ex {
+			user = name.(string)
+			pw, e := session.Values["password"]
+			if e {
+				password = pw.(string)
+				updateTimestamp(w, r)
+			}
+		}
 	}
 	return user, password
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves login page
-	user, pw := getCredentials(r)
+	user, pw := getCredentials(w, r)
 	if user != "" && pw != "" && ping(user, pw) {
 		// Forward to search form if logged in
 		http.Redirect(w, r, C.search, http.StatusFound)
@@ -63,6 +94,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		if ping(user, pw) {
 			// Store cookie
 			session, _ := STORE.Get(r, C.name)
+			session.Values["timestamp"] = getTimestamp()
 			session.Values["username"] = user
 			session.Values["password"] = pw
 			session.Save(r, w)
@@ -84,7 +116,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func changeHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders change password form
-	user, _ := getCredentials(r)
+	user, _ := getCredentials(w, r)
 	if user != "" {
 		C.renderTemplate(w, C.changetemp, newOutput(user))
 	} else {
@@ -96,7 +128,7 @@ func passwordHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders change password form
 	msg := "Please login to access database."
 	template := C.logintemp
-	user, pw := getCredentials(r)
+	user, pw := getCredentials(w, r)
 	if user != "" && pw != "" {
 		// Redirect to same page if an error occurs
 		template = C.changetemp
@@ -113,7 +145,7 @@ func passwordHandler(w http.ResponseWriter, r *http.Request) {
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders search form (newOutput supplies username)
-	user, _ := getCredentials(r)
+	user, _ := getCredentials(w, r)
 	if user != "" {
 		C.renderTemplate(w, C.searchtemp, newOutput(user))
 	} else {
@@ -123,7 +155,7 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
-	user, pw := getCredentials(r)
+	user, pw := getCredentials(w, r)
 	if user != "" && pw != "" {
 		out, err := extractFromDB(r, user, pw)
 		if err == nil {
@@ -144,7 +176,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves output files for download
-	user, pw := getCredentials(r)
+	user, pw := getCredentials(w, r)
 	if user != "" && pw != "" {
 		vars := mux.Vars(r)
 		http.ServeFile(w, r, fmt.Sprintf("/tmp/%s", vars["filename"]))

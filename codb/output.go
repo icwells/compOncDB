@@ -76,9 +76,14 @@ func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm, user string) {
 	var res [][]string
 	var header string
 	// Search for column/value match
-	if f.Table == "" {
-		// Set count to false to allow searching of results
-		res, header = dbextract.SearchColumns(db, o.User, f.Table, f.eval, f.Count, f.Infant)
+	for _, v := range f.eval {
+		r, h := dbextract.SearchColumns(db, o.User, f.Table, v, f.Count, f.Infant)
+		// Append successive results to results slice
+		res = append(res, r...)
+		if header == "" {
+			// Only record header once
+			header = h
+		}
 	}
 	if f.Count == false && len(res) >= 1 {
 		o.getTempFile(user)

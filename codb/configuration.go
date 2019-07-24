@@ -15,7 +15,7 @@ import (
 )
 
 type SearchForm struct {
-	eval       []codbutils.Evaluation
+	eval       map[string][]codbutils.Evaluation
 	Table      string
 	Dump       bool
 	Summary    bool
@@ -26,16 +26,16 @@ type SearchForm struct {
 	Infant     bool
 }
 
-func (s *SearchForm) setEvaluation(r *http.Request, columns map[string]string, n string) (bool, string) {
+func (s *SearchForm) setEvaluation(r *http.Request, columns map[string]string, search, n string) (bool, string) {
 	// Populates evalutaiton struct if matching term is found
 	var e codbutils.Evaluation
 	var msg string
 	ret := false
-	e.Table = strings.TrimSpace(r.PostForm.Get("Table" + n))
-	e.Column = strings.TrimSpace(r.PostForm.Get("Column" + n))
-	e.Operator = strings.TrimSpace(r.PostForm.Get("Operator" + n))
-	e.Value = strings.TrimSpace(r.PostForm.Get("Value" + n))
-	slct := strings.TrimSpace(r.PostForm.Get("Select" + n))
+	e.Table = strings.TrimSpace(r.PostForm.Get(search + "Table" + n))
+	e.Column = strings.TrimSpace(r.PostForm.Get(search + "Column" + n))
+	e.Operator = strings.TrimSpace(r.PostForm.Get(search + "Operator" + n))
+	e.Value = strings.TrimSpace(r.PostForm.Get(search + "Value" + n))
+	slct := strings.TrimSpace(r.PostForm.Get(search + "Select" + n))
 	if e.Value != "" || slct != "" {
 		if e.Value == "" {
 			// Assign selected value to input value
@@ -44,7 +44,7 @@ func (s *SearchForm) setEvaluation(r *http.Request, columns map[string]string, n
 		if e.Table != "" && e.Column != "" && e.Operator != "" && e.Value != "" {
 			e.SetIDType(columns)
 			if e.Table != "Accounts" {
-				s.eval = append(s.eval, e)
+				s.eval[search] = append(s.eval[search], e)
 				ret = true
 			} else {
 				msg = "Cannot access Accounts table."
@@ -59,12 +59,15 @@ func (s *SearchForm) setEvaluation(r *http.Request, columns map[string]string, n
 func (s *SearchForm) checkEvaluations(r *http.Request, columns map[string]string) string {
 	// Reads in variable number of search parameters
 	var msg string
-	found := true
-	count := 0
-	for found == true {
-		// Keep checking until count exceeds number of fields
-		found, msg = s.setEvaluation(r, columns, strconv.Itoa(count))
-		count++
+	for i := 0; i < 10; i++ {
+		// Loop through all possible searches since deletions might disrupt numerical order
+		found := true
+		count := 0
+		for found == true {
+			// Keep checking until count exceeds number of fields
+			found, msg = s.setEvaluation(r, columns, strconv.Itoa(i), strconv.Itoa(count))
+			count++
+		}
 	}
 	return msg
 }
@@ -72,6 +75,7 @@ func (s *SearchForm) checkEvaluations(r *http.Request, columns map[string]string
 func setSearchForm(r *http.Request, columns map[string]string) (*SearchForm, string) {
 	// Populates struct from request data
 	s := new(SearchForm)
+	s.eval = make(map[string][]codbutils.Evaluation)
 	decoder := schema.NewDecoder()
 	r.ParseForm()
 	decoder.Decode(s, r.PostForm)
@@ -83,8 +87,11 @@ func (s *SearchForm) String() string {
 	// Returns formatted string of options
 	var ret strings.Builder
 	ret.WriteString("Search Criteria:\n")
-	for _, i := range s.eval {
-		ret.WriteString(fmt.Sprintf("\t\t%s.%s %s %s return %s\n", i.Table, i.Column, i.Operator, i.Value, i.ID))
+	for k, v := range s.eval {
+		ret.WriteString(fmt.Sprintf("\tSearch %s:\n", k))
+		for _, i := range v {
+			ret.WriteString(fmt.Sprintf("\t\t%s.%s %s %s return %s\n", i.Table, i.Column, i.Operator, i.Value, i.ID))
+		}
 	}
 	ret.WriteString(fmt.Sprintf("Table:\t%s\n", s.Table))
 	ret.WriteString(fmt.Sprintf("Dump:\t%v\n", s.Dump))
