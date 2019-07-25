@@ -29,7 +29,7 @@ func clearSession(w http.ResponseWriter, r *http.Request) {
 
 func getTimestamp() string {
 	// Returns date and time as string
-	return time.Now().Format(time.Stamp)
+	return time.Now().Format(time.RFC1123Z)
 }
 
 func updateTimestamp(w http.ResponseWriter, r *http.Request) {
@@ -41,11 +41,9 @@ func updateTimestamp(w http.ResponseWriter, r *http.Request) {
 
 func checkTimestamp(stamp string) bool {
 	// Requires login after one hour of inactivity
-	timestamp, err := time.Parse(time.Stamp, stamp)
+	timestamp, err := time.Parse(time.RFC1123Z, stamp)
 	if err == nil {
-		fmt.Println(time.Now().UTC(), stamp)
-		fmt.Println(time.Now().UTC().Sub(timestamp))
-		return time.Duration(timestamp) < time.Hour
+		return time.Since(timestamp) < time.Hour
 	} else {
 		return false
 	}
