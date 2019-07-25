@@ -31,7 +31,7 @@ func TestMergeRecords(t *testing.T) {
 	// Compares output of parseRecords merge with expected output
 	flag.Parse()
 	header := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia",
-		"Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter"}
+		"Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "Institute"}
 	expected := getInput(*exp, 3)
 	actual := getInput(*act, 3)
 	if len(actual) != len(expected) {
