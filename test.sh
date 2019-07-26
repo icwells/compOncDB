@@ -68,10 +68,8 @@ testUpdates () {
 	go test $TSTDIR --run TestUpdates --args --user=$USER --password=$PW
 }
 
-testAll () {
-	whiteBoxTests
+blackBoxTests () {
 	testParseRecords
-	getUser
 	testUpload
 	testSearch
 	testUpdates
@@ -109,21 +107,22 @@ helpText () {
 }
 
 if [ $# -eq 0 ]; then
-	testAll
+	helpText
 elif [ $1 = "all" ]; then
-	testAll
+	getUser
+	whiteBoxTests
+	blackBoxTests
 elif [ $1 = "install" ]; then
 	# Compile binaries and call test functions
 	./install.sh
-	testAll
+	getUser
+	whiteBoxTests
+	blackBoxTests
 elif [ $1 = "whitebox" ]; then
 	whiteBoxTests
 elif [ $1 = "blackbox" ]; then
 	getUser
-	testParseRecords
-	testUpload
-	testSearch
-	testUpdates
+	blackBoxTests
 elif [ $1 = "parse" ]; then
 	testParseRecords
 elif [ $1 = "upload" ]; then

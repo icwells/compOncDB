@@ -61,11 +61,11 @@ a local or a remote connection.
 Be sure to change the name of "example_config.txt" to "config.txt" (to prevent git from overwritting it).
 
 ### Testing the Installation  
-Replace "mysql_username" with your username and run the following in a terminal:
+Run the following in a terminal:
 
-	./test.sh all mysql_username
+	./test.sh all
 
-You will be prompted the enter your MySQL password several times. All of the output from the test scripts should begin with "ok".  
+You will be prompted the enter your MySQL user name and password at the beginning. All of the output from the test scripts should begin with "ok".  
 
 ## Usage  
 Once compiled, the compOncDB program can be used by giving it a base command and the appropriate flags.  
