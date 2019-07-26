@@ -5,9 +5,10 @@ package main
 import (
 	"flag"
 	"github.com/icwells/compOncDB/src/codbutils"
-	//"github.com/icwells/compOncDB/src/dbextract"
+	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"os"
 	"strconv"
 	//"strings"
 	"testing"
@@ -83,37 +84,33 @@ func TestUpload(t *testing.T) {
 	}
 }
 
-/*func TestSearches(t *testing.T) {
-	// Tests taxonomy search output
-	var terms searchterms
-	fmt.Print("\n\tTesting search functions...\n\n")
-	db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))
-	terms.readSearchTerms(db.Columns, *infile, *outfile)
-	terms.searchTestCases(db)
-
-	*indir, _ = iotools.FormatPath(*indir, false)
-	files, err := filepath.Glob(*indir + "*.csv")
+func connectToDatabase() *dbIO.DBIO {
+	// Manages call to Connect and GetTableColumns
+	flag.Parse()
+	c := codbutils.SetConfiguration(config, *user, true)
+	db, err := dbIO.Connect(c.Host, c.Testdb, c.User, *password)
 	if err != nil {
-		t.Errorf("Cannot find test files in %s: %v", *indir, err)
+		os.Exit(1000)
 	}
-	expected := sortInput(files, true)
-	actual := sortInput(files, false)
-	if iotools.Exists(*indir+"gray_fox.csv") == true {
-		t.Error("Empty result saved to file.")
-	}
-	for k, v := range expected {
-		act, ex := actual[k]
-		if ex == false {
-			t.Errorf("Actual search result %s not found.", k)
+	db.GetTableColumns()
+	return db
+}
+
+func TestSearches(t *testing.T) {
+	// Tests taxonomy search output
+	db := connectToDatabase()
+	cases := newSearchCases(db.Columns)
+	for _, i := range cases {
+		res, _ := dbextract.SearchColumns(db, *user, i.table, i.eval, false, false)
+		if i.name == "fox" && len(res) > 0 {
+			t.Error("Results returned for gray fox (not present).")
 		} else {
-			compareTables(t, k, v, act)
-			// Remove test output
-			//os.Remove(act)
+			compareTables(t, i.name, i.expected, dbupload.ToMap(res))
 		}
 	}
 }
 
-func TestUpdates(t *testing.T) {
+/*func TestUpdates(t *testing.T) {
 	// Tests dumped tables after update
 	fmt.Print("\n\tTesting update functions...\n\n")
 	db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))

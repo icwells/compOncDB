@@ -7,23 +7,20 @@
 #	Required:	go 1.10+
 #				mysql 14.14+
 #
-#	Usage:		./test.sh {install/white/parse/upload/search/update}
+#	Usage:		./test.sh {help/...}
 ##############################################################################
 USER=""
 PW=""
 WD=$(pwd)
+
 APP="$WD/codb/*.go"
-PRSRC="$WD/src/parserecords/*.go"
-DBSRC="$WD/src/*.go"
+CDB="compOncDB"
 CUSRC="$WD/src/codbutils/*.go"
+DBSRC="$WD/src/*.go"
 DUSRC="$WD/src/dbupload/*.go"
 DESRC="$WD/src/dbextract/*.go"
+PRSRC="$WD/src/parserecords/*.go"
 TSTDIR="$WD/test/*.go"
-CDB="compOncDB"
-
-TESTDIR=$WD/test
-CASES="$TESTDIR/searchCases.csv"
-UPDATE="$TESTDIR/testUpdate.csv"
 
 getUser () {
 	# Reads mysql user name and password from command line
@@ -52,7 +49,6 @@ testUpload () {
 	# Upload test data
 	echo ""
 	echo "Running black box tests on database upload..."
-	#$CDB test -u $USER -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
 	# Compare tables to expected
 	go test $TSTDIR --run TestUpload --args --user=$USER --password=$PW
 }
@@ -61,16 +57,14 @@ testSearch () {
 	# Test search output
 	echo ""
 	echo "Running black box tests on database search..."
-	$CDB test --search -u $USER -i $CASES -o "$TESTDIR/searchResults/"
-	go test $TESTDB --run TestSearches --args --indir="$TESTDIR/searchResults/"
+	go test $TSTDIR --run TestSearches --args --user=$USER --password=$PW
 }
 
 testUpdates () {
 	# Test search output
 	echo ""
 	echo "Running black box tests on database update..."
-	$CDB test --update -u $USER -i $UPDATE -o "$TESTDIR/updateResults/"
-	go test $TESTDB --run TestUpdates --args --indir="$TESTDIR/updateResults/"
+	go test $TSTDIR --run TestUpdates --args --user=$USER --password=$PW
 }
 
 testAll () {
