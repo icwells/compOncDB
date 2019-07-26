@@ -10,6 +10,7 @@
 #	Usage:		./test.sh {install/white/parse/upload/search/update}
 ##############################################################################
 USER=""
+PW=""
 WD=$(pwd)
 APP="$WD/codb/*.go"
 PRSRC="$WD/src/parserecords/*.go"
@@ -21,22 +22,14 @@ TSTDIR="$WD/test/*.go"
 CDB="compOncDB"
 
 TESTDIR=$WD/test
-TESTPR="$TESTDIR/parseRecords_test.go"
-TESTDB="$TESTDIR/coDB_test.go"
-
-TAXA="$TESTDIR/taxonomies.csv"
-LIFEHIST="$TESTDIR/testLifeHistories.csv"
-DENOM="$TESTDIR/testDenominators.csv"
-DIAG="$TESTDIR/testDiagnosis.csv"
-#PATIENTS="$TESTDIR/testUpload.csv"
-
 CASES="$TESTDIR/searchCases.csv"
 UPDATE="$TESTDIR/testUpdate.csv"
 
 getUser () {
-	# Reads mysql user name from command line
-	echo "Enter MySQL username: "
-	read USER
+	# Reads mysql user name and password from command line
+	read -p "Enter MySQL username: " USER
+	echo -n "Enter MySQL password: "
+	read -s PW
 }
 
 whiteBoxTests () {
@@ -52,7 +45,7 @@ whiteBoxTests () {
 testParseRecords () {
 	echo ""
 	echo "Running black box tests on parseRecords..."
-	go test $TESTPR --run TestParseRecords --args
+	go test $TSTDIR --run TestParseRecords
 }
 
 testUpload () {
@@ -61,7 +54,7 @@ testUpload () {
 	echo "Running black box tests on database upload..."
 	#$CDB test -u $USER -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
 	# Compare tables to expected
-	go test $TESTDB --run TestUpload --args --user=$USER
+	go test $TSTDIR --run TestUpload --args --user=$USER --password=$PW
 }
 
 testSearch () {

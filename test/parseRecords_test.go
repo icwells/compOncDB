@@ -1,6 +1,6 @@
 // Performs black box tests on parseRecords output
 
-package coDB_test
+package main
 
 import (
 	"flag"
@@ -12,14 +12,17 @@ import (
 )
 
 var (
-	user = flag.String("user", "", "MySQL username.")
-	service = "NWZP"
-	taxa = "input/taxonomies.csv"
-	lifehistory = 
-	infile = "input/testInput.csv"
-	parseout = "merged.csv"
-	uploadfile = "input/testUpload.csv"
-	config = "config.txt"
+	config       = "config.txt"
+	denominators = "input/testDenominators.csv"
+	infile       = "input/testInput.csv"
+	lifehistory  = "input/testLifeHistories.csv"
+	parseout     = "merged.csv"
+	password     = flag.String("password", "", "MySQL password.")
+	service      = "NWZP"
+	taxa         = "input/taxonomies.csv"
+	updatefile   = "input/testUpdate.csv"
+	uploadfile   = "input/testUpload.csv"
+	user         = flag.String("user", "", "MySQL username.")
 )
 
 func getInput(file string, col int) map[string][]string {
