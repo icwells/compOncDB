@@ -27,6 +27,7 @@ getUser () {
 	read -p "Enter MySQL username: " USER
 	echo -n "Enter MySQL password: "
 	read -s PW
+	echo ""
 }
 
 whiteBoxTests () {
