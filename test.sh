@@ -17,6 +17,7 @@ DBSRC="$WD/src/*.go"
 CUSRC="$WD/src/codbutils/*.go"
 DUSRC="$WD/src/dbupload/*.go"
 DESRC="$WD/src/dbextract/*.go"
+TSTDIR="$WD/test/*.go"
 CDB="compOncDB"
 
 TESTDIR=$WD/test
@@ -27,11 +28,8 @@ TAXA="$TESTDIR/taxonomies.csv"
 LIFEHIST="$TESTDIR/testLifeHistories.csv"
 DENOM="$TESTDIR/testDenominators.csv"
 DIAG="$TESTDIR/testDiagnosis.csv"
-PATIENTS="$TESTDIR/testUpload.csv"
+#PATIENTS="$TESTDIR/testUpload.csv"
 
-SERVICE="NWZP"
-INPUT="$TESTDIR/testInput.csv"
-MOUT="$TESTDIR/merged.csv"
 CASES="$TESTDIR/searchCases.csv"
 UPDATE="$TESTDIR/testUpdate.csv"
 
@@ -54,19 +52,16 @@ whiteBoxTests () {
 testParseRecords () {
 	echo ""
 	echo "Running black box tests on parseRecords..."
-	$CDB parse -s $SERVICE -i $INPUT -t $TAXA -o $MOUT
-	go test $TESTPR --run TestMergeRecords --args --expected=$PATIENTS --actual=$MOUT
-	# Delete test files
-	rm $MOUT
+	go test $TESTPR --run TestParseRecords --args
 }
 
 testUpload () {
 	# Upload test data
 	echo ""
 	echo "Running black box tests on database upload..."
-	$CDB test -u $USER -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
+	#$CDB test -u $USER -i $PATIENTS --taxonomy $TAXA --lifehistory $LIFEHIST --diagnosis $DIAG --denominators $DENOM -o "$TESTDIR/tables/"
 	# Compare tables to expected
-	go test $TESTDB --run TestDumpTables --args --indir="$TESTDIR/tables/"
+	go test $TESTDB --run TestUpload --args --user=$USER
 }
 
 testSearch () {
@@ -104,6 +99,7 @@ checkSource () {
 	go $1 $DUSRC
 	go $1 $DESRC
 	go $1 $PRSRC
+	go $1 $TSTDIR
 }
 
 helpText () {

@@ -86,7 +86,6 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 	update			Update or delete existing records from the database.  
 	extract			Extract data from the database and perform optional analyses.  
 	search			Searches database for matches to given term.  
-	test			Tests database functionality using testDataBase instead of comaprative oncology.  
 
 ### Commands  
 
@@ -203,18 +202,3 @@ Extract data from the database and perform optional analyses.
 Searches database for matches to given criteria. The taxonomy search is given special consideration since it is the most common search type.  
 For most tables, the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history tables, valid operations also 
 include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.  
-
-#### Test  
-	compOncDB test {paths_to_input_files}/ {--search --eval operation -o path_to_output file}  
-
-	-u, --user="root"				MySQL username (default is root).  
-	--config="config.txt"  Path to config.txt (Default is in bin directory).  
-	-i, --infile="nil"				Path to input file (if using).  
-	-o, --outfile="nil"				Name of output file (writes to stdout if not given).  
-	--taxonomy=TAXONOMY				Path to taxonomy file.  
-	--diagnosis=DIAGNOSIS			Path to extracted diganoses file.  
-	--lifehistory=LIFEHISTORY		Path to life history data.  
-	--denominators=DENOMINATORS		Path to file conataining non-cancer totals.  
-	--search						Search for matches using above commands.  
-
-Runs tests using "testDataBase" (make sure it has been created in MySQL first).  

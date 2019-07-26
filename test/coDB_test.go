@@ -4,6 +4,10 @@ package coDB_test
 
 import (
 	"flag"
+	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/dbextract"
+	"github.com/icwells/compOncDB/src/dbupload"
+	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"os"
 	"path/filepath"
@@ -12,22 +16,16 @@ import (
 	"testing"
 )
 
-var (
-	indir  = flag.String("indir", "", "Path to output directory with test data to compare.")
-	level  = flag.String("level", "", "Empty field for taxonomic level search.")
-	tables = flag.String("tables", "", "Path tableColumns.txt file.")
-)
-
 type filepair struct {
-	t			*testing.T
-	name		string
-	columns		map[string]int
-	ids			[]int
-	expected	map[string][]string
-	actual		map[string][]string
-	index		int
-	value		string
-	pass		bool
+	t        *testing.T
+	name     string
+	columns  map[string]int
+	ids      []int
+	expected map[string][]string
+	actual   map[string][]string
+	index    int
+	value    string
+	pass     bool
 }
 
 func (f *filepair) setColumns(header []string) {
@@ -88,7 +86,7 @@ func (f *filepair) isID(idx int) bool {
 	return false
 }
 
-func (f *filepair) compareEntries(actual, expected []string)  {
+func (f *filepair) compareEntries(actual, expected []string) {
 	// Returns true if both slices are equal
 	equal := true
 	for idx, i := range actual {
@@ -162,8 +160,31 @@ func sortInput(files []string, expected bool) map[string]string {
 	return ret
 }
 
-func TestDumpTables(t *testing.T) {
+func TestUpload(t *testing.T) {
 	// Compares actual output from table dumps to expected
+	flag.Parse()
+	// Get empty database
+	c := codbutils.SetConfiguration(config, user, true)
+	db = dbIO.ReplaceDatabase(c.Host, c.Testdb, user)
+	db.NewTables(path.Join(bin, c.Tables))
+	// Replace column names
+	db.GetTableColumns()
+	// Upload taxonomy
+	dbupload.LoadTaxa(db, *taxafile, true)
+	dbupload.LoadLifeHistory(db, *lifehistory)
+	// Uplaod denominator table
+	dbupload.LoadNonCancerTotals(db, *noncancer)
+	// Upload patient data
+	dbupload.LoadAccounts(db, *infile)
+	dbupload.LoadPatients(db, *infile)
+	fmt.Print("\n\tDumping test tables...\n\n")
+	for k := range db.Columns {
+		// Dump all tables for comparison
+		table := db.GetTable(k)
+		out := fmt.Sprintf("%s%s.csv", *outfile, k)
+		iotools.WriteToCSV(out, db.Columns[k], table)
+	}
+
 	flag.Parse()
 	*indir, _ = iotools.FormatPath(*indir, false)
 	files, err := filepath.Glob(*indir + "*.csv")
@@ -186,7 +207,12 @@ func TestDumpTables(t *testing.T) {
 
 func TestSearches(t *testing.T) {
 	// Tests taxonomy search output
-	flag.Parse()
+	var terms searchterms
+	fmt.Print("\n\tTesting search functions...\n\n")
+	db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))
+	terms.readSearchTerms(db.Columns, *infile, *outfile)
+	terms.searchTestCases(db)
+
 	*indir, _ = iotools.FormatPath(*indir, false)
 	files, err := filepath.Glob(*indir + "*.csv")
 	if err != nil {
@@ -194,7 +220,7 @@ func TestSearches(t *testing.T) {
 	}
 	expected := sortInput(files, true)
 	actual := sortInput(files, false)
-	if iotools.Exists(*indir + "gray_fox.csv") == true {
+	if iotools.Exists(*indir+"gray_fox.csv") == true {
 		t.Error("Empty result saved to file.")
 	}
 	for k, v := range expected {
@@ -210,7 +236,16 @@ func TestSearches(t *testing.T) {
 }
 
 func TestUpdates(t *testing.T) {
-	// Tests dumped tables after update 
+	// Tests dumped tables after update
+	fmt.Print("\n\tTesting update functions...\n\n")
+	db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))
+	dbextract.UpdateEntries(db, *infile)
+	for _, i := range []string{"Patient", "Diagnosis"} {
+		table := db.GetTable(i)
+		out := fmt.Sprintf("%s%s.csv", *outfile, i)
+		iotools.WriteToCSV(out, db.Columns[i], table)
+	}
+
 	flag.Parse()
 	*indir, _ = iotools.FormatPath(*indir, false)
 	files, err := filepath.Glob(*indir + "*.csv")

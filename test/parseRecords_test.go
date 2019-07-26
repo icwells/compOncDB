@@ -4,14 +4,22 @@ package coDB_test
 
 import (
 	"flag"
+	"github.com/icwells/compOncDB/src/parserecords"
 	"github.com/icwells/go-tools/iotools"
+	"os"
 	"strings"
 	"testing"
 )
 
 var (
-	exp = flag.String("expected", "", "Path to expected output.")
-	act = flag.String("actual", "", "Path to actual output.")
+	user = flag.String("user", "", "MySQL username.")
+	service = "NWZP"
+	taxa = "input/taxonomies.csv"
+	lifehistory = 
+	infile = "input/testInput.csv"
+	parseout = "merged.csv"
+	uploadfile = "input/testUpload.csv"
+	config = "config.txt"
 )
 
 func getInput(file string, col int) map[string][]string {
@@ -27,13 +35,17 @@ func getInput(file string, col int) map[string][]string {
 	return ret
 }
 
-func TestMergeRecords(t *testing.T) {
-	// Compares output of parseRecords merge with expected output
-	flag.Parse()
+func TestParseRecords(t *testing.T) {
+	// Compares output of parseRecords with expected output
 	header := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia",
 		"Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "Institute"}
-	expected := getInput(*exp, 3)
-	actual := getInput(*act, 3)
+	// Parse test file
+	ent := parserecords.NewEntries(service)
+	ent.GetTaxonomy(taxa)
+	ent.SortRecords(false, infile, parseout)
+	// Compare actual output with expected
+	expected := getInput(uploadfile, 3)
+	actual := getInput(parseout, 3)
 	if len(actual) != len(expected) {
 		t.Errorf("Actual length %d does not equal expected: %d", len(actual), len(expected))
 	}
@@ -44,4 +56,5 @@ func TestMergeRecords(t *testing.T) {
 			}
 		}
 	}
+	os.Remove(parseout)
 }

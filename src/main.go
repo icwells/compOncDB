@@ -54,14 +54,6 @@ var (
 	infant     = search.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 	taxonomies = search.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
 	col        = search.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
-
-	test        = kingpin.Command("test", "Tests database functionality using testDataBase instead of comaprative oncology.")
-	taxafile    = test.Flag("taxonomy", "Path to taxonomy file.").String()
-	diagnosis   = test.Flag("diagnosis", "Path to extracted diganoses file.").String()
-	lifehistory = test.Flag("lifehistory", "Path to life history data.").String()
-	noncancer   = test.Flag("denominators", "Path to file conataining non-cancer totals.").String()
-	testsearch  = test.Flag("search", "Search for matches using above commands.").Default("false").Bool()
-	updates     = test.Flag("update", "Tests update functions.").Default("false").Bool()
 )
 
 func version() {
@@ -93,8 +85,6 @@ func main() {
 		start = extractFromDB()
 	case search.FullCommand():
 		start = searchDB()
-	case test.FullCommand():
-		start = testDB()
 	}
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }

@@ -9,10 +9,8 @@ import (
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/compOncDB/src/parserecords"
 	"github.com/icwells/dbIO"
-	"github.com/icwells/go-tools/iotools"
 	"os"
 	"os/exec"
-	"path"
 	"time"
 )
 
@@ -141,51 +139,6 @@ func searchDB() time.Time {
 	}
 	if *count == false && len(res) >= 1 {
 		codbutils.WriteResults(*outfile, header, res)
-	}
-	return db.Starttime
-}
-
-func testDB() time.Time {
-	// Performs test uploads and extractions
-	var db *dbIO.DBIO
-	if *testsearch == true {
-		var terms searchterms
-		fmt.Print("\n\tTesting search functions...\n\n")
-		db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))
-		terms.readSearchTerms(db.Columns, *infile, *outfile)
-		terms.searchTestCases(db)
-	} else if *updates == true {
-		fmt.Print("\n\tTesting update functions...\n\n")
-		db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, true))
-		dbextract.UpdateEntries(db, *infile)
-		for _, i := range []string{"Patient", "Diagnosis"} {
-			table := db.GetTable(i)
-			out := fmt.Sprintf("%s%s.csv", *outfile, i)
-			iotools.WriteToCSV(out, db.Columns[i], table)
-		}
-	} else {
-		// Get empty database
-		bin, _ := path.Split(*config)
-		c := codbutils.SetConfiguration(*config, *user, true)
-		db = dbIO.ReplaceDatabase(c.Host, c.Testdb, *user)
-		db.NewTables(path.Join(bin, c.Tables))
-		// Replace column names
-		db.GetTableColumns()
-		// Upload taxonomy
-		dbupload.LoadTaxa(db, *taxafile, true)
-		dbupload.LoadLifeHistory(db, *lifehistory)
-		// Uplaod denominator table
-		dbupload.LoadNonCancerTotals(db, *noncancer)
-		// Upload patient data
-		dbupload.LoadAccounts(db, *infile)
-		dbupload.LoadPatients(db, *infile)
-		fmt.Print("\n\tDumping test tables...\n\n")
-		for k := range db.Columns {
-			// Dump all tables for comparison
-			table := db.GetTable(k)
-			out := fmt.Sprintf("%s%s.csv", *outfile, k)
-			iotools.WriteToCSV(out, db.Columns[k], table)
-		}
 	}
 	return db.Starttime
 }
