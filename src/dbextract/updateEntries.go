@@ -4,6 +4,7 @@ package dbextract
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
@@ -13,112 +14,92 @@ import (
 type tableupdate struct {
 	table  string
 	target string
-	values map[string][]string
+	column string
+	values map[string]string
 }
 
-func newTableUpdate(table, target string) *tableupdate {
+func newTableUpdate(table, target, column string) *tableupdate {
 	// Initializes new update struct
 	t := new(tableupdate)
 	t.table = table
 	t.target = target
-	t.values = make(map[string][]string)
+	t.column = column
+	t.values = make(map[string]string)
 	return t
 }
 
-func (t *tableupdate) add(id string, row []string) {
-	// Adds row to values
-	t.values[id] = row
+func (t *tableupdate) add(id string, val string) {
+	// Adds value to values
+	t.values[id] = val
 }
 
 func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 	// Uploads contents to database
-	c := db.UpdateRows(t.table, t.target, t.values)
-	if c == 0 {
+	pass := db.UpdateColumn(t.table, t.target, t.column, t.values)
+	if pass == false {
 		fmt.Printf("\t[Warning] Failed to upload to %s.\n", t.table)
 	} else {
-		fmt.Printf("\tUpdated %d records in %s.\n", c, t.table)
+		fmt.Printf("\tUpdated %d records in %s.\n", len(t.values), t.table)
 	}
 }
 
 //----------------------------------------------------------------------------
 
 type updater struct {
-	header		map[string][]int
-	columns     map[string]string
-	tables		map[string]*tableupdate
+	delim   string
+	target  string
+	header  map[int]string
+	columns map[string]string
+	tables  map[string]*tableupdate
 }
 
 func newUpdater(col map[string]string) updater {
 	// Initializes new update struct
 	var u updater
-	u.header = make(map[string][]int)
+	u.header = make(map[int]string)
 	u.columns = col
 	u.tables = make(map[string]*tableupdate)
 	return u
 }
 
-func (u *updater) formatHeader(row []string) []string {
-	// Ensures proper formatting of input header values
-	var ret []string
-	for _, i := range row {
-		if strings.ToUpper(i) == "ID" {
-			i = "ID"
-		} else if strings.Contains(i, "_") == true {
-			i = strings.ToLower(i)
-		} else {
-			i = strings.Title(i)
-		}
-		ret = append(ret, strings.TrimSpace(i))
-	}
-	return ret
-}
-
-func (u *updater) setColumns(row []string) {
-	// Correlates input file columns to database tables and columns
-	row = u.formatHeader(row)
-	for k, v := range u.columns {
-		keep := false
-		head := strings.Split(v, ",")
-		// Initialize new column header and fill (missing values have an index of -1)
-		for _, i := range head {
-			// Store file header index in index of database table column
-			i = strings.TrimSpace(i)
-			ind := strarray.SliceIndex(row, i)
-			u.header[k] = append(u.header[k], ind)
-			if ind > 0 {
-				keep = true
+func (u *updater) setHeader(line string) {
+	// Stores input file columns to database tables and columns
+	u.delim = iotools.GetDelim(line)
+	for idx, i := range strings.Split(line, u.delim) {
+		i = strings.TrimSpace(i)
+		if len(i) > 0 {
+			if idx == 0 {
+				// Store target column for identification
+				u.target = i
+			} else {
+				if strings.ToUpper(i) == "ID" {
+					u.header[idx] = "ID"
+				} else if strings.Contains(i, "_") == true {
+					u.header[idx] = strings.ToLower(i)
+				} else {
+					u.header[idx] = strarray.TitleCase(i)
+				}
 			}
-		}
-		if keep == false {
-			// Remove empty tables
-			delete(u.header, k)
-		} else {
-			// Initialize struct
-			u.tables[k] = newTableUpdate(k, row[0])
 		}
 	}
 }
 
 func (u *updater) evaluateRow(row []string) {
-	// Stores row in appriate substructs
-	id := row[0]
+	// Assigns row values to substruct
+	id := strings.TrimSpace(row[0])
 	if len(id) >= 1 {
 		for k, v := range u.header {
-			var line []string
-			keep := false
-			for _, i := range v {
-				if i <= 0 {
-					// Skip empty/ID fields
-					line = append(line, "")
-				} else if len(row[i]) < 1 {
-					line = append(line, "")
-				} else {
-					line = append(line, row[i])
-					keep = true
+			if k < len(row) {
+				val := strings.TrimSpace(row[k])
+				if len(val) >= 1 {
+					table := codbutils.GetTable(u.columns, v)
+					if _, ex := u.tables[table]; ex == false {
+						// Initialize new struct
+						u.tables[table] = newTableUpdate(table, u.target, v)
+					}
+					// Add new value
+					u.tables[table].add(id, val)
 				}
-			}
-			if keep == true {
-				u.tables[k].add(id, line)
 			}
 		}
 	}
@@ -126,7 +107,6 @@ func (u *updater) evaluateRow(row []string) {
 
 func (u *updater) getUpdateFile(infile string) {
 	// Returns map of data to be updated
-	var d string
 	first := true
 	fmt.Println("\n\tReading input file...")
 	f := iotools.OpenFile(infile)
@@ -135,10 +115,9 @@ func (u *updater) getUpdateFile(infile string) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(string(scanner.Text()))
 		if first == false {
-			u.evaluateRow(strings.Split(line, d))
+			u.evaluateRow(strings.Split(line, u.delim))
 		} else {
-			d = iotools.GetDelim(line)
-			u.setColumns(strings.Split(line, d))
+			u.setHeader(line)
 			first = false
 		}
 	}
