@@ -43,16 +43,16 @@ func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 //----------------------------------------------------------------------------
 
 type updater struct {
-	columns map[string][]int
-	col     map[string]string
-	tables  map[string]*tableupdate
+	header		map[string][]int
+	columns     map[string]string
+	tables		map[string]*tableupdate
 }
 
 func newUpdater(col map[string]string) updater {
 	// Initializes new update struct
 	var u updater
-	u.columns = make(map[string][]int)
-	u.col = col
+	u.header = make(map[string][]int)
+	u.columns = col
 	u.tables = make(map[string]*tableupdate)
 	return u
 }
@@ -76,7 +76,7 @@ func (u *updater) formatHeader(row []string) []string {
 func (u *updater) setColumns(row []string) {
 	// Correlates input file columns to database tables and columns
 	row = u.formatHeader(row)
-	for k, v := range u.col {
+	for k, v := range u.columns {
 		keep := false
 		head := strings.Split(v, ",")
 		// Initialize new column header and fill (missing values have an index of -1)
@@ -84,14 +84,14 @@ func (u *updater) setColumns(row []string) {
 			// Store file header index in index of database table column
 			i = strings.TrimSpace(i)
 			ind := strarray.SliceIndex(row, i)
-			u.columns[k] = append(u.columns[k], ind)
+			u.header[k] = append(u.header[k], ind)
 			if ind > 0 {
 				keep = true
 			}
 		}
 		if keep == false {
 			// Remove empty tables
-			delete(u.columns, k)
+			delete(u.header, k)
 		} else {
 			// Initialize struct
 			u.tables[k] = newTableUpdate(k, row[0])
@@ -103,7 +103,7 @@ func (u *updater) evaluateRow(row []string) {
 	// Stores row in appriate substructs
 	id := row[0]
 	if len(id) >= 1 {
-		for k, v := range u.columns {
+		for k, v := range u.header {
 			var line []string
 			keep := false
 			for _, i := range v {

@@ -94,7 +94,6 @@ helpText () {
 	echo "Usage: ./test.sh {install/white/parse/upload/search/update}"
 	echo ""
 	echo "all		Runs all tests"
-	echo "install		Installs binaries and runs all tests"
 	echo "whitebox		Runs white box tests"
 	echo "blackbox		Runs all black box tests (parse, upload, search, and update)"
 	echo "parse		Runs parseRecords black box tests"
@@ -109,12 +108,6 @@ helpText () {
 if [ $# -eq 0 ]; then
 	helpText
 elif [ $1 = "all" ]; then
-	getUser
-	whiteBoxTests
-	blackBoxTests
-elif [ $1 = "install" ]; then
-	# Compile binaries and call test functions
-	./install.sh
 	getUser
 	whiteBoxTests
 	blackBoxTests
