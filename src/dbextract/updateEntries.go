@@ -15,36 +15,31 @@ type tableupdate struct {
 	table  string
 	target string
 	column string
-	values map[string]map[string]string
-	total int
+	values map[string]string
 }
 
-func newTableUpdate(table, target string) *tableupdate {
+func newTableUpdate(table, target, column string) *tableupdate {
 	// Initializes new update struct
 	t := new(tableupdate)
 	t.table = table
 	t.target = target
-	t.values = make(map[string]map[string]string)
-	t.total = 0
+	t.column = column
+	t.values = make(map[string]string)
 	return t
 }
 
-func (t *tableupdate) add(id, col, val string) {
+func (t *tableupdate) add(id string, val string) {
 	// Adds value to values
-	if _, ex := t.values[id]; ex == false {
-		t.values[id] = make(map[string]string)
-	}
-	t.values[id][col] = val
-	t.total++
+	t.values[id] = val
 }
 
 func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 	// Uploads contents to database
-	pass := db.UpdateRows(t.table, t.target, t.column, t.values)
+	pass := db.UpdateColumn(t.table, t.target, t.column, t.values)
 	if pass == false {
 		fmt.Printf("\t[Warning] Failed to upload to %s.\n", t.table)
 	} else {
-		fmt.Printf("\tUpdated %d records in %s.\n", t.total, t.table)
+		fmt.Printf("\tUpdated %d records in %s.\n", len(t.values), t.table)
 	}
 }
 
@@ -100,10 +95,10 @@ func (u *updater) evaluateRow(row []string) {
 					table := codbutils.GetTable(u.columns, v)
 					if _, ex := u.tables[table]; ex == false {
 						// Initialize new struct
-						u.tables[table] = newTableUpdate(table, u.target)
+						u.tables[table] = newTableUpdate(table, u.target, v)
 					}
 					// Add new value
-					u.tables[table].add(id, v, val)
+					u.tables[table].add(id, val)
 				}
 			}
 		}
