@@ -8,6 +8,7 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
+	"strconv"
 	"strings"
 )
 
@@ -47,6 +48,7 @@ func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 //----------------------------------------------------------------------------
 
 type updater struct {
+	db		*dbIO.DBIO
 	delim   string
 	target  string
 	header  map[int]string
@@ -54,11 +56,12 @@ type updater struct {
 	tables  map[string]*tableupdate
 }
 
-func newUpdater(col map[string]string) updater {
+func newUpdater(db *dbIO.DBIO) updater {
 	// Initializes new update struct
 	var u updater
+	u.db = db
 	u.header = make(map[int]string)
-	u.columns = col
+	u.columns = db.Columns
 	u.tables = make(map[string]*tableupdate)
 	return u
 }
@@ -85,6 +88,17 @@ func (u *updater) setHeader(line string) {
 	}
 }
 
+func (u *updater) checkTaxaID(id string) string {
+	// Replaces scentific name with taxa id
+	if _, err := strconv.Atoi(id); err != nil {
+		tid := db.GetRows("Taxonomy", "Species", id, "taxa_id")
+		if len(tid) > 0 {
+			id = tid[0][0]
+		}
+	}
+	return id
+}
+
 func (u *updater) evaluateRow(row []string) {
 	// Assigns row values to substruct
 	id := strings.TrimSpace(row[0])
@@ -99,7 +113,7 @@ func (u *updater) evaluateRow(row []string) {
 						u.tables[table] = newTableUpdate(table, u.target)
 					}
 					// Add new value
-					u.tables[table].add(id, v, val)
+					u.tables[table].add(u.checkTaxaID(id), v, val)
 				}
 			}
 		}
@@ -124,14 +138,14 @@ func (u *updater) getUpdateFile(infile string) {
 	}
 }
 
-func (u *updater) updateTables(db *dbIO.DBIO) {
+func (u *updater) updateTables() {
 	// Updates database with all identified values
 	fmt.Println("\tUpdating tables...")
 	for _, v := range u.tables {
 		if v.table == "Accounts" {
 			fmt.Print("\n\t[Warning] Skipping Accounts table.\n\n")
 		} else {
-			v.updateTable(db)
+			v.updateTable(u.db)
 		}
 	}
 }
@@ -140,9 +154,9 @@ func (u *updater) updateTables(db *dbIO.DBIO) {
 
 func UpdateEntries(db *dbIO.DBIO, infile string) {
 	// Updates taxonomy entries
-	u := newUpdater(db.Columns)
+	u := newUpdater(db)
 	u.getUpdateFile(infile)
-	u.updateTables(db)
+	u.updateTables()
 }
 
 func UpdateSingleTable(db *dbIO.DBIO, table, column, value, target, op, key string) {
