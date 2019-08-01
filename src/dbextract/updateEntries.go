@@ -5,6 +5,7 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
@@ -54,6 +55,7 @@ type updater struct {
 	header  map[int]string
 	columns map[string]string
 	tables  map[string]*tableupdate
+	taxa	map[string]string
 }
 
 func newUpdater(db *dbIO.DBIO) updater {
@@ -63,6 +65,7 @@ func newUpdater(db *dbIO.DBIO) updater {
 	u.header = make(map[int]string)
 	u.columns = db.Columns
 	u.tables = make(map[string]*tableupdate)
+	u.taxa = dbupload.EntryMap(u.db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	return u
 }
 
@@ -91,9 +94,9 @@ func (u *updater) setHeader(line string) {
 func (u *updater) checkTaxaID(id string) string {
 	// Replaces scentific name with taxa id
 	if _, err := strconv.Atoi(id); err != nil {
-		tid := db.GetRows("Taxonomy", "Species", id, "taxa_id")
-		if len(tid) > 0 {
-			id = tid[0][0]
+		tid, ex := u.taxa[id]
+		if ex == true {
+			id = tid
 		}
 	}
 	return id
