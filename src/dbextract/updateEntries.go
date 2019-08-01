@@ -49,13 +49,13 @@ func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 //----------------------------------------------------------------------------
 
 type updater struct {
-	db		*dbIO.DBIO
+	db      *dbIO.DBIO
 	delim   string
 	target  string
 	header  map[int]string
 	columns map[string]string
 	tables  map[string]*tableupdate
-	taxa	map[string]string
+	taxa    map[string]string
 }
 
 func newUpdater(db *dbIO.DBIO) updater {
