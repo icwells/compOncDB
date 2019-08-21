@@ -40,9 +40,9 @@ func (a *accounts) setAccountType(term string) (string, string) {
 	zoo := "0"
 	inst := "0"
 	term = strings.ToLower(term)
-	if strings.Contains(term, "zoo") {
+	if strings.Contains(term, "zoo") || strings.Contains(term, "aquarium") || strings.Contains(term, "museum") {
 		zoo = "1"
-	} else if strings.Contains(term, "center") || strings.Contains(term, "institute") {
+	} else if strings.Contains(term, "center") || strings.Contains(term, "institute") || strings.Contains(term, "service") || strings.Contains(term, "research") {
 		inst = "1"
 	}
 	return zoo, inst
