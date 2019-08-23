@@ -85,7 +85,7 @@ func TestCheckAge(t *testing.T) {
 
 func TestParseDiagnosis(t *testing.T) {
 	// Tests parseDiagnosis with matches from matcher_test.go
-	e := NewEntries("service")
+	e := NewEntries("service", "")
 	matches := newMatches()
 	for _, i := range matches {
 		rec := newRecord()

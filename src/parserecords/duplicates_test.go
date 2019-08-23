@@ -31,7 +31,7 @@ func newSources() []source {
 
 func TestAdd(t *testing.T) {
 	// Tests add method
-	e := NewEntries("service")
+	e := NewEntries("service", "")
 	sources := newSources()
 	for _, i := range sources {
 		l := len(e.dups.reps)
@@ -64,7 +64,7 @@ func TestAdd(t *testing.T) {
 
 func TestResolveDuplicates(t *testing.T) {
 	// Tests resolve duplicates method
-	e := NewEntries("service")
+	e := NewEntries("service", "")
 	sources := newSources()
 	for _, i := range sources {
 		// Load maps
@@ -85,7 +85,7 @@ func TestResolveDuplicates(t *testing.T) {
 
 func TestInDuplicates(t *testing.T) {
 	// Tests inDuplicates method
-	e := NewEntries("service")
+	e := NewEntries("service", "")
 	sources := newSources()
 	for _, i := range sources {
 		// Load maps

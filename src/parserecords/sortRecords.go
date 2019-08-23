@@ -47,7 +47,8 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 	} else if e.col.species >= 0 {
 		idx = e.col.species
 	} else {
-		printFatal("Cannot determine species column", 20)
+		fmt.Print("\n\t[Error] Cannot determine species column. Exiting.\n")
+		os.Exit(20)
 	}
 	if len(line) >= e.col.max && len(line[idx]) >= 3 && strings.ToUpper(line[idx]) != "N/A" {
 		// Proceed if line is properly formatted and species is present
@@ -106,7 +107,6 @@ func (e *entries) SortRecords(debug bool, infile, outfile string) {
 	var wg sync.WaitGroup
 	var mut sync.RWMutex
 	var total int
-	e.setAccounts(infile)
 	fmt.Println("\tParsing input records...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -124,6 +124,7 @@ func (e *entries) SortRecords(debug bool, infile, outfile string) {
 			wg.Add(1)
 			go e.sortLine(&wg, &mut, debug, out, s)
 		} else {
+			e.parseHeader(line)
 			first = false
 		}
 	}

@@ -1,6 +1,6 @@
 // Contains methods for accounts struct
 
-package parserecords
+package clusteraccounts
 
 import (
 	"github.com/icwells/go-tools/strarray"
@@ -9,14 +9,14 @@ import (
 	"strings"
 )
 
-func (a *accounts) clearPool() {
+func (a *Accounts) clearPool() {
 	// Clears pool map
 	for k := range a.pool {
 		delete(a.pool, k)
 	}
 }
 
-func (a *accounts) fuzzymatch(s string, t []string) string {
+func (a *Accounts) fuzzymatch(s string, t []string) string {
 	// Returns target match/self
 	target := s
 	matches := fuzzy.RankFind(s, t)
@@ -29,7 +29,7 @@ func (a *accounts) fuzzymatch(s string, t []string) string {
 	return target
 }
 
-func (a *accounts) checkSpelling(v string) int {
+func (a *Accounts) checkSpelling(v string) int {
 	// Returns number of correctly spelled words
 	ret := 0
 	for _, i := range strings.Split(v, " ") {
@@ -40,7 +40,7 @@ func (a *accounts) checkSpelling(v string) int {
 	return ret
 }
 
-func (a *accounts) setScores(v []string) {
+func (a *Accounts) setScores(v []string) {
 	// Scores keys in pool
 	a.scores = make(map[string]int)
 	for _, i := range v {
@@ -56,7 +56,7 @@ func (a *accounts) setScores(v []string) {
 	}
 }
 
-func (a *accounts) setTerms() {
+func (a *Accounts) setTerms() {
 	// Determines best candidate for map key
 	var max int
 	for key, val := range a.pool {
@@ -74,7 +74,7 @@ func (a *accounts) setTerms() {
 	}
 }
 
-func (a *accounts) clusterNames() {
+func (a *Accounts) clusterNames() {
 	// Clusters set values into pool
 	a.pool = make(map[string][]string)
 	bins := make(map[int][]string)
@@ -101,7 +101,7 @@ func (a *accounts) clusterNames() {
 	}
 }
 
-func (a *accounts) setQueries(s []string, pool bool) {
+func (a *Accounts) setQueries(s []string, pool bool) {
 	// Pools corrected terms from slice
 	var key string
 	for _, i := range s {
@@ -118,7 +118,7 @@ func (a *accounts) setQueries(s []string, pool bool) {
 	}
 }
 
-func (a *accounts) resolveAccounts() map[string][]string {
+func (a *Accounts) resolveAccounts() map[string][]string {
 	// Resolves differneces in account names
 	if a.set.Length() >= 1 {
 		a.setQueries(a.set.ToSlice(), false)

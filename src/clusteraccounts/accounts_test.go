@@ -1,6 +1,6 @@
 // Test functions for accounts struct
 
-package parserecords
+package clusteraccounts
 
 import (
 	"testing"

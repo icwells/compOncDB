@@ -1,4 +1,4 @@
-// Contians tumorFinder strcut and methods for parseRecords
+// Contians tumorFinder struct and methods for parseRecords
 
 package parserecords
 

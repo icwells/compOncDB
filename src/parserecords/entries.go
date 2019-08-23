@@ -4,16 +4,11 @@ package parserecords
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/clusteraccounts"
 	"github.com/icwells/go-tools/iotools"
 	"os"
 	"strings"
 )
-
-func printFatal(msg string, code int) {
-	// Prints error and exits
-	fmt.Printf("\n\t[Error] %s. Exiting. \n\n", msg)
-	os.Exit(code)
-}
 
 type entries struct {
 	d           string
@@ -29,7 +24,7 @@ type entries struct {
 	complete    int
 }
 
-func NewEntries(service string) entries {
+func NewEntries(service, infile string) entries {
 	// Initializes new struct
 	var e entries
 	e.service = service
@@ -37,6 +32,9 @@ func NewEntries(service string) entries {
 	e.match = newMatcher()
 	e.dups = newDuplicates()
 	e.dupsPresent = false
+	if infile != "" {
+		e.setAccounts(infile)
+	}
 	return e
 }
 
@@ -60,33 +58,8 @@ func (e *entries) getOutputFile(outfile, header string) *os.File {
 
 func (e *entries) setAccounts(infile string) {
 	// Resolves account names
-	first := true
-	a := newAccounts()
-	fmt.Println("\tReading accounts from input file...")
-	f := iotools.OpenFile(infile)
-	defer f.Close()
-	scanner := iotools.GetScanner(f)
-	for scanner.Scan() {
-		line := string(scanner.Text())
-		if first == false {
-			s := strings.Split(line, e.d)
-			if e.col.account != -1 && s[e.col.account] != "NA" {
-				// Store in map by account id
-				a.submitters[s[e.col.account]] = append(a.submitters[s[e.col.account]], s[e.col.submitter])
-			} else {
-				// Store submitter only
-				a.set.Add(s[e.col.submitter])
-			}
-		} else {
-			e.parseHeader(line)
-			first = false
-			if e.col.submitter == -1 {
-				// Skip if column is not present
-				break
-			}
-		}
-	}
-	e.accounts = a.resolveAccounts()
+	a := clusteraccounts.NewAccounts(infile)
+	e.accounts = a.ResolveAccounts()
 }
 
 func (e *entries) GetTaxonomy(infile string) {
