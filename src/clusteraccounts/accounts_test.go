@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func getTestQueries() map[string][]string {
+/*func getTestQueries() map[string][]string {
 	// Returns map of expected queries
 	return map[string][]string{
 		"Payson Animal Hospital":        {"payson animal hospital", "Payson A. H.", "Payson anim. Hospital"},
@@ -89,7 +89,7 @@ func TestSetQueries(t *testing.T) {
 	}
 }
 
-/*func TestClusterNames(t *testing.T) {
+func TestClusterNames(t *testing.T) {
 	a := newAccounts()
 	a.queries = getTestQueries()
 	a.clusterNames()
