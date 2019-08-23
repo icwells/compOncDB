@@ -118,7 +118,7 @@ func (a *Accounts) setQueries(s []string, pool bool) {
 	}
 }
 
-func (a *Accounts) resolveAccounts() map[string][]string {
+func (a *Accounts) ResolveAccounts() map[string][]string {
 	// Resolves differneces in account names
 	if a.set.Length() >= 1 {
 		a.setQueries(a.set.ToSlice(), false)

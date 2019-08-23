@@ -49,7 +49,7 @@ func TestSetScores(t *testing.T) {
 	// Sets setScores (fuzzymatch and checkSpelling)
 	var s []string
 	expected := getTestScores()
-	a := newAccounts()
+	a := NewAccounts("")
 	a.queries = getTestQueries()
 	a.pool = getTestPool()
 	for k := range a.pool {
@@ -69,7 +69,7 @@ func TestSetScores(t *testing.T) {
 func TestSetQueries(t *testing.T) {
 	// Tests setQueries (by extension: checkAmpersand, checkPeriods, and checkAbbreviations)
 	expected := getTestQueries()
-	a := newAccounts()
+	a := NewAccounts("")
 	var s []string
 	for _, v := range expected {
 		s = append(s, v...)

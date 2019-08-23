@@ -43,7 +43,7 @@ func parseRecords() time.Time {
 	// Parses raw input for unpload to database
 	start := time.Now()
 	fmt.Print("\n\tProcessing input records...\n")
-	ent := parserecords.NewEntries(*service)
+	ent := parserecords.NewEntries(*service, *infile)
 	ent.GetTaxonomy(*taxaFile)
 	ent.SortRecords(*debug, *infile, *outfile)
 	return start

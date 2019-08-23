@@ -55,7 +55,7 @@ func getDays(n int) string {
 
 func TestCheckAge(t *testing.T) {
 	// Tests checkAge for age in days and years
-	e := NewEntries("service")
+	e := NewEntries("service", "")
 	ages := []struct {
 		row  []string
 		idx  int

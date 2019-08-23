@@ -43,7 +43,7 @@ func TestParseRecords(t *testing.T) {
 	header := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia",
 		"Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "Institute"}
 	// Parse test file
-	ent := parserecords.NewEntries(service)
+	ent := parserecords.NewEntries(service, infile)
 	ent.GetTaxonomy(taxa)
 	ent.SortRecords(false, infile, parseout)
 	// Compare actual output with expected

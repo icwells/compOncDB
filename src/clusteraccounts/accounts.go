@@ -22,7 +22,7 @@ type Accounts struct {
 
 func NewAccounts(infile string) *Accounts {
 	// Returns pointer to initialized struct
-	var a accounts
+	a := new(Accounts)
 	var err error
 	a.speller, err = aspell.NewSpeller(map[string]string{"lang": "en_US"})
 	if err != nil {
@@ -30,11 +30,15 @@ func NewAccounts(infile string) *Accounts {
 		os.Exit(500)
 	}
 	a.set = strarray.NewSet()
+	a.corpus = strarray.NewSet()
 	a.submitters = make(map[string][]string)
 	a.queries = make(map[string][]string)
 	a.terms = make(map[string][]string)
 	a.ratio = 0.05
-	return &a
+	if infile != "" {
+		a.readAccounts(infile)
+	}
+	return a
 }
 
 func (a *Accounts) setAccountType(term string) (string, string) {
@@ -71,8 +75,25 @@ func (a *Accounts) getAccounts() map[string][]string {
 	return ret
 }
 
+func (a *Accounts) getIndeces(row []string) (int, int) {
+	// Returns indeces for account and submitter columns
+	acc, sub := -1, -1
+	for idx, i := range row {
+		i = strings.TrimSpace(i)
+		i = strings.Replace(i, " ", "", -1)
+		if i == "Account" {
+			acc = idx
+		} else if i == "Client" || i == "Owner" || i == "InstitutionID" {
+			sub = idx
+		}
+	}
+	return acc, sub
+}
+
 func (a *Accounts) readAccounts(infile string) {
 	// Reads account data from input file
+	var delim string
+	var acc, sub int
 	first := true
 	fmt.Println("\tReading accounts from input file...")
 	f := iotools.OpenFile(infile)
@@ -81,18 +102,19 @@ func (a *Accounts) readAccounts(infile string) {
 	for scanner.Scan() {
 		line := string(scanner.Text())
 		if first == false {
-			s := strings.Split(line, e.d)
-			if e.col.account != -1 && s[e.col.account] != "NA" {
+			s := strings.Split(line, delim)
+			if acc != -1 && s[acc] != "NA" {
 				// Store in map by account id
-				a.submitters[s[e.col.account]] = append(a.submitters[s[e.col.account]], s[e.col.submitter])
+				a.submitters[s[acc]] = append(a.submitters[s[acc]], s[sub])
 			} else {
 				// Store submitter only
-				a.set.Add(s[e.col.submitter])
+				a.set.Add(s[sub])
 			}
 		} else {
-			e.parseHeader(line)
+			delim = iotools.GetDelim(line)
+			acc, sub = a.getIndeces(strings.Split(line, delim))
 			first = false
-			if e.col.submitter == -1 {
+			if sub == -1 {
 				// Skip if column is not present
 				break
 			}
