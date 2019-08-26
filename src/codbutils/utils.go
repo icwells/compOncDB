@@ -132,11 +132,16 @@ func WriteResults(outfile, header string, table [][]string) {
 	}
 }
 
-func DeleteEntries(d *dbIO.DBIO, table string, column, value string) {
+func DeleteEntries(d *dbIO.DBIO, table, column, value string) {
 	// Deletes matches from appropriate tables
+	var input string
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("\tAre you sure you want to delete all records from %s where %s equals %s (Enter Y for 'yes')? ", table, column, value)
-	input, _ := reader.ReadString('\n')
+	if d.Database == "testDataBase" {
+		input = "Y"
+	} else {
+		fmt.Printf("\tAre you sure you want to delete all records from %s where %s equals %s (Enter Y for 'yes')? ", table, column, value)
+		input, _ = reader.ReadString('\n')
+	}
 	if strings.TrimSpace(strings.ToUpper(input)) == "Y" {
 		fmt.Println("\tProceeding with deletion...")
 		d.DeleteRow(table, column, value)

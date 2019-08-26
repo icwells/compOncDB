@@ -50,8 +50,10 @@ func (c *cleaner) cleanTables(col string, tables []string, parent, child strarra
 			rm = append(rm, i)
 		}
 	}
-	for _, i := range tables {
-		c.db.DeleteRows(i, col, rm)
+	if len(rm) > 0 {
+		for _, i := range tables {
+			c.db.DeleteRows(i, col, rm)
+		}
 	}
 }
 
@@ -60,6 +62,6 @@ func AutoCleanDatabase(db *dbIO.DBIO) {
 	c := newCleaner(db)
 	c.cleanTables("ID", []string{"Diagnosis", "Tumor", "Source"}, c.pids, c.pchild)
 	c.cleanTables("taxa_id", []string{"Common"}, c.tids, c.tchild)
-	c.cleanTables("account_id", []string{"Souce"}, c.tids, c.tchild)
+	c.cleanTables("account_id", []string{"Source"}, c.tids, c.tchild)
 	dbupload.SpeciesTotals(db)
 }

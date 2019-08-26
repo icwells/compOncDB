@@ -48,33 +48,25 @@ testParseRecords () {
 	go test $TSTDIR --run TestParseRecords
 }
 
-testUpload () {
-	# Upload test data
+testDataBase () {
+	# Installs and tests database functions
+	./install.sh
 	echo ""
 	echo "Running black box tests on database upload..."
 	# Compare tables to expected
 	go test $TSTDIR --run TestUpload --args --user=$USER --password=$PW
-}
 
-testSearch () {
-	# Test search output
 	echo ""
 	echo "Running black box tests on database search..."
 	go test $TSTDIR --run TestSearches --args --user=$USER --password=$PW
-}
 
-testUpdates () {
-	# Test search output
 	echo ""
 	echo "Running black box tests on database update..."
 	go test $TSTDIR --run TestUpdates --args --user=$USER --password=$PW
-}
 
-blackBoxTests () {
-	testParseRecords
-	testUpload
-	testSearch
-	testUpdates
+	echo ""
+	echo "Running black box tests on database deletion..."
+	go test $TSTDIR --run TestDelete --args --user=$USER --password=$PW
 }
 
 checkSource () {
@@ -100,9 +92,7 @@ helpText () {
 	echo "whitebox		Runs white box tests"
 	echo "blackbox		Runs all black box tests (parse, upload, search, and update)"
 	echo "parse		Runs parseRecords black box tests"
-	echo "upload		Runs compOncDB upload black box tests"
-	echo "search		Runs compOncDB search black box tests"
-	echo "update		Runs compOncDB update black box tests"
+	echo "db		Runs upload, serach, update, and delete black box tests"
 	echo "fmt		Runs go fmt on all source files."
 	echo "vet		Runs go vet on all source files."
 	echo "username	MySQL username (root by default)."
@@ -113,23 +103,19 @@ if [ $# -eq 0 ]; then
 elif [ $1 = "all" ]; then
 	getUser
 	whiteBoxTests
-	blackBoxTests
+	testParseRecords
+	testDataBase
 elif [ $1 = "whitebox" ]; then
 	whiteBoxTests
 elif [ $1 = "blackbox" ]; then
 	getUser
-	blackBoxTests
+	testParseRecords
+	testDataBase
 elif [ $1 = "parse" ]; then
 	testParseRecords
-elif [ $1 = "upload" ]; then
+elif [ $1 = "db" ]; then
 	getUser
-	testUpload
-elif [ $1 = "search" ]; then
-	getUser
-	testSearch
-elif [ $1 = "update" ]; then
-	getUser
-	testUpdates
+	testDataBase
 elif [ $1 = "fmt" ]; then
 	checkSource $1
 elif [ $1 = "vet" ]; then

@@ -66,6 +66,25 @@ func getExpectedUpdates() map[string]map[string][]string {
 	return ret
 }
 
+func getCleaned() map[string]map[string][]string {
+	// Returns map of expected content after deletion and cleaning
+	ret := make(map[string]map[string][]string)
+	ret["Accounts"] = getAccounts()
+	ret["Common"] = getCommon()
+	ret["Denominators"] = getDenominators()
+	ret["Diagnosis"] = getDiagnosisUpdate()
+	ret["Life_history"] = getLifeHistory()
+	ret["Patient"] = getPatientUpdate()
+	ret["Source"] = getSource()
+	ret["Taxonomy"] = getTaxonomy()
+	//ret["Totals"] = getTotals()
+	ret["Tumor"] = getTumor()
+	for _, i := range []string{"Patient", "Diagnosis", "Tumor", "Source"} {
+		delete(ret[i], "19")
+	}
+	return ret
+}
+
 //----------------------Search------------------------------------------------
 
 func getCanisResults() map[string][]string {

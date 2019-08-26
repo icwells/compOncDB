@@ -118,5 +118,17 @@ func TestUpdates(t *testing.T) {
 		table := dbupload.ToMap(db.GetTable(i))
 		compareTables(t, i, exp[i], table)
 	}
+}
 
+func TestDelete(t *testing.T) {
+	// Tests delete and outoclean functions
+	db := connectToDatabase()
+	exp := getCleaned()
+	codbutils.DeleteEntries(db, "Patient", "ID", "19")
+	dbextract.AutoCleanDatabase(db)
+	for k := range exp {
+		// Compare all tables to ensure only target data was removed
+		table := dbupload.ToMap(db.GetTable(k))
+		compareTables(t, k, exp[k], table)
+	}
 }
