@@ -3,6 +3,7 @@
 package clusteraccounts
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -33,7 +34,7 @@ func newTerm(q, n, id string) *term {
 
 func (t *term) toSlice() []string {
 	// Returns slice for map entry
-	return []string{t.name, string(t.zoo), string(t.inst)}
+	return []string{t.name, strconv.Itoa(t.zoo), strconv.Itoa(t.inst)}
 }
 
 func (t *term) setType() {

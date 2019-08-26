@@ -3,102 +3,88 @@
 package clusteraccounts
 
 import (
+	"github.com/icwells/go-tools/strarray"
+	"strings"
 	"testing"
 )
 
-/*func getTestQueries() map[string][]string {
-	// Returns map of expected queries
-	return map[string][]string{
-		"Payson Animal Hospital":        {"payson animal hospital", "Payson A. H.", "Payson anim. Hospital"},
-		"Phoenix Veterinary Services":   {"phoenix v.s.", "phoenix v. s."},
-		"Phoenix Veterinarian Services": {"phoenix Veterinarian services"},
-	}
-}
-
-func getTestPool() map[string][]string {
-	// Returns map of expected pool
-	return map[string][]string{
-		"Payson Animal Hospital":        {"Payson Animal Hospital", "Payson Animal Hospital", "Payson Animal Hospital"},
-		"Phoenix Veterinary Services":   {"Phoenix Veterinary Services", "Phoenix Veterinary Services"},
-		"Phoenix Veterinarian Services": {"Phoenix Veterinarian Services"},
-	}
-}
-
-func getTestScores() map[string]int {
-	// Returns map of expected scores
-	return map[string]int{
-		"Payson Animal Hospital":        5,
-		"Phoenix Veterinary Services":   5,
-		"Phoenix Veterinarian Services": 4,
-	}
-}
-
-func getTestTerms() map[string]string {
+func getTestTerms() map[string][]string {
 	// Returns map of expected terms
-	return map[string]string{
-		"payson animal hospital":        "Payson Animal Hospital",
-		"Payson A. H.":                  "Payson Animal Hospital",
-		"Payson anim. Hospital":         "Payson Animal Hospital",
-		"phoenix v.s.":                  "Phoenix Veterinary Services",
-		"phoenix v. s.":                 "Phoenix Veterinary Services",
-		"phoenix Veterinarian services": "Phoenix Veterinary Services",
+	return map[string][]string{
+		"payson animal hospital":        []string{"Payson Animal Hospital", "0", "0"},
+		"Payson A. H.":                  []string{"Payson Animal Hospital", "0", "0"},
+		"Payson anim. Hospital":         []string{"Payson Animal Hospital", "0", "0"},
+		"phoenix v.s.":                  []string{"Phoenix Veterinary Services", "0", "1"},
+		"phoenix v. s.":                 []string{"Phoenix Veterinary Services", "0", "1"},
+		"phoenix Veterinarian services": []string{"Phoenix Veterinarian Services", "0", "1"},
+		"matt":                          []string{"Matt", "0", "0"},
+		" Phoenix zoo ":                 []string{"Phoenix Zoo", "1", "0"},
+		"tuscon aquarium":               []string{"Tuscon Aquarium", "1", "0"},
+		"wildlife rescue center":        []string{"Wildlife Rescue Center", "0", "1"},
+		"wildlfe rescue center":         []string{"Wildlife Rescue Center", "0", "1"},
+		"lemur Institute":               []string{"Lemur Institute", "0", "1"},
 	}
 }
 
-func TestSetScores(t *testing.T) {
-	// Sets setScores (fuzzymatch and checkSpelling)
-	var s []string
-	expected := getTestScores()
-	a := NewAccounts("")
-	a.queries = getTestQueries()
-	a.pool = getTestPool()
-	for k := range a.pool {
-		s = append(s, k)
+func getCorpus(terms map[string][]string) []string {
+	// Creates corpus from test terms
+	s := strarray.NewSet()
+	for _, v := range terms {
+		for _, i := range strings.Split(v[0], " ") {
+			if i != "Payson" && i != "wildlfe rescue center" {
+				s.Add(i)
+			}
+		}
 	}
-	a.setScores(s)
-	for k, v := range expected {
-		a, ex := a.scores[k]
-		if ex == false {
-			t.Errorf("Expected key %s not present in scores map.", k)
-		} else if v != a {
-			t.Errorf("Actual score %d does not equal expected: %d.", a, v)
+	return s.ToSlice()
+}
+
+func TestCorpus(t *testing.T) {
+	// Tests corpus assignment
+	expected := getTestTerms()
+	corpus := getCorpus(expected)
+	a := NewAccounts("")
+	for k := range expected {
+		a.parseRow("", k)
+	}
+	for _, i := range corpus {
+		if a.corpus.InSet(i) == false {
+			t.Errorf("Expected value %s not in accounts corpus.", i)
 		}
 	}
 }
 
-func TestSetQueries(t *testing.T) {
-	// Tests setQueries (by extension: checkAmpersand, checkPeriods, and checkAbbreviations)
-	expected := getTestQueries()
+func TestCheckAbbreviations(t *testing.T) {
+	// Tests checkAbbreviations (by extension: checkAmpersand, checkPeriods, and checkCaps)
+	expected := getTestTerms()
+	delete(expected, "wildlfe rescue center")
 	a := NewAccounts("")
-	var s []string
-	for _, v := range expected {
-		s = append(s, v...)
+	for k, v := range expected {
+		act := a.checkAbbreviations(k)
+		if act != v[0] {
+			t.Errorf("Actual formatted value %s does not equal expected: %s.", act, v[0])
+		}
 	}
-	a.setQueries(s, false)
-	for k, v := range a.queries {
-		e, ex := expected[k]
-		if ex == false {
-			t.Errorf("Actual queries key %s not present in expected map.", k)
+}
+
+func TestResolveAccounts(t *testing.T) {
+	// Tests spelling correction and clustering
+	c := []string{"corrected name", "zoo", "institute"}
+	expected := getTestTerms()
+	a := NewAccounts("")
+	for k := range expected {
+		a.parseRow("", k)
+	}
+	act := a.ResolveAccounts()
+	for k, v := range expected {
+		if _, ex := act[k]; ex == false {
+			t.Errorf("Expected term %s not in actual accounts map.", k)
 		} else {
 			for idx, i := range v {
-				if i != e[idx] {
-					t.Errorf("Actual queries value %s does not equal expected: %s.", i, e[idx])
+				if i != act[k][idx] {
+					t.Errorf("Actual %s column value for %s %s does not equal expected: %s", c[idx], k, act[k][idx], i)
 				}
 			}
 		}
 	}
 }
-
-func TestClusterNames(t *testing.T) {
-	a := newAccounts()
-	a.queries = getTestQueries()
-	a.clusterNames()
-	t.Error(a.pool)
-}
-
-func TestSetTerms(t *testing.T) {
-	expected := getTestTerms()
-	a := newAccounts()
-	a.queries = getTestQueries()
-	a.pool = getTestPool()
-}*/

@@ -12,7 +12,6 @@ import (
 )
 
 type Accounts struct {
-	ratio                float64
 	speller              aspell.Speller
 	set, corpus          strarray.Set
 	clusters, submitters map[string][]*term
@@ -33,7 +32,6 @@ func NewAccounts(infile string) *Accounts {
 	a.corpus = strarray.NewSet()
 	a.clusters = make(map[string][]*term)
 	a.submitters = make(map[string][]*term)
-	a.ratio = 0.05
 	if infile != "" {
 		a.readAccounts(infile)
 	}

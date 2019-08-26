@@ -3,6 +3,7 @@
 package clusteraccounts
 
 import (
+	"fmt"
 	"github.com/icwells/go-tools/strarray"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"sort"
@@ -11,15 +12,17 @@ import (
 
 func (a *Accounts) fuzzymatch(s string, t []string) string {
 	// Returns target match/self
-	target := s
+	ret := s
+	// Maximum of one substitution per word
+	max := strings.Count(s, " ") + 1
 	matches := fuzzy.RankFind(s, t)
-	if len(matches) > 1 {
+	if len(matches) >= 1 {
 		sort.Sort(matches)
-		if float64(matches[0].Distance)/float64(len(s)) < a.ratio {
-			target = matches[0].Target
+		if matches[0].Distance <= max {
+			ret = matches[0].Target
 		}
 	}
-	return target
+	return ret
 }
 
 func (a *Accounts) clusterNames(key string) int {
@@ -46,15 +49,18 @@ func (a *Accounts) clusterNames(key string) int {
 		}
 		names = s.ToSlice()
 		for _, i := range v {
-			match, ex := found[i.name]
-			if ex == false {
-				match = a.fuzzymatch(i.name, names)
-				found[i.name] = match
-			}
-			if match != i.name {
-				// Store corrected match to closest fuzzy match/self
-				i.name = match
-				count++
+			if len(i.name) > 4 {
+				// Skip words which are too short
+				match, ex := found[i.name]
+				if ex == false {
+					match = a.fuzzymatch(i.name, names)
+					found[i.name] = match
+				}
+				if match != i.name {
+					// Store corrected match to closest fuzzy match/self
+					i.name = match
+					count++
+				}
 			}
 		}
 	}
@@ -90,6 +96,7 @@ func (a *Accounts) correctSpellings() {
 
 func (a *Accounts) ResolveAccounts() map[string][]string {
 	// Resolves differences in account names
+	fmt.Println("\tClustering accounts...")
 	a.correctSpellings()
 	for _, i := range a.terms {
 		if i.id == "" {
@@ -100,12 +107,13 @@ func (a *Accounts) ResolveAccounts() map[string][]string {
 			a.clusters[i.id] = append(a.clusters[i.id], i)
 		}
 	}
-	for k := range a.clusters {
+	/*for k := range a.clusters {
 		count := len(a.clusters[k])
+		min := int(float64(count) * 0.1)
 		for count > 0 {
 			// Cluster until no names change
 			count = a.clusterNames(k)
 		}
-	}
+	}*/
 	return a.getAccounts()
 }
