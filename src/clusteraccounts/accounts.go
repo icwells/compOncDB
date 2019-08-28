@@ -40,13 +40,15 @@ func NewAccounts(infile string) *Accounts {
 
 func (a *Accounts) getAccounts() map[string][]string {
 	// Returns map of original term: corrected term
-	var count int
+	counter := strarray.NewSet()
+	total := strarray.NewSet()
 	ret := make(map[string][]string)
 	for _, i := range a.terms {
-		count++
 		ret[i.query] = i.toSlice()
+		counter.Add(i.name)
+		total.Add(i.query)
 	}
-	fmt.Printf("\tFormatted %d account entries.\n", count)
+	fmt.Printf("\tFormatted %d names from a total of %d account entries.\n", counter.Length(), total.Length())
 	return ret
 }
 

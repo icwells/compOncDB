@@ -67,7 +67,7 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 		rec.service = e.service
 		rec.setAccount(subsetLine(e.col.account, line))
 		rec.setSubmitter(e.getSubmitter(line))
-		if len(line[e.col.code]) > 0 {
+		if e.col.code >= 0 && len(line[e.col.code]) > 0 {
 			// Store code for debugging
 			rec.code = line[e.col.code]
 		}
