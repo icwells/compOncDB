@@ -6,7 +6,7 @@ func getAccounts() map[string][]string {
 	// Returns map of account data
 	ret := make(map[string][]string)
 	ret["1"] = []string{"X520", "XYZ"}
-	ret["2"] = []string{"A16", "KV Zoo"}
+	ret["2"] = []string{"A16", "Kv Zoo"}
 	return ret
 }
 

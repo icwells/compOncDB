@@ -50,7 +50,6 @@ testParseRecords () {
 
 testDataBase () {
 	# Installs and tests database functions
-	./install.sh
 	echo ""
 	echo "Running black box tests on database upload..."
 	# Compare tables to expected
@@ -103,18 +102,22 @@ if [ $# -eq 0 ]; then
 elif [ $1 = "all" ]; then
 	getUser
 	whiteBoxTests
+	./install.sh
 	testParseRecords
 	testDataBase
 elif [ $1 = "whitebox" ]; then
 	whiteBoxTests
 elif [ $1 = "blackbox" ]; then
 	getUser
+	./install.sh
 	testParseRecords
 	testDataBase
 elif [ $1 = "parse" ]; then
+	./install.sh
 	testParseRecords
 elif [ $1 = "db" ]; then
 	getUser
+	./install.sh
 	testDataBase
 elif [ $1 = "fmt" ]; then
 	checkSource $1
