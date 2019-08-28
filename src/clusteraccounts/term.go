@@ -9,23 +9,19 @@ import (
 
 var (
 	ZOOS       = []string{"zoo", "aquarium", "museum"}
-	INSTITUTES = []string{"center", "institute", "service", "research", "rescue"}
+	INSTITUTES = []string{"center", "institute", "rescue", "research", "service", "survey"}
 )
 
 type term struct {
-	query, name, id   string
+	query, name   string
 	length, zoo, inst int
 }
 
-func newTerm(q, n, id string) *term {
+func newTerm(q, n string) *term {
 	// Initializes term struct
-	if id == "NA" {
-		id = ""
-	}
 	t := new(term)
 	t.query = q
 	t.name = n
-	t.id = ""
 	t.length = strings.Count(n, " ") + 1
 	t.zoo = 0
 	t.inst = 0

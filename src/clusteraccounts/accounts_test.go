@@ -18,6 +18,7 @@ func getTestTerms() map[string][]string {
 		"phoenix v. s.":                 []string{"Phoenix Veterinary Services", "0", "1"},
 		"phoenix Veterinarian services": []string{"Phoenix Veterinarian Services", "0", "1"},
 		"matt":                          []string{"Matt", "0", "0"},
+		" zoo; Phoenix ":                []string{"Phoenix Zoo", "1", "0"},
 		" Phoenix zoo ":                 []string{"Phoenix Zoo", "1", "0"},
 		"tuscon aquarium":               []string{"Tuscon Aquarium", "1", "0"},
 		"wildlife rescue center":        []string{"Wildlife Rescue Center", "0", "1"},
@@ -39,30 +40,22 @@ func getCorpus(terms map[string][]string) []string {
 	return s.ToSlice()
 }
 
-func TestCorpus(t *testing.T) {
-	// Tests corpus assignment
+func TestCheckAbbreviations(t *testing.T) {
+	// Tests corpus and checkAbbreviations (by extension: checkAmpersand, checkPeriods, and checkCaps)
 	expected := getTestTerms()
 	corpus := getCorpus(expected)
-	a := NewAccounts("")
-	for k := range expected {
-		a.parseRow("", k)
-	}
-	for _, i := range corpus {
-		if a.corpus.InSet(i) == false {
-			t.Errorf("Expected value %s not in accounts corpus.", i)
-		}
-	}
-}
-
-func TestCheckAbbreviations(t *testing.T) {
-	// Tests checkAbbreviations (by extension: checkAmpersand, checkPeriods, and checkCaps)
-	expected := getTestTerms()
 	delete(expected, "wildlfe rescue center")
 	a := NewAccounts("")
 	for k, v := range expected {
 		act := a.checkAbbreviations(k)
 		if act != v[0] {
 			t.Errorf("Actual formatted value %s does not equal expected: %s.", act, v[0])
+		}
+		a.terms = append(a.terms, newTerm(k, act))
+	}
+	for _, i := range corpus {
+		if a.corpus.InSet(i) == false {
+			t.Errorf("Expected value %s not in accounts corpus.", i)
 		}
 	}
 }
@@ -73,7 +66,7 @@ func TestResolveAccounts(t *testing.T) {
 	expected := getTestTerms()
 	a := NewAccounts("")
 	for k := range expected {
-		a.parseRow("", k)
+		a.queries.Add(k)
 	}
 	act := a.ResolveAccounts()
 	for k, v := range expected {
