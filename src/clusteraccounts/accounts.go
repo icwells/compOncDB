@@ -13,10 +13,8 @@ import (
 
 type Accounts struct {
 	speller              aspell.Speller
-	queries, corpus      strarray.Set
-	clusters, submitters map[string][]*term
+	Queries, corpus      strarray.Set
 	terms                []*term
-	scores               map[string]int
 }
 
 func NewAccounts(infile string) *Accounts {
@@ -28,10 +26,8 @@ func NewAccounts(infile string) *Accounts {
 		fmt.Printf("\n\t[Error] Cannot initialize speller. Exiting.\n%v", err)
 		os.Exit(500)
 	}
-	a.queries = strarray.NewSet()
+	a.Queries = strarray.NewSet()
 	a.corpus = strarray.NewSet()
-	a.clusters = make(map[string][]*term)
-	a.submitters = make(map[string][]*term)
 	if infile != "" {
 		a.readAccounts(infile)
 	}
@@ -78,7 +74,7 @@ func (a *Accounts) readAccounts(infile string) {
 		line := string(scanner.Text())
 		if first == false {
 			s := strings.Split(line, delim)
-			a.queries.Add(s[sub])
+			a.Queries.Add(s[sub])
 		} else {
 			delim = iotools.GetDelim(line)
 			sub = a.getIndeces(strings.Split(line, delim))

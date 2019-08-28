@@ -54,7 +54,7 @@ func (a *Accounts) correctSpellings() {
 func (a *Accounts) ResolveAccounts() map[string][]string {
 	// Resolves differences in account names
 	fmt.Println("\tFormatting account names...")
-	for _, i := range a.queries.ToSlice() {
+	for _, i := range a.Queries.ToSlice() {
 		name := a.checkAbbreviations(i)
 		a.terms = append(a.terms, newTerm(i, name))
 	}

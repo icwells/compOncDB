@@ -66,7 +66,7 @@ func TestResolveAccounts(t *testing.T) {
 	expected := getTestTerms()
 	a := NewAccounts("")
 	for k := range expected {
-		a.queries.Add(k)
+		a.Queries.Add(k)
 	}
 	act := a.ResolveAccounts()
 	for k, v := range expected {
