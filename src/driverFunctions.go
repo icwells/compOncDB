@@ -19,10 +19,11 @@ func backup(pw string) {
 	c := codbutils.SetConfiguration(*config, *user, false)
 	fmt.Printf("\n\tBacking up %s database to local machine...\n", c.Database)
 	datestamp := time.Now().Format("2006-01-02")
+	user := fmt.Sprintf("-u%s", *user)
 	password := fmt.Sprintf("-p%s", pw)
 	host := fmt.Sprintf("-h%s", c.Host)
 	res := fmt.Sprintf("--result-file=%s.%s.sql", c.Database, datestamp)
-	bu := exec.Command("mysqldump", "-uroot", host, password, res, c.Database)
+	bu := exec.Command("mysqldump", user, host, password, res, c.Database)
 	err := bu.Run()
 	if err == nil {
 		fmt.Println("\tBackup complete.")
