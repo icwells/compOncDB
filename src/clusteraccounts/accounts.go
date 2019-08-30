@@ -12,9 +12,9 @@ import (
 )
 
 type Accounts struct {
-	speller              aspell.Speller
-	Queries, corpus      strarray.Set
-	terms                []*term
+	speller         aspell.Speller
+	Queries, corpus strarray.Set
+	terms           []*term
 }
 
 func NewAccounts(infile string) *Accounts {
