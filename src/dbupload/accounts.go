@@ -16,28 +16,22 @@ type accounts struct {
 	db       *dbIO.DBIO
 	count    int
 	acc, neu map[string][]string
-	keys     []string
 }
 
 func newAccounts(db *dbIO.DBIO) *accounts {
 	// Returns new account struct
 	a := new(accounts)
 	a.db = db
-	a.count = db.GetMax("Accounts", "account_id") + 1
-	a.acc = ToMap(db.GetColumns("Accounts", []string{"Account", "submitter_name"}))
+	a.count = a.db.GetMax("Accounts", "account_id") + 1
+	a.acc = ToMap(a.db.GetColumns("Accounts", []string{"Account", "submitter_name"}))
 	a.neu = make(map[string][]string)
 	return a
 }
 
 func (a *accounts) uploadAccounts() {
 	// Uploads unique account entries with random ID number
-	var acc [][]string
-	for _, i := range a.keys {
-		// Append account info in order it was added
-		acc = append(acc, a.neu[i])
-	}
 	if len(a.neu) > 0 {
-		vals, l := dbIO.FormatSlice(acc)
+		vals, l := dbIO.FormatMap(a.neu)
 		a.db.UpdateDB("Accounts", vals, l)
 	}
 }
@@ -67,9 +61,8 @@ func (a *accounts) extractAccounts(infile string) {
 				pass = true
 			}
 			if pass == true {
-				// Add unique occurances and record order
+				// Add unique occurances
 				a.neu[account] = []string{strconv.Itoa(a.count), account, client}
-				a.keys = append(a.keys, account)
 				a.count++
 			}
 		} else {

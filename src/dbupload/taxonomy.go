@@ -4,7 +4,6 @@
 package dbupload
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
@@ -12,45 +11,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-func uploadTable(db *dbIO.DBIO, taxa map[string][]string, common map[string][][]string, count int) {
-	// Uploads table to database
-	var com [][]string
-	for k, v := range taxa {
-		// Add unique taxa ID
-		count++
-		c := strconv.Itoa(count)
-		taxa[k] = append([]string{c}, v...)
-		row, ex := common[k]
-		if ex == true {
-			// Join common names to taxa id in paired entries
-			for _, n := range row {
-				com = append(com, []string{c, n[0], n[1]})
-			}
-		}
-	}
-	if len(taxa) > 0 {
-		vals, l := dbIO.FormatMap(taxa)
-		db.UpdateDB("Taxonomy", vals, l)
-	}
-	if len(com) > 0 {
-		vals, l := dbIO.FormatSlice(com)
-		db.UpdateDB("Common", vals, l)
-	}
-}
-
-func speciesCaps(species string) string {
-	// Returns properly capitalized species name
-	var ret string
-	s := strings.Split(strings.ToLower(species), " ")
-	if len(s) > 1 {
-		// Save with genus capitalized and species in lower case
-		ret = strings.Title(s[0]) + " " + s[1]
-	} else {
-		ret = "NA"
-	}
-	return ret
-}
 
 func getTaxon(genus, species string) string {
 	// Returns lowest taxon present
@@ -76,6 +36,19 @@ func getSource(sources []string) string {
 	return source
 }
 
+func speciesCaps(species string) string {
+	// Returns properly capitalized species name
+	var ret string
+	s := strings.Split(strings.ToLower(species), " ")
+	if len(s) > 1 {
+		// Save with genus capitalized and species in lower case
+		ret = strings.Title(s[0]) + " " + s[1]
+	} else {
+		ret = "NA"
+	}
+	return ret
+}
+
 func checkCaps(taxonomy []string) []string {
 	// Returns slice with proper capitization
 	l := len(taxonomy) - 1
@@ -87,72 +60,6 @@ func checkCaps(taxonomy []string) []string {
 		}
 	}
 	return taxonomy
-}
-
-func extractTaxa(infile string, taxaids map[string]string, commonNames bool) (map[string][]string, map[string][][]string) {
-	// Extracts taxonomy from input file
-	var col map[string]int
-	var l int
-	first := true
-	cur := true
-	taxa := make(map[string][]string)
-	common := make(map[string][][]string)
-	fmt.Printf("\n\tExtracting taxa from %s\n", infile)
-	f := iotools.OpenFile(infile)
-	defer f.Close()
-	input := bufio.NewScanner(f)
-	for input.Scan() {
-		line := strings.TrimSpace(string(input.Text()))
-		spl := strings.Split(line, ",")
-		if first == false {
-			c := strarray.TitleCase(spl[col["SearchTerm"]])
-			s := getTaxon(spl[col["Genus"]], spl[col["Species"]])
-			if _, ex := taxaids[s]; ex == false {
-				// Skip entries which are already in db
-				if _, ex := taxa[s]; ex == false {
-					// Add unique taxonomies
-					taxonomy := checkCaps(spl[col["Kingdom"] : col["Species"]+1])
-					if cur == true {
-						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1:col["Name"]]))
-					} else {
-						taxonomy = append(taxonomy, getSource(spl[col["Species"]+1:l]))
-					}
-					taxa[s] = taxonomy
-				}
-			}
-			if commonNames == true {
-				if _, ex := taxa[c]; ex == false {
-					// Make sure entry in cmmon name column is not a scientific name
-					if _, ex := taxaids[c]; ex == false {
-						// Add unique common name entries to slice
-						curator := "NA"
-						if cur == true {
-							// Store curator name
-							curator = spl[col["Name"]]
-						}
-						row, ex := common[s]
-						if ex == true {
-							// Add to existing species record
-							if strarray.InSliceSli(row, c, 0) == false {
-								common[s] = append(common[s], []string{c, curator})
-							}
-						} else {
-							common[s] = append(common[s], []string{c, curator})
-						}
-					}
-				}
-			}
-		} else {
-			col = iotools.GetHeader(spl)
-			l = len(spl)
-			if _, ex := col["Name"]; ex == false {
-				col["Name"] = l + 1
-				cur = false
-			}
-			first = false
-		}
-	}
-	return taxa, common
 }
 
 func GetTaxaIDs(db *dbIO.DBIO, commonNames bool) map[string]string {
@@ -173,12 +80,137 @@ func GetTaxaIDs(db *dbIO.DBIO, commonNames bool) map[string]string {
 	return ret
 }
 
+//----------------------------------------------------------------------------
+
+type taxa struct {
+	db          *dbIO.DBIO
+	count       int
+	commonNames bool
+	col         map[string]int
+	taxaids     map[string]string
+	neu         map[string][]string
+	common      map[string][][]string
+}
+
+func newTaxa(db *dbIO.DBIO, common bool) *taxa {
+	// Returns new taxonomy struct
+	t := new(taxa)
+	t.db = db
+	t.count = t.db.GetMax("Taxonomy", "taxa_id") + 1
+	t.commonNames = common
+	t.taxaids = GetTaxaIDs(t.db, t.commonNames)
+	t.neu = make(map[string][]string)
+	t.common = make(map[string][][]string)
+	return t
+}
+
+func (t *taxa) uploadTable() {
+	// Uploads table to database
+	var com [][]string
+	for _, v := range t.common {
+		// Convert common names map to slice
+		com = append(com, v...)
+	}
+	if len(t.neu) > 0 {
+		vals, l := dbIO.FormatMap(t.neu)
+		t.db.UpdateDB("Taxonomy", vals, l)
+	}
+	if len(com) > 0 {
+		vals, l := dbIO.FormatSlice(com)
+		t.db.UpdateDB("Common", vals, l)
+	}
+}
+
+func (t *taxa) getTaxaID(s string) string {
+	// Returns taxa id for given scientific name
+	if _, ex := t.neu[s]; ex == true {
+		return t.neu[s][0]
+	} else if _, ex := t.taxaids[s]; ex == true {
+		return t.taxaids[s]
+	} else {
+		return "NA"
+	}
+}
+
+func (t *taxa) setCommon(spl []string, c, s string, cur bool) {
+	// Adds common name entry to map
+	if _, ex := t.neu[c]; ex == false {
+		// Make sure entry in common name column is not a scientific name
+		if _, ex := t.taxaids[c]; ex == false {
+			// Add unique common name entries to slice
+			curator := "NA"
+			if cur == true {
+				// Store curator name
+				curator = spl[t.col["Name"]]
+			}
+			id := t.getTaxaID(s)
+			if id != "NA" {
+				row, ex := t.common[s]
+				if ex == true && strarray.InSliceSli(row, c, 0) == false {
+					// Add to existing species record
+					t.common[s] = append(t.common[s], []string{id, c, curator})
+				} else {
+					t.common[s] = append(t.common[s], []string{id, c, curator})
+				}
+			}
+		}
+	}
+}
+
+func (t *taxa) setTaxon(spl []string, s string, l int, cur bool) {
+	// Adds taxonomy to map
+	if _, ex := t.taxaids[s]; ex == false {
+		// Skip entries which are already in db
+		if _, ex := t.neu[s]; ex == false {
+			// Add unique taxonomies
+			id := strconv.Itoa(t.count)
+			taxonomy := append([]string{id}, checkCaps(spl[t.col["Kingdom"]:t.col["Species"]+1])...)
+			if cur == true {
+				taxonomy = append(taxonomy, getSource(spl[t.col["Species"]+1:t.col["Name"]]))
+			} else {
+				taxonomy = append(taxonomy, getSource(spl[t.col["Species"]+1:l]))
+			}
+			t.neu[s] = taxonomy
+			t.count++
+		}
+	}
+}
+
+func (t *taxa) extractTaxa(infile string) {
+	// Extracts taxonomy from input file
+	var l int
+	first := true
+	cur := true
+	fmt.Printf("\n\tExtracting taxa from %s\n", infile)
+	f := iotools.OpenFile(infile)
+	defer f.Close()
+	input := iotools.GetScanner(f)
+	for input.Scan() {
+		line := strings.TrimSpace(string(input.Text()))
+		spl := strings.Split(line, ",")
+		if first == false {
+			c := strarray.TitleCase(spl[t.col["SearchTerm"]])
+			s := getTaxon(spl[t.col["Genus"]], spl[t.col["Species"]])
+			t.setTaxon(spl, s, l, cur)
+			if t.commonNames == true {
+				t.setCommon(spl, c, s, cur)
+			}
+		} else {
+			t.col = iotools.GetHeader(spl)
+			l = len(spl)
+			if _, ex := t.col["Name"]; ex == false {
+				// Set dummy currator column
+				t.col["Name"] = l + 1
+				cur = false
+			}
+			first = false
+		}
+	}
+}
+
 func LoadTaxa(db *dbIO.DBIO, infile string, commonNames bool) {
 	// Loads unique entries into comparative oncology taxonomy table
-	var taxa map[string][]string
-	var common map[string][][]string
-	m := db.GetMax("Taxonomy", "taxa_id")
-	taxaids := GetTaxaIDs(db, commonNames)
-	taxa, common = extractTaxa(infile, taxaids, commonNames)
-	uploadTable(db, taxa, common, m)
+	t := newTaxa(db, commonNames)
+	t.extractTaxa(infile)
+	t.uploadTable()
 }
