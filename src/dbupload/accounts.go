@@ -4,7 +4,6 @@
 package dbupload
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
@@ -13,34 +12,45 @@ import (
 	"strings"
 )
 
-func uploadAccounts(db *dbIO.DBIO, accounts map[string][]string, count int) {
+type accounts struct {
+	db       *dbIO.DBIO
+	count    int
+	acc, neu map[string][]string
+	keys     []string
+}
+
+func newAccounts(db *dbIO.DBIO) *accounts {
+	// Returns new account struct
+	a := new(accounts)
+	a.db = db
+	a.count = db.GetMax("Accounts", "account_id") + 1
+	a.acc = ToMap(db.GetColumns("Accounts", []string{"Account", "submitter_name"}))
+	a.neu = make(map[string][]string)
+	return a
+}
+
+func (a *accounts) uploadAccounts() {
 	// Uploads unique account entries with random ID number
 	var acc [][]string
-	for k, v := range accounts {
-		for _, i := range v {
-			// Add unique taxa ID
-			count++
-			c := strconv.Itoa(count)
-			acc = append(acc, []string{c, k, i})
-		}
+	for _, i := range a.keys {
+		// Append account info in order it was added
+		acc = append(acc, a.neu[i])
 	}
-	if len(acc) > 0 {
+	if len(a.neu) > 0 {
 		vals, l := dbIO.FormatSlice(acc)
-		db.UpdateDB("Accounts", vals, l)
+		a.db.UpdateDB("Accounts", vals, l)
 	}
 }
 
-func extractAccounts(infile string, table [][]string) map[string][]string {
+func (a *accounts) extractAccounts(infile string) {
 	// Extracts accounts from input file
 	var col map[string]int
 	var l int
 	first := true
-	accounts := make(map[string][]string)
-	acc := ToMap(table)
 	fmt.Printf("\n\tExtracting accounts from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
-	input := bufio.NewScanner(f)
+	input := iotools.GetScanner(f)
 	for input.Scan() {
 		s := strings.Split(string(input.Text()), ",")
 		if first == false && len(s) == l {
@@ -48,17 +58,19 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 			account := strings.TrimSpace(s[col["Account"]])
 			client := strings.TrimSpace(s[col["Submitter"]])
 			// Determine if entry is unique
-			row, rep := accounts[account]
-			if rep == false {
+			row, ex := a.neu[account]
+			if ex == false {
 				pass = true
-			} else if rep == true && strarray.InSliceStr(row, client) == false {
+			} else if strarray.InSliceStr(row, client) == false {
 				pass = true
-			} else if _, ex := acc[account]; ex == true && strarray.InSliceStr(acc[account], client) == false {
+			} else if _, e := a.acc[account]; e == true && strarray.InSliceStr(a.acc[account], client) == false {
 				pass = true
 			}
 			if pass == true {
-				// Add unique occurances
-				accounts[account] = append(accounts[account], client)
+				// Add unique occurances and record order
+				a.neu[account] = []string{strconv.Itoa(a.count), account, client}
+				a.keys = append(a.keys, account)
+				a.count++
 			}
 		} else {
 			col = iotools.GetHeader(s)
@@ -66,13 +78,11 @@ func extractAccounts(infile string, table [][]string) map[string][]string {
 			first = false
 		}
 	}
-	return accounts
 }
 
 func LoadAccounts(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology metastatis, tumor, and account tables
-	m := db.GetMax("Accounts", "account_id")
-	acc := db.GetColumns("Accounts", []string{"Account", "submitter_name"})
-	accounts := extractAccounts(infile, acc)
-	uploadAccounts(db, accounts, m)
+	a := newAccounts(db)
+	a.extractAccounts(infile)
+	a.uploadAccounts()
 }
