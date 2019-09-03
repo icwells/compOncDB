@@ -15,18 +15,22 @@ import (
 )
 
 type updater struct {
-	db                            *dbIO.DBIO
-	source, accounts, newaccounts map[string][]string
-	newsource                     [][]string
+	db                                  *dbIO.DBIO
+	keys, source, accounts, newaccounts map[string][]string
+	newsource                           [][]string
 }
 
 func (u *updater) setSources(key, aid, zoo, inst string) {
 	// Stores new account id, and source types with source id
 	// Get source ids corresponding to old account id
-	sids, ex := u.source[key]
+	sids, ex := u.keys[key]
 	if ex == true {
 		for _, i := range sids {
-			u.newsource = append(u.newsource, []string{i, zoo, inst, aid})
+			row, e := u.source[i]
+			if e == true {
+				// Append patient id, service name, zoo/inst status, and account id
+				u.newsource = append(u.newsource, []string{i, row[0], zoo, inst, aid})
+			}
 		}
 	}
 }
@@ -62,19 +66,58 @@ func newUpdater(db *dbIO.DBIO) *updater {
 	u := new(updater)
 	u.db = db
 	u.newaccounts = make(map[string][]string)
-	u.source = dbupload.ToMap(u.db.GetColumns("Source", []string{"account_id", "ID"}))
+	u.keys = dbupload.ToMap(u.db.GetColumns("Source", []string{"account_id", "ID"}))
+	u.source = dbupload.ToMap(u.db.GetTable("Source"))
 	u.accounts = dbupload.ToMap(u.db.GetTable("Accounts"))
 	u.setAccounts()
 	return u
 }
 
+func (u *updater) toSlice(table string) [][]string {
+	// Converts map to slice
+	var ret [][]string
+	var m map[string][]string
+	if table == "Source" {
+		m = u.source
+	} else {
+		m = u.accounts
+	}
+	for k, v := range m {
+		row := append([]string{k}, v...)
+		ret = append(ret, row)
+	}
+	return ret
+}
+
+func (u *updater) restoreTable(table string) {
+	// Returns table to original state
+	var end int
+	fmt.Printf("\tRestoring original %s table...", table)
+	s := u.toSlice(table)
+	d := u.getDenominator(s)
+	length := len(s)
+	l := int(math.Floor(float64(length) / float64(d)))
+	idx := 0
+	u.db.TruncateTable(table)
+	for i := 0; i < d; i++ {
+		// Get end index
+		if idx+l > length {
+			end = length
+		} else {
+			end = l + idx
+		}
+		vals, ln := dbIO.FormatSlice(s[idx:end])
+		u.db.UpdateDB(table, vals, ln)
+	}
+}
+
 //----------------------------------------------------------------------------------
 
-func (u *updater) getDenominator() int {
+func (u *updater) getDenominator(s [][]string) int {
 	// Returns denominator for subsetting upload slice (size in bytes / 16Mb)
-	max := 2000000.0
+	max := 10000000.0
 	size := 0
-	for _, row := range u.newsource {
+	for _, row := range s {
 		for _, i := range row {
 			size += len([]byte(i))
 		}
@@ -82,29 +125,15 @@ func (u *updater) getDenominator() int {
 	return int(math.Ceil(float64(size*8) / max))
 }
 
-func (u *updater) subsetMap(start, end int) map[string]map[string]string {
-	// Subsets maps from newsource to upload to table
-	ret := make(map[string]map[string]string)
-	ret["Zoo"] = make(map[string]string)
-	ret["Institute"] = make(map[string]string)
-	ret["account_id"] = make(map[string]string)
-	for _, i := range u.newsource[start:end] {
-		// Store in source maps by field type
-		ret["Zoo"][i[0]] = i[1]
-		ret["Institute"][i[0]] = i[2]
-		ret["account_id"][i[0]] = i[3]
-	}
-	return ret
-}
-
 func (u *updater) updateSources() {
 	// Adds zoo and institute columns to source table
 	var end int
 	fmt.Println("\tUpdating sources table...")
-	d := u.getDenominator()
+	d := u.getDenominator(u.newsource)
 	length := len(u.newsource)
 	l := int(math.Floor(float64(length) / float64(d)))
 	idx := 0
+	u.db.TruncateTable("Source")
 	for i := 0; i < d; i++ {
 		fmt.Printf("\r\tPerforming update %d of %d...", i+1, d)
 		// Get end index
@@ -113,10 +142,12 @@ func (u *updater) updateSources() {
 		} else {
 			end = l + idx
 		}
-		res := u.db.UpdateColumns("Source", "ID", u.subsetMap(idx, end))
-		if res == true {
+		vals, ln := dbIO.FormatSlice(u.newsource[idx:end])
+		res := u.db.UpdateDB("Source", vals, ln)
+		if res == 1 {
 			idx = end
 		} else {
+			u.restoreTable("Source")
 			os.Exit(1)
 		}
 	}
@@ -131,7 +162,10 @@ func (u *updater) updateAccounts() {
 	}
 	u.db.TruncateTable("Accounts")
 	vals, l := dbIO.FormatSlice(table)
-	u.db.UpdateDB("Accounts", vals, l)
+	res := u.db.UpdateDB("Accounts", vals, l)
+	if res == 0 {
+		u.restoreTable("Accounts")
+	}
 }
 
 func main() {
