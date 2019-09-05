@@ -167,19 +167,23 @@ func (e *entries) evaluateRow(row []string) {
 	miss := true
 	t := getTaxon(row[e.col["Genus"]], row[e.col["Species"]])
 	taxaid, exists := e.taxa[t]
-	ac, ex := e.accounts[row[e.col["Account"]]]
-	if len(row) == e.length && exists == true && ex == true {
-		// Skip entries without valid species and source data
-		aid, inmap := ac[row[e.col["Submitter"]]]
-		if inmap == true {
-			e.count++
-			id := strconv.Itoa(e.count)
-			e.addPatient(id, taxaid, row)
-			e.addSource(id, aid, row)
-			e.addDiagnosis(id, row)
-			e.addTumors(id, row)
-			miss = false
+	if len(row) == e.length && exists == true {
+		// Skip entries without valid species/genus data
+		aid := "-1"
+		ac, ex := e.accounts[row[e.col["Account"]]]
+		if ex == true {
+			id, inmap := ac[row[e.col["Submitter"]]]
+			if inmap == true {
+				aid = id
+			}
 		}
+		e.count++
+		id := strconv.Itoa(e.count)
+		e.addPatient(id, taxaid, row)
+		e.addSource(id, aid, row)
+		e.addDiagnosis(id, row)
+		e.addTumors(id, row)
+		miss = false
 	}
 	if miss == true {
 		e.addUnmatched(row)
