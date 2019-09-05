@@ -58,7 +58,7 @@ basic connection information which will be used for all connections. This includ
 and the path to tableColumns.txt (also located in the bin by default). The host is the only field that may need changing, depending on whether you are using 
 a local or a remote connection.  
 
-Be sure to change the name of "example_config.txt" to "config.txt" (to prevent git from overwritting it).
+Be sure to change the name of "example_config.txt" to "config.txt" (to prevent git from overwriting it).
 
 ### Testing the Installation  
 Run the following in a terminal:
@@ -189,7 +189,6 @@ Extract data from the database and perform optional analyses.
 	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 	-l, --level="Species"	Taxonomic level of taxon (or entries in taxon file)(default = Species).  
 	-t, --taxa="nil"		Name of taxonomic unit to extract data for or path to file with single column of units.  
-	--common				Indicates that common species name was given for taxa.  
 	--count					Returns count of target records instead of printing entire records.  
 	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas).  
 	--table="nil"		Perform operations on this table only.  
