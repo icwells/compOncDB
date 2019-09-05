@@ -139,14 +139,14 @@ are all the same file which must in the format of uploadTemplate.csv.
 #### Update  
 	compOncDB update {-u username} {infile}
 
-	-u, --user="root"		MySQL username (default is root).  
+	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"	Path to config.txt (Default is in utils directory).   
 	--count			Recount species totals and update the Totals table.  
 	--delete		Delete records from given table if column = value. 
 	--table="nil"		Perform operations on this table only.   
 	-c, --column="nil"	Column to be updated with given value if --eval column == value.
 	-v, --value="nil"	Value to write to column if --eval column == value (only supply one evaluation statement).
-	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks).  
+	-e, --eval="nil"	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks).  
 
 	-i infile		Path to input file (see below for formatting).  
 
@@ -170,7 +170,7 @@ a matching taxonomic level would be updated.
 #### Extract  
 	compOncDB extract {-u username} {--flags...} {-o outfile}
 
-	-u, --user="root"		MySQL username (default is root).  
+	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"	Path to config.txt (Default is in utils directory).  
 	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
 	--summarize		Compiles basic summary statistics of the database.  
@@ -185,7 +185,7 @@ Extract data from the database and perform optional analyses.
 #### Search  
 	compOncDB search {-u username} {--flags...} {-o outfile}
 
-	-u, --user="root"		MySQL username (default is root).  
+	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"	Path to config.txt (Default is in utils directory).  
 	-l, --level="Species"	Taxonomic level of taxon (or entries in taxon file)(default = Species).  
 	-t, --taxa="nil"	Name of taxonomic unit to extract data for or path to file with single column of units.  
