@@ -84,17 +84,17 @@ checkSource () {
 
 helpText () {
 	echo ""
-	echo "Runs test scripts for compOncDB. Omit command line arguments to run all tests."
-	echo "Usage: ./test.sh {install/white/parse/upload/search/update}"
+	echo "Runs test scripts for compOncDB."
+	echo "Usage: ./test.sh {all/whitebox/blackbox/parse/db/fmt/vet}"
 	echo ""
-	echo "all		Runs all tests"
-	echo "whitebox		Runs white box tests"
-	echo "blackbox		Runs all black box tests (parse, upload, search, and update)"
-	echo "parse		Runs parseRecords black box tests"
-	echo "db		Runs upload, serach, update, and delete black box tests"
+	echo "all		Runs all tests."
+	echo "whitebox		Runs white box tests."
+	echo "blackbox		Runs all black box tests (parse, upload, search, and update)."
+	echo "parse		Runs parseRecords black box tests."
+	echo "db		Runs upload, serach, update, and delete black box tests."
 	echo "fmt		Runs go fmt on all source files."
 	echo "vet		Runs go vet on all source files."
-	echo "username	MySQL username (root by default)."
+	echo "help		Prints help text."
 }
 
 if [ $# -eq 0 ]; then
