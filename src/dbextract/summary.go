@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/strarray"
 	"strconv"
 	"strings"
 )
@@ -54,6 +55,7 @@ type summary struct {
 	nec    int
 	taxa   int
 	path   int
+	tmass  int
 	com    int
 	hist   int
 }
@@ -74,9 +76,25 @@ func (s *summary) toSlice() [][]string {
 	ret = append(ret, getRow("necropsies", s.nec, s.total))
 	ret = append(ret, getRow("taxonomies", s.taxa, 0))
 	ret = append(ret, getRow("taxonomies with pathology records", s.path, s.taxa))
+	ret = append(ret, getRow("taxonomies with cancer records", s.tmass, s.taxa))
 	ret = append(ret, getRow("taxonomies with common names", s.com, s.taxa))
 	ret = append(ret, getRow("taxonomies with life history data", s.hist, s.taxa))
 	return ret
+}
+
+func (s *summary) setCancerTaxa(db *dbIO.DBIO) {
+	// Identifies number of unique species with cancer records
+	ids := strarray.NewSet()
+	rows := db.GetRows("Diagnosis", "Masspresent", "1", "ID")
+	for _, i := range rows {
+		ids.Add(i[0])
+	}
+	tids := db.GetRows("Patient", "ID", strings.Join(ids.ToSlice(), ","), "taxa_id")
+	ids = strarray.NewSet()
+	for _, i := range tids {
+		ids.Add(i[0])
+	}
+	s.tmass = ids.Length()
 }
 
 func (s *summary) getNumAdult(db *dbIO.DBIO) {
@@ -116,6 +134,7 @@ func (s *summary) setTotals(db *dbIO.DBIO) {
 	s.path = db.Count("Patient", "", "taxa_id", "", "", true)
 	s.com = db.Count("Common", "", "taxa_id", "", "", true)
 	s.hist = db.Count("Life_history", "", "taxa_id", "", "", true)
+	s.setCancerTaxa(db)
 }
 
 func GetSummary(db *dbIO.DBIO) [][]string {
