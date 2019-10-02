@@ -34,25 +34,25 @@ func getDiagnosisUpdate() map[string][]string {
 func getPatientUpdate() map[string][]string {
 	// Returns map of account data
 	ret := make(map[string][]string)
-	ret["1"] = []string{"male", "-1", "-1", "1", "1", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR"}
-	ret["2"] = []string{"NA", "-1", "-1", "1", "2", "13-Jan", "ERYTHROPHAGOCYTOSIS"}
-	ret["3"] = []string{"male", "20", "-1", "1", "3", "1-Dec", "Lymphoma lymph nodes 2 year old male"}
-	ret["4"] = []string{"NA", "-1", "-1", "1", "4", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"}
-	ret["5"] = []string{"NA", "-1", "-1", "1", "5", "1-Dec", "MICRONED HEPATITIS"}
-	ret["6"] = []string{"NA", "-1", "-1", "1", "6", "1-Dec", "NA"}
-	ret["7"] = []string{"NA", "-1", "-1", "1", "7", "1-Dec", "ASPERGILLOSIS"}
-	ret["8"] = []string{"NA", "-1", "-1", "2", "8", "1-Dec", "Ovarian adenoma"}
-	ret["9"] = []string{"NA", "-1", "-1", "2", "9", "1-Dec", "NA"}
-	ret["10"] = []string{"female", "0", "-1", "2", "10", "NA", "skin biopsy:  squamous cell carcinoma; in situ"}
-	ret["11"] = []string{"female", "156", "-1", "2", "11", "NA", "Uterus:  Endometrial carcinoma with metastatis"}
-	ret["12"] = []string{"male", "60", "-1", "2", "12", "NA", "NA"}
-	ret["13"] = []string{"female", "126", "1", "2", "13", "NA", "Spayed biopsy"}
-	ret["14"] = []string{"female", "0", "-1", "2", "14", "NA", "NA"}
-	ret["15"] = []string{"NA", "192", "-1", "2", "15", "NA", "16 month old"}
-	ret["16"] = []string{"female", "132", "-1", "2", "16", "NA", "Malignant liver adenocarcinoma"}
-	ret["17"] = []string{"male", "150", "1", "2", "17", "NA", "neutered"}
-	ret["18"] = []string{"male", "-1", "0", "2", "18", "30463", "NA"}
-	ret["19"] = []string{"male", "56", "0", "2", "19", "32688", "NA"}
+	ret["1"] = []string{"male", "-1", "-1", "1", "1", "Coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR"}
+	ret["2"] = []string{"NA", "-1", "-1", "1", "2", "Coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS"}
+	ret["3"] = []string{"male", "20", "-1", "1", "3", "Coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male"}
+	ret["4"] = []string{"NA", "-1", "-1", "1", "4", "Coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"}
+	ret["5"] = []string{"NA", "-1", "-1", "1", "5", "Coyote", "1-Dec", "MICRONED HEPATITIS"}
+	ret["6"] = []string{"NA", "-1", "-1", "1", "6", "Coyote", "1-Dec", "NA"}
+	ret["7"] = []string{"NA", "-1", "-1", "1", "7", "Coyote", "1-Dec", "ASPERGILLOSIS"}
+	ret["8"] = []string{"NA", "-1", "-1", "2", "8", "wolf", "1-Dec", "Ovarian adenoma"}
+	ret["9"] = []string{"NA", "-1", "-1", "2", "9", "wolf", "1-Dec", "NA"}
+	ret["10"] = []string{"female", "0", "-1", "2", "10", "wolf", "NA", "skin biopsy:  squamous cell carcinoma; in situ"}
+	ret["11"] = []string{"female", "156", "-1", "2", "11", "wolf", "NA", "Uterus:  Endometrial carcinoma with metastatis"}
+	ret["12"] = []string{"male", "60", "-1", "2", "12", "wolf", "NA", "NA"}
+	ret["13"] = []string{"female", "126", "1", "2", "13", "wolf", "NA", "Spayed biopsy"}
+	ret["14"] = []string{"female", "0", "-1", "2", "14", "wolf", "NA", "NA"}
+	ret["15"] = []string{"NA", "192", "-1", "2", "15", "GRAY WOLF", "NA", "16 month old"}
+	ret["16"] = []string{"female", "132", "-1", "2", "16", "GRAY WOLF", "NA", "Malignant liver adenocarcinoma"}
+	ret["17"] = []string{"male", "150", "1", "2", "17", "GRAY WOLF", "NA", "neutered"}
+	ret["18"] = []string{"male", "-1", "0", "2", "18", "GRAY WOLF", "30463", "NA"}
+	ret["19"] = []string{"male", "56", "0", "2", "19", "GRAY WOLF", "32688", "NA"}
 	return ret
 }
 
@@ -90,17 +90,16 @@ func getCleaned() map[string]map[string][]string {
 func getCanisResults() map[string][]string {
 	// Returns map of results for male canis records
 	ret := make(map[string][]string)
-	ret["3"] = []string{"male", "24", "-1", "1", "3", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "0", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "1"}
-	ret["12"] = []string{"male", "60", "-1", "2", "12", "NA", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "2"}
-	ret["17"] = []string{"male", "144", "1", "2", "17", "NA", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "2"}
-	//ret["19"] = []string{"male", "56", "0", "2", "19", "32688", "NA", "0", "0", "0", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "2"}
+	ret["3"] = []string{"male", "24", "-1", "1", "3", "Coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "0", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "1"}
+	ret["12"] = []string{"male", "60", "-1", "2", "12", "wolf", "NA", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "2"}
+	ret["17"] = []string{"male", "144", "1", "2", "17", "GRAY WOLF", "NA", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "2"}
 	return ret
 }
 
 func getCoyoteResults() map[string][]string {
 	// Returns map of coyote records
 	ret := make(map[string][]string)
-	ret["3"] = []string{"male", "24", "-1", "1", "3", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "0", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "1"}
+	ret["3"] = []string{"male", "24", "-1", "1", "3", "Coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "0", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "1"}
 	return ret
 }
 

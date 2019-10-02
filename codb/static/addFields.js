@@ -4,7 +4,7 @@ let COUNT = 0;
 let SEARCHES = {};
 
 const TABLES = {
-	Patient: [["ID", "INT"], ["Sex", "TEXT"], ["Age", "DOUBLE"], ["Castrated", "TINYINT"], ["taxa_id", "INT"], ["source_id", "TEXT"], ["Date", "TEXT"], ["Comments", "TEXT"]],
+	Patient: [["ID", "INT"], ["Sex", "TEXT"], ["Age", "DOUBLE"], ["Castrated", "TINYINT"], ["taxa_id", "INT"], ["source_id", "TEXT"], ["source_name", "TEXT"], ["Date", "TEXT"], ["Comments", "TEXT"]],
 	Diagnosis: [["ID", "INT"], ["Masspresent", "TINYINT"], ["Hyperplasia", "TINYINT"], ["Necropsy", "TINYINT"], ["Metastasis", "TINYINT"]],
 	Tumor: [["ID", "INT"], ["primary_tumor", "TINYINT"], ["Malignant", "TINYINT"], ["Type", "TEXT"], ["Location", "TEXT"]],
 	Taxonomy: [["taxa_id", "INT"], ["Kingdom", "TEXT"], ["Phylum", "TEXT"], ["Class", "TEXT"], ["Orders", "TEXT"], ["Family", "TEXT"], ["Genus", "TEXT"], ["Species", "TEXT"], ["Source", "TEXT"]],

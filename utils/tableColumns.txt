@@ -5,6 +5,7 @@ Age DECIMAL(6,2)
 Castrated TINYINT
 taxa_id INT
 source_id TEXT
+source_name TEXT
 Date TEXT
 Comments TEXT
 
