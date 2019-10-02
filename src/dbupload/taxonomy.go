@@ -43,6 +43,9 @@ func speciesCaps(species string) string {
 	if len(s) > 1 {
 		// Save with genus capitalized and species in lower case
 		ret = strings.Title(s[0]) + " " + s[1]
+		if len(s) > 2 && ret == "Canis lupus" && strings.TrimSpace(s[2]) == "familiaris" {
+			ret += " " + s[2]
+		}
 	} else {
 		ret = "NA"
 	}
