@@ -66,8 +66,12 @@ func newFlash(msg string) *Output {
 func (o *Output) getTempFile(name string) {
 	// Stores path to named file in tmp directory
 	t := time.Now()
-	stamp := strings.Replace(t.Format(time.Stamp), " ", "_", -1)
-	o.File = fmt.Sprintf("%s_%s.csv", name, stamp)
+	fmt.Println(t)
+	stamp := t.Format(time.RFC3339)
+	// Trim timestamp to minutes
+	stamp = stamp[:strings.LastIndex(stamp, "-")]
+	stamp = stamp[:strings.LastIndex(stamp, ":")]
+	o.File = fmt.Sprintf("%s.%s.csv", name, stamp)
 	o.Outfile = fmt.Sprintf("/tmp/%s", o.File)
 }
 
