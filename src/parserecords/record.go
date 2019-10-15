@@ -97,7 +97,7 @@ func (r *record) String(debug bool) string {
 		if idx > 0 {
 			buffer.WriteByte(',')
 		}
-		buffer.WriteString(i)
+		buffer.WriteString(strings.TrimSpace(i))
 	}
 	if debug == true {
 		buffer.WriteByte(',')

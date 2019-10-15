@@ -181,32 +181,22 @@ func (t *taxa) setTaxon(spl []string, s string, l int, cur bool) {
 
 func (t *taxa) extractTaxa(infile string) {
 	// Extracts taxonomy from input file
-	var l int
-	first := true
+	var rows [][]string
 	cur := true
 	fmt.Printf("\n\tExtracting taxa from %s\n", infile)
-	f := iotools.OpenFile(infile)
-	defer f.Close()
-	input := iotools.GetScanner(f)
-	for input.Scan() {
-		line := strings.TrimSpace(string(input.Text()))
-		spl := strings.Split(line, ",")
-		if first == false {
-			c := strarray.TitleCase(spl[t.col["SearchTerm"]])
-			s := getTaxon(spl[t.col["Genus"]], spl[t.col["Species"]])
-			t.setTaxon(spl, s, l, cur)
-			if t.commonNames == true {
-				t.setCommon(spl, c, s, cur)
-			}
-		} else {
-			t.col = iotools.GetHeader(spl)
-			l = len(spl)
-			if _, ex := t.col["Name"]; ex == false {
-				// Set dummy currator column
-				t.col["Name"] = l + 1
-				cur = false
-			}
-			first = false
+	rows, t.col = iotools.ReadFile(infile, true)
+	l := len(t.col)
+	if _, ex := t.col["Name"]; ex == false {
+		// Set dummy currator column
+		t.col["Name"] = l + 1
+		cur = false
+	}
+	for _, i := range rows {
+		c := strarray.TitleCase(i[t.col["SearchTerm"]])
+		s := getTaxon(i[t.col["Genus"]], i[t.col["Species"]])
+		t.setTaxon(i, s, l, cur)
+		if t.commonNames == true {
+			t.setCommon(i, c, s, cur)
 		}
 	}
 }
