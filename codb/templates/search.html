@@ -2,10 +2,11 @@
 {{template "header"}}
 <script type=text/javascript src="/static/addFields.js"></script>
 {{if .User}}
-  <small>
+  <div><small>
     <span class="left">Last Updated: {{.Update}}</span>
     <span class="right">User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></span>
-  </small>
+  </small></div>
+  </br>
 <hr>
 {{end}}
   {{if .Flash}}

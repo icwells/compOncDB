@@ -99,8 +99,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	pw := r.PostForm.Get("password")
 	if user != "" && pw != "" {
 		// Check credentials
-		pass, ut := ping(user, pw)
-		if pass {
+		p, ut := ping(user, pw)
+		if p {
 			// Store cookie
 			session, _ := STORE.Get(r, C.name)
 			session.Values["timestamp"] = getTimestamp()
@@ -108,6 +108,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			session.Values["password"] = pw
 			session.Values["updatetime"] = ut
 			session.Save(r, w)
+			pass = true
 		}
 	}
 	if pass {

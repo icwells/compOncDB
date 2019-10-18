@@ -1,9 +1,11 @@
 {{define "result"}}
 {{template "header"}}
 {{if .User}}
-  <div class="username" align="right">
-    <small>User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></small><br/>
-  </div>
+  <div><small>
+    <span class="left">Last Updated: {{.Update}}</span>
+    <span class="right">User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></span>
+  </small></div>
+  </br>
 <hr>
 {{end}}
 <section>

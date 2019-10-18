@@ -17,8 +17,9 @@ func ping(user, password string) (bool, string) {
 	var update string
 	ret := dbIO.Ping(C.config.Host, C.config.Database, user, password)
 	if ret {
-		db, _ := dbIO.Connect(C.config.Host, C.config.Database, user, password)
-		update = db.LastUpdate().Format("RFC822")
+		db, _ := dbIO.Connect(C.config.Host, "", user, password)
+		db.GetTableColumns()
+		update = db.LastUpdate().Format(time.RFC822)
 	}
 	return ret, update
 }
