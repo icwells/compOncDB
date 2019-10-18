@@ -12,7 +12,7 @@ const TABLES = {
 	Life_history: [["taxa_id", "INT"], ["female_maturity", "DOUBLE"], ["male_maturity", "DOUBLE"], ["Gestation", "DOUBLE"], ["Weaning", "DOUBLE"], ["Infancy", "DOUBLE"], ["litter_size", "DOUBLE"], ["litters_year", "DOUBLE"], ["interbirth_interval", "DOUBLE"], ["birth_weight", "DOUBLE"], ["weaning_weight", "DOUBLE"], ["adult_weight", "DOUBLE"], ["growth_rate", "DOUBLE"], ["max_longevity", "DOUBLE"], ["metabolic_rate", "DOUBLE"]],
 	Totals: [["taxa_id", "INT"], ["Total", "INT"], ["Avgage", "DOUBLE"], ["Adult", "INT"], ["Male", "INT"], ["Female", "INT"], ["Cancer", "INT"], ["Cancerage", "DOUBLE"], ["Malecancer", "INT"], ["Femalecancer", "INT"]],
 	Denominators: [["taxa_id", "INT"], ["Noncancer", "INT"]],
-	Source: [["ID", "INT"], ["service_name", "TEXT"], ["account_id", "INT"]],
+	Source: [["ID", "INT"], ["service_name", "TEXT"], ["Zoo", "TINYINT"], ["Institute", "TINYINT"], ["account_id", "INT"]],
 	Accounts: [["account_id", "INT"], ["Account", "TEXT"], ["submitter_name", "TEXT"]],
 	Unmatched: [["sourceID", "TEXT"], ["name", "TEXT"], ["sex", "TEXT"], ["age", "DOUBLE"], ["date", "TEXT"], ["masspresent", "TINYINT"], ["necropsy", "TINYINT"], ["comments", "TEXT"], ["Service", "TEXT"]]
 };
