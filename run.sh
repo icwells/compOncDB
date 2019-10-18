@@ -6,7 +6,7 @@
 
 HOST=127.0.0.1
 PORT=8080
-LOG="serverLog.txt"
+LOG="../serverLog.txt"
 PID=".codb_pid.txt"
 
 killProc () {
@@ -18,6 +18,7 @@ killProc () {
 runHost () {
 	# Start gunicorn with nohup and append stderr and stdout to serverLog
 	echo "Starting production server on $HOST:$PORT..."
+	cd codb/
 	nohup ./codbApplication -h $HOST -p $PORT > $LOG 2>&1 &
 	# Save process ids for easy termination later
 	echo $! > ../$PID
