@@ -24,6 +24,7 @@ func clearSession(w http.ResponseWriter, r *http.Request) {
 	session.Values["timestamp"] = ""
 	session.Values["username"] = ""
 	session.Values["password"] = ""
+	session.Values["updatetime"] = ""
 	session.Save(r, w)
 }
 
@@ -49,9 +50,9 @@ func checkTimestamp(stamp string) bool {
 	}
 }
 
-func getCredentials(w http.ResponseWriter, r *http.Request) (string, string) {
-	// Reads username and password from cookie
-	var user, password string
+func getCredentials(w http.ResponseWriter, r *http.Request) (string, string, string) {
+	// Reads username, password, and last update from cookie
+	var user, password, update string
 	session, _ := STORE.Get(r, C.name)
 	stamp, exists := session.Values["timestamp"]
 	if (exists && checkTimestamp(stamp.(string))) || exists == false {
@@ -64,20 +65,29 @@ func getCredentials(w http.ResponseWriter, r *http.Request) (string, string) {
 				password = pw.(string)
 				updateTimestamp(w, r)
 			}
+			ut, exists := session.Values["updatetime"]
+			if exists {
+				update = ut.(string)
+			}
 		}
 	}
-	return user, password
+	return user, password, update
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves login page
-	user, pw := getCredentials(w, r)
-	if user != "" && pw != "" && ping(user, pw) {
-		// Forward to search form if logged in
-		http.Redirect(w, r, C.search, http.StatusFound)
-	} else {
+	login := true
+	user, pw, _ := getCredentials(w, r)
+	if user != "" && pw != "" {
+		if pass, _ := ping(user, pw); pass {
+			// Forward to search form if logged in
+			http.Redirect(w, r, C.search, http.StatusFound)
+			login = false
+		}
+	}
+	if login {
 		// Render login template
-		C.renderTemplate(w, C.logintemp, newOutput(""))
+		C.renderTemplate(w, C.logintemp, newOutput("", ""))
 	}
 }
 
@@ -89,14 +99,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	pw := r.PostForm.Get("password")
 	if user != "" && pw != "" {
 		// Check credentials
-		if ping(user, pw) {
+		pass, ut := ping(user, pw)
+		if pass {
 			// Store cookie
 			session, _ := STORE.Get(r, C.name)
 			session.Values["timestamp"] = getTimestamp()
 			session.Values["username"] = user
 			session.Values["password"] = pw
+			session.Values["updatetime"] = ut
 			session.Save(r, w)
-			pass = true
 		}
 	}
 	if pass {
@@ -114,9 +125,9 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func changeHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders change password form
-	user, _ := getCredentials(w, r)
+	user, _, _ := getCredentials(w, r)
 	if user != "" {
-		C.renderTemplate(w, C.changetemp, newOutput(user))
+		C.renderTemplate(w, C.changetemp, newOutput(user, ""))
 	} else {
 		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
 	}
@@ -126,7 +137,7 @@ func passwordHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders change password form
 	msg := "Please login to access database."
 	template := C.logintemp
-	user, pw := getCredentials(w, r)
+	user, pw, _ := getCredentials(w, r)
 	if user != "" && pw != "" {
 		// Redirect to same page if an error occurs
 		template = C.changetemp
@@ -142,10 +153,10 @@ func passwordHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
-	// Renders search form (newOutput supplies username)
-	user, _ := getCredentials(w, r)
+	// Renders search form
+	user, _, update := getCredentials(w, r)
 	if user != "" {
-		C.renderTemplate(w, C.searchtemp, newOutput(user))
+		C.renderTemplate(w, C.searchtemp, newOutput(user, update))
 	} else {
 		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
 	}
@@ -153,9 +164,10 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
-	user, pw := getCredentials(w, r)
+	user, pw, update := getCredentials(w, r)
 	if user != "" && pw != "" {
-		out, err := extractFromDB(r, user, pw)
+		out := newOutput(user, update)
+		err := out.extractFromDB(r, pw)
 		if err == nil {
 			if out.Flash != "" {
 				// Return to search page with flash message
@@ -165,7 +177,8 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			// Return to login page if an error is encoutered (error occurs at connection)
-			C.renderTemplate(w, C.logintemp, newFlash(err.Error()))
+			out.Flash = err.Error()
+			C.renderTemplate(w, C.logintemp, out)
 		}
 	} else {
 		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
@@ -174,7 +187,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves output files for download
-	user, pw := getCredentials(w, r)
+	user, pw, _ := getCredentials(w, r)
 	if user != "" && pw != "" {
 		vars := mux.Vars(r)
 		http.ServeFile(w, r, fmt.Sprintf("/tmp/%s", vars["filename"]))

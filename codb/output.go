@@ -12,9 +12,15 @@ import (
 	"time"
 )
 
-func ping(user, password string) bool {
+func ping(user, password string) (bool, string) {
 	// Returns true if credentials are valid
-	return dbIO.Ping(C.config.Host, C.config.Database, user, password)
+	var update string
+	ret := dbIO.Ping(C.config.Host, C.config.Database, user, password)
+	if ret {
+		db, _ := dbIO.Connect(C.config.Host, C.config.Database, user, password)
+		update = db.LastUpdate().Format("RFC822")
+	}
+	return ret, update
 }
 
 func changePassword(r *http.Request, user, password string) string {
@@ -43,22 +49,24 @@ func changePassword(r *http.Request, user, password string) string {
 
 type Output struct {
 	User    string
+	Update  string
 	Flash   string
 	File    string
 	Outfile string
 	Count   string
 }
 
-func newOutput(user string) *Output {
+func newOutput(user, ut string) *Output {
 	// Returns empty output struct
 	o := new(Output)
 	o.User = user
+	o.Update = ut
 	return o
 }
 
 func newFlash(msg string) *Output {
 	// Returns output with flash error message
-	o := newOutput("")
+	o := newOutput("", "")
 	o.Flash = msg
 	return o
 }
@@ -75,7 +83,7 @@ func (o *Output) getTempFile(name string) {
 	o.Outfile = fmt.Sprintf("/tmp/%s", o.File)
 }
 
-func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm, user string) {
+func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
 	// Searches database for results
 	var res [][]string
 	var header string
@@ -90,41 +98,40 @@ func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm, user string) {
 		}
 	}
 	if f.Count == false && len(res) >= 1 {
-		o.getTempFile(user)
+		o.getTempFile(o.User)
 		codbutils.WriteResults(o.Outfile, header, res)
 	} else {
 		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", len(res))
 	}
 }
 
-func extractFromDB(r *http.Request, user, password string) (*Output, error) {
+func (o *Output) extractFromDB(r *http.Request, password string) error {
 	// Extracts data to outfile/stdout
-	ret := newOutput(user)
-	db, err := dbIO.Connect(C.config.Host, C.config.Database, ret.User, password)
+	db, err := dbIO.Connect(C.config.Host, C.config.Database, o.User, password)
 	if err == nil {
 		var f *SearchForm
 		db.GetTableColumns()
-		f, ret.Flash = setSearchForm(r, db.Columns)
-		if ret.Flash == "" {
+		f, o.Flash = setSearchForm(r, db.Columns)
+		if o.Flash == "" {
 			if f.Dump == true {
 				// Extract entire table
 				table := db.GetTable(f.Table)
-				ret.getTempFile(user)
-				codbutils.WriteResults(ret.Outfile, db.Columns[f.Table], table)
+				o.getTempFile(o.User)
+				codbutils.WriteResults(o.Outfile, db.Columns[f.Table], table)
 			} else if f.Summary == true {
-				ret.getTempFile("databaseSummary")
+				o.getTempFile("databaseSummary")
 				header := "Field,Total,%"
-				codbutils.WriteResults(ret.Outfile, header, dbextract.GetSummary(db))
+				codbutils.WriteResults(o.Outfile, header, dbextract.GetSummary(db))
 			} else if f.Cancerrate == true {
 				// Extract cancer rates
-				ret.getTempFile(fmt.Sprintf("cancerRates.min%d", f.Min))
+				o.getTempFile(fmt.Sprintf("cancerRates.min%d", f.Min))
 				header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
 				header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
-				codbutils.WriteResults(ret.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))
+				codbutils.WriteResults(o.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))
 			} else {
-				ret.searchDB(db, f, user)
+				o.searchDB(db, f)
 			}
 		}
 	}
-	return ret, err
+	return err
 }
