@@ -50,7 +50,7 @@ installMain () {
 	# Application
 	echo "Building $APP..."
 	cd codb/
-	go build -i -o $APP *.go
+	go build -i -o ../$APP *.go
 }
 
 echo ""
