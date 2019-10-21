@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func compareEntries(actual, expected []string) int {
@@ -111,12 +112,17 @@ func TestSearches(t *testing.T) {
 
 func TestUpdates(t *testing.T) {
 	// Tests dumped tables after update
+	start := time.Now().UTC()
 	db := connectToDatabase()
 	exp := getExpectedUpdates()
 	dbextract.UpdateEntries(db, updatefile)
 	for _, i := range []string{"Patient", "Diagnosis", "Tumor"} {
 		table := dbupload.ToMap(db.GetTable(i))
 		compareTables(t, i, exp[i], table)
+	}
+	ut := db.LastUpdate()
+	if !ut.Equal(start) && ut.Before(start) {
+		t.Errorf("Actual last update time %s incorrect. Start: %s", ut.Format(time.RFC822), start.Format(time.RFC822))
 	}
 }
 

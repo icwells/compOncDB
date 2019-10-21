@@ -17,9 +17,10 @@ func ping(user, password string) (bool, string) {
 	var update string
 	ret := dbIO.Ping(C.config.Host, C.config.Database, user, password)
 	if ret {
-		db, _ := dbIO.Connect(C.config.Host, "", user, password)
+		db, _ := dbIO.Connect(C.config.Host, C.config.Database, user, password)
 		db.GetTableColumns()
 		update = db.LastUpdate().Format(time.RFC822)
+
 	}
 	return ret, update
 }
@@ -61,7 +62,7 @@ func newOutput(user, ut string) *Output {
 	// Returns empty output struct
 	o := new(Output)
 	o.User = user
-	o.Update = ut
+	o.Update = strings.Replace(ut, "UTC", "Eastern Time", 1)
 	return o
 }
 
