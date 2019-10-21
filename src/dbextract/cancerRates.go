@@ -12,7 +12,9 @@ func formatRates(records map[string]*dbupload.Record) [][]string {
 	// Calculates rates and formats for printing
 	var ret [][]string
 	for _, v := range records {
-		ret = append(ret, v.CalculateRates())
+		if len(v.Species) > 0 {
+			ret = append(ret, v.CalculateRates())
+		}
 	}
 	return ret
 }
@@ -36,7 +38,9 @@ func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
 	for _, i := range target {
 		var rec dbupload.Record
 		rec.SetRecord(i)
-		records[i[0]] = &rec
+		if len(i[0]) > 0 {
+			records[i[0]] = &rec
+		}
 	}
 	return records
 }
