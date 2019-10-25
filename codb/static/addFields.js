@@ -206,7 +206,9 @@ function newSearch(divname) {
 		if (COUNT === 0){
 			// Add options to single table select
 			let tableselect = document.getElementById("Table");
-			setTableNames(tableselect);
+			if (tableselect != null) {
+				setTableNames(tableselect);
+			}
 		}
 		// Create new div
 		let newdiv = document.createElement("div");
