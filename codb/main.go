@@ -24,13 +24,13 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if user != "" && pw != "" {
 		if pass, _ := ping(user, pw); pass {
 			// Forward to search form if logged in
-			http.Redirect(w, r, C.u.search, http.StatusFound)
+			http.Redirect(w, r, C.u.menu, http.StatusFound)
 			login = false
 		}
 	}
 	if login {
 		// Render login template
-		C.renderTemplate(w, C.logintemp, newOutput("", ""))
+		C.renderTemplate(w, C.temp.login, newOutput("", ""))
 	}
 }
 
@@ -55,9 +55,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if pass {
-		http.Redirect(w, r, C.u.search, http.StatusFound)
+		http.Redirect(w, r, C.u.menu, http.StatusFound)
 	} else {
-		C.renderTemplate(w, C.logintemp, newFlash("Username or password is incorrect."))
+		C.renderTemplate(w, C.temp.login, newFlash("Username or password is incorrect."))
 	}
 }
 
@@ -69,41 +69,36 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func changeHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders change password form
-	user, _, _ := getCredentials(w, r)
-	if user != "" {
-		C.renderTemplate(w, C.changetemp, newOutput(user, ""))
-	} else {
-		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
-	}
+	handleRender(w, r, C.temp.change, C.temp.login, "Please login to access database.")
 }
 
 func passwordHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders change password form
 	msg := "Please login to access database."
-	template := C.logintemp
+	template := C.temp.login
 	user, pw, _ := getCredentials(w, r)
 	if user != "" && pw != "" {
 		// Redirect to same page if an error occurs
-		template = C.changetemp
+		template = C.temp.change
 		msg = changePassword(r, user, pw)
 		if msg == "" {
 			// Logout and return to login page
 			msg = "Successfully changed password."
-			template = C.logintemp
+			template = C.temp.login
 			clearSession(w, r)
 		}
 	}
 	C.renderTemplate(w, template, newFlash(msg))
 }
 
+func menuHandler(w http.ResponseWriter, r *http.Request) {
+	// Renders menu page
+	handleRender(w, r, C.temp.menu, C.temp.login, "Please login to access database.")
+}
+
 func formHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders search form
-	user, _, update := getCredentials(w, r)
-	if user != "" {
-		C.renderTemplate(w, C.searchtemp, newOutput(user, update))
-	} else {
-		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
-	}
+	handleRender(w, r, C.temp.search, C.temp.login, "Please login to access database.")
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
@@ -115,17 +110,17 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			if out.Flash != "" {
 				// Return to search page with flash message
-				C.renderTemplate(w, C.searchtemp, out)
+				C.renderTemplate(w, C.temp.search, out)
 			} else {
-				C.renderTemplate(w, C.resulttemp, out)
+				C.renderTemplate(w, C.temp.result, out)
 			}
 		} else {
 			// Return to login page if an error is encoutered (error occurs at connection)
 			out.Flash = err.Error()
-			C.renderTemplate(w, C.logintemp, out)
+			C.renderTemplate(w, C.temp.login, out)
 		}
 	} else {
-		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
+		C.renderTemplate(w, C.temp.login, newFlash("Please login to access database."))
 	}
 }
 
@@ -136,7 +131,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		http.ServeFile(w, r, fmt.Sprintf("/tmp/%s", vars["filename"]))
 	} else {
-		C.renderTemplate(w, C.logintemp, newFlash("Please login to access database."))
+		C.renderTemplate(w, C.temp.login, newFlash("Please login to access database."))
 	}
 }
 
@@ -158,6 +153,7 @@ func main() {
 	r.HandleFunc(C.u.logout, logoutHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.changepw, changeHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.newpw, passwordHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.menu, menuHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.search, formHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.output, searchHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.get+"{filename}", downloadHandler).Methods(http.MethodGet)

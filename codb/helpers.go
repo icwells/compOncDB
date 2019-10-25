@@ -62,3 +62,13 @@ func getCredentials(w http.ResponseWriter, r *http.Request) (string, string, str
 	}
 	return user, password, update
 }
+
+func handleRender(w http.ResponseWriter, r *http.Request, target, def, msg string) {
+	// Handles basic credential check and redirect
+	user, _, update := getCredentials(w, r)
+	if user != "" {
+		C.renderTemplate(w, target, newOutput(user, update))
+	} else {
+		C.renderTemplate(w, def, newFlash(msg))
+	}
+}

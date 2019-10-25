@@ -115,7 +115,7 @@ func (o *Output) extractFromDB(r *http.Request, password string) error {
 		db.GetTableColumns()
 		f, o.Flash = setSearchForm(r, db.Columns)
 		if o.Flash == "" {
-			if f.Dump == true {
+			if len(f.Table) > 0 {
 				// Extract entire table
 				table := db.GetTable(f.Table)
 				o.getTempFile(o.User)

@@ -11,15 +11,16 @@ import (
 )
 
 type urls struct {
-	source     string
-	login      string
-	search     string
-	output     string
-	get        string
-	logout     string
-	newpw      string
-	changepw   string
-	static     string
+	source   string
+	login    string
+	menu     string
+	search   string
+	output   string
+	get      string
+	logout   string
+	newpw    string
+	changepw string
+	static   string
 }
 
 func setURLs() *urls {
@@ -27,6 +28,7 @@ func setURLs() *urls {
 	u := new(urls)
 	u.source = "/codb/"
 	u.login = "/codb/login"
+	u.menu = "/codb/menu/"
 	u.search = "/codb/search/"
 	u.output = "/codb/results/"
 	u.get = "/codb/get/"
@@ -38,22 +40,33 @@ func setURLs() *urls {
 }
 
 type temps struct {
-	
+	source string
+	login  string
+	change string
+	menu   string
+	search string
+	result string
+}
+
+func setTemps() *temps {
+	// Stores tmeplate names
+	t := new(temps)
+	t.source = "templates/*.html"
+	t.login = "login"
+	t.change = "changepassword"
+	t.menu = "menu"
+	t.search = "search"
+	t.result = "result"
+	return t
 }
 
 type configuration struct {
-	name       string
-	appdir     string
-	u		   *urls
-
-	searchtemp string
-	resulttemp string
-	logintemp  string
-	changetemp string
-	tmpl       string
-
-	templates  *template.Template
-	config     codbutils.Configuration
+	name      string
+	appdir    string
+	u         *urls
+	temp      *temps
+	templates *template.Template
+	config    codbutils.Configuration
 }
 
 func setConfiguration() *configuration {
@@ -62,12 +75,8 @@ func setConfiguration() *configuration {
 	c.name = "session"
 	c.appdir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/app")
 	c.u = setURLs()
-	c.tmpl = "templates/*.html"
-	c.logintemp = "login"
-	c.searchtemp = "search"
-	c.resulttemp = "result"
-	c.changetemp = "changepassword"
-	c.templates = template.Must(template.ParseGlob(c.tmpl))
+	c.temp = setTemps()
+	c.templates = template.Must(template.ParseGlob(c.temp.source))
 	c.config = codbutils.SetConfiguration("config.txt", "", false)
 	return &c
 }

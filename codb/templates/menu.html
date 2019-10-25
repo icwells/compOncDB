@@ -1,6 +1,5 @@
 {{define "menu"}}
 {{template "header"}}
-<script type=text/javascript src="/static/addFields.js"></script>
 {{if .User}}
   <div><small>
     <span class="left">Last Updated: {{.Update}}</span>
@@ -13,14 +12,13 @@
     <div class="flash">{{.Flash}}</div>
   {{end}}
 <section>
-  <hr>
   <h1>What would you like to do?</h1>
   <hr>
   <p><a href="/codb/summary/">Compile basic summary statistics of the database.</a></p>
   <!--Cancer rate expandable-->
-  <p><a href="#" class="Cancerrate">Calculate cancer rates.</a></p>
-  <form method="POST" action="/codb/results/">
-    <div id="Cancerrate" style="display:none" onClick="expandCollapse('Cancerrate');">
+  <p><a href="#" onClick="expandCollapse('Cancerrate');">Calculate cancer rates.</a></p>
+  <div id="Cancerrate" style="display:none">
+    <form method="POST" action="/codb/results/">
       <div id="SearchBlock">
         <body onload="newSearch('SearchBlock');"></body>
       </div>
@@ -32,24 +30,26 @@
         <input type="checkbox" name="Necropsy">
         <label for="Necropsy">Extract only necropsy records (extracts all matches by default).</label>
       </div>
-    </div>
-    <button type="submit">Submit</button>
-  </form>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
   <!--Table dump expandable-->
-  <p><a href="#" class="Cancerrate">Extract entire table.</a></p>
-  <form method="POST" action="/codb/results/">
-    <div id="Dump" style="display:none" onClick="expandCollapse('Dump');">
+  <p><a href="#" onClick="expandCollapse('Dump');">Extract entire table.</a></p>
+  <div id="Dump" style="display:none">
+    <form method="POST" action="/codb/results/">
       <select id="Table" name="Table">
         <option name="Table" value="" selected="selected"></option>
       </select>
-    </div>
-    <button type="submit">Submit</button>
-  </form>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
   <p><a href="/codb/search/">Search database.</a></p>
   <!--
-  <p><a href="/codb/upload/">Upload data to the database (requires admin privileges).</a></p>
-  <p><a href="/codb/update/">Update records in the database (requires admin privileges).</a></p>
-  <p><a href="/codb/delete/">Delete records from the database (requires admin privileges).</a></p>
+  <hr>
+  <p>The following require admin privileges:</p>
+  <p><a href="/codb/upload/">Upload data to the database.</a></p>
+  <p><a href="/codb/update/">Update records in the database.</a></p>
+  <p><a href="/codb/delete/">Delete records from the database.</a></p>
   -->
 </section>
 {{template "footer"}}
