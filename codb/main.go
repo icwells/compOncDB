@@ -10,69 +10,12 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"net/http"
-	"time"
 )
 
 var (
 	STORE = sessions.NewCookieStore(securecookie.GenerateRandomKey(64), securecookie.GenerateRandomKey(32))
 	C     = setConfiguration()
 )
-
-func clearSession(w http.ResponseWriter, r *http.Request) {
-	// Deletes username and password cookies
-	session, _ := STORE.Get(r, C.name)
-	session.Values["timestamp"] = ""
-	session.Values["username"] = ""
-	session.Values["password"] = ""
-	session.Values["updatetime"] = ""
-	session.Save(r, w)
-}
-
-func getTimestamp() string {
-	// Returns date and time as string
-	return time.Now().Format(time.RFC1123Z)
-}
-
-func updateTimestamp(w http.ResponseWriter, r *http.Request) {
-	// Updates timestamp cookie
-	session, _ := STORE.Get(r, C.name)
-	session.Values["timestamp"] = getTimestamp()
-	session.Save(r, w)
-}
-
-func checkTimestamp(stamp string) bool {
-	// Requires login after one hour of inactivity
-	timestamp, err := time.Parse(time.RFC1123Z, stamp)
-	if err == nil {
-		return time.Since(timestamp) < time.Hour
-	} else {
-		return false
-	}
-}
-
-func getCredentials(w http.ResponseWriter, r *http.Request) (string, string, string) {
-	// Reads username, password, and last update from cookie
-	var user, password, update string
-	session, _ := STORE.Get(r, C.name)
-	stamp, exists := session.Values["timestamp"]
-	if (exists && checkTimestamp(stamp.(string))) || exists == false {
-		// Proceed if stamp has been updated in the last hour
-		name, ex := session.Values["username"]
-		if ex {
-			user = name.(string)
-			pw, e := session.Values["password"]
-			if e {
-				password = pw.(string)
-				updateTimestamp(w, r)
-			}
-			ut, exists := session.Values["updatetime"]
-			if exists {
-				update = ut.(string)
-			}
-		}
-	}
-	return user, password, update
-}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves login page
@@ -81,7 +24,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if user != "" && pw != "" {
 		if pass, _ := ping(user, pw); pass {
 			// Forward to search form if logged in
-			http.Redirect(w, r, C.search, http.StatusFound)
+			http.Redirect(w, r, C.u.search, http.StatusFound)
 			login = false
 		}
 	}
@@ -112,7 +55,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if pass {
-		http.Redirect(w, r, C.search, http.StatusFound)
+		http.Redirect(w, r, C.u.search, http.StatusFound)
 	} else {
 		C.renderTemplate(w, C.logintemp, newFlash("Username or password is incorrect."))
 	}
@@ -121,7 +64,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Clears session and returns to login page
 	clearSession(w, r)
-	http.Redirect(w, r, C.source, http.StatusFound)
+	http.Redirect(w, r, C.u.source, http.StatusFound)
 }
 
 func changeHandler(w http.ResponseWriter, r *http.Request) {
@@ -207,17 +150,17 @@ func main() {
 	STORE.MaxAge(14400)
 	kingpin.Parse()
 	r := mux.NewRouter()
-	fs := http.FileServer(http.Dir("." + C.static))
-	http.Handle(C.static, http.StripPrefix(C.static, fs))
+	fs := http.FileServer(http.Dir("." + C.u.static))
+	http.Handle(C.u.static, http.StripPrefix(C.u.static, fs))
 	// Register handler functions
-	r.HandleFunc(C.source, indexHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.login, loginHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.logout, logoutHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.changepw, changeHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.newpw, passwordHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.search, formHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.output, searchHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.get+"{filename}", downloadHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.source, indexHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.login, loginHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.logout, logoutHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.changepw, changeHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.newpw, passwordHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.search, formHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.output, searchHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.get+"{filename}", downloadHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", *host, *port), nil))

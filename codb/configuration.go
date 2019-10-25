@@ -10,23 +10,48 @@ import (
 	"path"
 )
 
-type configuration struct {
-	name       string
-	appdir     string
+type urls struct {
 	source     string
 	login      string
 	search     string
-	searchtemp string
 	output     string
 	get        string
-	resulttemp string
-	logintemp  string
 	logout     string
 	newpw      string
 	changepw   string
-	changetemp string
 	static     string
+}
+
+func setURLs() *urls {
+	// Stores url stems
+	u := new(urls)
+	u.source = "/codb/"
+	u.login = "/codb/login"
+	u.search = "/codb/search/"
+	u.output = "/codb/results/"
+	u.get = "/codb/get/"
+	u.logout = "/codb/logout"
+	u.newpw = "/codb/newpassword"
+	u.changepw = "/codb/changepassword"
+	u.static = "/static/"
+	return u
+}
+
+type temps struct {
+	
+}
+
+type configuration struct {
+	name       string
+	appdir     string
+	u		   *urls
+
+	searchtemp string
+	resulttemp string
+	logintemp  string
+	changetemp string
 	tmpl       string
+
 	templates  *template.Template
 	config     codbutils.Configuration
 }
@@ -36,15 +61,7 @@ func setConfiguration() *configuration {
 	var c configuration
 	c.name = "session"
 	c.appdir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/app")
-	c.source = "/codb/"
-	c.login = "/codb/login"
-	c.search = "/codb/search/"
-	c.output = "/codb/results/"
-	c.get = "/codb/get/"
-	c.logout = "/codb/logout"
-	c.newpw = "/codb/newpassword"
-	c.changepw = "/codb/changepassword"
-	c.static = "/static/"
+	c.u = setURLs()
 	c.tmpl = "templates/*.html"
 	c.logintemp = "login"
 	c.searchtemp = "search"
