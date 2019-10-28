@@ -3,9 +3,48 @@
 package main
 
 import (
+	"fmt"
+	"github.com/icwells/dbIO"
 	"net/http"
 	"time"
 )
+
+func ping(user, password string) (bool, string) {
+	// Returns true if credentials are valid
+	var update string
+	ret := dbIO.Ping(C.config.Host, C.config.Database, user, password)
+	if ret {
+		db, _ := dbIO.Connect(C.config.Host, C.config.Database, user, password)
+		db.GetTableColumns()
+		update = db.LastUpdate().Format(time.RFC822)
+
+	}
+	return ret, update
+}
+
+func changePassword(r *http.Request, user, password string) string {
+	// Changes suer password or returns flash message
+	var ret string
+	db, err := dbIO.Connect(C.config.Host, C.config.Database, user, password)
+	if err == nil {
+		r.ParseForm()
+		newpw := r.PostForm.Get("password")
+		confpw := r.PostForm.Get("newpassword")
+		if newpw != confpw {
+			ret = "Passwords do not match."
+		} else {
+			cmd := fmt.Sprintf("SET PASSWORD = PASSWORD('%s')", newpw)
+			_, er := db.DB.Exec(cmd)
+			if er != nil {
+				ret = er.Error()
+			}
+		}
+	} else {
+		// Convert error to string
+		ret = err.Error()
+	}
+	return ret
+}
 
 func clearSession(w http.ResponseWriter, r *http.Request) {
 	// Deletes username and password cookies
@@ -67,7 +106,13 @@ func handleRender(w http.ResponseWriter, r *http.Request, target, def, msg strin
 	// Handles basic credential check and redirect
 	user, _, update := getCredentials(w, r)
 	if user != "" {
-		C.renderTemplate(w, target, newOutput(user, update))
+		o, err := newOutput(user, "", update)
+		if err != nil {
+			C.renderTemplate(w, target, o)
+		} else {
+			o.Flash = err.Error()
+			C.renderTemplate(w, def, o)
+		}
 	} else {
 		C.renderTemplate(w, def, newFlash(msg))
 	}

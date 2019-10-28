@@ -15,7 +15,6 @@ type SearchForm struct {
 	eval       map[string][]codbutils.Evaluation
 	Table      string
 	Dump       bool
-	Summary    bool
 	Cancerrate bool
 	Min        int
 	Necropsy   bool
@@ -38,7 +37,7 @@ func (s *SearchForm) setEvaluation(r *http.Request, columns map[string]string, s
 			// Assign selected value to input value
 			e.Value = slct
 		}
-		if e.Table != "" && e.Column != "" && e.Operator != "" && e.Value != "" {
+		if e.Table != "" && e.Table != "Empty" && e.Column != "" && e.Operator != "" && e.Value != "" {
 			e.SetIDType(columns)
 			if e.Table != "Accounts" {
 				s.eval[search] = append(s.eval[search], e)
@@ -92,7 +91,6 @@ func (s *SearchForm) String() string {
 	}
 	ret.WriteString(fmt.Sprintf("Table:\t%s\n", s.Table))
 	ret.WriteString(fmt.Sprintf("Dump:\t%v\n", s.Dump))
-	ret.WriteString(fmt.Sprintf("Summary:\t%v\n", s.Summary))
 	ret.WriteString(fmt.Sprintf("Cancerrate:\t%v\n", s.Cancerrate))
 	ret.WriteString(fmt.Sprintf("Min:\t%d\n", s.Min))
 	ret.WriteString(fmt.Sprintf("Necropsy:\t%v\n", s.Necropsy))

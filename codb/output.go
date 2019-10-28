@@ -13,43 +13,6 @@ import (
 	"time"
 )
 
-func ping(user, password string) (bool, string) {
-	// Returns true if credentials are valid
-	var update string
-	ret := dbIO.Ping(C.config.Host, C.config.Database, user, password)
-	if ret {
-		db, _ := dbIO.Connect(C.config.Host, C.config.Database, user, password)
-		db.GetTableColumns()
-		update = db.LastUpdate().Format(time.RFC822)
-
-	}
-	return ret, update
-}
-
-func changePassword(r *http.Request, user, password string) string {
-	// Changes suer password or returns flash message
-	var ret string
-	db, err := dbIO.Connect(C.config.Host, C.config.Database, user, password)
-	if err == nil {
-		r.ParseForm()
-		newpw := r.PostForm.Get("password")
-		confpw := r.PostForm.Get("newpassword")
-		if newpw != confpw {
-			ret = "Passwords do not match."
-		} else {
-			cmd := fmt.Sprintf("SET PASSWORD = PASSWORD('%s')", newpw)
-			_, er := db.DB.Exec(cmd)
-			if er != nil {
-				ret = er.Error()
-			}
-		}
-	} else {
-		// Convert error to string
-		ret = err.Error()
-	}
-	return ret
-}
-
 type Output struct {
 	User    string
 	Update  string
@@ -57,19 +20,27 @@ type Output struct {
 	File    string
 	Outfile string
 	Count   string
+	db      *dbIO.DBIO
 }
 
-func newOutput(user, ut string) *Output {
+func newOutput(user, pw, ut string) (*Output, error) {
 	// Returns empty output struct
+	var err error
 	o := new(Output)
 	o.User = user
 	o.Update = strings.Replace(ut, "UTC", "Eastern Time", 1)
-	return o
+	if pw != "" {
+		o.db, err = dbIO.Connect(C.config.Host, C.config.Database, o.User, pw)
+		if err == nil {
+			o.db.GetTableColumns()
+		}
+	}
+	return o, err
 }
 
 func newFlash(msg string) *Output {
 	// Returns output with flash error message
-	o := newOutput("", "")
+	o, _ := newOutput("", "", "")
 	o.Flash = msg
 	return o
 }
@@ -86,12 +57,20 @@ func (o *Output) getTempFile(name string) {
 	o.Outfile = fmt.Sprintf("/tmp/%s", o.File)
 }
 
-func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
+func (o *Output) summary(w http.ResponseWriter, password string) {
+	// Returns general database summary
+	o.getTempFile("databaseSummary")
+	header := "Field,Total,%"
+	codbutils.WriteResults(o.Outfile, header, dbextract.GetSummary(o.db))
+	C.renderTemplate(w, C.temp.result, o)
+}
+
+func (o *Output) searchDB(f *SearchForm) {
 	// Searches database for results
 	res := dataframe.NewDataFrame(-1)
 	// Search for column/value match
 	for _, v := range f.eval {
-		r := dbextract.SearchColumns(db, o.User, f.Table, v, f.Count, f.Infant)
+		r := dbextract.SearchColumns(o.db, o.User, f.Table, v, f.Count, f.Infant)
 		if res.Length() == 0 {
 			res = r
 		} else {
@@ -109,36 +88,31 @@ func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
 	}
 }
 
-func (o *Output) extractFromDB(r *http.Request, password string) error {
+func (o *Output) extractFromDB(w http.ResponseWriter, r *http.Request, password string) {
 	// Extracts data to outfile/stdout
-	db, err := dbIO.Connect(C.config.Host, C.config.Database, o.User, password)
-	if err == nil {
-		var f *SearchForm
-		db.GetTableColumns()
-		f, o.Flash = setSearchForm(r, db.Columns)
-		if o.Flash == "" {
-			if len(f.Table) > 0 {
-				// Extract entire table
-				table := db.GetTable(f.Table)
-				o.getTempFile(o.User)
-				codbutils.WriteResults(o.Outfile, db.Columns[f.Table], table)
-			} else if f.Summary == true {
-				o.getTempFile("databaseSummary")
-				header := "Field,Total,%"
-				codbutils.WriteResults(o.Outfile, header, dbextract.GetSummary(db))
-			} else if f.Cancerrate == true {
-				// Extract cancer rates
-				var e []codbutils.Evaluation
-				o.getTempFile(fmt.Sprintf("cancerRates.min%d", f.Min))
-				for _, v := range f.eval {
-					e = v
-				}
-				rates := dbextract.GetCancerRates(db, f.Min, f.Necropsy, e)
-				rates.ToCSV(o.Outfile)
-			} else {
-				o.searchDB(db, f)
+	var f *SearchForm
+	f, o.Flash = setSearchForm(r, o.db.Columns)
+	if o.Flash == "" {
+		if len(f.Table) > 0 {
+			// Extract entire table
+			table := o.db.GetTable(f.Table)
+			o.getTempFile(o.User)
+			codbutils.WriteResults(o.Outfile, o.db.Columns[f.Table], table)
+		} else if f.Cancerrate == true {
+			// Extract cancer rates
+			var e []codbutils.Evaluation
+			o.getTempFile(fmt.Sprintf("cancerRates.min%d", f.Min))
+			for _, v := range f.eval {
+				e = v
 			}
+			rates := dbextract.GetCancerRates(o.db, f.Min, f.Necropsy, e)
+			rates.ToCSV(o.Outfile)
+		} else {
+			o.searchDB(f)
 		}
+		C.renderTemplate(w, C.temp.result, o)
+	} else {
+		// Return to search page with flash message
+		C.renderTemplate(w, C.temp.search, o)
 	}
-	return err
 }

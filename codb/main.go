@@ -30,7 +30,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if login {
 		// Render login template
-		C.renderTemplate(w, C.temp.login, newOutput("", ""))
+		o, _ := newOutput("", "", "")
+		C.renderTemplate(w, C.temp.login, o)
 	}
 }
 
@@ -101,19 +102,30 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 	handleRender(w, r, C.temp.search, C.temp.login, "Please login to access database.")
 }
 
+func summaryHandler(w http.ResponseWriter, r *http.Request) {
+	// Performs and renders database summary
+	user, pw, update := getCredentials(w, r)
+	if user != "" && pw != "" {
+		out, err := newOutput(user, pw, update)
+		if err == nil {
+			out.summary(w, pw)
+		} else {
+			// Return to login page if an error is encoutered (error occurs at connection)
+			out.Flash = err.Error()
+			C.renderTemplate(w, C.temp.login, out)
+		}
+	} else {
+		C.renderTemplate(w, C.temp.login, newFlash("Please login to access database."))
+	}
+}
+
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
 	user, pw, update := getCredentials(w, r)
 	if user != "" && pw != "" {
-		out := newOutput(user, update)
-		err := out.extractFromDB(r, pw)
+		out, err := newOutput(user, pw, update)
 		if err == nil {
-			if out.Flash != "" {
-				// Return to search page with flash message
-				C.renderTemplate(w, C.temp.search, out)
-			} else {
-				C.renderTemplate(w, C.temp.result, out)
-			}
+			out.extractFromDB(w, r, pw)
 		} else {
 			// Return to login page if an error is encoutered (error occurs at connection)
 			out.Flash = err.Error()
@@ -155,6 +167,7 @@ func main() {
 	r.HandleFunc(C.u.newpw, passwordHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.menu, menuHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.search, formHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.output, searchHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.get+"{filename}", downloadHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal
