@@ -114,9 +114,13 @@ func extractFromDB() time.Time {
 		codbutils.WriteResults(*outfile, "Field,Total,%\n", summary)
 	} else if *cr == true {
 		// Extract cancer rates
+		var e []codbutils.Evaluation
+		if *eval != "nil" {
+			e = codbutils.SetOperations(db.Columns, *eval)
+		}
 		header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
 		header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
-		rates := dbextract.GetCancerRates(db, *min, *nec)
+		rates := dbextract.GetCancerRates(db, *min, *nec, e)
 		codbutils.WriteResults(*outfile, header, rates)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")

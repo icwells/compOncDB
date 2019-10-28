@@ -126,10 +126,14 @@ func (o *Output) extractFromDB(r *http.Request, password string) error {
 				codbutils.WriteResults(o.Outfile, header, dbextract.GetSummary(db))
 			} else if f.Cancerrate == true {
 				// Extract cancer rates
+				var e []codbutils.Evaluation
 				o.getTempFile(fmt.Sprintf("cancerRates.min%d", f.Min))
 				header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
 				header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
-				codbutils.WriteResults(o.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy))
+				for _, v := range f.eval {
+					e = v
+				}
+				codbutils.WriteResults(o.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy, e))
 			} else {
 				o.searchDB(db, f)
 			}

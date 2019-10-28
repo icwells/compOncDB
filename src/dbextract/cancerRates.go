@@ -4,8 +4,10 @@ package dbextract
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/strarray"
 )
 
 func formatRates(records map[string]*dbupload.Record) [][]string {
@@ -26,6 +28,18 @@ func getSpeciesNames(db *dbIO.DBIO, records map[string]*dbupload.Record) map[str
 		if dbupload.InMapRec(records, k) == true {
 			records[k].Taxonomy = v[:6]
 			records[k].Species = v[6]
+		}
+	}
+	return records
+}
+
+func filterRecords(taxaids []string, records map[string]*dbupload.Record) map[string]*dbupload.Record {
+	// Deletes records not in taxaids
+	if len(records) > 0 && len(taxaids) > 0 {
+		for k := range records {
+			if !strarray.InSliceStr(taxaids, k) {
+				delete(records, k)
+			}
 		}
 	}
 	return records
@@ -68,7 +82,7 @@ func getNecropsySpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
 	return minRecords(records, min)
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec bool) [][]string {
+func GetCancerRates(db *dbIO.DBIO, min int, nec bool, eval []codbutils.Evaluation) [][]string {
 	// Returns slice of string slices of cancer rates and related info
 	var ret [][]string
 	var records map[string]*dbupload.Record
@@ -77,6 +91,11 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec bool) [][]string {
 		records = getTargetSpecies(db, min)
 	} else {
 		records = getNecropsySpecies(db, min)
+	}
+	if len(eval) > 0 {
+		s := newSearcher(db, "", false)
+		s.assignSearch(eval)
+		records = filterRecords(s.taxaids, records)
 	}
 	if len(records) > 0 {
 		records = getSpeciesNames(db, records)

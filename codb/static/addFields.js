@@ -183,7 +183,6 @@ class Search {
 			// Create new div
 			let newdiv = document.createElement("div");
 			newdiv.innerHTML = ROW(this.num, this.count);
-			console.log(divname)
 			document.getElementById(`search${this.num}`).appendChild(newdiv);
 			// Get new object, populate tables list, hide value select, and add to map
 			let p = new Parameter(this.num, this.count);
