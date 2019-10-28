@@ -17,11 +17,14 @@
   <p><a href="/codb/summary/">Compile basic summary statistics of the database.</a></p>
   <!--Cancer rate expandable-->
   <p><a href="#" onClick="expandCollapse('Cancerrate');">Calculate cancer rates.</a></p>
-  <div id="Cancerrate" style="display:none">
+  <div class="tab" id="Cancerrate" style="display:none">
+    <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
+See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
     <form method="POST" action="/codb/results/">
-      <div id="SearchBlock">
-        <body onload="newSearch('SearchBlock');"></body>
+      <div id="SingleSearch">
+        <body onload="newSearch('SingleSearch');"></body>
       </div>
+      <hr>
       <div>
         <label for="Min">The minimum number of entries required to examine a species:</label>
         <input type="number" name="Min" min="0" value="50">
@@ -35,7 +38,8 @@
   </div>
   <!--Table dump expandable-->
   <p><a href="#" onClick="expandCollapse('Dump');">Extract entire table.</a></p>
-  <div id="Dump" style="display:none">
+  <div class="tab" id="Dump" style="display:none">
+	<p>Select a table to extract from the database:</p>
     <form method="POST" action="/codb/results/">
       <select id="Table" name="Table">
         <option name="Table" value="" selected="selected"></option>

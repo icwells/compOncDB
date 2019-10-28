@@ -34,7 +34,7 @@ const ROW = (i, n) => `    <div id="parameter${n}">
         <option name="${i}Select${n}" value="0">0</option>
         <option name="${i}Select${n}" value="-1">-1</option>
       </select>
-      <input type="button" value="Remove" onClick="SEARCHES[${i}].removeRow('${n}');">
+      <input type="button" value="Remove" id="${i}Remove${n}" onClick="SEARCHES[${i}].removeRow('${n}');">
     </div>`;
 
 const SEARCH = (n) => `    <div id="search${n}">
@@ -84,6 +84,12 @@ class Parameter {
 			opt.text = o;
 			document.getElementById(`${this.num}Operator${this.count}`).add(opt);
 		});
+	}
+
+	hideRemove() {
+		// Hides remove button
+		let button = document.getElementById(`${this.num}Remove${this.count}`);
+		button.style.display = "none";
 	}
 
 	toggleInputs() {
@@ -171,17 +177,23 @@ class Search {
 		delete this.params[n];
 	}
 
-	addRow() {
+	addRow(divname) {
 		// Adds new row to table search
 		if (this.count < 10) {
 			// Create new div
 			let newdiv = document.createElement("div");
 			newdiv.innerHTML = ROW(this.num, this.count);
+			console.log(divname)
 			document.getElementById(`search${this.num}`).appendChild(newdiv);
 			// Get new object, populate tables list, hide value select, and add to map
 			let p = new Parameter(this.num, this.count);
 			p.getTables();
 			p.toggleInputs();
+			if (divname === "SingleSearch") {
+				p.hideRemove()
+				let opt = document.getElementById(`options${this.count}`);
+				opt.style.display = "none";
+			}
 			this.params[this.count] = p;
 			this.count++;
 		}
@@ -213,10 +225,10 @@ function newSearch(divname) {
 		// Create new div
 		let newdiv = document.createElement("div");
 		newdiv.innerHTML = SEARCH(COUNT);
-		document.getElementById("SearchBlock").appendChild(newdiv);
+		document.getElementById(divname).appendChild(newdiv);
 		// Create new search object
 		let s = new Search(COUNT);
-		s.addRow();
+		s.addRow(divname);
 		SEARCHES[COUNT] = s;
 		COUNT++;
 	}
