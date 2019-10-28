@@ -9,6 +9,7 @@ import (
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/compOncDB/src/parserecords"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/dataframe"
 	"os"
 	"os/exec"
 	"time"
@@ -118,10 +119,8 @@ func extractFromDB() time.Time {
 		if *eval != "nil" {
 			e = codbutils.SetOperations(db.Columns, *eval)
 		}
-		header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
-		header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
 		rates := dbextract.GetCancerRates(db, *min, *nec, e)
-		codbutils.WriteResults(*outfile, header, rates)
+		rates.ToCSV(*outfile)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
@@ -130,22 +129,21 @@ func extractFromDB() time.Time {
 
 func searchDB() time.Time {
 	// Performs search functions on database
-	var res [][]string
-	var header string
+	var res *dataframe.Dataframe
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 	if *eval != "nil" {
 		// Search for column/value match
 		e := codbutils.SetOperations(db.Columns, *eval)
-		res, header = dbextract.SearchColumns(db, *user, *table, e, *count, *infant)
-		fmt.Printf("\tFound %d records where %s is %s.\n", len(res), e[0].Column, e[0].Value)
+		res = dbextract.SearchColumns(db, *user, *table, e, *count, *infant)
+		fmt.Printf("\tFound %d records where %s is %s.\n", res.Length(), e[0].Column, e[0].Value)
 	} else if *taxonomies == true {
 		names := codbutils.ReadList(*infile, *col)
-		res, header = dbextract.SearchSpeciesNames(db, names)
+		res = dbextract.SearchSpeciesNames(db, names)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
-	if *count == false && len(res) >= 1 {
-		codbutils.WriteResults(*outfile, header, res)
+	if *count == false && res.Length() >= 1 {
+		res.ToCSV(*outfile)
 	}
 	return db.Starttime
 }

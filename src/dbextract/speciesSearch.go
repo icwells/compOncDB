@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/strarray"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"sort"
@@ -55,20 +56,20 @@ func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 	ch <- ret
 }
 
-func SearchSpeciesNames(db *dbIO.DBIO, names []string) ([][]string, string) {
+func SearchSpeciesNames(db *dbIO.DBIO, names []string) *dataframe.Dataframe {
 	// Finds taxonomies for input terms
-	var ret [][]string
+	ret := dataframe.NewDataFrame(-1)
 	ch := make(chan []string)
-	header := "Term,MatchedName,Kingdom,Phylum,Class,Order,Family,Genus,Species,Source"
+	ret.SetHeader([]string{"Term", "MatchedName", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Source"})
 	fmt.Print("\n\tSearching for taxonomy matches...\n")
 	s := newSpeciesSearcher(db)
 	for _, i := range names {
 		go s.getTaxonomy(ch, i)
 		row := <-ch
 		if len(row) > 0 {
-			ret = append(ret, row)
+			ret.AddRow(row)
 		}
 	}
 	fmt.Printf("\tFound taxonomy matches for %d of %d queries.\n", s.found, len(names))
-	return ret, header
+	return ret
 }

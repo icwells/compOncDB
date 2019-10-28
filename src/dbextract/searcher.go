@@ -5,6 +5,7 @@ package dbextract
 import (
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/strarray"
 	"strconv"
 	"strings"
@@ -36,6 +37,17 @@ func newSearcher(db *dbIO.DBIO, user string, inf bool) *searcher {
 	s.infant = inf
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s
+}
+
+func (s *searcher) toDF() *dataframe.Dataframe {
+	// Converts res map to dataframe
+	ret := dataframe.NewDataFrame(-1)
+	ret.SetHeader(strings.Split(s.header, ","))
+	for k, v := range s.res {
+		row := append([]string{k}, v...)
+		ret.AddRow(row)
+	}
+	return ret
 }
 
 func (s *searcher) toSlice() [][]string {

@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/dataframe"
 	"net/http"
 	"strings"
 	"time"
@@ -87,23 +88,24 @@ func (o *Output) getTempFile(name string) {
 
 func (o *Output) searchDB(db *dbIO.DBIO, f *SearchForm) {
 	// Searches database for results
-	var res [][]string
-	var header string
+	res := dataframe.NewDataFrame(-1)
 	// Search for column/value match
 	for _, v := range f.eval {
-		r, h := dbextract.SearchColumns(db, o.User, f.Table, v, f.Count, f.Infant)
-		// Append successive results to results slice
-		res = append(res, r...)
-		if header == "" {
-			// Only record header once
-			header = h
+		r := dbextract.SearchColumns(db, o.User, f.Table, v, f.Count, f.Infant)
+		if res.Length() == 0 {
+			res = r
+		} else {
+			// Append successive results to results slice
+			for _, i := range r.Rows {
+				res.Rows = append(res.Rows, i)
+			}
 		}
 	}
-	if f.Count == false && len(res) >= 1 {
+	if f.Count == false && res.Length() >= 1 {
 		o.getTempFile(o.User)
-		codbutils.WriteResults(o.Outfile, header, res)
+		res.ToCSV(o.Outfile)
 	} else {
-		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", len(res))
+		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
 	}
 }
 
@@ -128,12 +130,11 @@ func (o *Output) extractFromDB(r *http.Request, password string) error {
 				// Extract cancer rates
 				var e []codbutils.Evaluation
 				o.getTempFile(fmt.Sprintf("cancerRates.min%d", f.Min))
-				header := "Kingdom,Phylum,Class,Orders,Family,Genus,ScientificName,TotalRecords,CancerRecords,CancerRate,"
-				header += "AverageAge(months),AvgAgeCancer(months),Male,Female,MaleCancer,FemaleCancer"
 				for _, v := range f.eval {
 					e = v
 				}
-				codbutils.WriteResults(o.Outfile, header, dbextract.GetCancerRates(db, f.Min, f.Necropsy, e))
+				rates := dbextract.GetCancerRates(db, f.Min, f.Necropsy, e)
+				rates.ToCSV(o.Outfile)
 			} else {
 				o.searchDB(db, f)
 			}

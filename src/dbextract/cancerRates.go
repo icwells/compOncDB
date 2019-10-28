@@ -7,15 +7,27 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/strarray"
 )
 
-func formatRates(records map[string]*dbupload.Record) [][]string {
+func cancerRateHeader() []string {
+	// Returns header for hancer rate file
+	return []string{"Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "ScientificName",
+		"TotalRecords", "CancerRecords", "CancerRate", "AverageAge(months)", "AvgAgeCancer(months)",
+		"Male", "Female", "MaleCancer", "FemaleCancer"}
+}
+
+func formatRates(records map[string]*dbupload.Record) *dataframe.Dataframe {
 	// Calculates rates and formats for printing
-	var ret [][]string
+	ret := dataframe.NewDataFrame(-1)
+	ret.SetHeader(cancerRateHeader())
 	for _, v := range records {
 		if len(v.Species) > 0 {
-			ret = append(ret, v.CalculateRates())
+			err := ret.AddRow(v.CalculateRates())
+			if err != nil {
+
+			}
 		}
 	}
 	return ret
@@ -82,9 +94,9 @@ func getNecropsySpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
 	return minRecords(records, min)
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec bool, eval []codbutils.Evaluation) [][]string {
+func GetCancerRates(db *dbIO.DBIO, min int, nec bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
-	var ret [][]string
+	var ret *dataframe.Dataframe
 	var records map[string]*dbupload.Record
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", min)
 	if nec == false {
@@ -103,6 +115,6 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec bool, eval []codbutils.Evaluatio
 			ret = formatRates(records)
 		}
 	}
-	fmt.Printf("\tFound %d records with at least %d entries.\n", len(ret), min)
+	fmt.Printf("\tFound %d records with at least %d entries.\n", ret.Length(), min)
 	return ret
 }

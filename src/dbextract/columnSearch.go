@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/strarray"
 	"strings"
 )
@@ -93,7 +94,7 @@ func (s *searcher) searchSingleTable(table string) {
 	s.res = dbupload.ToMap(s.db.GetRows(table, typ, ids, "*"))
 }
 
-func SearchColumns(db *dbIO.DBIO, user, table string, eval []codbutils.Evaluation, count, inf bool) ([][]string, string) {
+func SearchColumns(db *dbIO.DBIO, user, table string, eval []codbutils.Evaluation, count, inf bool) *dataframe.Dataframe {
 	// Determines search procedure
 	fmt.Println("\tSearching for matching records...")
 	s := newSearcher(db, user, inf)
@@ -112,5 +113,5 @@ func SearchColumns(db *dbIO.DBIO, user, table string, eval []codbutils.Evaluatio
 			s.appendSource()
 		}
 	}
-	return s.toSlice(), s.header
+	return s.toDF()
 }
