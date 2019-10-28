@@ -31,7 +31,7 @@ func setURLs() *urls {
 	u.login = "/codb/login"
 	u.menu = "/codb/menu/"
 	u.search = "/codb/search/"
-	u.search = "/codb/summary/"
+	u.summary = "/codb/summary/"
 	u.output = "/codb/results/"
 	u.get = "/codb/get/"
 	u.logout = "/codb/logout"

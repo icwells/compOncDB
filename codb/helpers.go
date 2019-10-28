@@ -107,7 +107,7 @@ func handleRender(w http.ResponseWriter, r *http.Request, target, def, msg strin
 	user, _, update := getCredentials(w, r)
 	if user != "" {
 		o, err := newOutput(user, "", update)
-		if err != nil {
+		if err == nil {
 			C.renderTemplate(w, target, o)
 		} else {
 			o.Flash = err.Error()
