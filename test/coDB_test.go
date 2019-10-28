@@ -100,11 +100,11 @@ func TestSearches(t *testing.T) {
 	db := connectToDatabase()
 	cases := newSearchCases(db.Columns)
 	for _, i := range cases {
-		res, _ := dbextract.SearchColumns(db, *user, i.table, i.eval, false, false)
-		if i.name == "fox" && len(res) > 0 {
+		res := dbextract.SearchColumns(db, *user, i.table, i.eval, false, false)
+		if i.name == "fox" && res.Length() > 0 {
 			t.Error("Results returned for gray fox (not present).")
 		} else {
-			compareTables(t, i.name, i.expected, dbupload.ToMap(res))
+			compareTables(t, i.name, i.expected, dbupload.ToMap(res.ToSlice()))
 		}
 	}
 }
