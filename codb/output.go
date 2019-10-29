@@ -20,7 +20,7 @@ type Output struct {
 	File    string
 	Outfile string
 	Count   string
-	Search	bool
+	Search  bool
 	db      *dbIO.DBIO
 	pw      string
 	w       http.ResponseWriter
@@ -75,10 +75,10 @@ func (o *Output) summary() {
 func (o *Output) cancerRates() {
 	// Calculates cancer rates for matching criteria
 	opt := setOptions(o.r)
-	eval, msg := setEvaluation(o.r, o.db.Columns, "0", "0")
+	eval, msg, pass := setEvaluation(o.r, o.db.Columns, "0", "0")
 	if msg == "" || !strings.Contains(msg, "Accounts") {
 		var e []codbutils.Evaluation
-		if msg == "" {
+		if pass {
 			// Skip empty evaluations
 			e = append(e, eval)
 		}

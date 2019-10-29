@@ -26,8 +26,9 @@ func setOptions(r *http.Request) *Options {
 	return opt
 }
 
-func setEvaluation(r *http.Request, columns map[string]string, search, n string) (codbutils.Evaluation, string) {
+func setEvaluation(r *http.Request, columns map[string]string, search, n string) (codbutils.Evaluation, string, bool) {
 	// Populates evalutaiton struct if matching term is found
+	var pass bool
 	var e codbutils.Evaluation
 	var msg string
 	e.Table = strings.TrimSpace(r.PostForm.Get(search + "Table" + n))
@@ -35,21 +36,29 @@ func setEvaluation(r *http.Request, columns map[string]string, search, n string)
 	e.Operator = strings.TrimSpace(r.PostForm.Get(search + "Operator" + n))
 	e.Value = strings.TrimSpace(r.PostForm.Get(search + "Value" + n))
 	slct := strings.TrimSpace(r.PostForm.Get(search + "Select" + n))
-	if e.Value != "" || slct != "" {
-		if e.Value == "" {
+	for _, i := range []string{e.Table, e.Column, e.Operator} {
+		if i != "" && i != "Empty" {
+			pass = true
+		}
+	}
+	if pass {
+		if e.Value == "" && slct != "" {
 			// Assign selected value to input value
 			e.Value = slct
 		}
-		if e.Table != "" && e.Table != "Empty" && e.Column != "" && e.Column != "Empty" && e.Operator != "" && e.Value != "" {
+		if e.Value != "" {
 			e.SetIDType(columns)
 			if e.Table == "Accounts" {
 				msg = "Cannot access Accounts table."
+				pass = false
 			}
 		} else {
-			msg = "Please supply valid table, column, and value."
+			pass = false
 		}
+	} else {
+		msg = "Please supply valid table, column, and value."
 	}
-	return e, msg
+	return e, msg, pass
 }
 
 func checkEvaluations(r *http.Request, columns map[string]string) (map[string][]codbutils.Evaluation, string) {
@@ -63,13 +72,14 @@ func checkEvaluations(r *http.Request, columns map[string]string) (map[string][]
 		count := 0
 		for found == true {
 			// Keep checking until count exceeds number of fields
+			var m string
 			search := strconv.Itoa(i)
-			e, msg = setEvaluation(r, columns, search, strconv.Itoa(count))
-			if msg != "" {
-				found = false
-			} else {
+			e, m, found = setEvaluation(r, columns, search, strconv.Itoa(count))
+			if found {
 				eval[search] = append(eval[search], e)
 				count++
+			} else if len(eval) == 0 {
+				msg = m
 			}
 		}
 	}
