@@ -55,7 +55,6 @@ func newFlash(w http.ResponseWriter, msg string) *Output {
 func (o *Output) getTempFile(name string) {
 	// Stores path to named file in tmp directory
 	t := time.Now()
-	fmt.Println(t)
 	stamp := t.Format(time.RFC3339)
 	// Trim timestamp to minutes
 	stamp = stamp[:strings.LastIndex(stamp, "-")]
@@ -74,18 +73,21 @@ func (o *Output) summary() {
 
 func (o *Output) cancerRates() {
 	// Calculates cancer rates for matching criteria
-	var eval codbutils.Evaluation
 	opt := setOptions(o.r)
-	eval, o.Flash = setEvaluation(o.r, o.db.Columns, "", "")
-	if o.Flash == "" {
+	eval, msg := setEvaluation(o.r, o.db.Columns, "0", "0")
+	if msg == "" || !strings.Contains(msg, "Accounts") {
 		var e []codbutils.Evaluation
-		e = append(e, eval)
+		if msg == "" {
+			// Skip empty evaluations
+			e = append(e, eval)
+		}
 		o.getTempFile(fmt.Sprintf("cancerRates.min%d", opt.Min))
 		rates := dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, e)
 		rates.ToCSV(o.Outfile)
 		C.renderTemplate(C.temp.result, o)
 	} else {
 		// Return to menu page with flash message
+		o.Flash = msg
 		C.renderTemplate(C.temp.menu, o)
 	}
 }
@@ -138,6 +140,7 @@ func (o *Output) searchDB() {
 
 func (o *Output) routePost(source string) {
 	// Sends post data to appropriate function
+	o.r.ParseForm()
 	switch source {
 	case C.u.summary:
 		o.summary()

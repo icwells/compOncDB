@@ -22,7 +22,6 @@ func setOptions(r *http.Request) *Options {
 	// Returns commonly used options
 	opt := new(Options)
 	decoder := schema.NewDecoder()
-	r.ParseForm()
 	decoder.Decode(opt, r.PostForm)
 	return opt
 }
@@ -41,7 +40,7 @@ func setEvaluation(r *http.Request, columns map[string]string, search, n string)
 			// Assign selected value to input value
 			e.Value = slct
 		}
-		if e.Table != "" && e.Table != "Empty" && e.Column != "" && e.Operator != "" && e.Value != "" {
+		if e.Table != "" && e.Table != "Empty" && e.Column != "" && e.Column != "Empty" && e.Operator != "" && e.Value != "" {
 			e.SetIDType(columns)
 			if e.Table == "Accounts" {
 				msg = "Cannot access Accounts table."
