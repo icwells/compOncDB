@@ -20,7 +20,7 @@
   <div class="tab" id="Cancerrate" style="display:none">
     <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
 See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
-    <form method="POST" action="/codb/results/">
+    <form method="POST" action="/codb/cancerRates/">
       <div id="SingleSearch">
         <body onload="newSearch('SingleSearch');"></body>
       </div>
@@ -40,7 +40,7 @@ See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for co
   <p><a href="#" onClick="expandCollapse('Dump');">Extract entire table.</a></p>
   <div class="tab" id="Dump" style="display:none">
 	<p>Select a table to extract from the database:</p>
-    <form method="POST" action="/codb/results/">
+    <form method="POST" action="/codb/extractTable/">
       <select id="Table" name="Table">
         <option name="Table" value="" selected="selected"></option>
       </select>

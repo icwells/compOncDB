@@ -102,18 +102,35 @@ func getCredentials(w http.ResponseWriter, r *http.Request) (string, string, str
 	return user, password, update
 }
 
+func handlePost(w http.ResponseWriter, r *http.Request, source string) {
+	// Wraps post responses
+	user, pw, update := getCredentials(w, r)
+	if user != "" && pw != "" {
+		out, err := newOutput(w, r, user, pw, update)
+		if err == nil {
+			out.routePost(source)
+		} else {
+			// Return to login page if an error is encoutered (error occurs at connection)
+			out.Flash = err.Error()
+			C.renderTemplate(C.temp.login, out)
+		}
+	} else {
+		C.renderTemplate(C.temp.login, newFlash(w, "Please login to access database."))
+	}
+}
+
 func handleRender(w http.ResponseWriter, r *http.Request, target, def, msg string) {
 	// Handles basic credential check and redirect
 	user, _, update := getCredentials(w, r)
 	if user != "" {
-		o, err := newOutput(user, "", update)
+		o, err := newOutput(w, r, user, "", update)
 		if err == nil {
-			C.renderTemplate(w, target, o)
+			C.renderTemplate(target, o)
 		} else {
 			o.Flash = err.Error()
-			C.renderTemplate(w, def, o)
+			C.renderTemplate(def, o)
 		}
 	} else {
-		C.renderTemplate(w, def, newFlash(msg))
+		C.renderTemplate(def, newFlash(w, msg))
 	}
 }

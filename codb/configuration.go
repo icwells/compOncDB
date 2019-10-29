@@ -16,6 +16,8 @@ type urls struct {
 	menu     string
 	search   string
 	summary  string
+	table    string
+	rates    string
 	output   string
 	get      string
 	logout   string
@@ -32,6 +34,8 @@ func setURLs() *urls {
 	u.menu = "/codb/menu/"
 	u.search = "/codb/search/"
 	u.summary = "/codb/summary/"
+	u.table = "/codb/extractTable/"
+	u.rates = "/codb/cancerRates/"
 	u.output = "/codb/results/"
 	u.get = "/codb/get/"
 	u.logout = "/codb/logout"
@@ -83,10 +87,10 @@ func setConfiguration() *configuration {
 	return &c
 }
 
-func (c *configuration) renderTemplate(w http.ResponseWriter, tmpl string, out *Output) {
+func (c *configuration) renderTemplate(tmpl string, out *Output) {
 	// Renders template and handles errrors
-	err := c.templates.ExecuteTemplate(w, tmpl, out)
+	err := c.templates.ExecuteTemplate(out.w, tmpl, out)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(out.w, err.Error(), http.StatusInternalServerError)
 	}
 }

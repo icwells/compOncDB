@@ -30,8 +30,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if login {
 		// Render login template
-		o, _ := newOutput("", "", "")
-		C.renderTemplate(w, C.temp.login, o)
+		o, _ := newOutput(w, r, "", "", "")
+		C.renderTemplate(C.temp.login, o)
 	}
 }
 
@@ -58,7 +58,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if pass {
 		http.Redirect(w, r, C.u.menu, http.StatusFound)
 	} else {
-		C.renderTemplate(w, C.temp.login, newFlash("Username or password is incorrect."))
+		C.renderTemplate(C.temp.login, newFlash(w, "Username or password is incorrect."))
 	}
 }
 
@@ -89,7 +89,7 @@ func passwordHandler(w http.ResponseWriter, r *http.Request) {
 			clearSession(w, r)
 		}
 	}
-	C.renderTemplate(w, template, newFlash(msg))
+	C.renderTemplate(template, newFlash(w, msg))
 }
 
 func menuHandler(w http.ResponseWriter, r *http.Request) {
@@ -104,36 +104,22 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 
 func summaryHandler(w http.ResponseWriter, r *http.Request) {
 	// Performs and renders database summary
-	user, pw, update := getCredentials(w, r)
-	if user != "" && pw != "" {
-		out, err := newOutput(user, pw, update)
-		if err == nil {
-			out.summary(w, pw)
-		} else {
-			// Return to login page if an error is encoutered (error occurs at connection)
-			out.Flash = err.Error()
-			C.renderTemplate(w, C.temp.login, out)
-		}
-	} else {
-		C.renderTemplate(w, C.temp.login, newFlash("Please login to access database."))
-	}
+	handlePost(w, r, C.u.summary)
+}
+
+func cancerRateHandler(w http.ResponseWriter, r *http.Request) {
+	// Handles cancer rate calculations
+	handlePost(w, r, C.u.rates)
+}
+
+func tableDumpHandler(w http.ResponseWriter, r *http.Request) {
+	// Handles full table extraction
+	handlePost(w, r, C.u.table)
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
-	user, pw, update := getCredentials(w, r)
-	if user != "" && pw != "" {
-		out, err := newOutput(user, pw, update)
-		if err == nil {
-			out.extractFromDB(w, r, pw)
-		} else {
-			// Return to login page if an error is encoutered (error occurs at connection)
-			out.Flash = err.Error()
-			C.renderTemplate(w, C.temp.login, out)
-		}
-	} else {
-		C.renderTemplate(w, C.temp.login, newFlash("Please login to access database."))
-	}
+	handlePost(w, r, C.u.search)
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +129,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		http.ServeFile(w, r, fmt.Sprintf("/tmp/%s", vars["filename"]))
 	} else {
-		C.renderTemplate(w, C.temp.login, newFlash("Please login to access database."))
+		C.renderTemplate(C.temp.login, newFlash(w, "Please login to access database."))
 	}
 }
 
@@ -166,6 +152,8 @@ func main() {
 	r.HandleFunc(C.u.changepw, changeHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.newpw, passwordHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.menu, menuHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.rates, cancerRateHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.table, tableDumpHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.search, formHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.output, searchHandler).Methods(http.MethodPost)
