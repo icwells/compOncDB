@@ -9,12 +9,29 @@
 <hr>
 {{end}}
 <section>
-  <h1>Search Reults:</h1>
+  <h1>Search Results:</h1>
   {{if .File}}
     <p>Output csv file:</p>
     <a href=/codb/get/{{.File}} download={{.File}}>{{.File}}</a>
   {{else if .Count}}
-      <p>{{.Count}}</p>
+    <p>{{.Count}}</p>
+  {{else if .Table}}
+    <table>
+      {{with .Table}}
+      <tr>
+        {{range .Header}}
+        <th>{{.}}</th>
+        {{end}}
+      </tr>
+      {{range .Body}}
+      <tr>
+        {{range .Cells}}
+        <td>{{.}}</td>
+        {{end}}
+      </tr>
+      {{end}}
+      {{end}}
+    </table>
   {{end}}
   {{if .Search}}
     <p><a href="/codb/search/">Start a new search</a></p>

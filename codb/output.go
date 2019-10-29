@@ -13,12 +13,32 @@ import (
 	"time"
 )
 
+type TableRow struct {
+	Cells []string
+}
+
+type HTMLTable struct {
+	Header []string
+	Body   []TableRow
+}
+
+func (o *Output) formatTable(header []string, table [][]string) {
+	// Formats slice into table for display in a browser
+	o.Table.Header = header
+	for _, i := range table {
+		var c TableRow
+		c.Cells = i
+		o.Table.Body = append(o.Table.Body, c)
+	}
+}
+
 type Output struct {
 	User    string
 	Update  string
 	Flash   string
 	File    string
 	Outfile string
+	Table   HTMLTable
 	Count   string
 	Search  bool
 	db      *dbIO.DBIO
@@ -66,9 +86,8 @@ func (o *Output) getTempFile(name string) {
 
 func (o *Output) summary() {
 	// Returns general database summary
-	o.getTempFile("databaseSummary")
-	header := "Field,Total,%"
-	codbutils.WriteResults(o.Outfile, header, dbextract.GetSummary(o.db))
+	header := []string{"Field", "Total", "%"}
+	o.formatTable(header, dbextract.GetSummary(o.db))
 	C.renderTemplate(C.temp.result, o)
 }
 
