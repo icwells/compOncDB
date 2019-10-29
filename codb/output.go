@@ -20,6 +20,7 @@ type Output struct {
 	File    string
 	Outfile string
 	Count   string
+	Search	bool
 	db      *dbIO.DBIO
 	pw      string
 	w       http.ResponseWriter
@@ -131,6 +132,7 @@ func (o *Output) searchDB() {
 		} else {
 			o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
 		}
+		o.Search = true
 		C.renderTemplate(C.temp.result, o)
 	} else {
 		// Return to search page with flash message

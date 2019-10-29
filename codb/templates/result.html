@@ -16,7 +16,9 @@
   {{else if .Count}}
       <p>{{.Count}}</p>
   {{end}}
-  <p><a href="/codb/search/">Start a new search</a></p>
+  {{if .Search}}
+    <p><a href="/codb/search/">Start a new search</a></p>
+  {{end}}
   <p><a href="/codb/menu/">Return to menu</a></p>
 </section>
 {{template "footer"}}
