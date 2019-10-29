@@ -105,7 +105,7 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec bool, eval []codbutils.Evaluatio
 		records = getNecropsySpecies(db, min)
 	}
 	if len(eval) > 0 {
-		s := newSearcher(db, "", false)
+		s := newSearcher(db, false)
 		s.assignSearch(eval)
 		records = filterRecords(s.taxaids, records)
 	}

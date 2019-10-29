@@ -94,10 +94,10 @@ func (s *searcher) searchSingleTable(table string) {
 	s.res = dbupload.ToMap(s.db.GetRows(table, typ, ids, "*"))
 }
 
-func SearchColumns(db *dbIO.DBIO, user, table string, eval []codbutils.Evaluation, count, inf bool) *dataframe.Dataframe {
+func SearchColumns(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, count, inf bool) *dataframe.Dataframe {
 	// Determines search procedure
 	fmt.Println("\tSearching for matching records...")
-	s := newSearcher(db, user, inf)
+	s := newSearcher(db, inf)
 	s.assignSearch(eval)
 	if len(s.res) >= 1 {
 		if s.infant == false {

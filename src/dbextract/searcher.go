@@ -13,7 +13,6 @@ import (
 
 type searcher struct {
 	db      *dbIO.DBIO
-	user    string
 	infant  bool
 	res     map[string][]string
 	taxa    map[string][]string
@@ -23,7 +22,7 @@ type searcher struct {
 	na      []string
 }
 
-func newSearcher(db *dbIO.DBIO, user string, inf bool) *searcher {
+func newSearcher(db *dbIO.DBIO, inf bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	s.res = make(map[string][]string)
@@ -33,7 +32,6 @@ func newSearcher(db *dbIO.DBIO, user string, inf bool) *searcher {
 	s.header = s.header + "Masspresent,Hyperplasia,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
 	s.header = s.header + "Kingdom,Phylum,Class,Orders,Family,Genus,Species,service_name,Zoo,Institute,account_id"
 	s.db = db
-	s.user = user
 	s.infant = inf
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s

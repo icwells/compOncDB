@@ -116,7 +116,7 @@ func (o *Output) searchDB() {
 		res := dataframe.NewDataFrame(-1)
 		// Search for column/value match
 		for _, v := range eval {
-			r := dbextract.SearchColumns(o.db, o.User, "", v, opt.Count, opt.Infant)
+			r := dbextract.SearchColumns(o.db, "", v, opt.Count, opt.Infant)
 			if res.Length() == 0 {
 				res = r
 			} else {
