@@ -101,9 +101,13 @@ func (o *Output) cancerRates() {
 			// Skip empty evaluations
 			e = append(e, eval)
 		}
-		o.getTempFile(fmt.Sprintf("cancerRates.min%d", opt.Min))
 		rates := dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, e)
-		rates.ToCSV(o.Outfile)
+		if opt.Print {
+			o.formatTable(rates.GetHeader(), rates.ToSlice())
+		} else {
+			o.getTempFile(fmt.Sprintf("cancerRates.min%d", opt.Min))
+			rates.ToCSV(o.Outfile)
+		}
 		C.renderTemplate(C.temp.result, o)
 	} else {
 		// Return to menu page with flash message
@@ -146,8 +150,12 @@ func (o *Output) searchDB() {
 			}
 		}
 		if opt.Count == false && res.Length() >= 1 {
-			o.getTempFile(o.User)
-			res.ToCSV(o.Outfile)
+			if opt.Print {
+				o.formatTable(res.GetHeader(), res.ToSlice())
+			} else {
+				o.getTempFile(o.User)
+				res.ToCSV(o.Outfile)
+			}
 		} else {
 			o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
 		}
