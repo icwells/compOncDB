@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/schema"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"net/http"
@@ -28,7 +29,7 @@ func setOptions(r *http.Request) *Options {
 
 func setEvaluation(r *http.Request, columns map[string]string, search, n string) (codbutils.Evaluation, string, bool) {
 	// Populates evalutaiton struct if matching term is found
-	var pass bool
+	pass := false
 	var e codbutils.Evaluation
 	var msg string
 	e.Table = strings.TrimSpace(r.PostForm.Get(search + "Table" + n))
@@ -36,28 +37,25 @@ func setEvaluation(r *http.Request, columns map[string]string, search, n string)
 	e.Operator = strings.TrimSpace(r.PostForm.Get(search + "Operator" + n))
 	e.Value = strings.TrimSpace(r.PostForm.Get(search + "Value" + n))
 	slct := strings.TrimSpace(r.PostForm.Get(search + "Select" + n))
-	for _, i := range []string{e.Table, e.Column, e.Operator} {
-		if i != "" && i != "Empty" {
-			pass = true
-		}
-	}
-	if pass {
-		if e.Value == "" && slct != "" {
-			// Assign selected value to input value
-			e.Value = slct
-		}
-		if e.Value != "" {
-			e.SetIDType(columns)
-			if e.Table == "Accounts" {
-				msg = "Cannot access Accounts table."
-				pass = false
-			}
-		} else {
-			pass = false
-		}
+	if e.Table == "Accounts" {
+		msg = "Cannot access Accounts table."
 	} else {
-		msg = "Please supply valid table, column, and value."
+		for _, i := range []string{e.Table, e.Column, e.Operator} {
+			if len(i) >= 2 && i != "Empty" {
+				pass = true
+			}
+		}
+		if pass {
+			if e.Value == "" && slct != "" {
+				// Assign selected value to input value
+				e.Value = slct
+			}
+			e.SetIDType(columns)
+		} else {
+			msg = "Please supply valid table, column, and value."
+		}
 	}
+	fmt.Println(e.Table, e.Column, e.Operator, e.Value, msg, pass)
 	return e, msg, pass
 }
 
