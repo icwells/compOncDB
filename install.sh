@@ -9,6 +9,7 @@
 AP="github.com/trustmaster/go-aspell"
 APP="codbApplication"
 DBI="github.com/icwells/dbIO"
+DF="github.com/icwells/go-tools/dataframe"
 DR="github.com/go-sql-driver/mysql"
 FZ="github.com/lithammer/fuzzysearch/fuzzy"
 GM="github.com/gorilla/mux"
@@ -34,7 +35,7 @@ installPackage () {
 
 installDependencies () {
 # Get dependencies
-	for I in $AP $DBI $DR $FZ $GM $GC $GS $GSC $IO $KP $PR $SA ; do
+	for I in $AP $DBI $DF $DR $FZ $GM $GC $GS $GSC $IO $KP $PR $SA ; do
 		if [ ! -e "$PDIR/$1.a" ]; then
 			installPackage $I
 		fi
