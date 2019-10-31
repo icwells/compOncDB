@@ -20,7 +20,7 @@ func cancerRateHeader() []string {
 
 func formatRates(records map[string]*dbupload.Record) *dataframe.Dataframe {
 	// Calculates rates and formats for printing
-	ret := dataframe.NewDataFrame(-1)
+	ret, _ := dataframe.NewDataFrame(-1)
 	ret.SetHeader(cancerRateHeader())
 	for _, v := range records {
 		if len(v.Species) > 0 {

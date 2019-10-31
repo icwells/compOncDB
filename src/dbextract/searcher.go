@@ -39,7 +39,7 @@ func newSearcher(db *dbIO.DBIO, inf bool) *searcher {
 
 func (s *searcher) toDF() *dataframe.Dataframe {
 	// Converts res map to dataframe
-	ret := dataframe.NewDataFrame(-1)
+	ret, _ := dataframe.NewDataFrame(-1)
 	ret.SetHeader(strings.Split(s.header, ","))
 	for k, v := range s.res {
 		row := append([]string{k}, v...)

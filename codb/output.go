@@ -136,7 +136,7 @@ func (o *Output) searchDB() {
 	opt := setOptions(o.r)
 	eval, o.Flash = checkEvaluations(o.r, o.db.Columns)
 	if o.Flash == "" {
-		res := dataframe.NewDataFrame(-1)
+		res, _ := dataframe.NewDataFrame(-1)
 		// Search for column/value match
 		for _, v := range eval {
 			r := dbextract.SearchColumns(o.db, "", v, opt.Count, opt.Infant)

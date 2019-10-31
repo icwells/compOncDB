@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"github.com/icwells/compOncDB/src/parserecords"
+	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/iotools"
 	"os"
 	"strings"
@@ -25,37 +26,25 @@ var (
 	user         = flag.String("user", "", "MySQL username.")
 )
 
-func getInput(file string, col int) map[string][]string {
-	// Returns input test file as a map of string slices
-	ret := make(map[string][]string)
-	f := iotools.OpenFile(file)
-	defer f.Close()
-	scanner := iotools.GetScanner(f)
-	for scanner.Scan() {
-		s := strings.Split(string(scanner.Text()), ",")
-		ret[s[col]] = s
-	}
-	return ret
-}
-
 func TestParseRecords(t *testing.T) {
 	// Compares output of parseRecords with expected output
-	header := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia",
-		"Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "Institute"}
-	// Parse test file
 	ent := parserecords.NewEntries(service, infile)
 	ent.GetTaxonomy(taxa)
 	ent.SortRecords(false, infile, parseout)
 	// Compare actual output with expected
-	expected := getInput(uploadfile, 3)
-	actual := getInput(parseout, 3)
-	if len(actual) != len(expected) {
-		t.Errorf("Actual length %d does not equal expected: %d", len(actual), len(expected))
+	expected, _ := dataframe.DataFrameFromFile(uploadfile, 3)
+	actual, _ := dataframe.DataFrameFromFile(parseout, 3)
+	ac, ar := actual.Dimensions()
+	ec, er := expected.Dimensions()
+	if ac != ec && ar != er {
+		t.Errorf("Actual dimensions [%d, %d] does not equal expected: [%d, %d]", ac, ar, ec, er)
 	}
-	for key, line := range actual {
-		for idx, i := range line {
-			if i != expected[key][idx] {
-				t.Errorf("%s: Actual %s value %s does not equal expected: %s", key, header[idx], i, expected[key][idx])
+	for key := range actual.Index {
+		for k := range actual.Header {
+			a, _ := actual.GetCell(key, k)
+			e, _ := expected.GetCell(key, k)
+			if a != e {
+				t.Errorf("%s: Actual %s value %s does not equal expected: %s", key, k, a, e)
 			}
 		}
 	}
