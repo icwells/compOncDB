@@ -6,9 +6,7 @@ import (
 	"flag"
 	"github.com/icwells/compOncDB/src/parserecords"
 	"github.com/icwells/go-tools/dataframe"
-	"github.com/icwells/go-tools/iotools"
 	"os"
-	"strings"
 	"testing"
 )
 

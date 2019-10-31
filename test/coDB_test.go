@@ -8,49 +8,40 @@ import (
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/dataframe"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 )
 
-func compareEntries(actual, expected []string) int {
-	// Returns true if both slices are equal
-	equal := true
-	for idx, i := range actual {
-		// Skip randomly assigned IDs
-		if idx < len(expected) && i != expected[idx] {
-			equal = false
-			// Attempt to resolve differences in floating point precision
-			a, err := strconv.ParseFloat(i, 64)
-			if err == nil {
-				var e float64
-				e, err = strconv.ParseFloat(expected[idx], 64)
-				if err == nil && a == e {
-					equal = true
-				}
-			}
-		}
-		if equal == false {
-			return idx
-		}
+func toFloat(act, exp string) (float64, float64, error) {
+	// Converts strings to float
+	var e float64
+	a, err := strconv.ParseFloat(act, 64)
+	if err == nil {
+		e, err = strconv.ParseFloat(exp, 64)
 	}
-	return -1
+	return a, e, err
 }
 
-func compareTables(t *testing.T, name string, exp, act map[string][]string) {
+func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 	// Compares output of equivalent tables
-	if len(act) != len(exp) {
-		t.Errorf("%s: Actual table length %d does not equal expected: %d", name, len(act), len(exp))
+	ac, ar := act.Dimensions()
+	ec, er := exp.Dimensions()
+	if ac != ec && ar != er {
+		t.Errorf("Actual %s dimensions [%d, %d] does not equal expected: [%d, %d]", name, ac, ar, ec, er)
 	} else {
-		for k := range act {
-			if len(act[k]) != len(exp[k]) {
-				t.Errorf("%s, %s: Actual length %d does not equal expected: %d", name, k, len(act[k]), len(exp[k]))
-				break
-			} else {
-				idx := compareEntries(act[k], exp[k])
-				if idx >= 0 {
-					t.Errorf("%s %s-%d: Actual value %s does not equal expected: %s", name, k, idx, act[k][idx], exp[k][idx])
-					break
+		for key := range act.Index {
+			for k := range act.Header {
+				a, _ := act.GetCell(key, k)
+				e, _ := exp.GetCell(key, k)
+				if a != e {
+					// Make sure error is not due to floating point precision
+					af, ef, err := toFloat(a, e)
+					if err != nil || af != ef {
+						t.Errorf("%s-%s: Actual %s value %s does not equal expected: %s", name, key, k, a, e)
+					}
 				}
 			}
 		}
@@ -58,6 +49,16 @@ func compareTables(t *testing.T, name string, exp, act map[string][]string) {
 }
 
 //----------------------------------------------------------------------------
+
+func tableToDF(db *dbIO.DBIO, name string)  *dataframe.Dataframe {
+	// Returns specified table as dataframe
+	ret, _ := dataframe.NewDataFrame(0)
+	ret.SetHeader(strings.Split(db.Columns[name], ","))
+	for _, i := range db.GetTable(name) {
+		ret.AddRow(i)
+	}
+	return ret
+}
 
 func TestUpload(t *testing.T) {
 	// Compares actual output from table dumps to expected
@@ -78,8 +79,9 @@ func TestUpload(t *testing.T) {
 	dbupload.LoadPatients(db, uploadfile)
 	for k := range db.Columns {
 		// Dump all tables for comparison
-		table := dbupload.ToMap(db.GetTable(k))
-		compareTables(t, k, exp[k], table)
+		if k != "Unmatched" {
+			compareTables(t, k, exp[k], tableToDF(db, k))
+		}
 	}
 }
 
@@ -104,7 +106,7 @@ func TestSearches(t *testing.T) {
 		if i.name == "fox" && res.Length() > 0 {
 			t.Error("Results returned for gray fox (not present).")
 		} else {
-			compareTables(t, i.name, i.expected, dbupload.ToMap(res.ToSlice()))
+			compareTables(t, i.name, i.expected, res)
 		}
 	}
 }
@@ -115,8 +117,7 @@ func TestUpdates(t *testing.T) {
 	exp := getExpectedUpdates()
 	dbextract.UpdateEntries(db, updatefile)
 	for _, i := range []string{"Patient", "Diagnosis", "Tumor"} {
-		table := dbupload.ToMap(db.GetTable(i))
-		compareTables(t, i, exp[i], table)
+		compareTables(t, i, exp[i], tableToDF(db, i))
 	}
 }
 
@@ -128,7 +129,6 @@ func TestDelete(t *testing.T) {
 	dbextract.AutoCleanDatabase(db)
 	for k := range exp {
 		// Compare all tables to ensure only target data was removed
-		table := dbupload.ToMap(db.GetTable(k))
-		compareTables(t, k, exp[k], table)
+		compareTables(t, k, exp[k], tableToDF(db, k))
 	}
 }
