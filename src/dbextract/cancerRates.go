@@ -9,6 +9,7 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/strarray"
+	"strings"
 )
 
 func cancerRateHeader() []string {
@@ -26,7 +27,14 @@ func formatRates(records map[string]*dbupload.Record) *dataframe.Dataframe {
 		if len(v.Species) > 0 {
 			err := ret.AddRow(v.CalculateRates())
 			if err != nil {
-
+				fmt.Printf("\t[Error] Adding row to dataframe: %v\n", err)
+			}
+		}
+	}
+	for ind, row := range ret.Rows {
+		for idx, i := range row {
+			if strings.Split(i, ".")[0] == "-1" {
+				ret.UpdateCell(ind, idx, "NA")
 			}
 		}
 	}

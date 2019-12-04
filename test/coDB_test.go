@@ -50,7 +50,7 @@ func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 
 //----------------------------------------------------------------------------
 
-func tableToDF(db *dbIO.DBIO, name string)  *dataframe.Dataframe {
+func tableToDF(db *dbIO.DBIO, name string) *dataframe.Dataframe {
 	// Returns specified table as dataframe
 	ret, _ := dataframe.NewDataFrame(0)
 	ret.SetHeader(strings.Split(db.Columns[name], ","))
