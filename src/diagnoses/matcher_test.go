@@ -1,6 +1,6 @@
 // This script will perform white box tests on the mathcer struct's methods
 
-package parserecords
+package diagnoses
 
 import (
 	"strings"
@@ -71,7 +71,7 @@ func newMatches() []matches {
 
 func TestTumor(t *testing.T) {
 	// Tests getMatch method
-	m := newMatcher()
+	m := NewMatcher()
 	matches := newMatches()
 	for _, i := range matches {
 		typ, loc, mal := m.getTumor(i.line, true)
@@ -87,7 +87,7 @@ func TestTumor(t *testing.T) {
 
 func TestGetCastrated(t *testing.T) {
 	// Tests getMatch method
-	m := newMatcher()
+	m := NewMatcher()
 	matches := newMatches()
 	for _, i := range matches {
 		actual := m.getCastrated(i.line)
@@ -99,7 +99,7 @@ func TestGetCastrated(t *testing.T) {
 
 func TestInfantRecords(t *testing.T) {
 	// Tests getMatch method
-	m := newMatcher()
+	m := NewMatcher()
 	matches := newMatches()
 	for _, i := range matches {
 		actual := m.infantRecords(i.line)
@@ -111,7 +111,7 @@ func TestInfantRecords(t *testing.T) {
 
 func TestGetAge(t *testing.T) {
 	// Tests getMatch method
-	m := newMatcher()
+	m := NewMatcher()
 	matches := newMatches()
 	for _, i := range matches {
 		actual := m.getAge(i.line)

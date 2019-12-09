@@ -31,8 +31,8 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 	line = strings.ToLower(line)
 	if rec.age == "-1" {
 		// Try to extract age if it's not given
-		rec.age = e.match.getAge(line)
-		if rec.age == "-1" && e.match.infantRecords(line) == true {
+		rec.age = e.match.GetAge(line)
+		if rec.age == "-1" && e.match.InfantRecords(line) == true {
 			// Check for infancy terms if age is not found
 			rec.age = "0"
 		}
@@ -41,10 +41,10 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 		// Make sure values aren't below 0
 		rec.age = "-1"
 	}
-	rec.sex = e.match.getMatch(e.match.sex, line)
-	rec.castrated = e.match.getCastrated(line)
-	rec.tumorType, rec.location, rec.malignant = e.match.getTumor(line, cancer)
-	rec.metastasis = e.match.binaryMatch(e.match.metastasis, line)
+	rec.sex = e.match.GetMatch(e.match.sex, line)
+	rec.castrated = e.match.GetCastrated(line)
+	rec.tumorType, rec.location, rec.malignant = e.match.GetTumor(line, cancer)
+	rec.metastasis = e.match.BinaryMatch(e.match.metastasis, line)
 	if rec.metastasis == "1" {
 		// Assume malignancy if metastasis is detected
 		rec.malignant = "1"
@@ -55,14 +55,14 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 		if rec.metastasis == "0" && strings.Count(rec.tumorType, ";") == 0 && strings.Count(rec.location, ";") == 0 {
 			// Store yes for primary if a tumor was found but no metastasis
 			rec.primary = "1"
-		} else if e.match.getMatch(e.match.primary, line) != "NA" {
+		} else if e.match.GetMatch(e.match.primary, line) != "NA" {
 			rec.primary = "1"
 		}
 	}
 	if necropsy == true {
 		rec.necropsy = "1"
 	} else {
-		rec.necropsy = e.match.getNecropsy(line)
+		rec.necropsy = e.match.GetNecropsy(line)
 	}
 }
 
@@ -112,7 +112,7 @@ func (e *entries) parseLine(rec *record, line []string) {
 		// Store for debugging
 		rec.cancer = "Y"
 	}
-	e.parseDiagnosis(rec, e.getSearchRow(line), cancer, necropsy)
+	e.match.ParseDiagnosis(rec, e.getSearchRow(line), cancer, necropsy)
 	found, com := countNA(rec)
 	if found == true {
 		e.found++

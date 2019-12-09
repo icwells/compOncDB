@@ -5,6 +5,7 @@ package parserecords
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/clusteraccounts"
+	"github.com/icwells/compOncDB/src/diagnoses"
 	"github.com/icwells/go-tools/iotools"
 	"os"
 	"strings"
@@ -16,7 +17,7 @@ type entries struct {
 	service     string
 	taxa        map[string][]string
 	accounts    map[string][]string
-	match       matcher
+	match       diagnoses.Matcher
 	dups        duplicates
 	dupsPresent bool
 	extracted   int
@@ -29,7 +30,7 @@ func NewEntries(service, infile string) entries {
 	var e entries
 	e.service = service
 	e.col = newColumns()
-	e.match = newMatcher()
+	e.match = diagnoses.NewMatcher()
 	e.dups = newDuplicates()
 	e.dupsPresent = false
 	if infile != "" {

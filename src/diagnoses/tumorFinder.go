@@ -1,6 +1,6 @@
 // Contians tumorFinder struct and methods for parseRecords
 
-package parserecords
+package diagnoses
 
 import (
 	"strconv"
@@ -97,7 +97,7 @@ func (t *tumorFinder) toStrings() (string, string, string) {
 
 //----------------------------------------------------------------------------
 
-func (m *matcher) getLocations(t *tumorFinder, line string) {
+func (m *Matcher) getLocations(t *tumorFinder, line string) {
 	// Searches line preceding type index for locations
 	for key := range t.types {
 		for k, v := range m.location {
@@ -111,7 +111,7 @@ func (m *matcher) getLocations(t *tumorFinder, line string) {
 	}
 }
 
-func (m *matcher) setMalignant(t *tumorFinder, line string) {
+func (m *Matcher) setMalignant(t *tumorFinder, line string) {
 	// Sets malignant value for tumorFinder
 	for i := range t.types {
 		for k := range m.types {
@@ -132,7 +132,7 @@ func (m *matcher) setMalignant(t *tumorFinder, line string) {
 	}
 }
 
-func (m *matcher) getTypes(t *tumorFinder, line string) {
+func (m *Matcher) getTypes(t *tumorFinder, line string) {
 	// Returns types from map
 	for key := range m.types {
 		found := false
@@ -157,7 +157,7 @@ func (m *matcher) getTypes(t *tumorFinder, line string) {
 	}
 }
 
-func (m *matcher) getTumor(line string, cancer bool) (string, string, string) {
+func (m *Matcher) getTumor(line string, cancer bool) (string, string, string) {
 	// Returns type, location, and malignancy
 	t := newTumorFinder()
 	if cancer == true {

@@ -1,6 +1,6 @@
 // This script defines a struct for matching diagnosis data with regular expressions
 
-package parserecords
+package diagnoses
 
 import (
 	"regexp"
@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type matcher struct {
+type Matcher struct {
 	location   map[string]*regexp.Regexp
-	types      map[string]map[string]diagnosis
+	types      map[string]*tumortype
 	infant     *regexp.Regexp
 	digit      *regexp.Regexp
 	age        *regexp.Regexp
@@ -24,9 +24,9 @@ type matcher struct {
 	biopsy     *regexp.Regexp
 }
 
-func newMatcher() matcher {
+func MewMatcher() Matcher {
 	// Compiles regular expressions
-	var m matcher
+	var m Matcher
 	m.infant = regexp.MustCompile(`(?i)infant|(peri|neo)nat(e|al)|fet(us|al)`)
 	m.digit = regexp.MustCompile(`[0-9]+`)
 	m.age = regexp.MustCompile(`(?i)[0-9]+(-|\s)(day|week|month|year)s?(-|\s)?(old|of age)?`)
@@ -44,7 +44,7 @@ func newMatcher() matcher {
 
 //----------------------------------------------------------------------------
 
-func (m *matcher) getMatch(re *regexp.Regexp, line string) string {
+func (m *Matcher) GetMatch(re *regexp.Regexp, line string) string {
 	// Returns match/NA
 	match := re.FindString(line)
 	if len(match) == 0 {
@@ -53,7 +53,7 @@ func (m *matcher) getMatch(re *regexp.Regexp, line string) string {
 	return match
 }
 
-func (m *matcher) binaryMatch(re *regexp.Regexp, line string) string {
+func (m *Matcher) BinaryMatch(re *regexp.Regexp, line string) string {
 	// Returns 1/0/-1
 	ret := "-1"
 	match := re.FindStringSubmatch(line)
@@ -69,12 +69,12 @@ func (m *matcher) binaryMatch(re *regexp.Regexp, line string) string {
 	return ret
 }
 
-func (m *matcher) getNecropsy(line string) string {
+func (m *Matcher) GetNecropsy(line string) string {
 	// Returns 1/0/-1; also searches for negating expression
-	ret := m.binaryMatch(m.necropsy, line)
+	ret := m.BinaryMatch(m.necropsy, line)
 	if ret == "-1" {
 		// Search for biopsy
-		inverse := m.getMatch(m.biopsy, line)
+		inverse := m.GetMatch(m.biopsy, line)
 		if inverse != "NA" {
 			ret = "0"
 		}
@@ -82,11 +82,11 @@ func (m *matcher) getNecropsy(line string) string {
 	return ret
 }
 
-func (m *matcher) getMalignancy(line string) string {
+func (m *Matcher) GetMalignancy(line string) string {
 	// Returns 1/0 for malignant/benign
-	ret := m.binaryMatch(m.malignant, line)
+	ret := m.BinaryMatch(m.malignant, line)
 	if ret == "-1" {
-		ret = m.binaryMatch(m.benign, line)
+		ret = m.BinaryMatch(m.benign, line)
 		// Reverse benign result
 		if ret == "1" {
 			ret = "0"
@@ -97,25 +97,25 @@ func (m *matcher) getMalignancy(line string) string {
 	return ret
 }
 
-func (m *matcher) getCastrated(line string) string {
+func (m *Matcher) GetCastrated(line string) string {
 	// Returns castration status
-	match := m.binaryMatch(m.castrated, line)
+	match := m.BinaryMatch(m.castrated, line)
 	if match == "-1" && strings.Contains(line, "intact") == true {
 		match = "0"
 	}
 	return match
 }
 
-func (m *matcher) infantRecords(line string) bool {
+func (m *Matcher) InfantRecords(line string) bool {
 	// Returns true if patient is an infant
 	match := m.infant.MatchString(line)
 	return match
 }
 
-func (m *matcher) getAge(line string) string {
+func (m *Matcher) GetAge(line string) string {
 	// Returns formatted age in months
 	ret := "-1"
-	match := m.getMatch(m.age, line)
+	match := m.GetMatch(m.age, line)
 	if match != "NA" {
 		age := m.digit.FindString(match)
 		if strings.Contains(match, "month") == true {
