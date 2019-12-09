@@ -1,71 +1,77 @@
-Classification,Location,Benign,Malignant
-Mesenchymal,Fibrous,Fibroma; hamartoma; sarcoids,Fibrosarcoma
-Mesenchymal,Myxomatous tissue,Myxoma,Myxosarcoma
-Mesenchymal,Fat; adipose,Lipoma,Liposarcoma
-Mesenchymal,Notochord,Chordoma,Chordoma
-Mesenchymal,Smooth muscle,Leiomyoma,Leiomyosarcoma
-Mesenchymal,Striated muscle,Rhabdomyoma,Rhabdomyosarcoma
-Mesenchymal,Peripheral nerve sheath,Schwannoma; neurilemmoma; Granular Cell,schwannoma; Granular Cell
-Mesenchymal,Meninges,Meningioma,meningioma
-Mesenchymal,Undifferentiated,NA,sarcoma
-Mesenchymal,Blood vessels,Hemangioma; hemangiopericytoma,Hemangiosarcoma; angiosarcoma
-Mesenchymal,Lymph vessels,Lymphangioma,Lymphangiosarcoma
-Bone,Cartilage,Chondroma,Chondrosarcoma
-Bone,Synovium,Synovial myxoma; periarticular fibroma,Synovial cell sarcoma
-Bone,Bone,Osteoma,Osteosarcoma
-Round Cell,bone marrow,NA,leukemias
-Round Cell,anywhere,Plasma cell,plasma cell
-Round Cell,Lymphoid tissue,Thymoma,Lymphoma; lymphosarcoma; Plasmacytoma; multiple myeloma
-Round Cell,Mast cell,mast cell,sarcoma; mastocytosis; mastocytoma
-Round Cell,Dendritic cells,Histiocytoma,Histiocytic Sarcoma
-chromatophoromas,Pigment cell,melanocytoma; melanoma; melanophoroma ,melanoma; melanosarcoma
-chromatophoromas,Pigment cell,iridophoroma,iridophoroma
-chromatophoromas,Pigment cell,erythrophoroma,erythrophoroma
-chromatophoromas,Pigment cell,xanthophoroma,xanthophoroma
-chromatophoromas,Pigment cell,chromatophoroma,chromatophoroma
-Epithelial,Skin; epidermis,Papilloma; basal cell tumor,Squamous cell carcinoma; epidermoid carcinoma; basal cell carcinoma
-Epithelial,Hair follicles,Trichoepithelioma; Trichoblastoma,Trichoepithelioma
-Epithelial,Gland,adenoma,adenocarcinoma
-Mammary,mammary gland; breast,adenoma,adenocarcinoma
-Nervous,Glial cell,Glioma,glioma; anaplastic; glioblastoma 
-Nervous,Nerve Cell,Ganglioneuroma,Neuroblastoma; Medulloblastoma
-Nervous,PNET,Neurofibroma,Neurofibrosarcoma
-Nervous,Neuroepithelial,Astrocytoma,Astrocytoma
-Endocrine,Pituitary Gland,Pituitary adenoma,Pituitary carcinoma
-Endocrine,Parathyroid Gland,Parathyroid adenoma,Parathyroid carcinoma
-Endocrine,Thyroid Gland; C cell,follicular cell adenoma; thyroid adenoma,thyroid carcinoma; c cell carcinoma; follicular cell carcinoma
-Endocrine,Adrenal medulla ,Pheochromocytoma ; cortical adenoma; adrenal adenoma,Pheochromocytoma; cortical carcinoma
-Endocrine,Adrenal cortex,adenomas,carcinomas
-Endocrine,Endocrine pancreas,Islet cell adenoma; insulinoma; glucogonoma,Islet cell carcinoma; glucogonoma
-Endocrine,Stomach; intestines,Carcinoid,carcinoid
-Endocrine,Carotid body; chemo-receptor system,Chemodectoma; paraganglioma,NA
-Endocrine,Neuroendocrine,NA,paraganglioma
-Urinary/Genital,Testicular;testes,Seminoma,seminoma
-Urinary/Genital,Testicular;testes,Sertoli cell,sertoli cell tumor
-Urinary/Genital,Testicular;testes,Interstitial cell; Leydig cell,interstitial tumor
-Urinary/Genital,Testicular;testes,Teratoma,Teratoma
-Urinary/Genital,prostate; seminal vesicles; bulbourethral gland,prostatic adenoma,prostate carcinoma
-Urinary/Genital,Ovarian,Granulosa cell; Theca cell,Dysgerminoma; choriocarcinoma; teratocarcinoma
-Urinary/Genital,Ovarian,Interstitial cell; Leydig cell,Dysgerminoma; choriocarcinoma; teratocarcinoma
-Urinary/Genital,Ovarian,Dysgerminoma,Dysgerminoma; choriocarcinoma; teratocarcinoma
-Urinary/Genital,Uterus,uterine papilloma,uterine squamous cell carcinoma
-Urinary/Genital,Uterus,uterine adenoma,uterine adenocarcinoma
-Urinary/Genital,Kidney,Renal adenoma;nephroblastoma,Renal carcinoma; hypernephroma; nephroblastoma
-Urinary/Genital,Bladder; ureter; urethra,urothelial adenomas; papillomas; fibromas,urothelial carcinoma; transitional cell carcinoma
-Gastrointestinal,Liver,Hepatic adenoma; hepatoma,hepatocellular carcinoma; hepatoma
-Gastrointestinal,Bile duct,biliary adenoma; cystadenoma,Cholangiocarcinoma; biliary carcinoma; cholangiocellular carcinoma; biliary cystadenocarcinoma
-Gastrointestinal,gall bladder,adenoma; papilloma,carcinoma
-Gastrointestinal,Stomach,adenoma; papilloma,adenocarcinoma; carcinoma; squamous cell carcinoma
-Gastrointestinal,Small intestine,adenoma; papilloma,adenocarcinoma; carcinoma; squamous cell carcinoma
-Gastrointestinal,large intestine;colon;rectum;cloaca ,adenoma; papilloma,adenocarcinoma; carcinoma; squamous cell carcinoma
-Gastrointestinal,esophagus,adenoma; papilloma,adenocarcinoma; carcinoma; squamous cell carcinoma
-Gastrointestinal,Mouth;oral cavity,papilloma; melanoma,Squamous cell carcinoma; melanoma
-Gastrointestinal,Mouth;oral cavity,Fibromatous epulis; ameloblastoma; odontoma,ameloblastoma; odontogenic
-Eye,Iris,iris melanoma,iris melamoma; carcinoma; adenocarcinoma
-Eye,Pupil,papillary adenoma;,carcinoma
-Respiratory,larynx,adenoma; papilloma,carcinoma; adenocarcinoma
-Respiratory,trachea,adenoma; papilloma,adenocarcinoma
-Respiratory,lungs,adenoma,adenocarcinoma; carcinoma
-Respiratory,Nose; sinuses,Papilloma,carcinoma; adenocarcinoma
-Respiratory,Transitional epithelium,papilloma,carcinoma
-Mesothelium,Mesothelium,Mesothelioma,Mesothelioma
+Classification,Location,LocationExpression,Benign,Malignant
+Mesenchymal,Fibrous,,Fibroma; hamartoma; sarcoids,Fibrosarcoma
+,Myxomatous tissue,,Myxoma,Myxosarcoma
+,Fat,fat|adipose.*,Lipoma,Liposarcoma
+,Notochord,,Chordoma,Chordoma
+,Smooth muscle,,Leiomyoma,Leiomyosarcoma
+,Striated muscle,muscle|.*structure.*,Rhabdomyoma,Rhabdomyosarcoma
+,Peripheral nerve sheath,,Schwannoma; neurilemmoma; Granular Cell,schwannoma; Granular Cell
+,Meninges,,Meningioma,meningioma
+,Blood vessels,,Hemangioma; hemangiopericytoma,Hemangiosarcoma; angiosarcoma
+,Lymph vessels,lymph.* (vessel|node)?,Lymphangioma,Lymphangiosarcoma
+Bone,Cartilage,,Chondroma,Chondrosarcoma
+,Synovium,,Synovial myxoma; periarticular fibroma,Synovial cell sarcoma
+,Bone,sacrum|bone.*,Osteoma,Osteosarcoma
+Round Cell,bone marrow,,NA,leukemia
+,Lymphoid tissue,,Thymoma,Lymphoma; lymphosarcoma; Plasmacytoma; multiple myeloma
+,Spleen,,,
+,Mast cell,,mast cell,sarcoma; mastocytosis; mastocytoma
+,Dendritic cells,,Histiocytoma,Histiocytic Sarcoma
+chromatophoromas,Pigment cell,,melanocytoma; melanoma; melanophoroma ,melanoma; melanosarcoma
+,,,iridophoroma,iridophoroma
+,,,erythrophoroma,erythrophoroma
+,,,xanthophoroma,xanthophoroma
+,,,chromatophoroma,chromatophoroma
+Epithelial,Skin,skin|eyelid|(sub)?cutan.*|derm.*|basal,Papilloma; basal cell tumor,Squamous cell carcinoma; epidermoid carcinoma; basal cell carcinoma
+,Hair follicles,,Trichoepithelioma; Trichoblastoma,Trichoepithelioma
+,Gland,,adenoma,adenocarcinoma
+Mammary,mammary,mammary( gland)?|breast,adenoma,adenocarcinoma
+Nervous,Glial cell,,Glioma,glioma; anaplastic; glioblastoma 
+,Nerve Cell,nerv(e|ous),Ganglioneuroma,Neuroblastoma; Medulloblastoma
+,PNET,pnet|neuroectodermal,Neurofibroma,Neurofibrosarcoma
+,Neuroepithelial,,Astrocytoma,Astrocytoma
+,spinal cord,spinal|spine,,
+,brain,,,
+Endocrine,Pituitary Gland,,Pituitary adenoma,Pituitary carcinoma
+,Parathyroid Gland,,Parathyroid adenoma,Parathyroid carcinoma
+,Thyroid Gland,thyroid|c cell,follicular cell adenoma; thyroid adenoma,thyroid carcinoma; c cell carcinoma; follicular cell carcinoma
+,Adrenal medulla ,,Pheochromocytoma ; cortical adenoma; adrenal adenoma,Pheochromocytoma; cortical carcinoma
+,Adrenal cortex,,adenoma,carcinoma
+,pancreas,pancreas.*|islet,Islet cell adenoma; insulinoma; glucogonoma,Islet cell carcinoma; glucogonoma
+,Stomach; intestines,,Carcinoid,carcinoid
+,Carotid body; chemo-receptor system,Carotid( body)?|chemo-receptor( system)?,Chemodectoma; paraganglioma,NA
+,Neuroendocrine,,NA,paraganglioma
+Urinary/Genital,testis,,Seminoma,seminoma
+,,,Sertoli cell,sertoli cell tumor
+,,,Interstitial cell; Leydig cell,interstitial tumor
+,,,Teratoma,Teratoma
+,prostate; seminal vesicles; bulbourethral gland,prostat(ic|e)|seminal( vesicle)?|bulbourethral( gland)?,adenoma,carcinoma
+,ovary,ovar.*,Granulosa cell; Theca cell,Dysgerminoma; choriocarcinoma; teratocarcinoma
+,,,Interstitial cell; Leydig cell,Dysgerminoma; choriocarcinoma; teratocarcinoma
+,,,Dysgerminoma,Dysgerminoma; choriocarcinoma; teratocarcinoma
+,vulva,vulva|vagina,,
+,Uterus,uter.*,Papilloma,squamous cell carcinoma
+,,,uterine adenoma,uterine adenocarcinoma
+,Kidney,kidney.*|renal,Renal adenoma;nephroblastoma,Renal carcinoma; hypernephroma; nephroblastoma
+,Bladder,bladder|uret(er|thra),urothelial adenomas; papillomas; fibromas,urothelial carcinoma; transitional cell carcinoma
+Gastrointestinal,Liver,hepa.*|liver.*|hep.*|billia.*,Hepatic adenoma; hepatoma,hepatocellular carcinoma; hepatoma
+,Bile duct,bile.*|biliary,biliary adenoma; cystadenoma,Cholangiocarcinoma; biliary carcinoma; cholangiocellular carcinoma; biliary cystadenocarcinoma
+,gall bladder,gall bladder,adenoma; papilloma,carcinoma
+,Stomach,,adenoma; papilloma,adenocarcinoma; carcinoma; squamous cell carcinoma
+,Small intestine,(small )?intestin(e|al),adenoma; papilloma,adenocarcinoma; carcinoma; squamous cell carcinoma
+,large intestine;colon;rectum;cloaca ,Large intestin(e|al)|colon|rectum|cloaca,adenoma; papilloma,adenocarcinoma; carcinoma; squamous cell carcinoma
+,esophagus,esophag(us|ial),adenoma; papilloma,adenocarcinoma; carcinoma; squamous cell carcinoma
+,oral,oral|tongue|mouth|lip|palate|pharyn.*|laryn.*|gingival,papilloma; melanoma,Squamous cell carcinoma; melanoma
+,,,Fibromatous epulis; ameloblastoma; odontoma,ameloblastoma; odontogenic
+,duodenum,duodenum,,
+,abdomen,abdom(e|i).*|omentum|diaphragm,,
+Eye,Iris,,melanoma,melamoma; carcinoma; adenocarcinoma
+,Pupil,pupil|papillary,adenoma,carcinoma
+Respiratory,larynx,,adenoma; papilloma,carcinoma; adenocarcinoma
+,trachea,,adenoma; papilloma,adenocarcinoma
+,lung,lung.*|pulm.*|mediasti.*|bronchial|alveol.*,adenoma,adenocarcinoma; carcinoma
+,Nose,nose|sinus|nasal,Papilloma,carcinoma; adenocarcinoma
+,Transitional epithelium,Transitional epithelium,papilloma,carcinoma
+Mesothelium,Mesothelium,,Mesothelioma,Mesothelioma
+Cardiac,Heart,heart|cardiac|atrial,,
+Other,widespread,widespread|metastatic|body as a whole|multiple|disseminated,,

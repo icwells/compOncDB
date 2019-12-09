@@ -29,7 +29,7 @@ func newMatcher() matcher {
 	var m matcher
 	m.infant = regexp.MustCompile(`(?i)infant|(peri|neo)nat(e|al)|fet(us|al)`)
 	m.digit = regexp.MustCompile(`[0-9]+`)
-	m.age = regexp.MustCompile(`(?i)[0-9]+(-|\s)(day|week|month|year)s?(-|\s)?(old)?`)
+	m.age = regexp.MustCompile(`(?i)[0-9]+(-|\s)(day|week|month|year)s?(-|\s)?(old|of age)?`)
 	m.sex = regexp.MustCompile(`(?i)(fe)?male`)
 	m.castrated = regexp.MustCompile(`(?i)(not )?(castrat(ed)?|neuter(ed)?|spay(ed)?)`)
 	m.malignant = regexp.MustCompile(`(?i)(not )?(malignan(t|cy)|invasive)`)
