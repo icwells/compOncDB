@@ -81,13 +81,18 @@ func newTumorFinder() *tumorFinder {
 	return &t
 }
 
-func (t *tumorFinder) checkKeys(name string, idx int) {
+func (t *tumorFinder) checkKeys(name string, idx int) bool {
 	// Removes incomplete tumor name matches
+	ret := true
 	for key := range t.types {
 		if strings.Contains(name, key) {
 			delete(t.types, key)
+		} else if strings.Contains(key, name) {
+			ret = false
+			break
 		}
 	}
+	return ret
 }
 
 func (t *tumorFinder) toStrings() (string, string, string) {
@@ -150,17 +155,13 @@ func (m *Matcher) searchLocation(t *tumorFinder, line, key, i, sex string) {
 func (m *Matcher) getLocations(t *tumorFinder, line, sex string) {
 	// Searches line for locations of matches
 	for key := range t.types {
-		locations := m.types[key].locations.ToSlice()
-		if len(locations) > 0 {
-			// Search for matches in known locations
-			for _, i := range locations {
-				m.searchLocation(t, line, key, i, sex)
-			}
-		} else {
-			// Search for match to any location
-			for k := range m.location {
-				m.searchLocation(t, line, key, k, sex)
-			}
+		// Search for matches in known locations
+		for _, i := range m.types[key].locations.ToSlice() {
+			m.searchLocation(t, line, key, i, sex)
+		}
+		// Search for match to any location
+		for k := range m.location {
+			m.searchLocation(t, line, key, k, sex)
 		}
 		t.types[key].setLocation()
 	}
@@ -172,8 +173,9 @@ func (m *Matcher) getTypes(t *tumorFinder, line string) {
 		match := m.GetMatch(v.expression, line)
 		if match != "NA" {
 			idx := strings.Index(line, match)
-			t.checkKeys(k, idx)
-			t.types[k] = newTumorHit(match, idx, len(line))
+			if t.checkKeys(k, idx) {
+				t.types[k] = newTumorHit(match, idx, len(line))
+			}
 		}
 	}
 }
