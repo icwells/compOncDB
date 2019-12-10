@@ -40,7 +40,9 @@ func (t *tumortype) isMalignant() {
 
 func (t *tumortype) addLocation(loc string) {
 	// Adds loc to location set
-	t.locations.Add(loc)
+	if loc != "widespread" {
+		t.locations.Add(loc)
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -86,12 +88,6 @@ func (m *Matcher) setTumorType(df *dataframe.Dataframe, loc string, idx int) {
 func (m *Matcher) setLocation(l, exp string) string {
 	// Adds new location to map
 	l = strings.ToLower(l)
-	if strings.Count(l, " ") >= 1 {
-		// Remove trailing s from second word
-		if l[len(l)-1] == 's' {
-			l = l[:len(l)-1]
-		}
-	}
 	if exp == "" {
 		exp = l
 	}

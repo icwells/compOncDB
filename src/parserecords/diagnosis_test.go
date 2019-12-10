@@ -3,8 +3,9 @@
 package parserecords
 
 import (
+	"github.com/icwells/compOncDB/src/diagnoses"
 	"strconv"
-	//"strings"
+	"strings"
 	"testing"
 )
 
@@ -83,38 +84,38 @@ func TestCheckAge(t *testing.T) {
 	}
 }
 
-/*func TestParseDiagnosis(t *testing.T) {
+func TestParseDiagnosis(t *testing.T) {
 	// Tests parseDiagnosis with matches from matcher_test.go
 	e := NewEntries("service", "")
-	matches := newMatches()
+	matches := diagnoses.NewMatches()
 	for _, i := range matches {
 		rec := newRecord()
-		e.parseDiagnosis(&rec, strings.ToLower(i.line), true, false)
-		if rec.age != i.age && i.infant == false {
-			t.Errorf("Actual age %s does not equal expected: %s", rec.age, i.age)
-		} else if rec.sex != i.sex {
-			t.Errorf("Actual sex %s does not equal expected: %s", rec.sex, i.sex)
-		} else if rec.castrated != i.castrated {
-			t.Errorf("Actual neuter value %s does not equal expected: %s", rec.castrated, i.castrated)
-		} else if rec.location != i.location {
-			t.Errorf("Actual location %s does not equal expected: %s", rec.location, i.location)
-		} else if rec.tumorType != i.typ {
-			t.Errorf("Actual type %s does not equal expected: %s", rec.tumorType, i.typ)
-		} else if rec.malignant != i.malignant {
-			t.Errorf("Actual malignant value %s does not equal expected: %s", rec.malignant, i.malignant)
-		} else if rec.primary != i.primary {
+		e.parseDiagnosis(&rec, strings.ToLower(i.Line), true, false)
+		if rec.age != i.Age && i.Infant == false {
+			t.Errorf("Actual age %s does not equal expected: %s", rec.age, i.Age)
+		} else if rec.sex != i.Sex {
+			t.Errorf("Actual sex %s does not equal expected: %s", rec.sex, i.Sex)
+		} else if rec.castrated != i.Castrated {
+			t.Errorf("Actual neuter value %s does not equal expected: %s", rec.castrated, i.Castrated)
+		} else if rec.location != i.Location {
+			t.Errorf("Actual location %s does not equal expected: %s", rec.location, i.Location)
+		} else if rec.tumorType != i.Typ {
+			t.Errorf("Actual type %s does not equal expected: %s", rec.tumorType, i.Typ)
+		} else if rec.malignant != i.Malignant {
+			t.Errorf("Actual malignant value %s does not equal expected: %s", rec.malignant, i.Malignant)
+		} else if rec.primary != i.Primary {
 			if rec.tumorType != "NA" && rec.metastasis == "0" {
 				// Skip if function determined a single tumor to be primary
 				if rec.primary != "1" {
-					t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.primary)
+					t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.Primary)
 				}
 			} else {
-				t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.primary)
+				t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.Primary)
 			}
-		} else if rec.metastasis != i.metastasis {
-			t.Errorf("Actual metastasis value %s does not equal expected: %s", rec.metastasis, i.metastasis)
-		} else if rec.necropsy != i.necropsy {
-			t.Errorf("%s: Actual necropsy value %s does not equal expected: %s", i.line, rec.necropsy, i.necropsy)
+		} else if rec.metastasis != i.Metastasis {
+			t.Errorf("Actual metastasis value %s does not equal expected: %s", rec.metastasis, i.Metastasis)
+		} else if rec.necropsy != i.Necropsy {
+			t.Errorf("%s: Actual necropsy value %s does not equal expected: %s", i.Line, rec.necropsy, i.Necropsy)
 		}
 	}
-}*/
+}

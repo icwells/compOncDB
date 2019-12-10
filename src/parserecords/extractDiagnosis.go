@@ -48,6 +48,9 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 	if rec.metastasis == "1" {
 		// Assume malignancy if metastasis is detected
 		rec.malignant = "1"
+	} else if rec.malignant == "0" {
+		// Assume no metastasis if tumor is benign
+		rec.metastasis = "0"
 	}
 	if rec.tumorType != "NA" {
 		rec.massPresent = "1"
