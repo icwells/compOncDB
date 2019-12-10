@@ -4,7 +4,7 @@ package parserecords
 
 import (
 	"strconv"
-	"strings"
+	//"strings"
 	"testing"
 )
 
@@ -83,7 +83,7 @@ func TestCheckAge(t *testing.T) {
 	}
 }
 
-func TestParseDiagnosis(t *testing.T) {
+/*func TestParseDiagnosis(t *testing.T) {
 	// Tests parseDiagnosis with matches from matcher_test.go
 	e := NewEntries("service", "")
 	matches := newMatches()
@@ -117,4 +117,4 @@ func TestParseDiagnosis(t *testing.T) {
 			t.Errorf("%s: Actual necropsy value %s does not equal expected: %s", i.line, rec.necropsy, i.necropsy)
 		}
 	}
-}
+}*/

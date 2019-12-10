@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type tumorType struct {
+type tumorHit struct {
 	match     string
 	index     int
 	length    int
@@ -15,9 +15,9 @@ type tumorType struct {
 	location  string
 }
 
-func newTumorType(m string, i, l int) *tumorType {
+func newTumorHit(m string, i, l int) *tumorHit {
 	// Initializes new struct
-	var t tumorType
+	var t tumorHit
 	t.match = m
 	t.index = i
 	t.length = l
@@ -26,7 +26,7 @@ func newTumorType(m string, i, l int) *tumorType {
 	return &t
 }
 
-func (t *tumorType) setDistance(k, m, line string) {
+func (t *tumorHit) setDistance(k, m, line string) {
 	// Stores location hit and distance from type
 	var dist int
 	idx := strings.Index(line, m)
@@ -42,7 +42,7 @@ func (t *tumorType) setDistance(k, m, line string) {
 	t.locations[k] = dist
 }
 
-func (t *tumorType) setLocation() {
+func (t *tumorHit) setLocation() {
 	// Determines location with shortest distance from type
 	var loc string
 	min := t.length
@@ -69,16 +69,25 @@ func (t *tumorType) setLocation() {
 //----------------------------------------------------------------------------
 
 type tumorFinder struct {
-	types     map[string]*tumorType
+	types     map[string]*tumorHit
 	malignant string
 }
 
-func newTumorFinder() tumorFinder {
+func newTumorFinder() *tumorFinder {
 	// Initializes new struct
 	var t tumorFinder
-	t.types = make(map[string]*tumorType)
+	t.types = make(map[string]*tumorHit)
 	t.malignant = "-1"
-	return t
+	return &t
+}
+
+func (t *tumorFinder) checkKeys(name string, idx int) {
+	// Removes incomplete tumor name matches
+	for key := range t.types {
+		if strings.Contains(name, key) {
+			delete(t.types, key)
+		}
+	}
 }
 
 func (t *tumorFinder) toStrings() (string, string, string) {
@@ -97,74 +106,86 @@ func (t *tumorFinder) toStrings() (string, string, string) {
 
 //----------------------------------------------------------------------------
 
-func (m *Matcher) getLocations(t *tumorFinder, line string) {
-	// Searches line preceding type index for locations
+func (m *Matcher) setMalignant(t *tumorFinder, line string) {
+	// Sets malignant value for tumorFinder; searches for match if malignant and benign for type are both or both false
+	malignant := -1
 	for key := range t.types {
-		for k, v := range m.location {
-			// Search for matches in words between previous and current match
-			match := m.getMatch(v, line)
-			if match != "NA" {
-				t.types[key].setDistance(k, match, line)
+		mal := -1
+		if key == "widespread" {
+			mal = 1
+		} else if m.types[key].benign && !m.types[key].malignant {
+			mal = 0
+		} else if !m.types[key].benign && m.types[key].malignant {
+			mal = 1
+		} else if m.types[key].benign && m.types[key].malignant {
+			mal, _ = strconv.Atoi(m.GetMalignancy(line))
+		} else if !m.types[key].benign && !m.types[key].malignant {
+			mal, _ = strconv.Atoi(m.GetMalignancy(line))
+		}
+		if mal > malignant {
+			malignant = mal
+			if malignant == 1 {
+				break
+			}
+		}
+	}
+	t.malignant = strconv.Itoa(malignant)
+}
+
+func (m *Matcher) searchLocation(t *tumorFinder, line, key, i, sex string) {
+	// Searches for a match to given location
+	match := m.GetMatch(m.location[i], line)
+	if match != "NA" {
+		if match == "interstitial" {
+			if sex == "male" {
+				i = "testis"
+			} else if sex == "female" {
+				i = "ovary"
+			}
+		}
+		t.types[key].setDistance(i, match, line)
+	}
+}
+
+func (m *Matcher) getLocations(t *tumorFinder, line, sex string) {
+	// Searches line for locations of matches
+	for key := range t.types {
+		locations := m.types[key].locations.ToSlice()
+		if len(locations) > 0 {
+			// Search for matches in known locations
+			for _, i := range locations {
+				m.searchLocation(t, line, key, i, sex)
+			}
+		} else {
+			// Search for match to any location
+			for k := range m.location {
+				m.searchLocation(t, line, key, k, sex)
 			}
 		}
 		t.types[key].setLocation()
 	}
 }
 
-func (m *Matcher) setMalignant(t *tumorFinder, line string) {
-	// Sets malignant value for tumorFinder
-	for i := range t.types {
-		for k := range m.types {
-			// Get sub-map
-			if _, ex := m.types[k][i]; ex == true {
-				vm, _ := strconv.Atoi(m.types[k][i].malignant)
-				tm, _ := strconv.Atoi(t.malignant)
-				if vm > tm {
-					// Malignant > non-malignant > NA
-					t.malignant = m.types[k][i].malignant
-				}
-				break
-			}
-		}
-	}
-	if t.malignant == "-1" {
-		t.malignant = m.getMalignancy(line)
-	}
-}
-
 func (m *Matcher) getTypes(t *tumorFinder, line string) {
 	// Returns types from map
-	for key := range m.types {
-		found := false
-		var term, typ string
-		for k, v := range m.types[key] {
-			match := m.getMatch(v.expression, line)
-			if match != "NA" {
-				if key == "other" || k != key {
-					// Keep specific diagnosis terms in struct
-					t.types[k] = newTumorType(match, strings.Index(line, match), len(line))
-					found = true
-				} else {
-					// Store potentially overlapping terms
-					term = match
-					typ = k
-				}
-			}
-		}
-		if found == false && len(typ) > 1 {
-			t.types[typ] = newTumorType(term, strings.Index(line, term), len(line))
+	for k, v := range m.types {
+		match := m.GetMatch(v.expression, line)
+		if match != "NA" {
+			idx := strings.Index(line, match)
+			t.checkKeys(k, idx)
+			t.types[k] = newTumorHit(match, idx, len(line))
 		}
 	}
 }
 
-func (m *Matcher) getTumor(line string, cancer bool) (string, string, string) {
+func (m *Matcher) GetTumor(line, sex string, cancer bool) (string, string, string) {
 	// Returns type, location, and malignancy
 	t := newTumorFinder()
 	if cancer == true {
-		m.getTypes(&t, line)
+		m.getTypes(t, line)
 		if len(t.types) > 0 {
-			m.setMalignant(&t, line)
-			m.getLocations(&t, line)
+			m.getLocations(t, line, sex)
+			m.setMalignant(t, line)
 		}
 	}
 	return t.toStrings()

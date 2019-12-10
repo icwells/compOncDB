@@ -14,28 +14,28 @@ type Matcher struct {
 	infant     *regexp.Regexp
 	digit      *regexp.Regexp
 	age        *regexp.Regexp
-	sex        *regexp.Regexp
+	Sex        *regexp.Regexp
 	castrated  *regexp.Regexp
 	malignant  *regexp.Regexp
 	benign     *regexp.Regexp
-	metastasis *regexp.Regexp
-	primary    *regexp.Regexp
+	Metastasis *regexp.Regexp
+	Primary    *regexp.Regexp
 	necropsy   *regexp.Regexp
 	biopsy     *regexp.Regexp
 }
 
-func MewMatcher() Matcher {
+func NewMatcher() Matcher {
 	// Compiles regular expressions
 	var m Matcher
 	m.infant = regexp.MustCompile(`(?i)infant|(peri|neo)nat(e|al)|fet(us|al)`)
 	m.digit = regexp.MustCompile(`[0-9]+`)
 	m.age = regexp.MustCompile(`(?i)[0-9]+(-|\s)(day|week|month|year)s?(-|\s)?(old|of age)?`)
-	m.sex = regexp.MustCompile(`(?i)(fe)?male`)
+	m.Sex = regexp.MustCompile(`(?i)(fe)?male`)
 	m.castrated = regexp.MustCompile(`(?i)(not )?(castrat(ed)?|neuter(ed)?|spay(ed)?)`)
 	m.malignant = regexp.MustCompile(`(?i)(not )?(malignan(t|cy)|invasive)`)
 	m.benign = regexp.MustCompile(`(?i)(not )?(benign|encapsulated)`)
-	m.metastasis = regexp.MustCompile(`(?i)(no )?(metastatis|metastatic|mets)`)
-	m.primary = regexp.MustCompile(`(?i)primary|single|solitary|source`)
+	m.Metastasis = regexp.MustCompile(`(?i)(no )?(metastati(s|c)|mets)`)
+	m.Primary = regexp.MustCompile(`(?i)primary|single|solitary|source`)
 	m.necropsy = regexp.MustCompile(`(?i)(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissect*|euthan.*)`)
 	m.biopsy = regexp.MustCompile(`(?i)biopsy`)
 	m.setTypes()

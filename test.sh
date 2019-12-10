@@ -76,7 +76,7 @@ checkSource () {
 	echo "Running go $1..."
 	go $1 $APP
 	go $1 $CLSRC
-	go test $DIAG
+	go $1 $DIAG
 	go $1 $PRSRC
 	go $1 $DBSRC
 	go $1 $DUSRC
@@ -94,7 +94,7 @@ helpText () {
 	echo "whitebox		Runs white box tests."
 	echo "blackbox		Runs all black box tests (parse, upload, search, and update)."
 	echo "parse		Runs parseRecords black box tests."
-	echo "db		Runs upload, serach, update, and delete black box tests."
+	echo "db		Runs upload, search, update, and delete black box tests."
 	echo "fmt		Runs go fmt on all source files."
 	echo "vet		Runs go vet on all source files."
 	echo "help		Prints help text."
