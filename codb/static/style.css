@@ -29,5 +29,4 @@ nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
 .left { float:left; }
 input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
-table {border:2px solid black; border-collapse: collapse; }
 th, td { border: 1px solid black; }
