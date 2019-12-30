@@ -27,7 +27,7 @@ func (a *Accounts) fuzzymatch(s string, t []string) string {
 func (a *Accounts) correctSpellings() {
 	// Compares spelling of each word to corpus
 	found := make(map[string]string)
-	corp := a.corpus.ToSlice()
+	corp := a.corpus.ToStringSlice()
 	for _, t := range a.terms {
 		var words []string
 		for _, i := range strings.Split(t.name, " ") {
@@ -54,7 +54,7 @@ func (a *Accounts) correctSpellings() {
 func (a *Accounts) ResolveAccounts() map[string][]string {
 	// Resolves differences in account names
 	fmt.Println("\tFormatting account names...")
-	for _, i := range a.Queries.ToSlice() {
+	for _, i := range a.Queries.ToStringSlice() {
 		name := a.checkAbbreviations(i)
 		a.terms = append(a.terms, newTerm(i, name))
 	}

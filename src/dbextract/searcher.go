@@ -6,7 +6,7 @@ import (
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
-	"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/simpleset"
 	"strconv"
 	"strings"
 )
@@ -60,13 +60,13 @@ func (s *searcher) toSlice() [][]string {
 
 func getColumn(idx int, table [][]string) []string {
 	// Stores values in set and returns slice of unique entries
-	tmp := strarray.NewSet()
+	tmp := simpleset.NewStringSet()
 	for _, i := range table {
 		if i[idx] != "-1" {
 			tmp.Add(i[idx])
 		}
 	}
-	return tmp.ToSlice()
+	return tmp.ToStringSlice()
 }
 
 func (s *searcher) getIDs(table, column, value string) {

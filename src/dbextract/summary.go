@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
-	"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/simpleset"
 	"strconv"
 	"strings"
 )
@@ -84,13 +84,13 @@ func (s *summary) toSlice() [][]string {
 
 func (s *summary) setCancerTaxa(db *dbIO.DBIO) {
 	// Identifies number of unique species with cancer records
-	ids := strarray.NewSet()
+	ids := simpleset.NewStringSet()
 	rows := db.GetRows("Diagnosis", "Masspresent", "1", "ID")
 	for _, i := range rows {
 		ids.Add(i[0])
 	}
-	tids := db.GetRows("Patient", "ID", strings.Join(ids.ToSlice(), ","), "taxa_id")
-	ids = strarray.NewSet()
+	tids := db.GetRows("Patient", "ID", strings.Join(ids.ToStringSlice(), ","), "taxa_id")
+	ids = simpleset.NewStringSet()
 	for _, i := range tids {
 		ids.Add(i[0])
 	}

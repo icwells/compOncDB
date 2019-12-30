@@ -5,7 +5,7 @@ package clusteraccounts
 import (
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
-	"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/simpleset"
 	"github.com/trustmaster/go-aspell"
 	"os"
 	"strings"
@@ -13,7 +13,7 @@ import (
 
 type Accounts struct {
 	speller         aspell.Speller
-	Queries, corpus strarray.Set
+	Queries, corpus *simpleset.Set
 	terms           []*term
 }
 
@@ -26,8 +26,8 @@ func NewAccounts(infile string) *Accounts {
 		fmt.Printf("\n\t[Error] Cannot initialize speller. Exiting.\n%v", err)
 		os.Exit(500)
 	}
-	a.Queries = strarray.NewSet()
-	a.corpus = strarray.NewSet()
+	a.Queries = simpleset.NewStringSet()
+	a.corpus = simpleset.NewStringSet()
 	if infile != "" {
 		a.readAccounts(infile)
 	}
@@ -36,8 +36,8 @@ func NewAccounts(infile string) *Accounts {
 
 func (a *Accounts) getAccounts() map[string][]string {
 	// Returns map of original term: corrected term
-	counter := strarray.NewSet()
-	total := strarray.NewSet()
+	counter := simpleset.NewStringSet()
+	total := simpleset.NewStringSet()
 	ret := make(map[string][]string)
 	for _, i := range a.terms {
 		ret[i.query] = i.toSlice()

@@ -156,7 +156,7 @@ func (m *Matcher) getLocations(t *tumorFinder, line, sex string) {
 	// Searches line for locations of matches
 	for key := range t.types {
 		// Search for matches in known locations
-		for _, i := range m.types[key].locations.ToSlice() {
+		for _, i := range m.types[key].locations.ToStringSlice() {
 			m.searchLocation(t, line, key, i, sex)
 		}
 		// Search for match to any location

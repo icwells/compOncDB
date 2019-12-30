@@ -3,7 +3,7 @@
 package clusteraccounts
 
 import (
-	"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/simpleset"
 	"strings"
 	"testing"
 )
@@ -29,7 +29,7 @@ func getTestTerms() map[string][]string {
 
 func getCorpus(terms map[string][]string) []string {
 	// Creates corpus from test terms
-	s := strarray.NewSet()
+	s := simpleset.NewStringSet()
 	for _, v := range terms {
 		for _, i := range strings.Split(v[0], " ") {
 			if i != "Payson" && i != "wildlfe rescue center" {
@@ -37,7 +37,7 @@ func getCorpus(terms map[string][]string) []string {
 			}
 		}
 	}
-	return s.ToSlice()
+	return s.ToStringSlice()
 }
 
 func TestCheckAbbreviations(t *testing.T) {

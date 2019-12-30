@@ -5,24 +5,26 @@ package dbextract
 import (
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
-	"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/simpleset"
 )
 
 type cleaner struct {
 	db     *dbIO.DBIO
-	pids   strarray.Set
-	pchild strarray.Set
-	tids   strarray.Set
-	tchild strarray.Set
-	aids   strarray.Set
-	achild strarray.Set
+	pids   *simpleset.Set
+	pchild *simpleset.Set
+	tids   *simpleset.Set
+	tchild *simpleset.Set
+	aids   *simpleset.Set
+	achild *simpleset.Set
 }
 
-func (c *cleaner) setIDs(col string, tables []string) strarray.Set {
+func (c *cleaner) setIDs(col string, tables []string) *simpleset.Set {
 	// Returns set of ids from tables
-	ret := strarray.NewSet()
-	for _, i := range tables {
-		ret.Extend(c.db.GetColumnText(i, col))
+	ret := simpleset.NewStringSet()
+	for _, t := range tables {
+		for _, i := range c.db.GetColumnText(t, col) {
+			ret.Add(i)
+		}
 	}
 	return ret
 }
@@ -41,10 +43,10 @@ func newCleaner(db *dbIO.DBIO) *cleaner {
 	return &c
 }
 
-func (c *cleaner) cleanTables(col string, tables []string, parent, child strarray.Set) {
+func (c *cleaner) cleanTables(col string, tables []string, parent, child *simpleset.Set) {
 	// Removes records from target tables if id is present in child but not parent
 	var rm []string
-	for _, i := range child.ToSlice() {
+	for _, i := range child.ToStringSlice() {
 		if parent.InSet(i) == false {
 			// Record extraneous ids
 			rm = append(rm, i)

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/dataframe"
-	"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/simpleset"
 	"os"
 	"path"
 	"regexp"
@@ -17,14 +17,14 @@ type tumortype struct {
 	expression *regexp.Regexp
 	benign     bool
 	malignant  bool
-	locations  strarray.Set
+	locations  *simpleset.Set
 }
 
 func newTumorType(exp *regexp.Regexp) *tumortype {
 	// Initializes empty struct
 	var t tumortype
 	t.expression = exp
-	t.locations = strarray.NewSet()
+	t.locations = simpleset.NewStringSet()
 	return &t
 }
 
@@ -101,7 +101,7 @@ func (m *Matcher) setTypes() {
 	m.location = make(map[string]*regexp.Regexp)
 	m.types = make(map[string]*tumortype)
 	infile := path.Join(codbutils.Getutils(), "diagnoses.csv")
-	df, err := dataframe.DataFrameFromFile(infile, -1)
+	df, err := dataframe.FromFile(infile, -1)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Reading diagnoses file: %v\n", err)
 		os.Exit(1)

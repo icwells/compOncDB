@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
-	"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/simpleset"
 	"os"
 	"path"
 	"strings"
@@ -83,7 +83,7 @@ func ConnectToDatabase(c Configuration) *dbIO.DBIO {
 
 func ReadList(infile string, idx int) []string {
 	// Reads list of queries from file
-	set := strarray.NewSet()
+	set := simpleset.NewStringSet()
 	var d string
 	first := true
 	f := iotools.OpenFile(infile)
@@ -106,7 +106,7 @@ func ReadList(infile string, idx int) []string {
 			first = false
 		}
 	}
-	return set.ToSlice()
+	return set.ToStringSlice()
 }
 
 func printArray(header string, table [][]string) {

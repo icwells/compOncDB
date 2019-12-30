@@ -30,8 +30,8 @@ func TestParseRecords(t *testing.T) {
 	ent.GetTaxonomy(taxa)
 	ent.SortRecords(false, infile, parseout)
 	// Compare actual output with expected
-	expected, _ := dataframe.DataFrameFromFile(uploadfile, 3)
-	actual, _ := dataframe.DataFrameFromFile(parseout, 3)
+	expected, _ := dataframe.FromFile(uploadfile, 3)
+	actual, _ := dataframe.FromFile(parseout, 3)
 	ac, ar := actual.Dimensions()
 	ec, er := expected.Dimensions()
 	if ac != ec && ar != er {
