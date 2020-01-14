@@ -3,6 +3,7 @@
 package dbextract
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/simpleset"
@@ -61,6 +62,10 @@ func (c *cleaner) cleanTables(col string, tables []string, parent, child *simple
 
 func AutoCleanDatabase(db *dbIO.DBIO) {
 	// Cleans database and recalcutates species totals
+	count := dbupload.FilterPatients(db)
+	if count > 0 {
+		fmt.Printf("\tRemoved %d duplicate patient records.\n", count)
+	}
 	c := newCleaner(db)
 	c.cleanTables("ID", []string{"Diagnosis", "Tumor", "Source"}, c.pids, c.pchild)
 	c.cleanTables("taxa_id", []string{"Common"}, c.tids, c.tchild)
