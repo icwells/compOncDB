@@ -83,15 +83,22 @@ type entries struct {
 	accounts  map[string]map[string]string
 	taxa      map[string]string
 	col       map[string]int
+	ex        *Existing
 	length    int
 }
 
-func newEntries(count int) *entries {
+func newEntries(db *dbIO.DBIO) *entries {
 	// Initializes new struct
 	e := new(entries)
-	e.count = count
-	e.accounts = make(map[string]map[string]string)
-	e.taxa = make(map[string]string)
+	if db != nil {
+		e.count = db.GetMax("Patient", "ID")
+		e.accounts = MapOfMaps(db.GetTable("Accounts"))
+		e.taxa = GetTaxaIDs(db, false)
+	} else {
+		e.accounts = make(map[string]map[string]string)
+		e.taxa = make(map[string]string)
+	}
+	e.ex = NewExisting(db)
 	return e
 }
 
@@ -151,20 +158,19 @@ func formatAge(age string) string {
 	return ret
 }
 
-func (e *entries) addPatient(id, taxaid string, row []string) {
+func (e *entries) addPatient(id, taxaid, age string, row []string) {
 	// Formats patient data for upload
 	if strings.Contains(row[e.col["ID"]], "NA") == true {
 		// Make sure source ID is an integer
 		row[e.col["ID"]] = "-1"
 	}
 	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
-	p := []string{id, row[e.col["Sex"]], formatAge(row[e.col["Age"]]), row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Name"]], row[e.col["Date"]], row[e.col["Comments"]]}
+	p := []string{id, row[e.col["Sex"]], age, row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Name"]], row[e.col["Date"]], row[e.col["Comments"]]}
 	e.p = append(e.p, p)
 }
 
 func (e *entries) evaluateRow(row []string) {
 	// Appends data to relevent slice
-	miss := true
 	t := getTaxon(row[e.col["Genus"]], row[e.col["Species"]])
 	taxaid, exists := e.taxa[t]
 	if len(row) == e.length && exists == true {
@@ -177,15 +183,17 @@ func (e *entries) evaluateRow(row []string) {
 				aid = id
 			}
 		}
-		e.count++
-		id := strconv.Itoa(e.count)
-		e.addPatient(id, taxaid, row)
-		e.addSource(id, aid, row)
-		e.addDiagnosis(id, row)
-		e.addTumors(id, row)
-		miss = false
-	}
-	if miss == true {
+		age := formatAge(row[e.col["Age"]])
+		if !e.ex.Exists(aid, row[e.col["ID"]], age, taxaid, row[e.col["Date"]]) {
+			e.count++
+			id := strconv.Itoa(e.count)
+			e.addPatient(id, taxaid, age, row)
+			e.addSource(id, aid, row)
+			e.addDiagnosis(id, row)
+			e.addTumors(id, row)
+
+		}
+	} else if !e.ex.Exists("", row[e.col["ID"]], row[e.col["Age"]], "", row[e.col["Date"]]) {
 		e.addUnmatched(row)
 	}
 }
@@ -213,9 +221,7 @@ func (e *entries) extractPatients(infile string) {
 
 func LoadPatients(db *dbIO.DBIO, infile string) {
 	// Loads unique patient info to appropriate tables
-	e := newEntries(db.GetMax("Patient", "ID"))
-	e.accounts = MapOfMaps(db.GetTable("Accounts"))
-	e.taxa = GetTaxaIDs(db, false)
+	e := newEntries(db)
 	// Get entry slices and upload to db
 	e.extractPatients(infile)
 	uploadPatients(db, "Patient", e.p)

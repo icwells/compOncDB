@@ -54,7 +54,7 @@ func TestCheckAbbreviations(t *testing.T) {
 		a.terms = append(a.terms, newTerm(k, act))
 	}
 	for _, i := range corpus {
-		if a.corpus.InSet(i) == false {
+		if ex, _ := a.corpus.InSet(i); !ex {
 			t.Errorf("Expected value %s not in accounts corpus.", i)
 		}
 	}

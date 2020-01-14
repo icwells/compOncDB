@@ -47,7 +47,7 @@ func (c *cleaner) cleanTables(col string, tables []string, parent, child *simple
 	// Removes records from target tables if id is present in child but not parent
 	var rm []string
 	for _, i := range child.ToStringSlice() {
-		if parent.InSet(i) == false {
+		if ex, _ := parent.InSet(i); !ex {
 			// Record extraneous ids
 			rm = append(rm, i)
 		}

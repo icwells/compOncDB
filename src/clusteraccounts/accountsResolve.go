@@ -31,7 +31,7 @@ func (a *Accounts) correctSpellings() {
 	for _, t := range a.terms {
 		var words []string
 		for _, i := range strings.Split(t.name, " ") {
-			if a.corpus.InSet(i) {
+			if ex, _ := a.corpus.InSet(i); ex {
 				// Skip words in corpus as they are correctly spelled
 				words = append(words, i)
 			} else {
