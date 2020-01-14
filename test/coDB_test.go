@@ -83,6 +83,14 @@ func TestUpload(t *testing.T) {
 			compareTables(t, k, exp[k], tableToDF(db, k))
 		}
 	}
+	// Attempt again to test filtering of existing records
+	dbupload.LoadPatients(db, uploadfile)
+	for k := range db.Columns {
+		// Dump all tables for comparison
+		if k != "Unmatched" {
+			compareTables(t, k, exp[k], tableToDF(db, k))
+		}
+	}
 }
 
 func connectToDatabase() *dbIO.DBIO {
