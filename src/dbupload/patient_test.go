@@ -75,6 +75,37 @@ func getExpected() *entries {
 	return e
 }
 
+func getInput() [][]string {
+	// Returns input slice for testing
+	return [][]string{
+		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
+		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
+		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "-1"},
+		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
+	}
+}
+
+func TestExists(t *testing.T) {
+	a := setEntries()
+	input := getInput()
+	for _, i := range input {
+		if a.ex.Exists("1", i[a.col["ID"]], i[a.col["Age"]], "1", i[a.col["Date"]]) {
+			t.Error("Exists returned true from an empty struct")
+		}
+	}
+	a.ex.Entries["1"] = make(map[string]*Entry)
+	for _, i := range input {
+		a.ex.Entries["1"][i[a.col["ID"]]] = NewEntry([]string{i[a.col["Age"]], "1", i[a.col["Date"]]})
+	}
+	for _, i := range input {
+		if !a.ex.Exists("1", i[a.col["ID"]], i[a.col["Age"]], "1", i[a.col["Date"]]) {
+			t.Error("Exists returned false from a full struct")
+		} else if a.ex.Exists("1", i[a.col["ID"]], i[a.col["Age"]], "2", i[a.col["Date"]]) {
+			t.Error("Exists returned true for incorrect taxa id")
+		}
+	}
+}
+
 func comapareTables(t *testing.T, table string, a, e [][]string) {
 	// Comapres actual table to expected
 	if len(a) != len(e) {
@@ -95,12 +126,7 @@ func TestEvaluateRow(t *testing.T) {
 	// Tests evaluate row and all methods called by it
 	a := setEntries()
 	e := getExpected()
-	input := [][]string{
-		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
-		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
-		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "-1"},
-		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
-	}
+	input := getInput()
 	for _, i := range input {
 		a.evaluateRow(i)
 	}
