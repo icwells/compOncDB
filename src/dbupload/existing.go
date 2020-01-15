@@ -114,6 +114,8 @@ func FilterPatients(db *dbIO.DBIO) int {
 	// Removes duplicate patient entries
 	e := NewExisting(db)
 	rm := e.setIDs()
-	e.db.DeleteRows("Patient", "ID", rm)
-	return len(e.ids)
+	if len(rm) > 0 {
+		e.db.DeleteRows("Patient", "ID", rm)
+	}
+	return len(rm)
 }

@@ -195,7 +195,6 @@ func (e *entries) evaluateRow(row []string) {
 			e.addSource(id, aid, row)
 			e.addDiagnosis(id, row)
 			e.addTumors(id, row)
-
 		}
 	} else if !e.ex.Exists("", row[e.col["ID"]], row[e.col["Age"]], "", row[e.col["Date"]]) {
 		e.addUnmatched(row)
