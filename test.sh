@@ -58,6 +58,10 @@ testDataBase () {
 	go test $TSTDIR --run TestUpload --args --user=$USER --password=$PW
 
 	echo ""
+	echo "Running black box tests on database filtering..."
+	go test $TSTDIR --run TestFilterPatients --args --user=$USER --password=$PW
+
+	echo ""
 	echo "Running black box tests on database search..."
 	go test $TSTDIR --run TestSearches --args --user=$USER --password=$PW
 

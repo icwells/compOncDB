@@ -26,7 +26,7 @@ func TestTumorPairs(t *testing.T) {
 
 func setEntries() *entries {
 	// Returns test entry struct
-	e := newEntries(nil)
+	e := newEntries(nil, false)
 	e.count = 0
 	e.col = make(map[string]int)
 	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "Institute"}
@@ -45,7 +45,7 @@ func setEntries() *entries {
 
 func getExpected() *entries {
 	// Returns pre-filled struct of expected results
-	e := newEntries(nil)
+	e := newEntries(nil, false)
 	e.count = 4
 	e.p = [][]string{
 		[]string{"1", "male", "-1.00", "-1", "1", "1", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR"},

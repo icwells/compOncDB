@@ -104,7 +104,7 @@ func (e *Existing) setIDs() []string {
 		if len(v) == 1 {
 			delete(e.ids, k)
 		} else {
-			ret = append(ret, v...)
+			ret = append(ret, v[1:]...)
 		}
 	}
 	return ret

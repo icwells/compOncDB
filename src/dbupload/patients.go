@@ -87,7 +87,7 @@ type entries struct {
 	length    int
 }
 
-func newEntries(db *dbIO.DBIO) *entries {
+func newEntries(db *dbIO.DBIO, test bool) *entries {
 	// Initializes new struct
 	e := new(entries)
 	if db != nil {
@@ -98,7 +98,11 @@ func newEntries(db *dbIO.DBIO) *entries {
 		e.accounts = make(map[string]map[string]string)
 		e.taxa = make(map[string]string)
 	}
-	e.ex = NewExisting(db)
+	if test {
+		e.ex = NewExisting(nil)
+	} else {
+		e.ex = NewExisting(db)
+	}
 	return e
 }
 
@@ -219,9 +223,9 @@ func (e *entries) extractPatients(infile string) {
 	fmt.Printf("\tExtracted %d records.\n", e.count-start)
 }
 
-func LoadPatients(db *dbIO.DBIO, infile string) {
+func LoadPatients(db *dbIO.DBIO, infile string, test bool) {
 	// Loads unique patient info to appropriate tables
-	e := newEntries(db)
+	e := newEntries(db, test)
 	// Get entry slices and upload to db
 	e.extractPatients(infile)
 	uploadPatients(db, "Patient", e.p)

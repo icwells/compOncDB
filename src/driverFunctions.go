@@ -70,7 +70,7 @@ func uploadToDB() time.Time {
 	} else if *patient == true {
 		// Upload patient data
 		dbupload.LoadAccounts(db, *infile)
-		dbupload.LoadPatients(db, *infile)
+		dbupload.LoadPatients(db, *infile, false)
 	} else {
 		fmt.Print("\n\tPlease enter a valid command.\n\n")
 	}
