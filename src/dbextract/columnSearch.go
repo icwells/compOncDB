@@ -149,8 +149,8 @@ func SearchColumns(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, cou
 			s.appendSource()
 		}
 	}
+	ret = s.toDF()
 	if s.msg == "" {
-		ret = s.toDF()
 		s.msg = fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 	}
 	return ret, s.msg
