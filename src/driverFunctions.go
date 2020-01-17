@@ -51,6 +51,11 @@ func parseRecords() time.Time {
 	return start
 }
 
+func commandError() {
+	// Prints message for invalid input
+	fmt.Print("\n\tPlease enter a valid command.\n\n")
+}
+
 func uploadToDB() time.Time {
 	// Uploads infile to given table (all input variables are global)
 	if *infile == "nil" {
@@ -72,7 +77,7 @@ func uploadToDB() time.Time {
 		dbupload.LoadAccounts(db, *infile)
 		dbupload.LoadPatients(db, *infile, false)
 	} else {
-		fmt.Print("\n\tPlease enter a valid command.\n\n")
+		commandError()
 	}
 	return db.Starttime
 }
@@ -98,7 +103,7 @@ func updateDB() time.Time {
 		}
 		codbutils.DeleteEntries(db, *table, e.Column, e.Value)
 	} else {
-		fmt.Print("\n\tPlease enter a valid command.\n\n")
+		commandError()
 	}
 	return db.Starttime
 }
@@ -122,25 +127,26 @@ func extractFromDB() time.Time {
 		rates := dbextract.GetCancerRates(db, *min, *nec, e)
 		rates.ToCSV(*outfile)
 	} else {
-		fmt.Print("\n\tPlease enter a valid command.\n\n")
+		commandError()
 	}
 	return db.Starttime
 }
 
 func searchDB() time.Time {
 	// Performs search functions on database
+	var msg string
 	var res *dataframe.Dataframe
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 	if *eval != "nil" {
 		// Search for column/value match
 		e := codbutils.SetOperations(db.Columns, *eval)
-		res = dbextract.SearchColumns(db, *table, e, *count, *infant)
-		fmt.Printf("\tFound %d records where %s is %s.\n", res.Length(), e[0].Column, e[0].Value)
+		res, msg = dbextract.SearchColumns(db, *table, e, *count, *infant)
+		fmt.Print(msg)
 	} else if *taxonomies == true {
 		names := codbutils.ReadList(*infile, *col)
 		res = dbextract.SearchSpeciesNames(db, names)
 	} else {
-		fmt.Print("\n\tPlease enter a valid command.\n\n")
+		commandError()
 	}
 	if *count == false && res.Length() >= 1 {
 		res.ToCSV(*outfile)

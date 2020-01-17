@@ -20,6 +20,7 @@ type searcher struct {
 	taxaids []string
 	header  string
 	na      []string
+	msg     string
 }
 
 func newSearcher(db *dbIO.DBIO, inf bool) *searcher {

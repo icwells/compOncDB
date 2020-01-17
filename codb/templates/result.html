@@ -10,11 +10,12 @@
 {{end}}
 <section>
   <h1>Search Results:</h1>
+  {{if .Count}}
+    <p>{{.Count}}</p>
+  {{end}}
   {{if .File}}
     <p>Output csv file:</p>
     <a href=/codb/get/{{.File}} download={{.File}}>{{.File}}</a>
-  {{else if .Count}}
-    <p>{{.Count}}</p>
   {{else if .Table}}
     <table>
       {{with .Table}}

@@ -139,7 +139,11 @@ func (o *Output) searchDB() {
 		res, _ := dataframe.NewDataFrame(-1)
 		// Search for column/value match
 		for _, v := range eval {
-			r := dbextract.SearchColumns(o.db, "", v, opt.Count, opt.Infant)
+			r, msg := dbextract.SearchColumns(o.db, "", v, opt.Count, opt.Infant)
+			if o.Count == "" && r.Length() == 0 {
+				// Record single error message
+				o.Count = msg
+			}
 			if res.Length() == 0 {
 				res = r
 			} else {
@@ -156,7 +160,8 @@ func (o *Output) searchDB() {
 				o.getTempFile(o.User)
 				res.ToCSV(o.Outfile)
 			}
-		} else {
+		}
+		if o.Count == "" {
 			o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
 		}
 		o.Search = true
