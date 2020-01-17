@@ -139,7 +139,7 @@ func SearchColumns(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, cou
 		if s.infant == false {
 			s.filterInfantRecords()
 		}
-		if table != "" {
+		if table != "" && table != "nil" {
 			// Return results from single table
 			s.searchSingleTable(table)
 		} else if count == false {
