@@ -1,3 +1,4 @@
+* {box-sizing: border-box;}
 html { font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif; background: #eee; padding: 1rem; }
 body { max-width: 960px; margin: 0 auto; background: white; }
 header { font-family:  "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif; color: #8C1D40; margin: 1rem 0; }
