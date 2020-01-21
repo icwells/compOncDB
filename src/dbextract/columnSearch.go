@@ -20,7 +20,9 @@ func (s *searcher) setErr(e codbutils.Evaluation) {
 	matches := fuzzy.RankFindFold(e.Value, s.db.GetColumnText(e.Table, e.Column))
 	if matches.Len() > 0 {
 		sort.Sort(matches)
-		s.msg += fmt.Sprintf(" Did you mean %s?", matches[0].Target)
+		if matches[0].Target != e.Value {
+			s.msg += fmt.Sprintf(" Did you mean %s?", matches[0].Target)
+		}
 	}
 	s.msg += "\n"
 }
