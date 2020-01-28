@@ -14,10 +14,10 @@ func ping(user, password string) (bool, string) {
 	var update string
 	ret := dbIO.Ping(C.config.Host, C.config.Database, user, password)
 	if ret {
+		loc, _ := time.LoadLocation("America/Phoenix")
 		db, _ := dbIO.Connect(C.config.Host, C.config.Database, user, password)
 		db.GetTableColumns()
-		update = db.LastUpdate().Format(time.RFC822)
-
+		update = db.LastUpdate().In(loc).Format(time.RFC822)
 	}
 	return ret, update
 }
