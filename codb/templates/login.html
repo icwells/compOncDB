@@ -1,6 +1,8 @@
 {{define "login"}}
 {{template "header"}}
-<section>
+</div> <!-- header -->
+</section> <!-- titlebar -->
+<section class="content">
   <!--Login -->
   <h1>Login</h1>
   {{if .Flash}}
@@ -17,7 +19,7 @@
        <input type="password" id="password" name="password">
      </div>
      <div>
-      <button type="submit">Login</button>
+      <button class="btn-primary" type="submit">Login</button>
      </div>
   </form>
 </section>

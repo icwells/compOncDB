@@ -1,17 +1,23 @@
 {{define "search"}}
 {{template "header"}}
+
 {{if .User}}
-  <div><small>
-    <span class="left">Last Updated: {{.Update}}</span>
-    <span class="right">User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></span>
+  <div class="menu"><small>
+    <span class="left"><a href="/codb/menu/"><i class="fas fa-home"></i></a></span>
+    <span class="tab">Last Updated: {{.Update}}</span>
+    <span class="tab">User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></span>
   </small></div>
+  </div> <!-- menubar -->
+</div> <!-- header -->
+</section> <!-- titlebar -->
   </br>
 <hr>
 {{end}}
+
+<section class="content">
   {{if .Flash}}
     <div class="flash">{{.Flash}}</div>
   {{end}}
-<section>
   <h1>Search Database</h1>
   <form method="POST" action="/codb/results/">
     <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
@@ -41,7 +47,7 @@ New searches, on the other hand, are completely independent of one another.</p>
       <input type="checkbox" name="Count">
       <label for="Count">Return count of target records instead of printing entire records.</label>
     </div>
-    <button type="submit">Submit</button>
+    {{template "buttonbox"}}
   </form>
   <br/><p><a href="/codb/menu/">Return to menu</a></p>
 </section>

@@ -1,22 +1,28 @@
 {{define "menu"}}
 {{template "header"}}
+
 {{if .User}}
-  <div><small>
-    <span class="left">Last Updated: {{.Update}}</span>
-    <span class="right">User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></span>
+  <div class="menu"><small>
+    <span class="left"><a href="/codb/menu/"><i class="fas fa-home"></i></a></span>
+    <span class="tab">Last Updated: {{.Update}}</span>
+    <span class="tab">User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></span>
   </small></div>
+  </div> <!-- menubar -->
+</div> <!-- header -->
+</section> <!-- titlebar -->
   </br>
 <hr>
 {{end}}
+
+<section class="content">
   {{if .Flash}}
     <div class="flash">{{.Flash}}</div>
   {{end}}
-<section>
   <h1>What would you like to do?</h1>
   <hr>
-  <p><a href="/codb/summary/">Compile basic summary statistics of the database.</a></p>
+  <p><a href="/codb/summary/">Compile basic summary statistics of the database</a></p>
   <!--Cancer rate expandable-->
-  <p><a href="#" onClick="expandCollapse('Cancerrate');">Calculate cancer rates.</a></p>
+  <p><a href="#" onClick="expandCollapse('Cancerrate');">Calculate cancer rates</a></p>
   <div class="tab" id="Cancerrate" style="display:none">
     <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
 See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
@@ -37,27 +43,29 @@ See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for co
         <input type="checkbox" name="Print">
         <label for="Print">View results in browser (returns file by default).</label>
       </div>
-      <button type="submit">Submit</button>
+      {{template "buttonbox"}}
     </form>
   </div>
   <!--Table dump expandable-->
-  <p><a href="#" onClick="expandCollapse('Dump');">Extract entire table.</a></p>
+  <p><a href="#" onClick="expandCollapse('Dump');">Extract entire table</a></p>
   <div class="tab" id="Dump" style="display:none">
-	<p>Select a table to extract from the database:</p>
     <form method="POST" action="/codb/extractTable/">
-      <select id="Table" name="Table">
-        <option name="Table" value="" selected="selected"></option>
-      </select>
-      <button type="submit">Submit</button>
+      <div>
+	    <label for="Table">Select a table to extract from the database:</label>
+        <select id="Table" name="Table">
+          <option name="Table" value="" selected="selected"></option>
+        </select>
+      </div>
+      {{template "buttonbox"}}
     </form>
   </div>
-  <p><a href="/codb/search/">Search database.</a></p>
+  <p><a href="/codb/search/">Search database</a></p>
   <!--
   <hr>
   <p>The following require admin privileges:</p>
-  <p><a href="/codb/upload/">Upload data to the database.</a></p>
-  <p><a href="/codb/update/">Update records in the database.</a></p>
-  <p><a href="/codb/delete/">Delete records from the database.</a></p>
+  <p><a href="/codb/upload/">Upload data to the database</a></p>
+  <p><a href="/codb/update/">Update records in the database</a></p>
+  <p><a href="/codb/delete/">Delete records from the database</a></p>
   -->
 </section>
 {{template "footer"}}

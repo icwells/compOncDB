@@ -1,21 +1,26 @@
 {{define "result"}}
 {{template "header"}}
+
 {{if .User}}
-  <div><small>
-    <span class="left">Last Updated: {{.Update}}</span>
-    <span class="right">User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></span>
+  <div class="menu"><small>
+    <span class="left"><a href="/codb/menu/"><i class="fas fa-home"></i></a></span>
+    <span class="tab">Last Updated: {{.Update}}</span>
+    <span class="tab">User: {{.User}} | <a href="/codb/changepassword">Change Password</a> | <a href="/codb/logout">Logout</a></span>
   </small></div>
+  </div> <!-- menubar -->
+</div> <!-- header -->
+</section> <!-- titlebar -->
   </br>
 <hr>
 {{end}}
-<section>
+
+<section class="content">
   <h1>Search Results:</h1>
   {{if .Count}}
     <p>{{.Count}}</p>
   {{end}}
   {{if .File}}
-    <p>Output csv file:</p>
-    <a href=/codb/get/{{.File}} download={{.File}}>{{.File}}</a>
+    <p>Output csv file: <a href=/codb/get/{{.File}} download={{.File}}>{{.File}}</a></p>
   {{else if .Table}}
     <table>
       {{with .Table}}
