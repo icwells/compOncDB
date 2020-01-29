@@ -54,7 +54,7 @@ func newOutput(w http.ResponseWriter, r *http.Request, user, pw, ut string) (*Ou
 	o.w = w
 	o.r = r
 	o.User = user
-	o.Update = strings.Replace(ut, "UTC", "Eastern Time", 1)
+	o.Update = ut
 	if pw != "" {
 		o.pw = pw
 		o.db, err = dbIO.Connect(C.config.Host, C.config.Database, o.User, o.pw)
