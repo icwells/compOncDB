@@ -29,6 +29,7 @@ footer {
 	position: relative;
 	top: 180px;
 	background: #333;
+	min-height: 200px;
 }
 
 header, h1, h2 {
