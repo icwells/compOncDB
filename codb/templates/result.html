@@ -21,7 +21,8 @@
   {{end}}
   {{if .File}}
     <p>Output csv file: <a href=/codb/get/{{.File}} download={{.File}}>{{.File}}</a></p>
-  {{else if .Table}}
+  {{end}}
+  {{if .Table}}
     <table>
       {{with .Table}}
       <tr>

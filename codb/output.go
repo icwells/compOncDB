@@ -149,16 +149,16 @@ func (o *Output) searchDB() {
 			} else {
 				// Append successive results to results slice
 				for _, i := range r.Rows {
-					res.Rows = append(res.Rows, i)
+					res.AddRow(i)
 				}
 			}
 		}
 		if opt.Count == false && res.Length() >= 1 {
+			// Format link for download whether or not results are printed to screen
+			o.getTempFile(o.User)
+			res.ToCSV(o.Outfile)
 			if opt.Print {
 				o.formatTable(res.GetHeader(), res.ToSlice())
-			} else {
-				o.getTempFile(o.User)
-				res.ToCSV(o.Outfile)
 			}
 		}
 		if o.Count == "" {
