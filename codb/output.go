@@ -102,11 +102,11 @@ func (o *Output) cancerRates() {
 			e = append(e, eval)
 		}
 		rates := dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, e)
+		o.getTempFile(fmt.Sprintf("cancerRates.min%d", opt.Min))
+		rates.ToCSV(o.Outfile)
+		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", rates.Length())
 		if opt.Print {
 			o.formatTable(rates.GetHeader(), rates.ToSlice())
-		} else {
-			o.getTempFile(fmt.Sprintf("cancerRates.min%d", opt.Min))
-			rates.ToCSV(o.Outfile)
 		}
 		C.renderTemplate(C.temp.result, o)
 	} else {
