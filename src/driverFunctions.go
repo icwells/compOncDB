@@ -115,10 +115,10 @@ func extractFromDB() time.Time {
 		// Extract entire table
 		table := db.GetTable(*dump)
 		codbutils.WriteResults(*outfile, db.Columns[*dump], table)
-	} else if *sum == true {
+	} else if *sum {
 		summary := dbextract.GetSummary(db)
 		codbutils.WriteResults(*outfile, "Field,Total,%\n", summary)
-	} else if *cr == true {
+	} else if *cr {
 		// Extract cancer rates
 		var e []codbutils.Evaluation
 		if *eval != "nil" {
@@ -126,6 +126,11 @@ func extractFromDB() time.Time {
 		}
 		rates := dbextract.GetCancerRates(db, *min, *nec, e)
 		rates.ToCSV(*outfile)
+	} else if *reftaxa {
+		table := dbextract.GetReferenceTaxonomy(db)
+		if *outfile != "nil" {
+			table.ToCSV(*outfile)
+		}
 	} else {
 		commandError()
 	}
