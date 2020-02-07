@@ -18,6 +18,7 @@ type urls struct {
 	summary  string
 	table    string
 	rates    string
+	reftaxa  string
 	output   string
 	get      string
 	logout   string
@@ -36,6 +37,7 @@ func setURLs() *urls {
 	u.summary = "/codb/summary/"
 	u.table = "/codb/extractTable/"
 	u.rates = "/codb/cancerRates/"
+	u.reftaxa = "/codb/referencetaxonomy/"
 	u.output = "/codb/results/"
 	u.get = "/codb/get/"
 	u.logout = "/codb/logout"

@@ -116,6 +116,14 @@ func (o *Output) cancerRates() {
 	}
 }
 
+func (o *Output) referenceTaxonomy() {
+	// Returns merged common name and taxonomy tables
+	table := dbextract.GetReferenceTaxonomy(o.db)
+	o.getTempFile("mergedTaxonomy")
+	table.ToCSV(o.Outfile)
+	C.renderTemplate(C.temp.result, o)
+}
+
 func (o *Output) extractTable() {
 	// Extracts given table from the database
 	name := strings.TrimSpace(o.r.PostForm.Get("Table"))
@@ -180,6 +188,8 @@ func (o *Output) routePost(source string) {
 		o.summary()
 	case C.u.rates:
 		o.cancerRates()
+	case C.u.reftaxa:
+		o.referenceTaxonomy()
 	case C.u.table:
 		o.extractTable()
 	case C.u.search:

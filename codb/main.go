@@ -112,6 +112,11 @@ func cancerRateHandler(w http.ResponseWriter, r *http.Request) {
 	handlePost(w, r, C.u.rates)
 }
 
+func referenceTaxonomyHandler(w http.ResponseWriter, r *http.Request) {
+	// Handles cancer rate calculations
+	handlePost(w, r, C.u.reftaxa)
+}
+
 func tableDumpHandler(w http.ResponseWriter, r *http.Request) {
 	// Handles full table extraction
 	handlePost(w, r, C.u.table)
@@ -153,6 +158,7 @@ func main() {
 	r.HandleFunc(C.u.newpw, passwordHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.menu, menuHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.rates, cancerRateHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.reftaxa, referenceTaxonomyHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.table, tableDumpHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.search, formHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
