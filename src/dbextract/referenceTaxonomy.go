@@ -20,8 +20,7 @@ type taxaMerger struct {
 func newTaxaMerger(db *dbIO.DBIO) *taxaMerger {
 	// Initializes and populates struct fields
 	t := new(taxaMerger)
-	col := db.Columns["Taxonomy"]
-	t.header = strings.Split(col, ",")
+	t.header = strings.Split(db.Columns["Taxonomy"], ",")
 	t.header[0] = "Common"
 	t.taxa = dbupload.ToMap(db.GetTable("Taxonomy"))
 	t.common = dbupload.ToMap(db.GetTable("Common"))
