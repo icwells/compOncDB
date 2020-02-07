@@ -108,6 +108,17 @@ func updateDB() time.Time {
 	return db.Starttime
 }
 
+func writeDF(table *dataframe.Dataframe) {
+	// Writes dataframe to file/screen
+	if *count == false && table.Length() >= 1 {
+		if *outfile != "nil" {
+			table.ToCSV(*outfile)
+		} else {
+			table.Print()
+		}
+	}
+}
+
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
@@ -124,13 +135,9 @@ func extractFromDB() time.Time {
 		if *eval != "nil" {
 			e = codbutils.SetOperations(db.Columns, *eval)
 		}
-		rates := dbextract.GetCancerRates(db, *min, *nec, e)
-		rates.ToCSV(*outfile)
+		writeDF(dbextract.GetCancerRates(db, *min, *nec, e))
 	} else if *reftaxa {
-		table := dbextract.GetReferenceTaxonomy(db)
-		if *outfile != "nil" {
-			table.ToCSV(*outfile)
-		}
+		writeDF(dbextract.GetReferenceTaxonomy(db))
 	} else {
 		commandError()
 	}
@@ -139,22 +146,18 @@ func extractFromDB() time.Time {
 
 func searchDB() time.Time {
 	// Performs search functions on database
-	var msg string
-	var res *dataframe.Dataframe
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 	if *eval != "nil" {
 		// Search for column/value match
 		e := codbutils.SetOperations(db.Columns, *eval)
-		res, msg = dbextract.SearchColumns(db, *table, e, *count, *infant)
+		res, msg := dbextract.SearchColumns(db, *table, e, *count, *infant)
 		fmt.Print(msg)
+		writeDF(res)
 	} else if *taxonomies == true {
 		names := codbutils.ReadList(*infile, *col)
-		res = dbextract.SearchSpeciesNames(db, names)
+		writeDF(dbextract.SearchSpeciesNames(db, names))
 	} else {
 		commandError()
-	}
-	if *count == false && res.Length() >= 1 {
-		res.ToCSV(*outfile)
 	}
 	return db.Starttime
 }

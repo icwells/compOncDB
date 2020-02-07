@@ -48,7 +48,7 @@ var (
 	reftaxa = extract.Flag("reference_taxonomy", "Returns merged common and taxonomy tables.").Short('r').Default("false").Bool()
 	sum     = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
 	cr      = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
-	min     = extract.Flag("min", "Minimum number of entries required for calculations (default = 50).").Short('m').Default("1").Int()
+	min     = extract.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
 	nec     = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
 
 	search     = kingpin.Command("search", "Searches database for matches to given term.")
