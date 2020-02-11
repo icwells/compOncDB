@@ -29,7 +29,7 @@ func setEntries() *entries {
 	e := newEntries(nil, false)
 	e.count = 0
 	e.col = make(map[string]int)
-	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "Institute"}
+	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "AZA", "Institute"}
 	for idx, i := range s {
 		e.col[i] = idx
 	}
@@ -67,10 +67,10 @@ func getExpected() *entries {
 		[]string{"4", "0", "-1", "NA", "NA"},
 	}
 	e.s = [][]string{
-		[]string{"1", "NWZP", "-1", "-1", "1"},
-		[]string{"2", "NWZP", "-1", "-1", "1"},
-		[]string{"3", "NWZP", "-1", "-1", "1"},
-		[]string{"4", "NWZP", "-1", "-1", "1"},
+		[]string{"1", "NWZP", "-1", "0", "-1", "1"},
+		[]string{"2", "NWZP", "-1", "0", "-1", "1"},
+		[]string{"3", "NWZP", "-1", "0", "-1", "1"},
+		[]string{"4", "NWZP", "-1", "0", "-1", "1"},
 	}
 	return e
 }
@@ -78,10 +78,10 @@ func getExpected() *entries {
 func getInput() [][]string {
 	// Returns input slice for testing
 	return [][]string{
-		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
-		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
-		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "-1"},
-		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "-1"},
+		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
 	}
 }
 
@@ -106,10 +106,10 @@ func TestExists(t *testing.T) {
 	}
 }
 
-func comapareTables(t *testing.T, table string, a, e [][]string) {
+func compareTables(t *testing.T, table string, a, e [][]string) {
 	// Comapres actual table to expected
 	if len(a) != len(e) {
-		t.Errorf("%s: Actual length %v does not equal expected: %d", table, a, len(e))
+		t.Errorf("%s: Actual length %v does not equal expected: %d", table, len(a), len(e))
 	} else {
 		for ind, row := range a {
 			for idx, i := range row {
@@ -130,8 +130,8 @@ func TestEvaluateRow(t *testing.T) {
 	for _, i := range input {
 		a.evaluateRow(i)
 	}
-	comapareTables(t, "patient", a.p, e.p)
-	comapareTables(t, "diangosis", a.d, e.d)
-	comapareTables(t, "tumor", a.t, e.t)
-	comapareTables(t, "source", a.s, e.s)
+	compareTables(t, "patient", a.p, e.p)
+	compareTables(t, "diangosis", a.d, e.d)
+	compareTables(t, "tumor", a.t, e.t)
+	compareTables(t, "source", a.s, e.s)
 }

@@ -62,10 +62,10 @@ func getCleaned() map[string]*dataframe.Dataframe {
 func getCanisResults() *dataframe.Dataframe {
 	// Returns map of results for male canis records
 	s := [][]string{
-		{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Comments", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis", "primary_tumor", "Malignant", "Type", "Location", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "service_name", "Zoo", "Institute", "account_id"},
-		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "0", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "1"},
-		{"12", "male", "60", "-1", "2", "12", "wolf", "NA", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "2"},
-		{"17", "male", "144", "1", "2", "17", "GRAY WOLF", "NA", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "2"},
+		{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Comments", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis", "primary_tumor", "Malignant", "Type", "Location", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "service_name", "Zoo", "AZA", "Institute", "account_id"},
+		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "0", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "1"},
+		{"12", "male", "60", "-1", "2", "12", "wolf", "NA", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "2"},
+		{"17", "male", "144", "1", "2", "17", "GRAY WOLF", "NA", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "2"},
 	}
 	return setDF(s)
 }
@@ -73,8 +73,8 @@ func getCanisResults() *dataframe.Dataframe {
 func getCoyoteResults() *dataframe.Dataframe {
 	// Returns map of coyote records
 	s := [][]string{
-		{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Comments", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis", "primary_tumor", "Malignant", "Type", "Location", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "service_name", "Zoo", "Institute", "account_id"},
-		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "0", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "1"},
+		{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Comments", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis", "primary_tumor", "Malignant", "Type", "Location", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "service_name", "Zoo", "AZA", "Institute", "account_id"},
+		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "0", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "1"},
 	}
 	return setDF(s)
 }

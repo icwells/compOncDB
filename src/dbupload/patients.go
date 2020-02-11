@@ -146,7 +146,7 @@ func (e *entries) addDiagnosis(id string, row []string) {
 
 func (e *entries) addSource(id, aid string, row []string) {
 	// ID, service, account_id
-	e.s = append(e.s, []string{id, row[e.col["Service"]], row[e.col["Zoo"]], row[e.col["Institute"]], aid})
+	e.s = append(e.s, []string{id, row[e.col["Service"]], row[e.col["Zoo"]], row[e.col["AZA"]], row[e.col["Institute"]], aid})
 }
 
 func formatAge(age string) string {

@@ -94,18 +94,15 @@ func (r *record) String(debug bool) string {
 	var buffer strings.Builder
 	columns := []string{r.sex, r.age, r.castrated, r.id, r.genus, r.species, r.name, r.date, r.comments}
 	columns = append(columns, []string{r.massPresent, r.hyperplasia, r.necropsy, r.metastasis, r.tumorType, r.location, r.primary, r.malignant}...)
-	columns = append(columns, []string{r.service, r.account, r.submitter, r.zoo, r.institute}...)
+	columns = append(columns, []string{r.service, r.account, r.submitter, r.zoo, r.aza, r.institute}...)
+	if debug {
+		columns = append(columns, []string{r.cancer, r.code}...)
+	}
 	for idx, i := range columns {
 		if idx > 0 {
 			buffer.WriteByte(',')
 		}
 		buffer.WriteString(strings.TrimSpace(i))
-	}
-	if debug == true {
-		buffer.WriteByte(',')
-		buffer.WriteString(r.cancer)
-		buffer.WriteByte(',')
-		buffer.WriteString(r.code)
 	}
 	return buffer.String()
 }
