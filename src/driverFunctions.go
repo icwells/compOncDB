@@ -135,7 +135,7 @@ func extractFromDB() time.Time {
 		if *eval != "nil" {
 			e = codbutils.SetOperations(db.Columns, *eval)
 		}
-		writeDF(dbextract.GetCancerRates(db, *min, *nec, e))
+		writeDF(dbextract.GetCancerRates(db, *min, *nec, *lifehist, e))
 	} else if *reftaxa {
 		writeDF(dbextract.GetReferenceTaxonomy(db))
 	} else {

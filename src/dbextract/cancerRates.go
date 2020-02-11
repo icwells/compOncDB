@@ -102,7 +102,7 @@ func getNecropsySpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
 	return minRecords(records, min)
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
 	var ret *dataframe.Dataframe
 	var records map[string]*dbupload.Record

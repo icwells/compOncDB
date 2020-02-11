@@ -101,7 +101,7 @@ func (o *Output) cancerRates() {
 			// Skip empty evaluations
 			e = append(e, eval)
 		}
-		rates := dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, e)
+		rates := dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Lifehistory, e)
 		o.getTempFile(fmt.Sprintf("cancerRates.min%d", opt.Min))
 		rates.ToCSV(o.Outfile)
 		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", rates.Length())

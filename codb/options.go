@@ -12,11 +12,12 @@ import (
 )
 
 type Options struct {
-	Min      int
-	Necropsy bool
-	Count    bool
-	Infant   bool
-	Print    bool
+	Min         int
+	Necropsy    bool
+	Count       bool
+	Lifehistory bool
+	Infant      bool
+	Print       bool
 }
 
 func setOptions(r *http.Request) *Options {
