@@ -13,8 +13,8 @@ var (
 )
 
 type term struct {
-	query, name       string
-	length, zoo, inst int
+	query, name            string
+	length, zoo, aza, inst int
 }
 
 func newTerm(q, n string) *term {
@@ -24,13 +24,14 @@ func newTerm(q, n string) *term {
 	t.name = n
 	t.length = strings.Count(n, " ") + 1
 	t.zoo = 0
+	t.aza = 0
 	t.inst = 0
 	return t
 }
 
 func (t *term) toSlice() []string {
 	// Returns slice for map entry
-	return []string{t.name, strconv.Itoa(t.zoo), strconv.Itoa(t.inst)}
+	return []string{t.name, strconv.Itoa(t.zoo), strconv.Itoa(t.aza), strconv.Itoa(t.inst)}
 }
 
 func (t *term) setType() {

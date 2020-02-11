@@ -4,10 +4,12 @@ package clusteraccounts
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/simpleset"
 	"github.com/trustmaster/go-aspell"
 	"os"
+	"path"
 	"strings"
 )
 
@@ -15,6 +17,7 @@ type Accounts struct {
 	speller         aspell.Speller
 	Queries, corpus *simpleset.Set
 	terms           []*term
+	zoos            []string
 }
 
 func NewAccounts(infile string) *Accounts {
@@ -28,6 +31,10 @@ func NewAccounts(infile string) *Accounts {
 	}
 	a.Queries = simpleset.NewStringSet()
 	a.corpus = simpleset.NewStringSet()
+	a.zoos = codbutils.ReadList(path.Join(codbutils.Getutils(), "AZA_Zoos.csv"), 0)
+	for idx, i := range a.zoos {
+		a.zoos[idx] = strings.ToLower(i)
+	}
 	if infile != "" {
 		a.readAccounts(infile)
 	}
@@ -40,6 +47,11 @@ func (a *Accounts) getAccounts() map[string][]string {
 	total := simpleset.NewStringSet()
 	ret := make(map[string][]string)
 	for _, i := range a.terms {
+		if i.zoo == 1 {
+			if _, found := a.fuzzymatch(strings.ToLower(i.name), a.zoos); found {
+				i.aza = 1
+			}
+		}
 		ret[i.query] = i.toSlice()
 		counter.Add(i.name)
 		total.Add(i.query)

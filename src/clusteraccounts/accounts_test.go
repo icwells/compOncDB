@@ -11,19 +11,19 @@ import (
 func getTestTerms() map[string][]string {
 	// Returns map of expected terms
 	return map[string][]string{
-		"payson animal hospital":        []string{"Payson Animal Hospital", "0", "0"},
-		"Payson A. H.":                  []string{"Payson Animal Hospital", "0", "0"},
-		"Payson anim. Hospital":         []string{"Payson Animal Hospital", "0", "0"},
-		"phoenix v.s.":                  []string{"Phoenix Veterinary Services", "0", "1"},
-		"phoenix v. s.":                 []string{"Phoenix Veterinary Services", "0", "1"},
-		"phoenix Veterinarian services": []string{"Phoenix Veterinarian Services", "0", "1"},
-		"matt":                          []string{"Matt", "0", "0"},
-		" zoo; Phoenix ":                []string{"Phoenix Zoo", "1", "0"},
-		" Phoenix zoo ":                 []string{"Phoenix Zoo", "1", "0"},
-		"tuscon aquarium":               []string{"Tuscon Aquarium", "1", "0"},
-		"wildlife rescue center":        []string{"Wildlife Rescue Center", "0", "1"},
-		"wildlfe rescue center":         []string{"Wildlife Rescue Center", "0", "1"},
-		"lemur Institute":               []string{"Lemur Institute", "0", "1"},
+		"payson animal hospital":        []string{"Payson Animal Hospital", "0", "0", "0"},
+		"Payson A. H.":                  []string{"Payson Animal Hospital", "0", "0", "0"},
+		"Payson anim. Hospital":         []string{"Payson Animal Hospital", "0", "0", "0"},
+		"phoenix v.s.":                  []string{"Phoenix Veterinary Services", "0", "0", "1"},
+		"phoenix v. s.":                 []string{"Phoenix Veterinary Services", "0", "0", "1"},
+		"phoenix Veterinarian services": []string{"Phoenix Veterinarian Services", "0", "0", "1"},
+		"matt":                          []string{"Matt", "0", "0", "0"},
+		" zoo; Phoenix ":                []string{"Phoenix Zoo", "1", "1", "0"},
+		" Phoenix zoo ":                 []string{"Phoenix Zoo", "1", "1", "0"},
+		"tuscon aquarium":               []string{"Tuscon Aquarium", "1", "0", "0"},
+		"wildlife rescue center":        []string{"Wildlife Rescue Center", "0", "0", "1"},
+		"wildlfe rescue center":         []string{"Wildlife Rescue Center", "0", "0", "1"},
+		"lemur Institute":               []string{"Lemur Institute", "0", "0", "1"},
 	}
 }
 

@@ -51,6 +51,7 @@ type record struct {
 	account     string
 	submitter   string
 	zoo         string
+	aza         string
 	institute   string
 	patient     string
 	cancer      string
@@ -80,6 +81,7 @@ func newRecord() record {
 	r.account = "NA"
 	r.submitter = "NA"
 	r.zoo = "-1"
+	r.aza = "-1"
 	r.institute = "-1"
 	r.patient = "NA"
 	r.cancer = "N"
@@ -124,10 +126,11 @@ func (r *record) setAccount(val string) {
 
 func (r *record) setSubmitter(v []string) {
 	//Store submitter/NA
-	if len(v) == 3 {
+	if len(v) == 4 {
 		r.submitter = v[0]
 		r.zoo = v[1]
-		r.institute = v[2]
+		r.aza = v[2]
+		r.institute = v[3]
 	}
 }
 

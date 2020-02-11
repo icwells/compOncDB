@@ -9,9 +9,10 @@ import (
 	"strings"
 )
 
-func (a *Accounts) fuzzymatch(s string, t []string) string {
+func (a *Accounts) fuzzymatch(s string, t []string) (string, bool) {
 	// Returns target match/self
 	ret := s
+	var found bool
 	// Maximum of one substitution per word
 	max := strings.Count(s, " ") + 1
 	matches := fuzzy.RankFind(s, t)
@@ -19,9 +20,10 @@ func (a *Accounts) fuzzymatch(s string, t []string) string {
 		sort.Sort(matches)
 		if matches[0].Distance <= max {
 			ret = matches[0].Target
+			found = true
 		}
 	}
-	return ret
+	return ret, found
 }
 
 func (a *Accounts) correctSpellings() {
@@ -39,7 +41,7 @@ func (a *Accounts) correctSpellings() {
 					// Use previously identified match
 					words = append(words, found[i])
 				} else {
-					match := a.fuzzymatch(i, corp)
+					match, _ := a.fuzzymatch(i, corp)
 					words = append(words, match)
 					found[i] = match
 				}
