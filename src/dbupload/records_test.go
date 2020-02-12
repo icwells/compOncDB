@@ -31,9 +31,9 @@ func testRecords() []Record {
 	// Returns slice of records for testing
 	canis, vulpes := canidTaxa()
 	return []Record{
-		{canis, "Canis lupus", 6.2, 105, 1000.0, 50, 50, 25, 250.0, 100, 15, 10},
-		{canis, "Canis latrans", 5.8, 120, 900.0, 50, 70, 30, 300.0, 110, 12, 18},
-		{vulpes, "Vulpes vulpes", 5.0, 60, 600.0, 25, 35, 0, 0.0, 50, 0, 0},
+		{canis, "Canis lupus", 6.2, 105, 1000.0, 50, 50, 25, 250.0, 100, 15, 10, nil},
+		{canis, "Canis latrans", 5.8, 120, 900.0, 50, 70, 30, 300.0, 110, 12, 18, nil},
+		{vulpes, "Vulpes vulpes", 5.0, 60, 600.0, 25, 35, 0, 0.0, 50, 0, 0, nil},
 	}
 }
 
@@ -80,7 +80,7 @@ func TestCalculateRates(t *testing.T) {
 	expected := getExpectedRecords()
 	rec := testRecords()
 	for ind, r := range rec {
-		actual := r.CalculateRates()
+		actual := r.CalculateRates("")
 		for idx, i := range actual {
 			if i != expected[ind][idx] {
 				t.Errorf("Actual calculated rate %s does not equal expected: %s", i, expected[ind][idx])

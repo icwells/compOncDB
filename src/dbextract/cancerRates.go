@@ -12,117 +12,127 @@ import (
 	"strings"
 )
 
-func cancerRateHeader() []string {
-	// Returns header for hancer rate file
-	return []string{"Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "ScientificName",
+type cancerRates struct {
+	db		*dbIO.DBIO
+	min		int
+	nec		bool
+	lh		bool
+	header	[]string
+	records map[string]*dbupload.Record
+	rates	*dataframe.Dataframe
+}
+
+func newCancerRates(db *dbIO.DBIO, min int, nec, lh bool) *cancerRates {
+	// Returns initialized cancerRates struct
+	c := new(cancerRates)
+	c.db = db
+	c.min = min
+	c.nec = nec
+	c.lh = lh
+	c.header = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "ScientificName",
 		"TotalRecords", "CancerRecords", "CancerRate", "AverageAge(months)", "AvgAgeCancer(months)",
 		"Male", "Female", "MaleCancer", "FemaleCancer"}
+	if c.lh {
+		// Omit taxa_id column
+		tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
+		c.header = append(c.header, tail...)
+	}
+	c.records = make(map[string]*dbupload.Record)
+	c.rates, _ = dataframe.NewDataFrame(-1)
+	c.rates.SetHeader(c.header)
+	return c
 }
 
-func formatRates(records map[string]*dbupload.Record) *dataframe.Dataframe {
-	// Calculates rates and formats for printing
-	ret, _ := dataframe.NewDataFrame(-1)
-	ret.SetHeader(cancerRateHeader())
-	for _, v := range records {
-		if len(v.Species) > 0 {
-			err := ret.AddRow(v.CalculateRates())
-			if err != nil {
-				fmt.Printf("\t[Error] Adding row to dataframe: %v\n", err)
+func (c *cancerRates) formatRates() {
+	// Adds taxonomies to structs, calculates rates, and formats for printing
+	if len(c.records) > 0 {
+		//species := dbupload.ToMap(c.db.GetRows("Taxonomy", "taxa_id", dbupload.GetRecKeys(c.records), "*"))
+		lifehist := dbupload.ToMap(c.db.GetRows("Life_history", "taxa_id", dbupload.GetRecKeys(c.records), "*"))
+		for k, v := range c.records {
+			// Add taxonomy
+			/*if val, ex := species[k]; ex {
+				v.Taxonomy = val[:6]
+				v.Species = val[6]
+			}*/
+			if c.lh {
+				// Add life history
+				if val, ex := lifehist[k]; ex {
+					v.Lifehistory = val[1:]
+				}
 			}
+			if len(v.Species) > 0 {
+				// Calculate cancer rates
+				r := v.CalculateRates(k)
+				for idx, i := range r {
+					// Replace -1 with NA
+					if strings.Split(i, ".")[0] == "-1" {
+						r[idx] = "NA"
+					}
+				}
+				// Add to dataframe
+				err := c.rates.AddRow(r)
+				if err != nil {
+					fmt.Printf("\t[Error] Adding row to dataframe: %v\n", err)
+				}
+			}	
 		}
 	}
-	for ind, row := range ret.Rows {
-		for idx, i := range row {
-			if strings.Split(i, ".")[0] == "-1" {
-				ret.UpdateCell(ind, idx, "NA")
-			}
-		}
-	}
-	return ret
 }
 
-func getSpeciesNames(db *dbIO.DBIO, records map[string]*dbupload.Record) map[string]*dbupload.Record {
-	// Adds taxonomies to structs
-	species := dbupload.ToMap(db.GetRows("Taxonomy", "taxa_id", dbupload.GetRecKeys(records), "*"))
-	for k, v := range species {
-		if dbupload.InMapRec(records, k) == true {
-			records[k].Taxonomy = v[:6]
-			records[k].Species = v[6]
-		}
-	}
-	return records
-}
-
-func filterRecords(taxaids []string, records map[string]*dbupload.Record) map[string]*dbupload.Record {
+func (c *cancerRates) filterRecords(taxaids []string) {
 	// Deletes records not in taxaids
-	if len(records) > 0 && len(taxaids) > 0 {
-		for k := range records {
+	if len(c.records) > 0 && len(taxaids) > 0 {
+		for k := range c.records {
 			if !strarray.InSliceStr(taxaids, k) {
-				delete(records, k)
+				delete(c.records, k)
 			}
 		}
 	}
-	return records
 }
 
-func getTargetSpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
-	// Returns map of empty species records with >= min occurances
-	records := make(map[string]*dbupload.Record)
-	target := db.GetRowsMin("Totals", "Adult", "*", min)
-	for _, i := range target {
-		var rec dbupload.Record
-		rec.SetRecord(i)
-		if len(i[0]) > 0 {
-			records[i[0]] = &rec
-		}
-	}
-	return records
-}
-
-func minRecords(records map[string]*dbupload.Record, min int) map[string]*dbupload.Record {
-	// Removes records with < min entries
-	for k := range records {
-		if records[k].Adult < min {
-			delete(records, k)
+func (c *cancerRates) getNecropsySpecies() {
+	// Returns species with at least min necropsy records
+	fmt.Println("\tCounting necropsy records...")
+	c.records = dbupload.GetAllSpecies(c.db)
+	c.records = dbupload.GetAgeOfInfancy(c.db, c.records)
+	c.records = dbupload.GetTotals(c.db, c.records, true)
+	for k := range c.records {
+		if c.records[k].Adult < c.min {
+			delete(c.records, k)
 		} else {
 			// Calculate average ages
-			records[k].CalculateAvgAges()
+			c.records[k].CalculateAvgAges()
 		}
 	}
-	return records
 }
 
-func getNecropsySpecies(db *dbIO.DBIO, min int) map[string]*dbupload.Record {
-	// Returns species with at least min necropsy records
-	records := make(map[string]*dbupload.Record)
-	fmt.Println("\tCounting necropsy records...")
-	records = dbupload.GetAllSpecies(db)
-	records = dbupload.GetAgeOfInfancy(db, records)
-	records = dbupload.GetTotals(db, records, true)
-	return minRecords(records, min)
+func (c *cancerRates) getTargetSpecies() {
+	// Returns map of empty species records with >= min occurances
+	if c.nec {
+		c.getNecropsySpecies()
+	} else {
+		target := c.db.GetRowsMin("Totals", "Adult", "*", c.min)
+		for _, i := range target {
+			var rec dbupload.Record
+			rec.SetRecord(i)
+			if len(i[0]) > 0 {
+				c.records[i[0]] = &rec
+			}
+		}
+	}
 }
 
 func GetCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
-	var ret *dataframe.Dataframe
-	var records map[string]*dbupload.Record
-	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", min)
-	if nec == false {
-		records = getTargetSpecies(db, min)
-	} else {
-		records = getNecropsySpecies(db, min)
-	}
+	c := newCancerRates(db, min, nec, lh)
+	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
+	c.getTargetSpecies()
 	if len(eval) > 0 {
-		s := newSearcher(db, false)
+		s := newSearcher(c.db, false)
 		s.assignSearch(eval)
-		records = filterRecords(s.taxaids, records)
+		c.filterRecords(s.taxaids)
 	}
-	if len(records) > 0 {
-		records = getSpeciesNames(db, records)
-		if len(records) > 0 {
-			ret = formatRates(records)
-		}
-	}
-	fmt.Printf("\tFound %d records with at least %d entries.\n", ret.Length(), min)
-	return ret
+	c.formatRates()
+	fmt.Printf("\tFound %d records with at least %d entries.\n", c.rates.Length(), c.min)
+	return c.rates
 }

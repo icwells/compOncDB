@@ -21,6 +21,7 @@ type Record struct {
 	Adult        int
 	Malecancer   int
 	Femalecancer int
+	Lifehistory  []string
 }
 
 func avgAge(n float64, d int) float64 {
@@ -65,10 +66,14 @@ func (r *Record) ToSlice(id string) []string {
 	return ret
 }
 
-func (r *Record) CalculateRates() []string {
+func (r *Record) CalculateRates(id string) []string {
 	// Returns string slice of rates
+	var ret []string
+	if id != "" {
+		ret = append(ret, id)
+	}
+	ret = append(ret, r.Taxonomy...)
 	//"ScientificName,AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
-	ret := r.Taxonomy
 	ret = append(ret, r.Species)
 	ret = append(ret, strconv.Itoa(r.Adult))
 	ret = append(ret, strconv.Itoa(r.Cancer))
@@ -82,6 +87,9 @@ func (r *Record) CalculateRates() []string {
 	ret = append(ret, strconv.Itoa(r.Female))
 	ret = append(ret, strconv.Itoa(r.Malecancer))
 	ret = append(ret, strconv.Itoa(r.Femalecancer))
+	if len(r.Lifehistory) > 0 {
+		ret = append(ret, r.Lifehistory...)
+	}
 	return ret
 }
 
