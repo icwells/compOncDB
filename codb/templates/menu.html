@@ -36,12 +36,16 @@ See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for co
         <input type="number" name="Min" min="0" value="1">
       </div>
       <div>
+        <input type="checkbox" name="Lifehistory">
+        <label for="Lifehistory">Append life history information to results</label>
+      </div>
+      <div>
         <input type="checkbox" name="Necropsy">
-        <label for="Necropsy">Extract only necropsy records (extracts all matches by default).</label>
+        <label for="Necropsy">Extract only necropsy records (extracts all matches by default)</label>
       </div>
       <div>
         <input type="checkbox" name="Print">
-        <label for="Print">View results in browser (returns file by default).</label>
+        <label for="Print">View results in browser (returns file by default)</label>
       </div>
       {{template "buttonbox"}}
     </form>

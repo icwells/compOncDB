@@ -13,13 +13,14 @@ import (
 )
 
 type cancerRates struct {
-	db		*dbIO.DBIO
-	min		int
-	nec		bool
-	lh		bool
-	header	[]string
+	db      *dbIO.DBIO
+	min     int
+	nec     bool
+	lh      bool
+	header  []string
+	nas		[]string
 	records map[string]*dbupload.Record
-	rates	*dataframe.Dataframe
+	rates   *dataframe.Dataframe
 }
 
 func newCancerRates(db *dbIO.DBIO, min int, nec, lh bool) *cancerRates {
@@ -36,6 +37,9 @@ func newCancerRates(db *dbIO.DBIO, min int, nec, lh bool) *cancerRates {
 		// Omit taxa_id column
 		tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
 		c.header = append(c.header, tail...)
+		for i := 0; i < len(tail); i++ {
+			c.nas = append(c.nas, "NA")
+		}
 	}
 	c.records = make(map[string]*dbupload.Record)
 	c.rates, _ = dataframe.NewDataFrame(-1)
@@ -46,18 +50,20 @@ func newCancerRates(db *dbIO.DBIO, min int, nec, lh bool) *cancerRates {
 func (c *cancerRates) formatRates() {
 	// Adds taxonomies to structs, calculates rates, and formats for printing
 	if len(c.records) > 0 {
-		//species := dbupload.ToMap(c.db.GetRows("Taxonomy", "taxa_id", dbupload.GetRecKeys(c.records), "*"))
+		species := dbupload.ToMap(c.db.GetRows("Taxonomy", "taxa_id", dbupload.GetRecKeys(c.records), "*"))
 		lifehist := dbupload.ToMap(c.db.GetRows("Life_history", "taxa_id", dbupload.GetRecKeys(c.records), "*"))
 		for k, v := range c.records {
 			// Add taxonomy
-			/*if val, ex := species[k]; ex {
+			if val, ex := species[k]; ex {
 				v.Taxonomy = val[:6]
 				v.Species = val[6]
-			}*/
+			}
 			if c.lh {
 				// Add life history
 				if val, ex := lifehist[k]; ex {
-					v.Lifehistory = val[1:]
+					v.Lifehistory = val
+				} else {
+					v.Lifehistory = c.nas
 				}
 			}
 			if len(v.Species) > 0 {
@@ -74,7 +80,7 @@ func (c *cancerRates) formatRates() {
 				if err != nil {
 					fmt.Printf("\t[Error] Adding row to dataframe: %v\n", err)
 				}
-			}	
+			}
 		}
 	}
 }
