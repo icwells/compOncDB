@@ -47,7 +47,7 @@ func (a *Accounts) getAccounts() map[string][]string {
 	total := simpleset.NewStringSet()
 	ret := make(map[string][]string)
 	for _, i := range a.terms {
-		if i.zoo == 1 {
+		if i.zoo == 1 || i.inst == 1 {
 			if _, found := a.fuzzymatch(strings.ToLower(i.name), a.zoos); found {
 				i.aza = 1
 			}
