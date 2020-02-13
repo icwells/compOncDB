@@ -13,7 +13,7 @@ var (
 )
 
 type term struct {
-	query, name            string
+	query, name, match     string
 	length, zoo, aza, inst int
 }
 

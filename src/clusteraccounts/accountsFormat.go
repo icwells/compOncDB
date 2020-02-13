@@ -136,7 +136,7 @@ func (a *Accounts) checkPeriods(val string) string {
 	return val
 }
 
-func (a *Accounts) checkAbbreviations(val string) string {
+func (a *Accounts) checkAbbreviations(ch chan string, val string) {
 	//Store submitter/NA
 	terms := map[string]string{"Animal Clinic": "A. C.", "Animal Hospital": "A. H.", "Veterinary Clinic": "V. C.", "University": "Univ",
 		"Veterinary Hospital": "V. H.", "Veterinary Services": "V. S.", "Pet Vet": "P. V.", "International": "Intl ", "Animal": "Anim "}
@@ -162,13 +162,11 @@ func (a *Accounts) checkAbbreviations(val string) string {
 				}
 				if strings.Contains(val, v) {
 					val = strings.Replace(val, v, k, 1)
-					break
 				} else if strings.Contains(val, alt) {
 					val = strings.Replace(val, alt, k, 1)
-					break
 				}
 			}
 		}
 	}
-	return a.checkSpelling(val)
+	ch <- a.checkSpelling(val)
 }

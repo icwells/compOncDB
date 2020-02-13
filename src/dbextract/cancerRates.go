@@ -18,7 +18,7 @@ type cancerRates struct {
 	nec     bool
 	lh      bool
 	header  []string
-	nas		[]string
+	nas     []string
 	records map[string]*dbupload.Record
 	rates   *dataframe.Dataframe
 }

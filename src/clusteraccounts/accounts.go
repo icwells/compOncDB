@@ -47,11 +47,7 @@ func (a *Accounts) getAccounts() map[string][]string {
 	total := simpleset.NewStringSet()
 	ret := make(map[string][]string)
 	for _, i := range a.terms {
-		if i.zoo == 1 || i.inst == 1 {
-			if _, found := a.fuzzymatch(strings.ToLower(i.name), a.zoos); found {
-				i.aza = 1
-			}
-		}
+		a.azaStatus(i)
 		ret[i.query] = i.toSlice()
 		counter.Add(i.name)
 		total.Add(i.query)
@@ -62,15 +58,14 @@ func (a *Accounts) getAccounts() map[string][]string {
 
 func (a *Accounts) getIndeces(row []string) int {
 	// Returns indeces for submitter column
-	ret := -1
 	for idx, i := range row {
 		i = strings.TrimSpace(i)
 		i = strings.Replace(i, " ", "", -1)
-		if i == "Client" || i == "Owner" || i == "InstitutionID" {
-			ret = idx
+		if i == "Client" || i == "Owner" || i == "InstitutionID" || i == "submitter_name" {
+			return idx
 		}
 	}
-	return ret
+	return -1
 }
 
 func (a *Accounts) readAccounts(infile string) {

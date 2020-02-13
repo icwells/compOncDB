@@ -47,7 +47,9 @@ func TestCheckAbbreviations(t *testing.T) {
 	delete(expected, "wildlfe rescue center")
 	a := NewAccounts("")
 	for k, v := range expected {
-		act := a.checkAbbreviations(k)
+		ch := make(chan string)
+		go a.checkAbbreviations(ch, k)
+		act := <-ch
 		if act != v[0] {
 			t.Errorf("Actual formatted value %s does not equal expected: %s.", act, v[0])
 		}
@@ -62,9 +64,10 @@ func TestCheckAbbreviations(t *testing.T) {
 
 func TestResolveAccounts(t *testing.T) {
 	// Tests spelling correction and clustering
-	c := []string{"corrected name", "zoo", "institute"}
+	c := []string{"corrected name", "zoo", "aza", "institute"}
 	expected := getTestTerms()
 	a := NewAccounts("")
+	a.zoos = []string{"Phoenix Zoo"}
 	for k := range expected {
 		a.Queries.Add(k)
 	}
