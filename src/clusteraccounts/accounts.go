@@ -47,7 +47,7 @@ func (a *Accounts) getAccounts() map[string][]string {
 	total := simpleset.NewStringSet()
 	ret := make(map[string][]string)
 	for _, i := range a.terms {
-		a.azaStatus(i)
+		i = a.azaStatus(i)
 		ret[i.query] = i.toSlice()
 		counter.Add(i.name)
 		total.Add(i.query)

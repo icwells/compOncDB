@@ -13,7 +13,7 @@ func (a *Accounts) fuzzyrank(s string, t []string) (fuzzy.Rank, bool) {
 	// Returns highest match
 	var ret fuzzy.Rank
 	var ex bool
-	matches := fuzzy.RankFind(s, t)
+	matches := fuzzy.RankFindFold(s, t)
 	if len(matches) >= 1 {
 		sort.Sort(matches)
 		ret = matches[0]
@@ -33,29 +33,31 @@ func (a *Accounts) fuzzymatch(s string, t []string) string {
 	return s
 }
 
-func (a *Accounts) azaStatus(t *term) {
+func (a *Accounts) azaStatus(t *term) *term {
 	// Sets AZA member status for zoos/institutes
 	max := strings.Count(t.name, " ") + 1
-	if t.zoo == 1 || t.inst == 1 {
-		if match, ex := a.fuzzyrank(t.name, a.zoos); ex {
-			t.match = match.Target
-			if match.Distance <= max {
-				t.aza = 1
-			} else if strings.Contains(match.Target, t.name) || strings.Contains(t.name, match.Target) {
+	name := strings.ToLower(t.name)
+	if match, ex := a.fuzzyrank(name, a.zoos); ex {
+		t.match = match.Target
+		if match.Distance <= max {
+			t.aza = 1
+		} else if max > 1 {
+			// Only apply if there are multiple words
+			if strings.Contains(match.Target, name) || strings.Contains(name, match.Target) {
 				t.aza = 1
 			}
 		}
 	}
+	return t
 }
 
-func (a *Accounts) IdentifyAZA() [][]string {
+func (a *Accounts) IdentifyAZA() map[string][]string {
 	// Returns slice for identifying aza status for existing records
-	var ret [][]string
+	ret := make(map[string][]string)
 	for _, i := range a.Queries.ToStringSlice() {
 		t := newTerm(i, i)
-		a.azaStatus(t)
-		row := append([]string{t.match}, t.toSlice()...)
-		ret = append(ret, row)
+		t = a.azaStatus(t)
+		ret[t.query] = append([]string{t.match}, t.toSlice()...)
 	}
 	return ret
 }
