@@ -105,6 +105,12 @@ select {
 	color: #000;
 }
 
+.center {
+	display: inline-block;
+	margin-left: 10%;
+	margin-right: 10%;
+}
+
 .content {
 	padding: 0 1rem 1rem;
 	max-width: 960px;
@@ -222,7 +228,7 @@ select {
 
 .right {
 	float: right;
-	right: 25%;
+	margin-right: 50%;
 }
 
 .tab {
