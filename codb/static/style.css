@@ -180,6 +180,10 @@ select {
 	color: #000000;
 }
 
+.hide {
+	display: none;
+}
+
 .left {
 	float: left;
 }

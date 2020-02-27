@@ -23,7 +23,7 @@
   <p><a href="/codb/summary/">Compile basic summary statistics of the database</a></p>
   <!--Cancer rate expandable-->
   <p><a href="#Cancerrate" onClick="expandCollapse('Cancerrate');">Calculate cancer rates</a></p>
-  <div class="tab" id="Cancerrate" style="display:none">
+  <div class="tab hide" id="Cancerrate">
     <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
 See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
     <form method="POST" action="/codb/cancerRates/">
@@ -52,7 +52,7 @@ See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for co
   </div>
   <!--Table dump expandable-->
   <p><a href="#Dump" onClick="expandCollapse('Dump');">Extract entire table</a></p>
-  <div class="tab" id="Dump" style="display:none">
+  <div class="tab hide" id="Dump">
     <p><a href="/codb/referencetaxonomy/">Extract merged common name and taxonomy tables</a></p>
     <form method="POST" action="/codb/extractTable/">
       <div>
