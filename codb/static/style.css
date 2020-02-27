@@ -134,23 +134,18 @@ select {
 }
 
 .content form {
-	margin: 1em 0;
+	margin: 1rem 0;
 	display: flex;
 	flex-direction: column;
 }
 
 .content label {
 	font-weight: bold;
-	margin-bottom: 0.5em;
+	margin-bottom: 0.5rem;
 }
 
 .content input, .content textarea {
-	margin-bottom: 1em;
-}
-
-.content textarea {
-	min-height: 12em;
-	resize: vertical;
+	margin-bottom: 1rem;
 }
 
 .description {
