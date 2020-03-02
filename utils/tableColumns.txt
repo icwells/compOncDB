@@ -56,7 +56,7 @@ Noncancer INT
 ID INT
 service_name TEXT
 Zoo TINYINT
-AZA TINYINT
+Aza TINYINT
 Institute TINYINT
 account_id INT
 
