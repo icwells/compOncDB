@@ -114,7 +114,7 @@ func getPatient() *dataframe.Dataframe {
 func getSource() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
-		{"ID", "service_name", "Zoo", "AZA", "Institute", "account_id"},
+		{"ID", "service_name", "Zoo", "Aza", "Institute", "account_id"},
 		{"1", "NWZP", "0", "0", "0", "1"},
 		{"2", "NWZP", "0", "0", "0", "1"},
 		{"3", "NWZP", "0", "0", "0", "1"},
