@@ -31,7 +31,7 @@ func newSearcher(db *dbIO.DBIO, inf bool) *searcher {
 	// Add default header
 	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,source_name,Date,Comments,"
 	s.header = s.header + "Masspresent,Hyperplasia,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
-	s.header = s.header + "Kingdom,Phylum,Class,Orders,Family,Genus,Species,service_name,Zoo,Institute,account_id"
+	s.header = s.header + "Kingdom,Phylum,Class,Orders,Family,Genus,Species,service_name,Zoo,Aza,Institute,account_id"
 	s.db = db
 	s.infant = inf
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
@@ -117,7 +117,7 @@ func (s *searcher) appendSource() {
 		if ex == true {
 			s.res[k] = append(v, row...)
 		} else {
-			s.res[k] = append(v, s.na[:2]...)
+			s.res[k] = append(v, s.na[:3]...)
 		}
 	}
 }

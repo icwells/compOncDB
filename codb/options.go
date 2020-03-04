@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gorilla/schema"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"net/http"
@@ -56,7 +55,6 @@ func setEvaluation(r *http.Request, columns map[string]string, search, n string)
 			msg = "Please supply valid table, column, and value."
 		}
 	}
-	fmt.Println(e.Table, e.Column, e.Operator, e.Value, msg, pass)
 	return e, msg, pass
 }
 
