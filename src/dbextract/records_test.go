@@ -3,7 +3,7 @@
 package dbextract
 
 import (
-	"strconv"
+	//"strconv"
 	"testing"
 )
 
@@ -31,9 +31,9 @@ func testRecords() []Record {
 	// Returns slice of records for testing
 	canis, vulpes := canidTaxa()
 	return []Record{
-		{canis, "Canis lupus", 6.2, 105, 1000.0, 50, 50, 25, 250.0, 100, 15, 10, nil},
-		{canis, "Canis latrans", 5.8, 120, 900.0, 50, 70, 30, 300.0, 110, 12, 18, nil},
-		{vulpes, "Vulpes vulpes", 5.0, 60, 600.0, 25, 35, 0, 0.0, 50, 0, 0, nil},
+		{append(canis, "Canis lupus"), 6.2, 105, 1000.0, 50, 50, 25, 250.0, 100, 15, 10, nil},
+		{append(canis, "Canis latrans"), 5.8, 120, 900.0, 50, 70, 30, 300.0, 110, 12, 18, nil},
+		{append(vulpes, "Vulpes vulpes"), 5.0, 60, 600.0, 25, 35, 0, 0.0, 50, 0, 0, nil},
 	}
 }
 
@@ -44,7 +44,7 @@ func canidTaxa() ([]string, []string) {
 	return canis, vulpes
 }
 
-func TestToSlice(t *testing.T) {
+/*func TestToSlice(t *testing.T) {
 	// Tests toSlice method (in speciesTotals script)
 	rec := testRecords()
 	expected := [][]string{
@@ -61,15 +61,15 @@ func TestToSlice(t *testing.T) {
 			}
 		}
 	}
-}
+}*/
 
 func getExpectedRecords() [][]string {
 	// Return slice of expected values
 	var expected [][]string
 	canis, vulpes := canidTaxa()
-	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "1000.00", "250.00", "50", "50", "15", "10"}...)
-	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "900.00", "300.00", "50", "70", "12", "18"}...)
-	fox := append(vulpes, []string{"Vulpes vulpes", "50", "0", "0.00", "600.00", "0.00", "25", "35", "0", "0"}...)
+	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "10.00", "10.00", "50", "50", "15", "10"}...)
+	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "8.18", "10.00", "50", "70", "12", "18"}...)
+	fox := append(vulpes, []string{"Vulpes vulpes", "50", "0", "0.00", "12.00", "NA", "25", "35", "0", "0"}...)
 	expected = append(expected, wolf)
 	expected = append(expected, coyote)
 	return append(expected, fox)
@@ -80,7 +80,7 @@ func TestCalculateRates(t *testing.T) {
 	expected := getExpectedRecords()
 	rec := testRecords()
 	for ind, r := range rec {
-		actual := r.CalculateRates("")
+		actual := r.CalculateRates("", false)
 		for idx, i := range actual {
 			if i != expected[ind][idx] {
 				t.Errorf("Actual calculated rate %s does not equal expected: %s", i, expected[ind][idx])

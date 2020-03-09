@@ -85,9 +85,7 @@ func uploadToDB() time.Time {
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
-	if *total == true {
-		dbupload.SpeciesTotals(db)
-	} else if *clean == true {
+	if *clean == true {
 		dbextract.AutoCleanDatabase(db)
 	} else if *infile != "nil" {
 		dbextract.UpdateEntries(db, *infile)

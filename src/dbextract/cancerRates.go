@@ -5,8 +5,10 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
+	"strconv"
 	"strings"
 )
 
@@ -39,7 +41,7 @@ func newCancerRates(db *dbIO.DBIO, min int, lh bool) *cancerRates {
 			c.nas = append(c.nas, "NA")
 		}
 	}
-	c.records = make(map[string]*dbupload.Record)
+	c.records = make(map[string]*Record)
 	c.rates, _ = dataframe.NewDataFrame(-1)
 	c.rates.SetHeader(c.header)
 	return c
@@ -51,13 +53,7 @@ func (c *cancerRates) formatRates() {
 		for k, v := range c.records {
 			if v.Total >= c.min {
 				// Calculate cancer rates
-				r := v.CalculateRates(k)
-				for idx, i := range r {
-					// Replace -1 with NA
-					if strings.Split(i, ".")[0] == "-1" {
-						r[idx] = "NA"
-					}
-				}
+				r := v.CalculateRates(k, c.lh)
 				// Add to dataframe
 				err := c.rates.AddRow(r)
 				if err != nil {
@@ -70,11 +66,8 @@ func (c *cancerRates) formatRates() {
 
 func (c *cancerRates) countRecords() {
 	// Returns struct with number of total, adult, and adult cancer occurances by species
-	var d []string
-	var e bool
 	for idx := range c.df.Rows {
-		var err error
-		tid, _ := df.GetCell(idx, "taxa_id")
+		tid, _ := c.df.GetCell(idx, "taxa_id")
 		if _, ex := c.records[tid]; ex {
 			// Increment total
 			c.records[tid].Total++
@@ -123,7 +116,7 @@ func (c *cancerRates) appendLifeHistory() {
 
 func (c *cancerRates) addDenominators() {
 	// Adds fixed values from denominators table
-	for k, v := range ToMap(c.db.GetTable("Denominators")) {
+	for k, v := range dbupload.ToMap(c.db.GetTable("Denominators")) {
 		if _, ex := c.records[k]; ex {
 			if t, err := strconv.Atoi(v[0]); err == nil {
 				c.records[k].Total += t
@@ -136,9 +129,9 @@ func (c *cancerRates) addDenominators() {
 func (c *cancerRates) setTaxonomy(idx int) []string {
 	// Stores taxonomy for given record
 	var ret []string
-	for _, k := range c.db.Columns["Taxonomy"] {
+	for _, k := range strings.Split(c.db.Columns["Taxonomy"], ",") {
 		if k != "Source" {
-			val, _ := df.GetCell(idx, k)
+			val, _ := c.df.GetCell(idx, k)
 			ret = append(ret, val)
 		}
 	}
@@ -147,10 +140,10 @@ func (c *cancerRates) setTaxonomy(idx int) []string {
 
 func (c *cancerRates) getTargetSpecies() {
 	// Stores map of empty species records with >= min occurances
-	for idx := range df.Rows {
-		tid, _ := df.GetCell(idx, "taxa_id")
+	for idx := range c.df.Rows {
+		tid, _ := c.df.GetCell(idx, "taxa_id")
 		if _, ex := c.records[tid]; !ex {
-			c.records[tid] = newRecord(c.setTaxonomy(idx))
+			c.records[tid] = NewRecord(c.setTaxonomy(idx))
 		}
 
 	}
@@ -158,20 +151,23 @@ func (c *cancerRates) getTargetSpecies() {
 	c.appendLifeHistory()
 }
 
-func (c *cancerRates) setDataframe(eval []codbutils.Evaluation) {
+func (c *cancerRates) setDataframe(eval []codbutils.Evaluation, nec bool) {
 	// Gets dataframe of matching records
-	if len(eval) == 0 {
+	if nec {
+		e := codbutils.SetOperations(c.db.Columns, "Necropsy = 1")
+		eval = append(eval, e[0])
+	} else if len(eval) == 0 {
 		// Set evaluation to return everything
 		eval = codbutils.SetOperations(c.db.Columns, "ID > 0")
 	}
 	c.df, _ = SearchColumns(c.db, "", eval, false, false)
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, lh bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
 	c := newCancerRates(db, min, lh)
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
-	c.setDataframe(eval)
+	c.setDataframe(eval, nec)
 	c.getTargetSpecies()
 	c.countRecords()
 	c.formatRates()

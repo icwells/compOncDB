@@ -3,14 +3,13 @@
 package dbextract
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type Record struct {
 	Taxonomy []string
-	//Species      string
 	Infant       float64
 	Total        int
 	Age          float64
@@ -56,7 +55,7 @@ func (r *Record) CalculateAvgAges() {
 	r.Cancerage = avgAge(r.Cancerage, r.Cancer)
 }
 
-func (r *Record) ToSlice(id string) []string {
+/*func (r *Record) ToSlice(id string) []string {
 	// Returns string slice of values for upload to table
 	var ret []string
 	r.CalculateAvgAges()
@@ -71,7 +70,7 @@ func (r *Record) ToSlice(id string) []string {
 	ret = append(ret, strconv.Itoa(r.Malecancer))
 	ret = append(ret, strconv.Itoa(r.Femalecancer))
 	return ret
-}
+}*/
 
 func (r *Record) CalculateRates(id string, lh bool) []string {
 	// Returns string slice of rates
@@ -84,8 +83,6 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 	//"AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
 	ret = append(ret, strconv.Itoa(r.Adult))
 	ret = append(ret, strconv.Itoa(r.Cancer))
-	// Calculate rates
-	// Append rates to slice and return
 	ret = append(ret, strconv.FormatFloat(float64(r.Cancer)/float64(r.Adult), 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
@@ -93,6 +90,12 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 	ret = append(ret, strconv.Itoa(r.Female))
 	ret = append(ret, strconv.Itoa(r.Malecancer))
 	ret = append(ret, strconv.Itoa(r.Femalecancer))
+	for idx, i := range ret {
+		// Replace -1 with NA
+		if strings.Split(i, ".")[0] == "-1" {
+			ret[idx] = "NA"
+		}
+	}
 	if lh {
 		ret = append(ret, r.Lifehistory...)
 	}
@@ -115,8 +118,8 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 func getRecKeys(records map[string]*Record) string {
 	// Returns string of taxa_ids
 	first := true
-	buffer := bytes.NewBufferString("")
-	for k, _ := range records {
+	var buffer strings.Builder
+	for k := range records {
 		if first == false {
 			// Write name with preceding comma
 			buffer.WriteByte(',')

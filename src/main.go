@@ -39,7 +39,6 @@ var (
 	update = kingpin.Command("update", "Update or delete existing records from the database (see README for upload file template).")
 	column = update.Flag("column", "Column to be updated with given value if --eval column == value.").Short('c').Default("nil").String()
 	value  = update.Flag("value", "Value to write to column if --eval column == value (only supply one statement).").Short('v').Default("nil").String()
-	total  = update.Flag("count", "Recount species totals and update the Totals table.").Default("false").Bool()
 	clean  = update.Flag("clean", "Remove extraneous records from the database.").Default("false").Bool()
 	del    = update.Flag("delete", "Delete records if column = value.").Default("false").Bool()
 
