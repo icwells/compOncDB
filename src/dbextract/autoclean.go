@@ -70,5 +70,4 @@ func AutoCleanDatabase(db *dbIO.DBIO) {
 	c.cleanTables("ID", []string{"Diagnosis", "Tumor", "Source"}, c.pids, c.pchild)
 	c.cleanTables("taxa_id", []string{"Common"}, c.tids, c.tchild)
 	c.cleanTables("account_id", []string{"Source"}, c.tids, c.tchild)
-	dbupload.SpeciesTotals(db)
 }

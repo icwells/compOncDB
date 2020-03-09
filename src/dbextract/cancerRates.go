@@ -5,30 +5,28 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
-	"github.com/icwells/go-tools/strarray"
 	"strings"
 )
 
 type cancerRates struct {
-	db      *dbIO.DBIO
-	min     int
-	nec     bool
-	lh      bool
-	header  []string
+	db     *dbIO.DBIO
+	df     *dataframe.Dataframe
+	header []string
+	lh     bool
+	min    int
+	//nec     bool
 	nas     []string
-	records map[string]*dbupload.Record
 	rates   *dataframe.Dataframe
+	records map[string]*Record
 }
 
-func newCancerRates(db *dbIO.DBIO, min int, nec, lh bool) *cancerRates {
+func newCancerRates(db *dbIO.DBIO, min int, lh bool) *cancerRates {
 	// Returns initialized cancerRates struct
 	c := new(cancerRates)
 	c.db = db
 	c.min = min
-	c.nec = nec
 	c.lh = lh
 	c.header = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "ScientificName",
 		"TotalRecords", "CancerRecords", "CancerRate", "AverageAge(months)", "AvgAgeCancer(months)",
@@ -50,23 +48,8 @@ func newCancerRates(db *dbIO.DBIO, min int, nec, lh bool) *cancerRates {
 func (c *cancerRates) formatRates() {
 	// Adds taxonomies to structs, calculates rates, and formats for printing
 	if len(c.records) > 0 {
-		species := dbupload.ToMap(c.db.GetRows("Taxonomy", "taxa_id", dbupload.GetRecKeys(c.records), "*"))
-		lifehist := dbupload.ToMap(c.db.GetRows("Life_history", "taxa_id", dbupload.GetRecKeys(c.records), "*"))
 		for k, v := range c.records {
-			// Add taxonomy
-			if val, ex := species[k]; ex {
-				v.Taxonomy = val[:6]
-				v.Species = val[6]
-			}
-			if c.lh {
-				// Add life history
-				if val, ex := lifehist[k]; ex {
-					v.Lifehistory = val
-				} else {
-					v.Lifehistory = c.nas
-				}
-			}
-			if len(v.Species) > 0 {
+			if v.Total >= c.min {
 				// Calculate cancer rates
 				r := v.CalculateRates(k)
 				for idx, i := range r {
@@ -85,59 +68,112 @@ func (c *cancerRates) formatRates() {
 	}
 }
 
-func (c *cancerRates) filterRecords(taxaids []string) {
-	// Deletes records not in taxaids
-	if len(c.records) > 0 && len(taxaids) > 0 {
-		for k := range c.records {
-			if !strarray.InSliceStr(taxaids, k) {
-				delete(c.records, k)
+func (c *cancerRates) countRecords() {
+	// Returns struct with number of total, adult, and adult cancer occurances by species
+	var d []string
+	var e bool
+	for idx := range c.df.Rows {
+		var err error
+		tid, _ := df.GetCell(idx, "taxa_id")
+		if _, ex := c.records[tid]; ex {
+			// Increment total
+			c.records[tid].Total++
+			age, err := c.df.GetCellFloat(idx, "Age")
+			if err == nil && age > c.records[tid].Infant {
+				// Increment adult if age is greater than age of infancy
+				c.records[tid].Adult++
+				c.records[tid].Age = c.records[tid].Age + age
+				sex, er := c.df.GetCell(idx, "Sex")
+				if er == nil {
+					if sex == "male" {
+						c.records[tid].Male++
+					} else if sex == "female" {
+						c.records[tid].Female++
+					}
+					if mp, e := c.df.GetCell(idx, "Masspresent"); e == nil {
+						if mp == "1" {
+							// Increment cancer count and age if masspresent == true
+							c.records[tid].Cancer++
+							c.records[tid].Cancerage = c.records[tid].Cancerage + age
+							if sex == "male" {
+								c.records[tid].Malecancer++
+							} else if sex == "female" {
+								c.records[tid].Femalecancer++
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 }
 
-func (c *cancerRates) getNecropsySpecies() {
-	// Returns species with at least min necropsy records
-	fmt.Println("\tCounting necropsy records...")
-	c.records = dbupload.GetAllSpecies(c.db)
-	c.records = dbupload.GetAgeOfInfancy(c.db, c.records)
-	c.records = dbupload.GetTotals(c.db, c.records, true)
-	for k := range c.records {
-		if c.records[k].Adult < c.min {
-			delete(c.records, k)
+func (c *cancerRates) appendLifeHistory() {
+	// Determines age of infancy and adds life history if needed
+	lifehist := dbupload.ToMap(c.db.GetRows("Life_history", "taxa_id", getRecKeys(c.records), "*"))
+	for k, v := range c.records {
+		if lh, ex := lifehist[k]; ex {
+			v.Lifehistory = lh
+			v.Infant, _ = strconv.ParseFloat(lh[4], 64)
 		} else {
-			// Calculate average ages
-			c.records[k].CalculateAvgAges()
+			v.Lifehistory = c.nas
 		}
 	}
+}
+
+func (c *cancerRates) addDenominators() {
+	// Adds fixed values from denominators table
+	for k, v := range ToMap(c.db.GetTable("Denominators")) {
+		if _, ex := c.records[k]; ex {
+			if t, err := strconv.Atoi(v[0]); err == nil {
+				c.records[k].Total += t
+				c.records[k].Adult += t
+			}
+		}
+	}
+}
+
+func (c *cancerRates) setTaxonomy(idx int) []string {
+	// Stores taxonomy for given record
+	var ret []string
+	for _, k := range c.db.Columns["Taxonomy"] {
+		if k != "Source" {
+			val, _ := df.GetCell(idx, k)
+			ret = append(ret, val)
+		}
+	}
+	return ret
 }
 
 func (c *cancerRates) getTargetSpecies() {
-	// Returns map of empty species records with >= min occurances
-	if c.nec {
-		c.getNecropsySpecies()
-	} else {
-		target := c.db.GetRowsMin("Totals", "Adult", "*", c.min)
-		for _, i := range target {
-			var rec dbupload.Record
-			rec.SetRecord(i)
-			if len(i[0]) > 0 {
-				c.records[i[0]] = &rec
-			}
+	// Stores map of empty species records with >= min occurances
+	for idx := range df.Rows {
+		tid, _ := df.GetCell(idx, "taxa_id")
+		if _, ex := c.records[tid]; !ex {
+			c.records[tid] = newRecord(c.setTaxonomy(idx))
 		}
+
 	}
+	c.addDenominators()
+	c.appendLifeHistory()
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
-	// Returns slice of string slices of cancer rates and related info
-	c := newCancerRates(db, min, nec, lh)
-	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
-	c.getTargetSpecies()
-	if len(eval) > 0 {
-		s := newSearcher(c.db, false)
-		s.assignSearch(eval)
-		c.filterRecords(s.taxaids)
+func (c *cancerRates) setDataframe(eval []codbutils.Evaluation) {
+	// Gets dataframe of matching records
+	if len(eval) == 0 {
+		// Set evaluation to return everything
+		eval = codbutils.SetOperations(c.db.Columns, "ID > 0")
 	}
+	c.df, _ = SearchColumns(c.db, "", eval, false, false)
+}
+
+func GetCancerRates(db *dbIO.DBIO, min int, lh bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
+	// Returns slice of string slices of cancer rates and related info
+	c := newCancerRates(db, min, lh)
+	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
+	c.setDataframe(eval)
+	c.getTargetSpecies()
+	c.countRecords()
 	c.formatRates()
 	fmt.Printf("\tFound %d records with at least %d entries.\n", c.rates.Length(), c.min)
 	return c.rates

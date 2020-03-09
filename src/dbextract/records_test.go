@@ -1,6 +1,6 @@
 // Performs white box tests on various methods in the compOncDB package
 
-package dbupload
+package dbextract
 
 import (
 	"strconv"
