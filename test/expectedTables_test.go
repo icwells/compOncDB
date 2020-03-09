@@ -149,17 +149,6 @@ func getTaxonomy() *dataframe.Dataframe {
 	return setDF(s)
 }
 
-func getTotals() *dataframe.Dataframe {
-	// Returns dataframe of account data
-	s := [][]string{
-		{"taxa_id", "Total", "Avgage", "Adult", "Male", "Female", "Cancer", "Cancerage", "Malecancer", "Femalecancer"},
-		{"1", "7", "24", "1", "1", "0", "1", "24", "1", "0"},
-		{"2", "12", "135", "6", "2", "3", "2", "144", "0", "2"},
-		{"3", "1", "-1", "1", "0", "0", "0", "-1", "0", "0"},
-	}
-	return setDF(s)
-}
-
 func getTumor() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
@@ -198,7 +187,6 @@ func getExpectedTables() map[string]*dataframe.Dataframe {
 	ret["Patient"] = getPatient()
 	ret["Source"] = getSource()
 	ret["Taxonomy"] = getTaxonomy()
-	ret["Totals"] = getTotals()
 	ret["Tumor"] = getTumor()
 	return ret
 }
