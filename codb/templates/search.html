@@ -1,24 +1,7 @@
 {{define "search"}}
-{{template "header"}}
 
-{{if .User}}
-  <div class="menu"><small>
-    {{template "homeicon"}}
-    <span class="center">Last Updated: {{.Update}}</span>
-    <span class="right rightmargin">User: {{.User}} | {{template "logout"}}</span>
-  </small></div>
-  </div> <!-- menubar -->
-</div> <!-- header -->
-</section> <!-- titlebar -->
-  </br>
-<hr>
-{{end}}
-
-<section class="content">
-  {{if .Flash}}
-    <div class="flash">{{.Flash}}</div>
-  {{end}}
-  <h1>Search Database</h1>
+<div id="Search" class="hide">
+  <h2>Search Database</h2>
   <form method="POST" action="/codb/results/">
     <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
 See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
@@ -29,8 +12,22 @@ See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for co
       <input type="button" value="Add new search" onClick="newSearch('SearchBlock');">
     </div>
     <p>Note: Additional search parameters are cumulative and all fields will be applied together. 
-New searches, on the other hand, are completely independent of one another.</p>
+New searches, on the other hand, are completely independent of one another (These will not be applied to cancer rate calculations).</p>
     <hr>
+    <div>
+      <input type="checkbox" name="Cancerrate" onClick="expandCollapse('Rates');">
+      <label for="Cancerrate">Calculate cancer rates.</label>
+    </div>
+    <div id="Rates" class="hide tab">
+      <div>
+        <label for="Min">The minimum number of entries required to examine a species:</label>
+        <input type="number" name="Min" min="0" value="1">
+      </div>
+      <div>
+        <input type="checkbox" name="Lifehistory">
+        <label for="Lifehistory">Append life history information to results</label>
+      </div>
+	</div>
     <div>
       <input type="checkbox" name="Necropsy">
       <label for="Necropsy">Extract only necropsy records (extracts all matches by default).</label>
@@ -50,6 +47,5 @@ New searches, on the other hand, are completely independent of one another.</p>
     {{template "buttonbox"}}
   </form>
   <br/><p><a href="/codb/menu/">Return to menu</a></p>
-</section>
-{{template "footer"}}
+</div>
 {{end}}

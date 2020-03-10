@@ -40,7 +40,6 @@ type Output struct {
 	Outfile string
 	Table   HTMLTable
 	Count   string
-	Search  bool
 	db      *dbIO.DBIO
 	pw      string
 	w       http.ResponseWriter
@@ -91,31 +90,6 @@ func (o *Output) summary() {
 	C.renderTemplate(C.temp.result, o)
 }
 
-func (o *Output) cancerRates() {
-	// Calculates cancer rates for matching criteria
-	opt := setOptions(o.r)
-	eval, msg, pass := setEvaluation(o.r, o.db.Columns, "0", "0")
-	if msg == "" || !strings.Contains(msg, "Accounts") {
-		var e []codbutils.Evaluation
-		if pass {
-			// Skip empty evaluations
-			e = append(e, eval)
-		}
-		rates := dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Lifehistory, e)
-		o.getTempFile(fmt.Sprintf("cancerRates.min%d", opt.Min))
-		rates.ToCSV(o.Outfile)
-		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", rates.Length())
-		if opt.Print {
-			o.formatTable(rates.GetHeader(), rates.ToSlice())
-		}
-		C.renderTemplate(C.temp.result, o)
-	} else {
-		// Return to menu page with flash message
-		o.Flash = msg
-		C.renderTemplate(C.temp.menu, o)
-	}
-}
-
 func (o *Output) referenceTaxonomy() {
 	// Returns merged common name and taxonomy tables
 	table := dbextract.GetReferenceTaxonomy(o.db)
@@ -138,32 +112,58 @@ func (o *Output) extractTable() {
 	}
 }
 
-func (o *Output) searchDB() {
+func (o *Output) cancerRates(eval map[string][]codbutils.Evaluation, opt *Options) *dataframe.Dataframe {
+	// Calculates cancer rates for matching criteria
+	var e []codbutils.Evaluation
+	ret, _ := dataframe.NewDataFrame(-1)
+	if _, ex := eval["0"]; ex {
+		e = eval["0"]
+	}
+	ret = dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Lifehistory, e)
+	return ret
+}
+
+func (o *Output) getSearchResults(eval map[string][]codbutils.Evaluation, opt *Options) *dataframe.Dataframe {
 	// Searches database for results
+	res, _ := dataframe.NewDataFrame(-1)
+	// Search for column/value match
+	for _, v := range eval {
+		r, msg := dbextract.SearchColumns(o.db, "", v, opt.Count, opt.Infant)
+		if o.Count == "" && r.Length() == 0 {
+			// Record single error message
+			o.Count = msg
+		}
+		if res.Length() == 0 {
+			res = r
+		} else {
+			// Append successive results to results slice
+			for _, i := range r.Rows {
+				res.AddRow(i)
+			}
+		}
+	}
+	return res
+}
+
+func (o *Output) searchDB() {
+	// Performs searches and cancer rate calculations
+	var name string
+	var res *dataframe.Dataframe
 	var eval map[string][]codbutils.Evaluation
 	opt := setOptions(o.r)
 	eval, o.Flash = checkEvaluations(o.r, o.db.Columns)
+	if opt.Cancerrate {
+		o.Flash = ""
+		res = o.cancerRates(eval, opt)
+		name = fmt.Sprintf("cancerRates.min%d", opt.Min)		
+	} else if o.Flash == "" {
+		res = o.getSearchResults(eval, opt)
+		name = o.User
+	}
 	if o.Flash == "" {
-		res, _ := dataframe.NewDataFrame(-1)
-		// Search for column/value match
-		for _, v := range eval {
-			r, msg := dbextract.SearchColumns(o.db, "", v, opt.Count, opt.Infant)
-			if o.Count == "" && r.Length() == 0 {
-				// Record single error message
-				o.Count = msg
-			}
-			if res.Length() == 0 {
-				res = r
-			} else {
-				// Append successive results to results slice
-				for _, i := range r.Rows {
-					res.AddRow(i)
-				}
-			}
-		}
 		if opt.Count == false && res.Length() >= 1 {
 			// Format link for download whether or not results are printed to screen
-			o.getTempFile(o.User)
+			o.getTempFile(name)
 			res.ToCSV(o.Outfile)
 			if opt.Print {
 				o.formatTable(res.GetHeader(), res.ToSlice())
@@ -172,11 +172,10 @@ func (o *Output) searchDB() {
 		if o.Count == "" {
 			o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
 		}
-		o.Search = true
 		C.renderTemplate(C.temp.result, o)
 	} else {
 		// Return to search page with flash message
-		C.renderTemplate(C.temp.search, o)
+		C.renderTemplate(C.temp.menu, o)
 	}
 }
 
@@ -186,8 +185,8 @@ func (o *Output) routePost(source string) {
 	switch source {
 	case C.u.summary:
 		o.summary()
-	case C.u.rates:
-		o.cancerRates()
+	//case C.u.rates:
+	//o.cancerRates()
 	case C.u.reftaxa:
 		o.referenceTaxonomy()
 	case C.u.table:

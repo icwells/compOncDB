@@ -11,11 +11,12 @@ import (
 )
 
 type Options struct {
+	Cancerrate  bool
+	Count       bool
+	Infant      bool
+	Lifehistory bool
 	Min         int
 	Necropsy    bool
-	Count       bool
-	Lifehistory bool
-	Infant      bool
 	Print       bool
 }
 

@@ -21,39 +21,10 @@
   <h1>What would you like to do?</h1>
   <hr>
   <p><a href="/codb/summary/">Compile basic summary statistics of the database</a></p>
-  <!--Cancer rate expandable-->
-  <p><a href="#Cancerrate" onClick="expandCollapse('Cancerrate');">Calculate cancer rates</a></p>
-  <div class="tab hide" id="Cancerrate">
-    <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
-See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
-    <form method="POST" action="/codb/cancerRates/">
-      <div id="SingleSearch">
-        <body onload="newSearch('SingleSearch');"></body>
-      </div>
-      <hr>
-      <div>
-        <label for="Min">The minimum number of entries required to examine a species:</label>
-        <input type="number" name="Min" min="0" value="1">
-      </div>
-      <div>
-        <input type="checkbox" name="Lifehistory">
-        <label for="Lifehistory">Append life history information to results</label>
-      </div>
-      <div>
-        <input type="checkbox" name="Necropsy">
-        <label for="Necropsy">Extract only necropsy records (extracts all matches by default)</label>
-      </div>
-      <div>
-        <input type="checkbox" name="Print">
-        <label for="Print">View results in browser (returns file by default)</label>
-      </div>
-      {{template "buttonbox"}}
-    </form>
-  </div>
+  <p><a href="/codb/referencetaxonomy/">Extract merged common name and taxonomy tables</a></p>
   <!--Table dump expandable-->
   <p><a href="#Dump" onClick="expandCollapse('Dump');">Extract entire table</a></p>
   <div class="tab hide" id="Dump">
-    <p><a href="/codb/referencetaxonomy/">Extract merged common name and taxonomy tables</a></p>
     <form method="POST" action="/codb/extractTable/">
       <div>
 	    <label for="Table">Select a table to extract from the database:</label>
@@ -64,14 +35,8 @@ See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for co
       {{template "buttonbox"}}
     </form>
   </div>
-  <p><a href="/codb/search/">Search database</a></p>
-  <!--
-  <hr>
-  <p>The following require admin privileges:</p>
-  <p><a href="/codb/upload/">Upload data to the database</a></p>
-  <p><a href="/codb/update/">Update records in the database</a></p>
-  <p><a href="/codb/delete/">Delete records from the database</a></p>
-  -->
+  <p><a href="#Search" onClick="expandCollapse('Search');">Search database or calculate cancer rates</a></p>
+  {{template "search"}}
 </section>
 {{template "footer"}}
 {{end}}

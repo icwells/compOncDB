@@ -55,23 +55,6 @@ func (r *Record) CalculateAvgAges() {
 	r.Cancerage = avgAge(r.Cancerage, r.Cancer)
 }
 
-/*func (r *Record) ToSlice(id string) []string {
-	// Returns string slice of values for upload to table
-	var ret []string
-	r.CalculateAvgAges()
-	ret = append(ret, id)
-	ret = append(ret, strconv.Itoa(r.Total))
-	ret = append(ret, strconv.FormatFloat(r.Age, 'f', -1, 64))
-	ret = append(ret, strconv.Itoa(r.Adult))
-	ret = append(ret, strconv.Itoa(r.Male))
-	ret = append(ret, strconv.Itoa(r.Female))
-	ret = append(ret, strconv.Itoa(r.Cancer))
-	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', -1, 64))
-	ret = append(ret, strconv.Itoa(r.Malecancer))
-	ret = append(ret, strconv.Itoa(r.Femalecancer))
-	return ret
-}*/
-
 func (r *Record) CalculateRates(id string, lh bool) []string {
 	// Returns string slice of rates
 	var ret []string
@@ -101,19 +84,6 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 	}
 	return ret
 }
-
-/*func (r *Record) SetRecord(row []string) {
-	// Reads values from Totals table entry
-	r.Total, _ = strconv.Atoi(row[1])
-	r.Age, _ = strconv.ParseFloat(row[2], 64)
-	r.Adult, _ = strconv.Atoi(row[3])
-	r.Male, _ = strconv.Atoi(row[4])
-	r.Female, _ = strconv.Atoi(row[5])
-	r.Cancer, _ = strconv.Atoi((row[6]))
-	r.Cancerage, _ = strconv.ParseFloat(row[7], 64)
-	r.Malecancer, _ = strconv.Atoi((row[8]))
-	r.Femalecancer, _ = strconv.Atoi((row[9]))
-}*/
 
 func getRecKeys(records map[string]*Record) string {
 	// Returns string of taxa_ids

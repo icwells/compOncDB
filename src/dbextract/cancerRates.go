@@ -18,7 +18,6 @@ type cancerRates struct {
 	header []string
 	lh     bool
 	min    int
-	//nec     bool
 	nas     []string
 	rates   *dataframe.Dataframe
 	records map[string]*Record
@@ -130,7 +129,7 @@ func (c *cancerRates) setTaxonomy(idx int) []string {
 	// Stores taxonomy for given record
 	var ret []string
 	for _, k := range strings.Split(c.db.Columns["Taxonomy"], ",") {
-		if k != "Source" {
+		if k != "Source" && k != "taxa_id" {
 			val, _ := c.df.GetCell(idx, k)
 			ret = append(ret, val)
 		}
