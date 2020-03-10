@@ -42,7 +42,7 @@ func newCancerRates(db *dbIO.DBIO, min int, lh bool) *cancerRates {
 		}
 	}
 	c.records = make(map[string]*Record)
-	c.rates, _ = dataframe.NewDataFrame(-1)
+	c.rates, _ = dataframe.NewDataFrame(0)
 	c.rates.SetHeader(c.header)
 	return c
 }

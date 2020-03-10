@@ -36,18 +36,6 @@ taxa_id INT
 Name TEXT
 Curator TEXT
 
-# Totals
-taxa_id INT PRIMARY KEY
-Total INT
-Avgage DECIMAL(6,2)
-Adult INT
-Male INT
-Female INT
-Cancer INT
-Cancerage DECIMAL(6,2)
-Malecancer INT
-Femalecancer INT
-
 # Denominators
 taxa_id INT PRIMARY KEY
 Noncancer INT

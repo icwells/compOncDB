@@ -118,26 +118,11 @@ func TestFilterPatients(t *testing.T) {
 	}
 }
 
-func getExpectedRates() *dataframe.Dataframe {
-	// Returns dataframe of account data
-	canis := []string{"Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis"}
-	vulpes := []string{"Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Vulpes"}
-	s := [][]string{
-		{"taxa_id", "Total", "Avgage", "Adult", "Male", "Female", "Cancer", "Cancerage", "Malecancer", "Femalecancer"},
-		{"1", "7", "24", "1", "1", "0", "1", "24", "1", "0"},
-		{"2", "12", "135", "6", "2", "3", "2", "144", "0", "2"},
-		{"3", "1", "-1", "1", "0", "0", "0", "-1", "0", "0"},
-	}
-	return setDF(s)
-}
-
 func TestCancerRates(t *testing.T) {
 	// Tests taxonomy search output
 	var e []codbutils.Evaluation
 	db := connectToDatabase()
-	exp := getExpectedRates()
-	act := dbextract.GetCancerRates(db, 1, false, false, e)
-	compareTables(t, "Cancer Rates", exp, act)
+	compareTables(t, "Cancer Rates", getExpectedRates(), dbextract.GetCancerRates(db, 1, false, false, e))
 }
 
 func TestSearches(t *testing.T) {

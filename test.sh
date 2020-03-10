@@ -30,6 +30,7 @@ getUser () {
 	echo -n "Enter MySQL password: "
 	read -s PW
 	echo ""
+	ARGS="--args --user=$USER --password=$PW"
 }
 
 whiteBoxTests () {
@@ -55,23 +56,27 @@ testDataBase () {
 	echo ""
 	echo "Running black box tests on database upload..."
 	# Compare tables to expected
-	go test $TSTDIR --run TestUpload --args --user=$USER --password=$PW
+	go test $TSTDIR --run TestUpload $ARGS
 
 	echo ""
 	echo "Running black box tests on database filtering..."
-	go test $TSTDIR --run TestFilterPatients --args --user=$USER --password=$PW
+	go test $TSTDIR --run TestFilterPatients $ARGS
+
+	echo ""
+	echo "Running black box tests on cancer rate calculation..."
+	go test $TSTDIR --run TestCancerRates $ARGS
 
 	echo ""
 	echo "Running black box tests on database search..."
-	go test $TSTDIR --run TestSearches --args --user=$USER --password=$PW
+	go test $TSTDIR --run TestSearches $ARGS
 
 	echo ""
 	echo "Running black box tests on database update..."
-	go test $TSTDIR --run TestUpdates --args --user=$USER --password=$PW
+	go test $TSTDIR --run TestUpdates $ARGS
 
 	echo ""
 	echo "Running black box tests on database deletion..."
-	go test $TSTDIR --run TestDelete --args --user=$USER --password=$PW
+	go test $TSTDIR --run TestDelete $ARGS
 }
 
 checkSource () {
