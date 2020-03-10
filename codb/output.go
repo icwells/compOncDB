@@ -166,7 +166,7 @@ func (o *Output) searchDB() {
 			o.getTempFile(name)
 			res.ToCSV(o.Outfile)
 			if opt.Print {
-				o.formatTable(res.GetHeader(), res.ToSlice())
+				o.formatTable(strings.Split(res.FormatHeader(","), ","), res.ToSlice())
 			}
 		}
 		if o.Count == "" {
