@@ -155,7 +155,7 @@ func (o *Output) searchDB() {
 	if opt.Cancerrate {
 		o.Flash = ""
 		res = o.cancerRates(eval, opt)
-		name = fmt.Sprintf("cancerRates.min%d", opt.Min)		
+		name = fmt.Sprintf("cancerRates.min%d", opt.Min)
 	} else if o.Flash == "" {
 		res = o.getSearchResults(eval, opt)
 		name = o.User

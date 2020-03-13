@@ -13,11 +13,11 @@ import (
 )
 
 type cancerRates struct {
-	db     *dbIO.DBIO
-	df     *dataframe.Dataframe
-	header []string
-	lh     bool
-	min    int
+	db      *dbIO.DBIO
+	df      *dataframe.Dataframe
+	header  []string
+	lh      bool
+	min     int
 	nas     []string
 	rates   *dataframe.Dataframe
 	records map[string]*Record
