@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func Getutils() string {
@@ -148,4 +149,17 @@ func DeleteEntries(d *dbIO.DBIO, table, column, value string) {
 	} else {
 		fmt.Println("\tSkipping deletion.")
 	}
+}
+
+func GetUpdateTime(d *dbIO.DBIO) string {
+	// Returns most recent update time
+	ret := d.GetColumnText("Update_time", "Time")
+	return ret[len(ret) - 1]
+}
+
+func UpdateTimeStamp(d *dbIO.DBIO) {
+	// Stores current time stamp in update_time table
+	t := time.Now().Format(time.RFC822)
+	cmd := fmt.Sprintf("INSERT INTO Update_time(Time) %s", t)
+	d.Insert("Update_time", cmd)
 }

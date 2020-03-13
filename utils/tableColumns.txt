@@ -1,35 +1,7 @@
-# Patient
-ID INT PRIMARY KEY
-Sex TEXT
-Age DECIMAL(6,2)
-Castrated TINYINT
-taxa_id INT
-source_id TEXT
-source_name TEXT
-Date TEXT
-Comments TEXT
-
-# Unmatched
-sourceID TEXT
-name TEXT
-sex TEXT
-age DECIMAL(6,2)
-date TEXT
-masspresent TINYINT
-necropsy TINYINT
-comments TEXT
-Service TEXT
-
-# Taxonomy
-taxa_id INT PRIMARY KEY
-Kingdom TEXT
-Phylum TEXT
-Class TEXT
-Orders TEXT
-Family TEXT
-Genus TEXT
-Species TEXT
-Source TEXT
+# Accounts
+account_id INT PRIMARY KEY
+Account TEXT
+submitter_name TEXT
 
 # Common
 taxa_id INT
@@ -40,32 +12,12 @@ Curator TEXT
 taxa_id INT PRIMARY KEY
 Noncancer INT
 
-# Source
-ID INT
-service_name TEXT
-Zoo TINYINT
-Aza TINYINT
-Institute TINYINT
-account_id INT
-
-# Accounts
-account_id INT PRIMARY KEY
-Account TEXT
-submitter_name TEXT
-
 # Diagnosis
 ID INT
 Masspresent TINYINT
 Hyperplasia TINYINT
 Necropsy TINYINT
 Metastasis TINYINT
-
-# Tumor
-ID INT
-primary_tumor TINYINT
-Malignant TINYINT
-Type TEXT
-Location TEXT
 
 # Life_history
 taxa_id INT PRIMARY KEY
@@ -83,3 +35,55 @@ adult_weight DOUBLE
 growth_rate DOUBLE
 max_longevity DOUBLE
 metabolic_rate DOUBLE
+
+# Patient
+ID INT PRIMARY KEY
+Sex TEXT
+Age DECIMAL(6,2)
+Castrated TINYINT
+taxa_id INT
+source_id TEXT
+source_name TEXT
+Date TEXT
+Comments TEXT
+
+# Source
+ID INT
+service_name TEXT
+Zoo TINYINT
+Aza TINYINT
+Institute TINYINT
+account_id INT
+
+# Taxonomy
+taxa_id INT PRIMARY KEY
+Kingdom TEXT
+Phylum TEXT
+Class TEXT
+Orders TEXT
+Family TEXT
+Genus TEXT
+Species TEXT
+Source TEXT
+
+# Tumor
+ID INT
+primary_tumor TINYINT
+Malignant TINYINT
+Type TEXT
+Location TEXT
+
+# Unmatched
+sourceID TEXT
+name TEXT
+sex TEXT
+age DECIMAL(6,2)
+date TEXT
+masspresent TINYINT
+necropsy TINYINT
+comments TEXT
+Service TEXT
+
+# Update_time
+update_number INT PRIMARY KEY AUTO_INCREMENT
+Time TEXT

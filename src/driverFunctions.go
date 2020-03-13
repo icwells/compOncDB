@@ -66,16 +66,20 @@ func uploadToDB() time.Time {
 	if *taxa == true {
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *infile, *common)
+		codbutils.UpdateTimeStamp(db)
 	} else if *lh == true {
 		// Upload life history table
 		dbupload.LoadLifeHistory(db, *infile)
+		codbutils.UpdateTimeStamp(db)
 	} else if *den == true {
 		// Uplaod denominator table
 		dbupload.LoadNonCancerTotals(db, *infile)
+		codbutils.UpdateTimeStamp(db)
 	} else if *patient == true {
 		// Upload patient data
 		dbupload.LoadAccounts(db, *infile)
 		dbupload.LoadPatients(db, *infile, false)
+		codbutils.UpdateTimeStamp(db)
 	} else {
 		commandError()
 	}
@@ -87,12 +91,15 @@ func updateDB() time.Time {
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
 	if *clean == true {
 		dbextract.AutoCleanDatabase(db)
+		codbutils.UpdateTimeStamp(db)
 	} else if *infile != "nil" {
 		dbextract.UpdateEntries(db, *infile)
+		codbutils.UpdateTimeStamp(db)
 	} else if *column != "nil" && *value != "nil" && *eval != "nil" {
 		evaluations := codbutils.SetOperations(db.Columns, *eval)
 		e := evaluations[0]
 		dbextract.UpdateSingleTable(db, e.Table, *column, *value, e.Column, e.Operator, e.Value)
+		codbutils.UpdateTimeStamp(db)
 	} else if *del == true && *eval != "nil" {
 		evaluations := codbutils.SetOperations(db.Columns, *eval)
 		e := evaluations[0]
@@ -100,6 +107,7 @@ func updateDB() time.Time {
 			*table = codbutils.GetTable(db.Columns, e.Column)
 		}
 		codbutils.DeleteEntries(db, *table, e.Column, e.Value)
+		codbutils.UpdateTimeStamp(db)
 	} else {
 		commandError()
 	}

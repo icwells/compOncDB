@@ -79,14 +79,14 @@ func TestUpload(t *testing.T) {
 	dbupload.LoadPatients(db, uploadfile, false)
 	for k := range db.Columns {
 		// Dump all tables for comparison
-		if k != "Unmatched" {
+		if k != "Unmatched" && k != "Update_time" {
 			compareTables(t, k, exp[k], tableToDF(db, k))
 		}
 	}
 	// Attempt again to test filtering of existing records
 	dbupload.LoadPatients(db, uploadfile, false)
 	for k := range db.Columns {
-		if k != "Unmatched" {
+		if k != "Unmatched" && k != "Update_time" {
 			compareTables(t, k, exp[k], tableToDF(db, k))
 		}
 	}
@@ -112,7 +112,7 @@ func TestFilterPatients(t *testing.T) {
 	dbupload.LoadPatients(db, uploadfile, true)
 	dbextract.AutoCleanDatabase(db)
 	for k := range db.Columns {
-		if k != "Unmatched" {
+		if k != "Unmatched" && k != "Update_time" {
 			compareTables(t, k, exp[k], tableToDF(db, k))
 		}
 	}

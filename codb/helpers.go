@@ -4,9 +4,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"net/http"
-	"strings"
+	//"strings"
 	"time"
 )
 
@@ -18,12 +19,13 @@ func ping(user, password string) (bool, string) {
 	if err == nil {
 		ret = true
 		db.GetTableColumns()
-		loc, _ := time.LoadLocation("America/Phoenix")
+		update = codbutils.GetUpdateTime(db)
+		/*loc, _ := time.LoadLocation("America/Phoenix")
 		// Format to string to change time zones without changing time
 		ut := db.LastUpdate().Format(time.RFC822)
 		t, _ := time.Parse(time.RFC822Z, strings.Replace(ut, "UTC", "-0500", 1))
 		fmt.Println(t.Zone())
-		update = t.In(loc).Format(time.RFC822)
+		update = t.In(loc).Format(time.RFC822)*/
 	}
 	return ret, update
 }
