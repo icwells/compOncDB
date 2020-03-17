@@ -6,16 +6,16 @@
     <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
 See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
     <div id="SearchBlock">
-      <body onload="newSearch('SearchBlock');"></body>
+      <body id="searchblock" onload="newSearch('SearchBlock');"></body>
     </div>
     <div id="addSearch">
-      <input type="button" value="Add new search" onClick="newSearch('SearchBlock');">
+      <input id="addsearch" type="button" value="Add new search">
     </div>
     <p>Note: Additional search parameters are cumulative and all fields will be applied together. 
 New searches, on the other hand, are completely independent of one another (These will not be applied to cancer rate calculations).</p>
     <hr>
     <div>
-      <input type="checkbox" name="Cancerrate" onClick="expandCollapse('Rates');">
+      <input id="canceratebox" type="checkbox" name="Cancerrate">
       <label for="Cancerrate">Calculate cancer rates.</label>
     </div>
     <div id="Rates" class="hide tab">

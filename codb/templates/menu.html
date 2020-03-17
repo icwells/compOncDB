@@ -23,7 +23,7 @@
   <p><a href="/codb/summary/">Compile basic summary statistics of the database</a></p>
   <p><a href="/codb/referencetaxonomy/">Extract merged common name and taxonomy tables</a></p>
   <!--Table dump expandable-->
-  <p><a href="#Dump" onClick="expandCollapse('Dump');">Extract entire table</a></p>
+  <p id="extract"><a href="#Dump">Extract entire table</a></p>
   <div class="tab hide" id="Dump">
     <form method="POST" action="/codb/extractTable/">
       <div>
@@ -35,7 +35,7 @@
       {{template "buttonbox"}}
     </form>
   </div>
-  <p><a href="#Search" onClick="expandCollapse('Search');">Search database or calculate cancer rates</a></p>
+  <p id="searchselect"><a href="#Search">Search database or calculate cancer rates</a></p>
   {{template "search"}}
 </section>
 {{template "footer"}}
