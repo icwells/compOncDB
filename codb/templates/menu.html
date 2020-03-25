@@ -18,12 +18,12 @@
   {{if .Flash}}
     <div class="flash">{{.Flash}}</div>
   {{end}}
-  <h1>What would you like to do?</h1>
+  <h1 id="subheader">What would you like to do?</h1>
   <hr>
   <p><a href="/codb/summary/">Compile basic summary statistics of the database</a></p>
   <p><a href="/codb/referencetaxonomy/">Extract merged common name and taxonomy tables</a></p>
   <!--Table dump expandable-->
-  <p id="extract"><a href="#Dump">Extract entire table</a></p>
+  <p id="extract"><a href="#subheader">Extract entire table</a></p>
   <div class="tab hide" id="Dump">
     <form method="POST" action="/codb/extractTable/">
       <div>
@@ -35,7 +35,7 @@
       {{template "buttonbox"}}
     </form>
   </div>
-  <p id="searchselect"><a href="#Search">Search database or calculate cancer rates</a></p>
+  <p id="searchselect"><a href="#subheader">Search database or calculate cancer rates</a></p>
   {{template "search"}}
 </section>
 {{template "footer"}}
