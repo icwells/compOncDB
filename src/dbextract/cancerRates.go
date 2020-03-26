@@ -144,7 +144,6 @@ func (c *cancerRates) getTargetSpecies() {
 		if _, ex := c.records[tid]; !ex {
 			c.records[tid] = NewRecord(c.setTaxonomy(idx))
 		}
-
 	}
 	c.addDenominators()
 	c.appendLifeHistory()

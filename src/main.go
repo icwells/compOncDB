@@ -44,6 +44,7 @@ var (
 
 	extract  = kingpin.Command("extract", "Extract data from the database and perform optional analyses.")
 	dump     = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
+	dumpdb   = extract.Flag("dump_db", "Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).").Default("false").Bool()
 	reftaxa  = extract.Flag("reference_taxonomy", "Returns merged common and taxonomy tables.").Short('r').Default("false").Bool()
 	sum      = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
 	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()

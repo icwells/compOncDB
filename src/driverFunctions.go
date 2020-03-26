@@ -132,6 +132,8 @@ func extractFromDB() time.Time {
 		// Extract entire table
 		table := db.GetTable(*dump)
 		codbutils.WriteResults(*outfile, db.Columns[*dump], table)
+	} else if *dumpdb {
+		dbextract.DumpDatabase(db, *outfile)
 	} else if *sum {
 		summary := dbextract.GetSummary(db)
 		codbutils.WriteResults(*outfile, "Field,Total,%\n", summary)
