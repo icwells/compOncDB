@@ -15,18 +15,19 @@ import (
 type dbCompress struct {
 	dir    string
 	db     *dbIO.DBIO
+	name   string
 	stamp  string
 	tables []string
-	temp   string
 }
 
 func newDbCompress(db *dbIO.DBIO, outdir string) *dbCompress {
 	// Initializes new struct
 	d := new(dbCompress)
 	d.db = db
-	d.dir, _ = iotools.FormatPath(outdir, false)
-	d.temp, _ = iotools.FormatPath(outdir+"tmp/", true)
 	d.setDateStamp()
+	d.dir, _ = iotools.FormatPath(outdir, false)
+	os.Chdir(d.dir)
+	d.name, _ = iotools.FormatPath(fmt.Sprintf("comparativeOncology_%s", d.stamp), true)
 	d.tables = []string{"Accounts", "Common", "Denominators", "Life_history", "Taxonomy", "Unmatched"}
 	return d
 }
@@ -39,18 +40,18 @@ func (d *dbCompress) setDateStamp() {
 func (d *dbCompress) compressDir() {
 	// Compresses temp directory
 	fmt.Println("\tCompressing output directory...")
-	comp := exec.Command("tar", "-czf", fmt.Sprintf("%scomparativeOncology_%s.tar.gz", d.dir, d.stamp), d.temp)
+	comp := exec.Command("tar", "-czf", fmt.Sprintf("%s.tar.gz", d.name[:len(d.name)-1]), d.name)
 	err := comp.Run()
 	if err == nil {
-		os.Remove(d.temp)
+		os.Remove(d.dir + d.name)
 	} else {
-		fmt.Printf("\n\t[Error] Failed to compress tables: %v", err)
+		fmt.Printf("\n\t[Error] Failed to compress tables: %v\n", err)
 	}
 }
 
 func (d *dbCompress) getOutfile(name string) string {
 	// Returns formatted output file name
-	return fmt.Sprintf("%s%s_%s.csv", d.temp, name, d.stamp)
+	return fmt.Sprintf("%s%s_%s.csv", d.name, name, d.stamp)
 }
 
 func (d *dbCompress) writeTables() {
