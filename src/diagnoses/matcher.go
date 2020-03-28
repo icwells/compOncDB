@@ -27,9 +27,10 @@ type Matcher struct {
 func NewMatcher() Matcher {
 	// Compiles regular expressions
 	var m Matcher
+	digit := `([0-9]*[.])?[0-9]+`
 	m.infant = regexp.MustCompile(`(?i)infant|(peri|neo)nat(e|al)|fet(us|al)`)
-	m.digit = regexp.MustCompile(`[0-9]+`)
-	m.age = regexp.MustCompile(`(?i)[0-9]+(-|\s)(day|week|month|year)s?(-|\s)?(old|of age)?`)
+	m.digit = regexp.MustCompile(digit)
+	m.age = regexp.MustCompile(digit + `(-|\s)(day|week|month|year)s?(-|\s)?(old|of age)?`)
 	m.Sex = regexp.MustCompile(`(?i)(fe)?male`)
 	m.castrated = regexp.MustCompile(`(?i)(not )?(castrat(ed)?|neuter(ed)?|spay(ed)?)`)
 	m.malignant = regexp.MustCompile(`(?i)(not )?(malignan(t|cy)|invasive)`)

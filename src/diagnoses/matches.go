@@ -18,7 +18,7 @@ type matches struct {
 
 func NewMatches() []matches {
 	// Initializes test matches
-	line1 := "spinal neoplasia, biopsy; castration helps to resolve the situation since it is somewhat hormonal dependent, Female, 2 years old"
+	line1 := "spinal neoplasia, biopsy; castration helps to resolve the situation since it is somewhat hormonal dependent, Female, 2.0 years old"
 	line2 := "cause of death: single Malignant liver carcinoma; retarded growth has also been reported. 37 month old male"
 	line3 := "metastatis lymphoma, infant, 30 days, not castrated, "
 	line4 := "spayed female gray fox, "
