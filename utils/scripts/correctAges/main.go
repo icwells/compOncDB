@@ -3,10 +3,12 @@
 package main
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/diagnoses"
 	"github.com/icwells/dbIO"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"strconv"
 	"time"
 )
 
@@ -17,12 +19,12 @@ var (
 
 // ageCorrection is a struct for identifying incorrect ages and determining correct ones.
 type ageCorrection struct {
-	db *dbIO.DBIO
-	header string
+	db      *dbIO.DBIO
+	header  string
 	matcher diagnoses.Matcher
 	outfile string
 	results [][]string
-	table [][]string
+	table   [][]string
 }
 
 // newAgeCorrection connects to database and returns initialized struct.
@@ -32,6 +34,7 @@ func newAgeCorrection() *ageCorrection {
 	a.header = "ID,Age,Comments"
 	a.matcher = diagnoses.NewMatcher()
 	a.outfile = *outfile
+	fmt.Println("\n\tExtracting table from database...")
 	a.table = a.db.EvaluateRows("Patient", "Age", "!=", "NA", a.header)
 	return a
 }
@@ -43,11 +46,16 @@ func (a *ageCorrection) write() {
 
 // correctAges extracts correct ages from comments and stores in results slice.
 func (a *ageCorrection) correctAges() {
+	fmt.Println("\tCorrecting erroneous ages...")
 	for _, i := range a.table {
 		if i[2] != "NA" {
-			if newage := a.matcher.GetAge(i[2]); newage != i[1] {
-				a.results = append(a.results, append(i, newage))
-			}			
+			if newage := a.matcher.GetAge(i[2]); newage != "-1" {
+				na, _ := strconv.ParseFloat(newage, 64)
+				age := strconv.FormatFloat(na, 'f', 2, 64)
+				if age != i[1] {
+					a.results = append(a.results, append(i, age))
+				}
+			}
 		}
 	}
 }

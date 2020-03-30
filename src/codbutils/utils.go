@@ -160,6 +160,6 @@ func GetUpdateTime(d *dbIO.DBIO) string {
 func UpdateTimeStamp(d *dbIO.DBIO) {
 	// Stores current time stamp in update_time table
 	t := time.Now().Format(time.RFC822)
-	cmd := fmt.Sprintf("INSERT INTO Update_time(Time) %s", t)
+	cmd := fmt.Sprintf("INSERT INTO Update_time(Time) VALUES('%s');", t)
 	d.Insert("Update_time", cmd)
 }
