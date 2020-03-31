@@ -44,7 +44,7 @@ func (e *Evaluation) SetTable(columns map[string]string, quit bool) string {
 func (e *Evaluation) setOperation(eval string) {
 	// Splits eval into column, operator, value
 	found := false
-	operators := []string{"!=", "==", ">=", "<=", "=", ">", "<"}
+	operators := []string{"!=", "==", ">=", "<=", "=", ">", "<", "^"}
 	for _, i := range operators {
 		if strings.Contains(eval, i) == true {
 			e.Operator = i

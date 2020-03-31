@@ -35,7 +35,12 @@ func (s *searcher) setPatient() {
 func (s *searcher) submitEvaluation(e codbutils.Evaluation) []string {
 	// Gets ids matching evaluation criteria
 	var ret []string
-	ids := s.db.EvaluateRows(e.Table, e.Column, e.Operator, e.Value, e.ID)
+	var ids [][]string
+	if e.Operator == "^" {
+		ids = s.db.ColumnContains(e.Table, e.Column, e.Value, e.ID)
+	} else {
+		ids = s.db.EvaluateRows(e.Table, e.Column, e.Operator, e.Value, e.ID)
+	}
 	for _, i := range ids {
 		// Convert to string slice
 		ret = append(ret, i[0])
