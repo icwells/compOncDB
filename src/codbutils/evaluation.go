@@ -4,6 +4,7 @@ package codbutils
 
 import (
 	"fmt"
+	"github.com/icwells/go-tools/iotools"
 	"os"
 	"strings"
 )
@@ -80,6 +81,26 @@ func SetOperations(columns map[string]string, eval string) []Evaluation {
 	if len(ret) == 0 {
 		fmt.Print("\n\t[Error] Please supply an evaluation argument. Exiting.\n\n")
 		os.Exit(1002)
+	}
+	return ret
+}
+
+func OperationsFromFile(columns map[string]string, infile string) []Evaluation {
+	// Reads evaluations from input file
+	var ret []Evaluation
+	var col string
+	l, head := iotools.ReadFile(infile, true)
+	for k, v := range head {
+		if v == 0 {
+			col = k
+			break
+		}
+	}
+	for _, i := range l {
+		var e Evaluation
+		e.setOperation(fmt.Sprintf("%s = %s", col, i))
+		e.SetTable(columns, true)
+		ret = append(ret, e)
 	}
 	return ret
 }

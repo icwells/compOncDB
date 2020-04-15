@@ -136,10 +136,8 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 	}
 }
 
-func SearchColumns(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, count, inf bool) (*dataframe.Dataframe, string) {
+func columnSearch(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, count, inf bool) *searcher {
 	// Determines search procedure
-	var ret *dataframe.Dataframe
-	fmt.Println("\tSearching for matching records...")
 	s := newSearcher(db, inf)
 	s.assignSearch(eval)
 	if len(s.res) >= 1 {
@@ -156,9 +154,38 @@ func SearchColumns(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, cou
 			s.appendSource()
 		}
 	}
+	return s
+}
+
+func SearchColumns(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, count, inf bool) (*dataframe.Dataframe, string) {
+	// Wraps call to columnSearch
+	var ret *dataframe.Dataframe
+	fmt.Println("\tSearching for matching records...")
+	s := columnSearch(db, table, eval, count, inf)
 	ret = s.toDF()
 	if s.msg == "" {
 		s.msg = fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 	}
 	return ret, s.msg
+}
+
+func SearchFile(db *dbIO.DBIO, eval []codbutils.Evaluation, count, inf bool) (*dataframe.Dataframe, string) {
+	// Submits independent search for each evaluation
+	var ret *dataframe.Dataframe
+	fmt.Println("\tSearching for matching records...")
+	for idx, i := range eval {
+		s := columnSearch(db, "", []codbutils.Evaluation{i}, count, inf)
+		res := s.toDF()
+		if s.msg != "" {
+			fmt.Print(s.msg)
+		} else {
+			fmt.Printf("\tFound %d records where %s = %s.\n", res.Length(), i.Column, i.Value)
+		}
+		if idx == 0 {
+			ret = res
+		} else {
+			ret.Rows = append(ret.Rows, res.Rows...)
+		}
+	}
+	return ret, fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 }
