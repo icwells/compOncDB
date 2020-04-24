@@ -183,8 +183,10 @@ func SearchFile(db *dbIO.DBIO, eval []codbutils.Evaluation, count, inf bool) (*d
 		}
 		if idx == 0 {
 			ret = res
-		} else {
-			ret.Rows = append(ret.Rows, res.Rows...)
+		} else if res.Length() > 0 {
+			for _, i := range res.Rows {
+				ret.AddRow(i)
+			}
 		}
 	}
 	return ret, fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())

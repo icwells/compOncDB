@@ -89,18 +89,21 @@ func OperationsFromFile(columns map[string]string, infile string) []Evaluation {
 	// Reads evaluations from input file
 	var ret []Evaluation
 	var col string
-	l, head := iotools.ReadFile(infile, true)
-	for k, v := range head {
-		if v == 0 {
-			col = k
-			break
+	first := true
+	f := iotools.OpenFile(infile)
+	defer f.Close()
+	scanner := iotools.GetScanner(f)
+	for scanner.Scan() {
+		line := strings.TrimSpace(string(scanner.Text()))
+		if first {
+			col = line
+			first = false
+		} else {
+			var e Evaluation
+			e.setOperation(fmt.Sprintf("%s = %s", col, line))
+			e.SetTable(columns, true)
+			ret = append(ret, e)
 		}
-	}
-	for _, i := range l {
-		var e Evaluation
-		e.setOperation(fmt.Sprintf("%s = %s", col, i))
-		e.SetTable(columns, true)
-		ret = append(ret, e)
 	}
 	return ret
 }
