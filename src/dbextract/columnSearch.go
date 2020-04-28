@@ -191,3 +191,18 @@ func SearchFile(db *dbIO.DBIO, eval []codbutils.Evaluation, count, inf bool) (*d
 	}
 	return ret, fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 }
+
+func SearchDatabase(db *dbIO.DBIO, table, eval, infile string, count, infant bool) (*dataframe.Dataframe, string) {
+	// Directs queries to appropriate functions
+	var ret *dataframe.Dataframe
+	var msg string
+	if eval != "nil" {
+		// Search for column/value match
+		e := codbutils.SetOperations(db.Columns, eval)
+		ret, msg = SearchColumns(db, table, e, count, infant)
+	} else if infile != "nil" {
+		e := codbutils.OperationsFromFile(db.Columns, infile)
+		ret, msg = SearchFile(db, e, count, infant)
+	}
+	return ret, msg
+}

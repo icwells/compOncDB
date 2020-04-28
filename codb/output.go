@@ -119,7 +119,7 @@ func (o *Output) cancerRates(eval map[string][]codbutils.Evaluation, opt *Option
 	if _, ex := eval["0"]; ex {
 		e = eval["0"]
 	}
-	ret = dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Lifehistory, e)
+	ret = dbextract.GetCancerRates(o.db, opt.Min, false, opt.Necropsy, opt.Lifehistory, e)
 	return ret
 }
 
