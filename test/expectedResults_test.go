@@ -106,7 +106,7 @@ func getLitterResults() *dataframe.Dataframe {
 
 type searchCase struct {
 	name     string
-	eval     []codbutils.Evaluation
+	eval     [][]codbutils.Evaluation
 	expected *dataframe.Dataframe
 	table    string
 }

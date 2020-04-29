@@ -112,7 +112,7 @@ func (o *Output) extractTable() {
 	}
 }
 
-func (o *Output) cancerRates(eval map[string][]codbutils.Evaluation, opt *Options) *dataframe.Dataframe {
+/*func (o *Output) cancerRates(eval map[string][]codbutils.Evaluation, opt *Options) *dataframe.Dataframe {
 	// Calculates cancer rates for matching criteria
 	var e []codbutils.Evaluation
 	ret, _ := dataframe.NewDataFrame(-1)
@@ -143,21 +143,21 @@ func (o *Output) getSearchResults(eval map[string][]codbutils.Evaluation, opt *O
 		}
 	}
 	return res
-}
+}*/
 
 func (o *Output) searchDB() {
 	// Performs searches and cancer rate calculations
 	var name string
 	var res *dataframe.Dataframe
-	var eval map[string][]codbutils.Evaluation
+	var eval [][]codbutils.Evaluation
 	opt := setOptions(o.r)
 	eval, o.Flash = checkEvaluations(o.r, o.db.Columns)
 	if opt.Cancerrate {
 		o.Flash = ""
-		res = o.cancerRates(eval, opt)
+		res = dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Lifehistory, eval)
 		name = fmt.Sprintf("cancerRates.min%d", opt.Min)
 	} else if o.Flash == "" {
-		res = o.getSearchResults(eval, opt)
+		res, o.Count = dbextract.SearchColumns(o.db, "", eval, opt.Count, opt.Infant)
 		name = o.User
 	}
 	if o.Flash == "" {

@@ -25,7 +25,7 @@ func TestSetOperations(t *testing.T) {
 	for _, i := range matches {
 		var msg string
 		evaluations := SetOperations(columns, i.input)
-		e := evaluations[0]
+		e := evaluations[0][0]
 		if e.Table != i.table {
 			t.Errorf("Actual table %s is not equal to expected: %s", e.Table, i.table)
 		} else if e.ID != i.id {

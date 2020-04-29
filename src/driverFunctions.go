@@ -97,12 +97,12 @@ func updateDB() time.Time {
 		codbutils.UpdateTimeStamp(db)
 	} else if *column != "nil" && *value != "nil" && *eval != "nil" {
 		evaluations := codbutils.SetOperations(db.Columns, *eval)
-		e := evaluations[0]
+		e := evaluations[0][0]
 		dbextract.UpdateSingleTable(db, e.Table, *column, *value, e.Column, e.Operator, e.Value)
 		codbutils.UpdateTimeStamp(db)
 	} else if *del == true && *eval != "nil" {
 		evaluations := codbutils.SetOperations(db.Columns, *eval)
-		e := evaluations[0]
+		e := evaluations[0][0]
 		if *table == "nil" {
 			*table = codbutils.GetTable(db.Columns, e.Column)
 		}

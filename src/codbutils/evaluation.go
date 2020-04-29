@@ -4,7 +4,7 @@ package codbutils
 
 import (
 	"fmt"
-	"github.com/icwells/go-tools/iotools"
+	"github.com/icwells/go-tools/dataframe"
 	"os"
 	"strings"
 )
@@ -15,6 +15,11 @@ type Evaluation struct {
 	Column   string
 	Operator string
 	Value    string
+}
+
+func (e *Evaluation) String() string {
+	// Returns fromatted string
+	return fmt.Sprintf("%s %s %s", e.Column, e.Operator, e.Value)
 }
 
 func (e *Evaluation) SetIDType(columns map[string]string) {
@@ -69,7 +74,7 @@ func (e *Evaluation) setOperation(eval string) {
 	}
 }
 
-func SetOperations(columns map[string]string, eval string) []Evaluation {
+func SetOperations(columns map[string]string, eval string) [][]Evaluation {
 	// Returns slice of evaluation targets
 	var ret []Evaluation
 	for _, i := range strings.Split(eval, ",") {
@@ -82,28 +87,27 @@ func SetOperations(columns map[string]string, eval string) []Evaluation {
 		fmt.Print("\n\t[Error] Please supply an evaluation argument. Exiting.\n\n")
 		os.Exit(1002)
 	}
-	return ret
+	return [][]Evaluation{ret}
 }
 
-func OperationsFromFile(columns map[string]string, infile string) []Evaluation {
+func OperationsFromFile(columns map[string]string, infile string) [][]Evaluation {
 	// Reads evaluations from input file
-	var ret []Evaluation
-	var col string
-	first := true
-	f := iotools.OpenFile(infile)
-	defer f.Close()
-	scanner := iotools.GetScanner(f)
-	for scanner.Scan() {
-		line := strings.TrimSpace(string(scanner.Text()))
-		if first {
-			col = line
-			first = false
-		} else {
+	var ret [][]Evaluation
+	df, err := dataframe.FromFile(infile, -1)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Cannot read evaluation file: %v\n\n", err)
+		os.Exit(1000)
+	}
+	header := df.GetHeader()
+	for _, row := range df.Rows {
+		var eval []Evaluation
+		for idx, i := range row {
 			var e Evaluation
-			e.setOperation(fmt.Sprintf("%s = %s", col, line))
+			e.setOperation(fmt.Sprintf("%s = %s", header[idx], i))
 			e.SetTable(columns, true)
-			ret = append(ret, e)
+			eval = append(eval, e)
 		}
+		ret = append(ret, eval)
 	}
 	return ret
 }

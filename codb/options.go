@@ -59,8 +59,9 @@ func setEvaluation(r *http.Request, columns map[string]string, search, n string)
 	return e, msg, pass
 }
 
-func checkEvaluations(r *http.Request, columns map[string]string) (map[string][]codbutils.Evaluation, string) {
+func checkEvaluations(r *http.Request, columns map[string]string) ([][]codbutils.Evaluation, string) {
 	// Reads in variable number of search parameters
+	var ret [][]codbutils.Evaluation
 	var msg string
 	var e codbutils.Evaluation
 	eval := make(map[string][]codbutils.Evaluation)
@@ -81,5 +82,8 @@ func checkEvaluations(r *http.Request, columns map[string]string) (map[string][]
 			}
 		}
 	}
-	return eval, msg
+	for _, v := range eval {
+		ret = append(ret, v)
+	}
+	return ret, msg
 }

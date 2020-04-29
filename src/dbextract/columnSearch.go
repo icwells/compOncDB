@@ -157,29 +157,17 @@ func columnSearch(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, coun
 	return s
 }
 
-func SearchColumns(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, count, inf bool) (*dataframe.Dataframe, string) {
-	// Wraps call to columnSearch
-	var ret *dataframe.Dataframe
-	fmt.Println("\tSearching for matching records...")
-	s := columnSearch(db, table, eval, count, inf)
-	ret = s.toDF()
-	if s.msg == "" {
-		s.msg = fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
-	}
-	return ret, s.msg
-}
-
-func SearchFile(db *dbIO.DBIO, eval []codbutils.Evaluation, count, inf bool) (*dataframe.Dataframe, string) {
-	// Submits independent search for each evaluation
+func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, count, inf bool) (*dataframe.Dataframe, string) {
+	// Wraps calls to columnSearch
 	var ret *dataframe.Dataframe
 	fmt.Println("\tSearching for matching records...")
 	for idx, i := range eval {
-		s := columnSearch(db, "", []codbutils.Evaluation{i}, count, inf)
+		s := columnSearch(db, table, i, count, inf)
 		res := s.toDF()
 		if s.msg != "" {
 			fmt.Print(s.msg)
 		} else {
-			fmt.Printf("\tFound %d records where %s = %s.\n", res.Length(), i.Column, i.Value)
+			fmt.Printf("\tFound %d records where %s.\n", res.Length(), i[0])
 		}
 		if idx == 0 {
 			ret = res
@@ -188,21 +176,19 @@ func SearchFile(db *dbIO.DBIO, eval []codbutils.Evaluation, count, inf bool) (*d
 				ret.AddRow(i)
 			}
 		}
+		fmt.Println(i, ret.Length())
 	}
 	return ret, fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 }
 
 func SearchDatabase(db *dbIO.DBIO, table, eval, infile string, count, infant bool) (*dataframe.Dataframe, string) {
 	// Directs queries to appropriate functions
-	var ret *dataframe.Dataframe
-	var msg string
+	var e [][]codbutils.Evaluation
 	if eval != "nil" {
 		// Search for column/value match
-		e := codbutils.SetOperations(db.Columns, eval)
-		ret, msg = SearchColumns(db, table, e, count, infant)
+		e = codbutils.SetOperations(db.Columns, eval)
 	} else if infile != "nil" {
-		e := codbutils.OperationsFromFile(db.Columns, infile)
-		ret, msg = SearchFile(db, e, count, infant)
+		e = codbutils.OperationsFromFile(db.Columns, infile)
 	}
-	return ret, msg
+	return SearchColumns(db, table, e, count, infant)
 }

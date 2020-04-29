@@ -149,27 +149,25 @@ func (c *cancerRates) getTargetSpecies() {
 	c.appendLifeHistory()
 }
 
-func (c *cancerRates) setDataframe(eval []codbutils.Evaluation, file, nec bool) {
+func (c *cancerRates) setDataframe(eval [][]codbutils.Evaluation, nec bool) {
 	// Gets dataframe of matching records
 	if nec {
 		e := codbutils.SetOperations(c.db.Columns, "Necropsy = 1")
-		eval = append(eval, e[0])
+		for idx := range eval {
+			eval[idx] = append(eval[idx], e[0][0])
+		}
 	} else if len(eval) == 0 {
 		// Set evaluation to return everything
 		eval = codbutils.SetOperations(c.db.Columns, "ID > 0")
 	}
-	if file {
-		c.df, _ = SearchFile(c.db, eval, false, false)
-	} else {
-		c.df, _ = SearchColumns(c.db, "", eval, false, false)
-	}
+	c.df, _ = SearchColumns(c.db, "", eval, false, false)
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, file, nec, lh bool, eval []codbutils.Evaluation) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval [][]codbutils.Evaluation) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
 	c := newCancerRates(db, min, lh)
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
-	c.setDataframe(eval, file, nec)
+	c.setDataframe(eval, nec)
 	c.getTargetSpecies()
 	c.countRecords()
 	c.formatRates()
@@ -179,13 +177,11 @@ func GetCancerRates(db *dbIO.DBIO, min int, file, nec, lh bool, eval []codbutils
 
 func SearchCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval, infile string) *dataframe.Dataframe {
 	// Wraps call to GetCancerRates
-	var file bool
-	var e []codbutils.Evaluation
+	var e [][]codbutils.Evaluation
 	if eval != "nil" {
 		e = codbutils.SetOperations(db.Columns, eval)
 	} else if infile != "nil" {
 		e = codbutils.OperationsFromFile(db.Columns, infile)
-		file = true
 	}
-	return GetCancerRates(db, min, file, nec, lh, e)
+	return GetCancerRates(db, min, nec, lh, e)
 }
