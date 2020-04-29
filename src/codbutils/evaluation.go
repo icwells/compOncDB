@@ -102,12 +102,16 @@ func OperationsFromFile(columns map[string]string, infile string) [][]Evaluation
 	for _, row := range df.Rows {
 		var eval []Evaluation
 		for idx, i := range row {
-			var e Evaluation
-			e.setOperation(fmt.Sprintf("%s = %s", header[idx], i))
-			e.SetTable(columns, true)
-			eval = append(eval, e)
+			if len(strings.TrimSpace(i)) > 0 {
+				var e Evaluation
+				e.setOperation(fmt.Sprintf("%s = %s", header[idx], i))
+				e.SetTable(columns, true)
+				eval = append(eval, e)
+			}
 		}
-		ret = append(ret, eval)
+		if len(eval) > 0 {
+			ret = append(ret, eval)
+		}
 	}
 	return ret
 }

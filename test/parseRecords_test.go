@@ -17,6 +17,7 @@ var (
 	lifehistory  = "input/testLifeHistories.csv"
 	parseout     = "merged.csv"
 	password     = flag.String("password", "", "MySQL password.")
+	searchfile   = "input/testSearch.csv"
 	service      = "NWZP"
 	taxa         = "input/taxonomies.csv"
 	updatefile   = "input/testUpdate.csv"

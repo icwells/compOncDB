@@ -167,16 +167,13 @@ func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, c
 		if s.msg != "" {
 			fmt.Print(s.msg)
 		} else {
-			fmt.Printf("\tFound %d records where %s.\n", res.Length(), i[0])
+			fmt.Printf("\tFound %d records where %s.\n", res.Length(), i[0].String())
 		}
 		if idx == 0 {
 			ret = res
 		} else if res.Length() > 0 {
-			for _, i := range res.Rows {
-				ret.AddRow(i)
-			}
+			ret.Extend(res)
 		}
-		fmt.Println(i, ret.Length())
 	}
 	return ret, fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 }
