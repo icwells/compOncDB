@@ -157,11 +157,11 @@ func (o *Output) searchDB() {
 		res = dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, eval)
 		name = fmt.Sprintf("cancerRates.min%d", opt.Min)
 	} else if o.Flash == "" {
-		res, o.Count = dbextract.SearchColumns(o.db, "", eval, opt.Count, opt.Infant)
+		res, o.Count = dbextract.SearchColumns(o.db, "", eval, false, opt.Infant)
 		name = o.User
 	}
 	if o.Flash == "" {
-		if opt.Count == false && res.Length() >= 1 {
+		if res.Length() >= 1 {
 			// Format link for download whether or not results are printed to screen
 			o.getTempFile(name)
 			res.ToCSV(o.Outfile)

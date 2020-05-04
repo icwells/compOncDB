@@ -12,7 +12,6 @@ import (
 
 type Options struct {
 	Cancerrate  bool
-	Count       bool
 	Infant      bool
 	Lifehistory bool
 	Min         int
