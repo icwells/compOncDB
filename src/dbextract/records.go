@@ -10,14 +10,12 @@ import (
 
 type Record struct {
 	Taxonomy     []string
-	Infant       float64
 	Total        int
 	Age          float64
 	Male         int
 	Female       int
 	Cancer       int
 	Cancerage    float64
-	Adult        int
 	Malecancer   int
 	Femalecancer int
 	Lifehistory  []string
@@ -51,7 +49,7 @@ func (r *Record) String() string {
 
 func (r *Record) CalculateAvgAges() {
 	// Sets average age and average cancer age
-	r.Age = avgAge(r.Age, r.Adult)
+	r.Age = avgAge(r.Age, r.Total)
 	r.Cancerage = avgAge(r.Cancerage, r.Cancer)
 }
 
@@ -64,9 +62,9 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 	}
 	ret = append(ret, r.Taxonomy...)
 	//"AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
-	ret = append(ret, strconv.Itoa(r.Adult))
+	ret = append(ret, strconv.Itoa(r.Total))
 	ret = append(ret, strconv.Itoa(r.Cancer))
-	ret = append(ret, strconv.FormatFloat(float64(r.Cancer)/float64(r.Adult), 'f', 2, 64))
+	ret = append(ret, strconv.FormatFloat(float64(r.Cancer)/float64(r.Total), 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
 	ret = append(ret, strconv.Itoa(r.Male))

@@ -17,6 +17,7 @@ var (
 	config  = kingpin.Flag("config", "Path to config.txt (Default is in utils directory).").Default("config.txt").String()
 	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value). ").Short('e').Default("nil").String()
 	table   = kingpin.Flag("table", "Perform operations on this table only.").Default("nil").String()
+	infant  = kingpin.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 
@@ -54,7 +55,6 @@ var (
 
 	search     = kingpin.Command("search", "Searches database for matches to given term.")
 	count      = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
-	infant     = search.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 	taxonomies = search.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
 	col        = search.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
 )

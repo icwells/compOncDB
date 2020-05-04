@@ -16,6 +16,7 @@ type cancerRates struct {
 	db      *dbIO.DBIO
 	df      *dataframe.Dataframe
 	header  []string
+	infant  bool
 	lh      bool
 	min     int
 	nas     []string
@@ -23,12 +24,13 @@ type cancerRates struct {
 	records map[string]*Record
 }
 
-func newCancerRates(db *dbIO.DBIO, min int, lh bool) *cancerRates {
+func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool) *cancerRates {
 	// Returns initialized cancerRates struct
 	c := new(cancerRates)
 	c.db = db
 	c.min = min
 	c.lh = lh
+	c.infant = inf
 	c.header = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "ScientificName",
 		"TotalRecords", "CancerRecords", "CancerRate", "AverageAge(months)", "AvgAgeCancer(months)",
 		"Male", "Female", "MaleCancer", "FemaleCancer"}
@@ -71,9 +73,8 @@ func (c *cancerRates) countRecords() {
 			// Increment total
 			c.records[tid].Total++
 			age, err := c.df.GetCellFloat(idx, "Age")
-			if err == nil && age > c.records[tid].Infant {
+			if err == nil {
 				// Increment adult if age is greater than age of infancy
-				c.records[tid].Adult++
 				c.records[tid].Age = c.records[tid].Age + age
 				sex, er := c.df.GetCell(idx, "Sex")
 				if er == nil {
@@ -106,7 +107,6 @@ func (c *cancerRates) appendLifeHistory() {
 	for k, v := range c.records {
 		if lh, ex := lifehist[k]; ex {
 			v.Lifehistory = lh
-			v.Infant, _ = strconv.ParseFloat(lh[4], 64)
 		} else {
 			v.Lifehistory = c.nas
 		}
@@ -119,7 +119,6 @@ func (c *cancerRates) addDenominators() {
 		if _, ex := c.records[k]; ex {
 			if t, err := strconv.Atoi(v[0]); err == nil {
 				c.records[k].Total += t
-				c.records[k].Adult += t
 			}
 		}
 	}
@@ -160,12 +159,12 @@ func (c *cancerRates) setDataframe(eval [][]codbutils.Evaluation, nec bool) {
 		// Set evaluation to return everything
 		eval = codbutils.SetOperations(c.db.Columns, "ID > 0")
 	}
-	c.df, _ = SearchColumns(c.db, "", eval, false, false)
+	c.df, _ = SearchColumns(c.db, "", eval, false, c.infant)
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval [][]codbutils.Evaluation) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval [][]codbutils.Evaluation) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
-	c := newCancerRates(db, min, lh)
+	c := newCancerRates(db, min, lh, inf)
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
 	c.setDataframe(eval, nec)
 	c.getTargetSpecies()
@@ -175,7 +174,7 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval [][]codbutils.Eva
 	return c.rates
 }
 
-func SearchCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval, infile string) *dataframe.Dataframe {
+func SearchCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval, infile string) *dataframe.Dataframe {
 	// Wraps call to GetCancerRates
 	var e [][]codbutils.Evaluation
 	if eval != "nil" {
@@ -183,5 +182,5 @@ func SearchCancerRates(db *dbIO.DBIO, min int, nec, lh bool, eval, infile string
 	} else if infile != "nil" {
 		e = codbutils.OperationsFromFile(db.Columns, infile)
 	}
-	return GetCancerRates(db, min, nec, lh, e)
+	return GetCancerRates(db, min, nec, inf, lh, e)
 }
