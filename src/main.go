@@ -17,7 +17,6 @@ var (
 	config  = kingpin.Flag("config", "Path to config.txt (Default is in utils directory).").Default("config.txt").String()
 	eval    = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value). ").Short('e').Default("nil").String()
 	table   = kingpin.Flag("table", "Perform operations on this table only.").Default("nil").String()
-	infant  = kingpin.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 
@@ -43,20 +42,19 @@ var (
 	clean  = update.Flag("clean", "Remove extraneous records from the database.").Default("false").Bool()
 	del    = update.Flag("delete", "Delete records if column = value.").Default("false").Bool()
 
-	extract  = kingpin.Command("extract", "Extract data from the database and perform optional analyses.")
-	dump     = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
-	dumpdb   = extract.Flag("dump_db", "Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).").Default("false").Bool()
-	reftaxa  = extract.Flag("reference_taxonomy", "Returns merged common and taxonomy tables.").Short('r').Default("false").Bool()
-	sum      = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
-	cr       = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
-	lifehist = extract.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
-	min      = extract.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
-	nec      = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
-
-	search     = kingpin.Command("search", "Searches database for matches to given term.")
-	count      = search.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
-	taxonomies = search.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
-	col        = search.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
+	extract    = kingpin.Command("extract", "Extract data from the database and perform optional analyses or searches.")
+	col        = extract.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
+	count      = extract.Flag("count", "Returns count of target records instead of printing entire records.").Default("false").Bool()
+	cr         = extract.Flag("cancerRate", "Calculates cancer rates for species with greater than min entries.").Default("false").Bool()
+	dump       = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
+	dumpdb     = extract.Flag("dump_db", "Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).").Default("false").Bool()
+	infant     = extract.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
+	lifehist   = extract.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
+	min        = extract.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
+	nec        = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
+	reftaxa    = extract.Flag("reference_taxonomy", "Returns merged common and taxonomy tables.").Short('r').Default("false").Bool()
+	sum        = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
+	taxonomies = extract.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
 )
 
 func version() {
@@ -86,8 +84,6 @@ func main() {
 		start = updateDB()
 	case extract.FullCommand():
 		start = extractFromDB()
-	case search.FullCommand():
-		start = searchDB()
 	}
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }
