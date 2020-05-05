@@ -9,12 +9,10 @@ Copyright 2019 by Shawn Rupp
 2. [Installation](#Installation)  
 3. [Usage](#Usage)  
 4. [Commands](#Commands)  
-5. [parseRecords](#parseRecords)
 
 ## Description  
-compOncDB is a program written to manage veterinary pathology data and identify cancer records using  a MySQL database. 
-The accompanying parseRecords tool can be used to extract diagnosis information from an input file. It can then be used 
-to merge the source data, diagnosis output, and taxonomy information into a format ready for upload to the MySQL database. 
+compOncDB is a program written to manage veterinary pathology data and identify cancer records using a MySQL database. 
+The parse command can be used to extract diagnosis information from an input file. 
 The program provides basic CRUD (create, read, update, delete) functionality, as well as specific analysis functions. 
 These include calculating cancer rates per species, calculating summary statistics, and searching for specific records.  
 
@@ -84,8 +82,7 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 	parse			Parse and organize records for upload to the comparative oncology database.  
 	upload			Upload data to the database.  
 	update			Update or delete existing records from the database.  
-	extract			Extract data from the database and perform optional analyses.  
-	search			Searches database for matches to given term.  
+	extract			Extract data from the database and perform optional analyses or searches.  
 
 ### Commands  
 
@@ -115,6 +112,7 @@ to make a csv file ready to upload to the MySQL database.
 	-o, --outfile=OUTFILE			Path to output file (required).  
 	-s, --service=SERVICE			Database/service name (required).  
 	-t, --taxa="nil"			Path to kestrel output (used with the merge command).  
+	-d, --debug				Adds cancer and code column (if present) for hand checking.  
 
 #### Upload  
 	compOncDB upload {-u username} --{type_from_list_below} -i infile
@@ -172,30 +170,23 @@ a matching taxonomic level would be updated.
 
 	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"	Path to config.txt (Default is in utils directory).  
-	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
-	--summarize		Compiles basic summary statistics of the database.  
+	-e, --eval="nil"	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas).  
+	--table="nil"		Perform operations on this table only.  
 	--cancerRate		Calculates cancer rates for species with greater than min entries.  
-	-m, --min=50		Minimum number of entries required for calculations (default = 50).  
+	--count			Returns count of target records instead of printing entire records.  
+	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
+	--infant		Include infant records in results (excluded by default).  
+	-m, --min=50		Minimum number of entries required for calculations (default = 50).
+  	-n, --names=0		Column of input file containing scientific/common species names to search.  
 	--necropsy		Extract only necropsy records (extracts all matches by default).  
+	--summarize		Compiles basic summary statistics of the database.  
+	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
 
+	-i infile		Path to input file (see below for formatting).  
 	-o outfile		Name of output file (writes to stdout if not given).  
 
 Extract data from the database and perform optional analyses.  
 
-#### Search  
-	compOncDB search {-u username} {--flags...} {-o outfile}
 
-	-u, --user="root"	MySQL username (default is root).  
-	--config="config.txt"	Path to config.txt (Default is in utils directory).  
-	-l, --level="Species"	Taxonomic level of taxon (or entries in taxon file)(default = Species).  
-	-t, --taxa="nil"	Name of taxonomic unit to extract data for or path to file with single column of units.  
-	--count			Returns count of target records instead of printing entire records.  
-	-e, --eval="nil"	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas).  
-	--table="nil"		Perform operations on this table only.  
-	--infant		Include infant records in results (excluded by default).  
-	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
-	-n, --names=0		Column of input file containing scientific/common species names to search.  
-
-	-o outfile		Name of output file (writes to stdout if not given).  
 
 Searches database for matches to given criteria. For most tables, the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.  
