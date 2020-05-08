@@ -9,6 +9,7 @@ Copyright 2019 by Shawn Rupp
 2. [Installation](#Installation)  
 3. [Usage](#Usage)  
 4. [Commands](#Commands)  
+5. [Extracting Data](#Extract)
 
 ## Description  
 compOncDB is a program written to manage veterinary pathology data and identify cancer records using a MySQL database. 
@@ -170,7 +171,7 @@ a matching taxonomic level would be updated.
 
 	-u, --user="root"	MySQL username (default is root).  
 	--config="config.txt"	Path to config.txt (Default is in utils directory).  
-	-e, --eval="nil"	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks and seperate multiple statements with commas).  
+	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).    
 	--table="nil"		Perform operations on this table only.  
 	--cancerRate		Calculates cancer rates for species with greater than min entries.  
 	--count			Returns count of target records instead of printing entire records.  
@@ -185,8 +186,20 @@ a matching taxonomic level would be updated.
 	-i infile		Path to input file (see below for formatting).  
 	-o outfile		Name of output file (writes to stdout if not given).  
 
-Extract data from the database and perform optional analyses.  
+Extract data from the database and perform optional analyses or searches.  
 
+For searching most tables, the only valid operators for the eval flag are = (or ==), !=, or ^. For searching the Totals or Life_history tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.  
 
+If an input file is specified, it should follow a similar format to the update file, with the exception that every column will be used as a search criterion. Each line of the file represents a seperate search, while each column of the row will be added the same search and will be cumulative. The program will search for matches where the value in the file equals the value in the given column (empty cells will be skipped). Therefore:
 
-Searches database for matches to given criteria. For most tables, the only valid operator for the eval flag is = (or ==). For searching the Totals or Life_history tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.  
+	taxa_id	Age	Masspresent
+		20	
+	2		0
+	3	10	1
+
+will search for any match where Age == 20, records where taxa_id == 2 and Masspresent == 0, and records where taxa_id == 3, Age == 10, and Masspresent == 1.  
+
+The "--cancerRate" flag will return the cancer rates by species for records matching given search criteria. The "--min" flag specifies the minimum number of species required to report cancer rates.  
+
+Taxonomy information can be extracted for target species in a given input file by specifying the "--taxonomies" flag. 
+This will search for matches in the "-n" column of an input file (the first column by default). The species names can be either common or scientific names.
