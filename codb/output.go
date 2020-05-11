@@ -112,39 +112,6 @@ func (o *Output) extractTable() {
 	}
 }
 
-/*func (o *Output) cancerRates(eval map[string][]codbutils.Evaluation, opt *Options) *dataframe.Dataframe {
-	// Calculates cancer rates for matching criteria
-	var e []codbutils.Evaluation
-	ret, _ := dataframe.NewDataFrame(-1)
-	if _, ex := eval["0"]; ex {
-		e = eval["0"]
-	}
-	ret = dbextract.GetCancerRates(o.db, opt.Min, false, opt.Necropsy, opt.Lifehistory, e)
-	return ret
-}
-
-func (o *Output) getSearchResults(eval map[string][]codbutils.Evaluation, opt *Options) *dataframe.Dataframe {
-	// Searches database for results
-	res, _ := dataframe.NewDataFrame(-1)
-	// Search for column/value match
-	for _, v := range eval {
-		r, msg := dbextract.SearchColumns(o.db, "", v, opt.Count, opt.Infant)
-		if o.Count == "" && r.Length() == 0 {
-			// Record single error message
-			o.Count = msg
-		}
-		if res.Length() == 0 {
-			res = r
-		} else {
-			// Append successive results to results slice
-			for _, i := range r.Rows {
-				res.AddRow(i)
-			}
-		}
-	}
-	return res
-}*/
-
 func (o *Output) searchDB() {
 	// Performs searches and cancer rate calculations
 	var name string

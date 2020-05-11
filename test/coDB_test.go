@@ -138,7 +138,7 @@ func TestSearches(t *testing.T) {
 		}
 	}
 	// Test searching from file. Given search criteria will only match canis results.
-	res, _ := dbextract.SearchDatabase(db, "nil", "nil", searchfile, false, false)
+	res, _ := dbextract.SearchDatabase(db, "nil", "nil", searchfile, false)
 	compareTables(t, "testSearch", getCanisResults(), res)
 }
 

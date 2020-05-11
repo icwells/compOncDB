@@ -178,7 +178,7 @@ func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, i
 	return ret, fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 }
 
-func SearchDatabase(db *dbIO.DBIO, table, eval, infile string, count, infant bool) (*dataframe.Dataframe, string) {
+func SearchDatabase(db *dbIO.DBIO, table, eval, infile string, infant bool) (*dataframe.Dataframe, string) {
 	// Directs queries to appropriate functions
 	var e [][]codbutils.Evaluation
 	if eval != "nil" && eval != ""  {

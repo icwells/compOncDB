@@ -116,7 +116,7 @@ func updateDB() time.Time {
 
 func writeDF(table *dataframe.Dataframe) {
 	// Writes dataframe to file/screen
-	if *count == false && table.Length() >= 1 {
+	if table.Length() >= 1 {
 		if *outfile != "nil" {
 			table.ToCSV(*outfile)
 		} else {
@@ -147,7 +147,7 @@ func extractFromDB() time.Time {
 		writeDF(dbextract.SearchSpeciesNames(db, names))
 	} else if *eval != "nil" || *infile != "nil" {
 		// Search for column/value match
-		res, msg := dbextract.SearchDatabase(db, *table, *eval, *infile, *count, *infant)
+		res, msg := dbextract.SearchDatabase(db, *table, *eval, *infile, *infant)
 		if msg != "" {
 			fmt.Print(msg)
 			writeDF(res)
