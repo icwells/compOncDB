@@ -114,22 +114,22 @@ if [ $# -eq 0 ]; then
 elif [ $1 = "all" ]; then
 	getUser
 	whiteBoxTests
-	./install.sh
+	./install.sh main
 	testParseRecords
 	testDataBase
 elif [ $1 = "whitebox" ]; then
 	whiteBoxTests
 elif [ $1 = "blackbox" ]; then
 	getUser
-	./install.sh
+	./install.sh main
 	testParseRecords
 	testDataBase
 elif [ $1 = "parse" ]; then
-	./install.sh
+	./install.sh main
 	testParseRecords
 elif [ $1 = "db" ]; then
 	getUser
-	./install.sh
+	./install.sh main
 	testDataBase
 elif [ $1 = "fmt" ]; then
 	checkSource $1
