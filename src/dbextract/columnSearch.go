@@ -136,7 +136,7 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 	}
 }
 
-func columnSearch(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, count, inf bool) *searcher {
+func columnSearch(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, inf bool) *searcher {
 	// Determines search procedure
 	s := newSearcher(db, inf)
 	s.assignSearch(eval)
@@ -147,7 +147,7 @@ func columnSearch(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, coun
 		if table != "" && table != "nil" {
 			// Return results from single table
 			s.searchSingleTable(table)
-		} else if count == false {
+		} else {
 			// res and ids must be set first
 			s.appendDiagnosis()
 			s.appendTaxonomy()
@@ -157,12 +157,12 @@ func columnSearch(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, coun
 	return s
 }
 
-func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, count, inf bool) (*dataframe.Dataframe, string) {
+func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, inf bool) (*dataframe.Dataframe, string) {
 	// Wraps calls to columnSearch
 	var ret *dataframe.Dataframe
 	fmt.Println("\tSearching for matching records...")
 	for idx, i := range eval {
-		s := columnSearch(db, table, i, count, inf)
+		s := columnSearch(db, table, i, inf)
 		res := s.toDF()
 		if s.msg != "" {
 			fmt.Print(s.msg)
@@ -181,11 +181,11 @@ func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, c
 func SearchDatabase(db *dbIO.DBIO, table, eval, infile string, count, infant bool) (*dataframe.Dataframe, string) {
 	// Directs queries to appropriate functions
 	var e [][]codbutils.Evaluation
-	if eval != "nil" {
+	if eval != "nil" && eval != ""  {
 		// Search for column/value match
 		e = codbutils.SetOperations(db.Columns, eval)
-	} else if infile != "nil" {
+	} else if infile != "nil" && infile != "" {
 		e = codbutils.OperationsFromFile(db.Columns, infile)
 	}
-	return SearchColumns(db, table, e, count, infant)
+	return SearchColumns(db, table, e, infant)
 }

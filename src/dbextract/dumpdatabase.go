@@ -57,7 +57,7 @@ func (d *dbCompress) getOutfile(name string) string {
 func (d *dbCompress) writeTables() {
 	// Writes tables to outdir
 	fmt.Println("\n\tExtracting database tables...")
-	df, _ := SearchColumns(d.db, "", codbutils.SetOperations(d.db.Columns, "ID > 0"), false, false)
+	df, _ := SearchColumns(d.db, "", codbutils.SetOperations(d.db.Columns, "ID > 0"), false)
 	df.ToCSV(d.getOutfile("Records"))
 	for _, i := range d.tables {
 		table := d.db.GetTable(i)

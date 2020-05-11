@@ -159,7 +159,7 @@ func (c *cancerRates) setDataframe(eval [][]codbutils.Evaluation, nec bool) {
 		// Set evaluation to return everything
 		eval = codbutils.SetOperations(c.db.Columns, "ID > 0")
 	}
-	c.df, _ = SearchColumns(c.db, "", eval, false, c.infant)
+	c.df, _ = SearchColumns(c.db, "", eval, c.infant)
 }
 
 func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval [][]codbutils.Evaluation) *dataframe.Dataframe {

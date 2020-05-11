@@ -130,7 +130,7 @@ func TestSearches(t *testing.T) {
 	db := connectToDatabase()
 	cases := newSearchCases(db.Columns)
 	for _, i := range cases {
-		res, _ := dbextract.SearchColumns(db, i.table, i.eval, false, false)
+		res, _ := dbextract.SearchColumns(db, i.table, i.eval, false)
 		if i.name == "fox" && res.Length() > 0 {
 			t.Error("Results returned for gray fox (not present).")
 		} else {
