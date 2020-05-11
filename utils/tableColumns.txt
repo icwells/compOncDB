@@ -45,6 +45,7 @@ taxa_id INT
 source_id TEXT
 source_name TEXT
 Date TEXT
+Year INT
 Comments TEXT
 
 # Source
