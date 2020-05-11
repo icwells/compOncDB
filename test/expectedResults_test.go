@@ -79,9 +79,9 @@ func getCanisResults() *dataframe.Dataframe {
 	// Returns map of results for male canis records
 	s := [][]string{
 		{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis", "primary_tumor", "Malignant", "Type", "Location", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "service_name", "Zoo", "Aza", "Institute", "account_id"},
-		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "2001", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "1"},
-		{"12", "male", "60", "-1", "2", "12", "wolf", "NA", "2001", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "2"},
-		{"17", "male", "144", "1", "2", "17", "GRAY WOLF", "NA", "2001", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "2"},
+		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "1"},
+		{"12", "male", "60", "-1", "2", "12", "wolf", "NA", "1990", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "2"},
+		{"17", "male", "144", "1", "2", "17", "GRAY WOLF", "NA", "2016", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "2"},
 	}
 	return setDF(s)
 }
@@ -90,7 +90,7 @@ func getCoyoteResults() *dataframe.Dataframe {
 	// Returns map of coyote records
 	s := [][]string{
 		{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis", "primary_tumor", "Malignant", "Type", "Location", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "service_name", "Zoo", "Aza", "Institute", "account_id"},
-		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "2001", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "1"},
+		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "1"},
 	}
 	return setDF(s)
 }

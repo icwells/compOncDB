@@ -36,7 +36,7 @@ func (e *entries) getSubmitter(line []string) []string {
 }
 
 func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, out *os.File, line []string) {
-	// Returns formatted string and true if it should be written
+	// Write or stores formatted string
 	defer wg.Done()
 	write := false
 	rec := newRecord()
@@ -63,6 +63,7 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 		}
 		rec.name = subsetLine(idx, line)
 		rec.setDate(subsetLine(e.col.date, line))
+		rec.setYear(subsetLine(e.col.year, line))
 		rec.setComments(subsetLine(e.col.comments, line))
 		rec.service = e.service
 		rec.setAccount(subsetLine(e.col.account, line))
@@ -93,7 +94,7 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 
 func (e *entries) getHeader(debug bool) string {
 	// Returns appropriate header for available data
-	head := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Comments,"
+	head := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Year,Comments,"
 	head += "MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant"
 	head += ",Service,Account,Submitter,Zoo,AZA,Institute"
 	if debug == true {
