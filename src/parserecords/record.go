@@ -3,8 +3,12 @@
 package parserecords
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 )
+
+var DIGIT = regexp.MustCompile(`([0-9]*[.])?[0-9]+`)
 
 func checkString(val string) string {
 	// Returns NA if string is malformed
@@ -38,6 +42,7 @@ type record struct {
 	species     string
 	name        string
 	date        string
+	year        string
 	comments    string
 	massPresent string
 	hyperplasia string
@@ -68,6 +73,7 @@ func newRecord() record {
 	r.genus = "NA"
 	r.species = "NA"
 	r.date = "NA"
+	r.year = "-1"
 	r.comments = "NA"
 	r.massPresent = "0"
 	r.hyperplasia = "0"
@@ -91,20 +97,13 @@ func newRecord() record {
 
 func (r *record) String(debug bool) string {
 	// Returns formatted string
-	var buffer strings.Builder
-	columns := []string{r.sex, r.age, r.castrated, r.id, r.genus, r.species, r.name, r.date, r.comments}
+	columns := []string{r.sex, r.age, r.castrated, r.id, r.genus, r.species, r.name, r.date, r.year, r.comments}
 	columns = append(columns, []string{r.massPresent, r.hyperplasia, r.necropsy, r.metastasis, r.tumorType, r.location, r.primary, r.malignant}...)
 	columns = append(columns, []string{r.service, r.account, r.submitter, r.zoo, r.aza, r.institute}...)
 	if debug {
 		columns = append(columns, []string{r.cancer, r.code}...)
 	}
-	for idx, i := range columns {
-		if idx > 0 {
-			buffer.WriteByte(',')
-		}
-		buffer.WriteString(strings.TrimSpace(i))
-	}
-	return buffer.String()
+	return strings.Join(columns, ",")
 }
 
 func (r *record) setPatient(line []string, c columns) {
@@ -134,6 +133,24 @@ func (r *record) setSubmitter(v []string) {
 func (r *record) setDate(val string) {
 	//Store date/NA
 	r.date = checkString(val)
+}
+
+func (r *record) setYear(val string) {
+	//Stores year in 4 digit format
+	if val = checkString(val); val != "NA" {
+		year := DIGIT.FindString(val)
+		if len(year) == 2 {
+			if y, _ := strconv.Atoi(year); y > 50 {
+				year = "19" + year
+			} else {
+				year = "20" + year
+			}
+
+		}
+		if len(year) == 4 {
+			r.year = year
+		}
+	}
 }
 
 func (r *record) setComments(val string) {

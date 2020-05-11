@@ -29,7 +29,7 @@ func setEntries() *entries {
 	e := newEntries(nil, false)
 	e.count = 0
 	e.col = make(map[string]int)
-	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "AZA", "Institute"}
+	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Year", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "AZA", "Institute"}
 	for idx, i := range s {
 		e.col[i] = idx
 	}
@@ -48,10 +48,10 @@ func getExpected() *entries {
 	e := newEntries(nil, false)
 	e.count = 4
 	e.p = [][]string{
-		[]string{"1", "male", "-1.00", "-1", "1", "1", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR"},
-		[]string{"2", "NA", "-1.00", "-1", "1", "2", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS"},
-		[]string{"3", "male", "24.00", "-1", "1", "3", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male"},
-		[]string{"4", "NA", "-1.00", "-1", "1", "4", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"},
+		[]string{"1", "male", "-1.00", "-1", "1", "1", "coyote", "12-Dec", "2001", "Biopsy: NORMAL BLOOD SMEAR"},
+		[]string{"2", "NA", "-1.00", "-1", "1", "2", "coyote", "13-Jan", "2001", "ERYTHROPHAGOCYTOSIS"},
+		[]string{"3", "male", "24.00", "-1", "1", "3", "coyote", "1-Dec", "2001", "Lymphoma lymph nodes 2 year old male"},
+		[]string{"4", "NA", "-1.00", "-1", "1", "4", "coyote", "1-Dec", "2001", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"},
 	}
 	e.d = [][]string{
 		[]string{"1", "0", "0", "0", "-1"},
@@ -78,10 +78,10 @@ func getExpected() *entries {
 func getInput() [][]string {
 	// Returns input slice for testing
 	return [][]string{
-		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
-		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
-		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
-		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "2001", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "2001", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "2001", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "2001", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
 	}
 }
 

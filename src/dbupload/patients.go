@@ -169,7 +169,7 @@ func (e *entries) addPatient(id, taxaid, age string, row []string) {
 		row[e.col["ID"]] = "-1"
 	}
 	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
-	p := []string{id, row[e.col["Sex"]], age, row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Name"]], row[e.col["Date"]], row[e.col["Comments"]]}
+	p := []string{id, row[e.col["Sex"]], age, row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Name"]], row[e.col["Date"]], row[e.col["Year"]], row[e.col["Comments"]]}
 	e.p = append(e.p, p)
 }
 

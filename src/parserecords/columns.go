@@ -7,26 +7,27 @@ import (
 )
 
 type columns struct {
-	id         int
-	species    int
-	common     int
-	age        int
-	days       int
-	sex        int
-	castrated  int
-	location   int
-	typ        int
-	primary    int
-	metastasis int
-	malignant  int
-	necropsy   int
-	date       int
-	comments   int
 	account    int
-	submitter  int
+	age        int
+	castrated  int
 	code       int
-	patient    int
+	comments   int
+	common     int
+	date       int
+	days       int
+	id         int
+	location   int
+	malignant  int
 	max        int
+	metastasis int
+	necropsy   int
+	patient    int
+	primary    int
+	sex        int
+	species    int
+	submitter  int
+	typ        int
+	year       int
 }
 
 func newColumns() columns {
@@ -125,6 +126,9 @@ func (c *columns) setColumns(header []string) {
 			c.maxIndex(idx)
 		} else if i == "Patient" || i == "Name" {
 			c.patient = idx
+			c.maxIndex(idx)
+		} else if i == "Year" {
+			c.year = idx
 			c.maxIndex(idx)
 		}
 	}
