@@ -3,7 +3,6 @@
 package parserecords
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -140,7 +139,6 @@ func (r *record) setYear(val string) {
 	//Stores year in 4 digit format
 	if val = checkString(val); val != "NA" {
 		year := DIGIT.FindString(val)
-		fmt.Println(year)
 		if len(year) == 2 {
 			if y, _ := strconv.Atoi(year); y > 50 {
 				year = "19" + year
