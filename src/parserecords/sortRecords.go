@@ -4,6 +4,7 @@ package parserecords
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/iotools"
 	"os"
 	"strings"
@@ -92,17 +93,6 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 	}
 }
 
-func (e *entries) getHeader(debug bool) string {
-	// Returns appropriate header for available data
-	head := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Year,Comments,"
-	head += "MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant"
-	head += ",Service,Account,Submitter,Zoo,AZA,Institute"
-	if debug == true {
-		head += ",Cancer,Code"
-	}
-	return head + "\n"
-}
-
 func (e *entries) SortRecords(debug bool, infile, outfile string) {
 	// Sorts data and merges if necessary
 	first := true
@@ -112,7 +102,7 @@ func (e *entries) SortRecords(debug bool, infile, outfile string) {
 	fmt.Println("\tParsing input records...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
-	out := e.getOutputFile(outfile, e.getHeader(debug))
+	out := e.getOutputFile(outfile, codbutils.ParseHeader(debug))
 	defer out.Close()
 	scanner := iotools.GetScanner(f)
 	for scanner.Scan() {

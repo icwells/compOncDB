@@ -11,7 +11,6 @@ import (
 )
 
 var (
-	config       = "config.txt"
 	denominators = "input/testDenominators.csv"
 	infile       = "input/testInput.csv"
 	lifehistory  = "input/testLifeHistories.csv"

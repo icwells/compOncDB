@@ -40,12 +40,12 @@ type Configuration struct {
 	Test     bool
 }
 
-func SetConfiguration(config, user string, test bool) Configuration {
+func SetConfiguration(user string, test bool) Configuration {
 	// Gets setting from config.txt
 	var c Configuration
 	c.Test = test
 	c.User = user
-	f := iotools.OpenFile(getAbsPath(config))
+	f := iotools.OpenFile(getAbsPath("config.txt"))
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
 	for scanner.Scan() {

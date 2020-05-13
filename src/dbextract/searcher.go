@@ -3,6 +3,7 @@
 package dbextract
 
 import (
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
@@ -29,9 +30,7 @@ func newSearcher(db *dbIO.DBIO, inf bool) *searcher {
 	s.res = make(map[string][]string)
 	s.taxa = make(map[string][]string)
 	// Add default header
-	s.header = "ID,Sex,Age,Castrated,taxa_id,source_id,source_name,Date,Year,Comments,"
-	s.header = s.header + "Masspresent,Hyperplasia,Necropsy,Metastasis,primary_tumor,Malignant,Type,Location,"
-	s.header = s.header + "Kingdom,Phylum,Class,Orders,Family,Genus,Species,service_name,Zoo,Aza,Institute,account_id"
+	s.header = strings.Join(codbutils.RecordsHeader(), ",")
 	s.db = db
 	s.infant = inf
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}

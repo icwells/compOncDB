@@ -17,7 +17,7 @@ import (
 
 func backup(pw string) {
 	// Backup database to local machine
-	c := codbutils.SetConfiguration(*config, *user, false)
+	c := codbutils.SetConfiguration(*user, false)
 	fmt.Printf("\n\tBacking up %s database to local machine...\n", c.Database)
 	datestamp := time.Now().Format("2006-01-02")
 	user := fmt.Sprintf("-u%s", *user)
@@ -35,7 +35,7 @@ func backup(pw string) {
 
 func newDatabase() time.Time {
 	// Creates new database and tables
-	c := codbutils.SetConfiguration(*config, *user, false)
+	c := codbutils.SetConfiguration(*user, false)
 	db := dbIO.CreateDatabase(c.Host, c.Database, *user)
 	db.NewTables(c.Tables)
 	return db.Starttime
@@ -62,7 +62,7 @@ func uploadToDB() time.Time {
 		fmt.Print("\n\t[Error] Please specify input file. Exiting.\n\n")
 		os.Exit(1)
 	}
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
 	if *taxa == true {
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *infile, *common)
@@ -88,7 +88,7 @@ func uploadToDB() time.Time {
 
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
 	if *clean == true {
 		dbextract.AutoCleanDatabase(db)
 		codbutils.UpdateTimeStamp(db)
@@ -127,7 +127,7 @@ func writeDF(table *dataframe.Dataframe) {
 
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*config, *user, false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
 	if *cr {
 		// Extract cancer rates
 		writeDF(dbextract.SearchCancerRates(db, *min, *nec, *infant, *lifehist, *eval, *infile))

@@ -85,7 +85,7 @@ func setConfiguration() *configuration {
 	c.u = setURLs()
 	c.temp = setTemps()
 	c.templates = template.Must(template.ParseGlob(c.temp.source))
-	c.config = codbutils.SetConfiguration("config.txt", "", false)
+	c.config = codbutils.SetConfiguration("", false)
 	return &c
 }
 

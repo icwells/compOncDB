@@ -31,9 +31,7 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool) *cancerRates {
 	c.min = min
 	c.lh = lh
 	c.infant = inf
-	c.header = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "ScientificName",
-		"TotalRecords", "CancerRecords", "CancerRate", "AverageAge(months)", "AvgAgeCancer(months)",
-		"Male", "Female", "MaleCancer", "FemaleCancer"}
+	c.header = codbutils.CancerRateHeader()
 	if c.lh {
 		// Omit taxa_id column
 		tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]

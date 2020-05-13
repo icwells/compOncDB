@@ -31,6 +31,7 @@ func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 	ec, er := exp.Dimensions()
 	if ac != ec && ar != er {
 		t.Errorf("Actual %s dimensions [%d, %d] do not equal expected: [%d, %d]", name, ac, ar, ec, er)
+		t.Error(exp.GetHeader())
 	} else {
 		for key := range act.Index {
 			for k := range act.Header {
@@ -65,7 +66,7 @@ func TestUpload(t *testing.T) {
 	flag.Parse()
 	exp := getExpectedTables()
 	// Get empty database
-	c := codbutils.SetConfiguration(config, *user, true)
+	c := codbutils.SetConfiguration(*user, true)
 	db := dbIO.ReplaceDatabase(c.Host, c.Testdb, *user, *password)
 	db.NewTables(c.Tables)
 	// Replace column names
@@ -95,7 +96,7 @@ func TestUpload(t *testing.T) {
 func connectToDatabase() *dbIO.DBIO {
 	// Manages call to Connect and GetTableColumns
 	flag.Parse()
-	c := codbutils.SetConfiguration(config, *user, true)
+	c := codbutils.SetConfiguration(*user, true)
 	db, err := dbIO.Connect(c.Host, c.Testdb, c.User, *password)
 	if err != nil {
 		os.Exit(1000)

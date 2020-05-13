@@ -3,8 +3,11 @@
 package main
 
 import (
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/dataframe"
 )
+
+var H = codbutils.NewHeaders()
 
 func setDF(s [][]string) *dataframe.Dataframe {
 	// Initializes dataframe with given data
@@ -19,7 +22,7 @@ func setDF(s [][]string) *dataframe.Dataframe {
 func getAccounts() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
-		{"account_id", "Account", "submitter_name"},
+		H.Accounts,
 		{"1", "X520", "XYZ"},
 		{"2", "A16", "Kv Zoo"},
 	}
@@ -29,7 +32,7 @@ func getAccounts() *dataframe.Dataframe {
 func getCommon() *dataframe.Dataframe {
 	// Returns dataframe of common names
 	s := [][]string{
-		{"taxa_id", "Name", "Curator"},
+		H.Common,
 		{"1", "Coyote", "Shake"},
 		{"2", "Wolf", "Shake"},
 		{"3", "Gray Fox", "Shake"},
@@ -40,7 +43,7 @@ func getCommon() *dataframe.Dataframe {
 func getDenominators() *dataframe.Dataframe {
 	// Returns dataframe of noncancer denominators
 	s := [][]string{
-		{"taxa_id", "Noncancer"},
+		H.Denominators,
 		{"3", "1"},
 	}
 	return setDF(s)
@@ -49,7 +52,7 @@ func getDenominators() *dataframe.Dataframe {
 func getDiagnosis() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
-		{"ID", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis"},
+		H.Diagnosis,
 		{"1", "0", "0", "0", "-1"},
 		{"2", "0", "0", "-1", "-1"},
 		{"3", "1", "0", "-1", "-1"},
@@ -76,7 +79,7 @@ func getDiagnosis() *dataframe.Dataframe {
 func getLifeHistory() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
-		{"taxa_id", "female_maturity", "male_maturity", "Gestation", "Weaning", "Infancy", "litter_size", "litters_year", "interbirth_interval", "birth_weight", "weaning_weight", "adult_weight", "growth_rate", "max_longevity", "metabolic_rate"},
+		H.Life_history,
 		{"1", "274", "274", "2.07100591715976", "1.9723865877712", "1.9723865877712", "5.72", "1.1", "365", "250", "1517", "13250", "0.0183", "261.6", "19.423"},
 		{"2", "669", "669", "2.03813280736358", "1.54503616042078", "1.54503616042078", "4.98", "0.8", "365", "450", "5250", "26625", "0.0177", "247.2", "33100"},
 		{"3", "345", "365", "1.87376725838264", "1.80802103879027", "1.80802103879027", "3.71", "1.1", "365", "95", "519.7", "4750", "0.0127", "194.4", "-1"},
@@ -87,7 +90,7 @@ func getLifeHistory() *dataframe.Dataframe {
 func getPatient() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
-		{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments"},
+		H.Patient,
 		{"1", "male", "-1", "-1", "1", "1", "Coyote", "12-Dec", "2011", "Biopsy: NORMAL BLOOD SMEAR"},
 		{"2", "NA", "-1", "-1", "1", "2", "Coyote", "13-Jan", "2011", "ERYTHROPHAGOCYTOSIS"},
 		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male"},
@@ -114,7 +117,7 @@ func getPatient() *dataframe.Dataframe {
 func getSource() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
-		{"ID", "service_name", "Zoo", "Aza", "Institute", "account_id"},
+		H.Source,
 		{"1", "NWZP", "0", "0", "0", "1"},
 		{"2", "NWZP", "0", "0", "0", "1"},
 		{"3", "NWZP", "0", "0", "0", "1"},
@@ -141,7 +144,7 @@ func getSource() *dataframe.Dataframe {
 func getTaxonomy() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
-		{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "Source"},
+		H.Taxonomy,
 		{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52440711`},
 		{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52624675`},
 		{"3", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Urocyon", "Urocyon cinereoargenteus", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52578011`},
@@ -152,7 +155,7 @@ func getTaxonomy() *dataframe.Dataframe {
 func getTumor() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
-		{"ID", "primary_tumor", "Malignant", "Type", "Location"},
+		H.Tumor,
 		{"1", "0", "-1", "NA", "NA"},
 		{"2", "0", "-1", "NA", "NA"},
 		{"3", "1", "1", "lymphoma", "lymph nodes"},
