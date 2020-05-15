@@ -9,10 +9,6 @@
 APP="codbApplication"
 MAIN="compOncDB"
 
-# Get install location
-SYS=$(ls $GOPATH/pkg | head -1)
-PDIR=$GOPATH/pkg/$SYS
-
 installMain () {
 	# compOncDB 
 	echo "Building $MAIN..."
