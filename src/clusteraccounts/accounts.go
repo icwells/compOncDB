@@ -83,7 +83,7 @@ func (a *Accounts) readAccounts(infile string) {
 			s := strings.Split(line, delim)
 			a.Queries.Add(s[sub])
 		} else {
-			delim = iotools.GetDelim(line)
+			delim, _ = iotools.GetDelim(line)
 			sub = a.getIndeces(strings.Split(line, delim))
 			first = false
 			if sub == -1 {

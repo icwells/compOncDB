@@ -71,7 +71,7 @@ func newUpdater(db *dbIO.DBIO) updater {
 
 func (u *updater) setHeader(line string) {
 	// Stores input file columns to database tables and columns
-	u.delim = iotools.GetDelim(line)
+	u.delim, _ = iotools.GetDelim(line)
 	for idx, i := range strings.Split(line, u.delim) {
 		i = strings.TrimSpace(i)
 		if len(i) > 0 {

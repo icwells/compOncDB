@@ -41,7 +41,7 @@ func NewEntries(service, infile string) entries {
 
 func (e *entries) parseHeader(header string) {
 	// Stores column numbers and delimiter from header
-	e.d = iotools.GetDelim(header)
+	e.d, _ = iotools.GetDelim(header)
 	e.col.setColumns(strings.Split(header, e.d))
 }
 
@@ -79,7 +79,7 @@ func (e *entries) GetTaxonomy(infile string) {
 			s := strings.Split(line, d)
 			e.taxa[s[0]] = []string{s[col["Genus"]], s[col["Species"]]}
 		} else {
-			d = iotools.GetDelim(line)
+			d, _ = iotools.GetDelim(line)
 			for idx, i := range strings.Split(line, d) {
 				col[strings.TrimSpace(i)] = idx
 			}

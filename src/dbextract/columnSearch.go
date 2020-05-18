@@ -181,7 +181,7 @@ func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, i
 func SearchDatabase(db *dbIO.DBIO, table, eval, infile string, infant bool) (*dataframe.Dataframe, string) {
 	// Directs queries to appropriate functions
 	var e [][]codbutils.Evaluation
-	if eval != "nil" && eval != ""  {
+	if eval != "nil" && eval != "" {
 		// Search for column/value match
 		e = codbutils.SetOperations(db.Columns, eval)
 	} else if infile != "nil" && infile != "" {

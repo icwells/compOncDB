@@ -26,7 +26,7 @@ func NewHeaders() *Headers {
 	h.Patient = []string{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments"}
 	h.Rates = []string{"TotalRecords", "CancerRecords", "CancerRate", "AverageAge(months)", "AvgAgeCancer(months)",
 		"Male", "Female", "MaleCancer", "FemaleCancer"}
-	h.Source = []string{"ID", "service_name", "Zoo", "Aza", "Institute", "account_id"}
+	h.Source = []string{"ID", "service_name", "Zoo", "Aza", "Institute", "Approved", "account_id"}
 	h.Taxonomy = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "Source"}
 	h.Tumor = []string{"ID", "primary_tumor", "Malignant", "Type", "Location"}
 	return h

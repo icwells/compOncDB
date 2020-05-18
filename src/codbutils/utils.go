@@ -103,7 +103,7 @@ func ReadList(infile string, idx int) []string {
 				}
 			}
 		} else {
-			d = iotools.GetDelim(line)
+			d, _ = iotools.GetDelim(line)
 			first = false
 		}
 	}

@@ -42,7 +42,7 @@ func newDenominators(db *dbIO.DBIO, infile string) denominators {
 
 func (d *denominators) parseHeader(line string) {
 	// Gets delimiter and target column numbers
-	d.delim = iotools.GetDelim(line)
+	d.delim, _ = iotools.GetDelim(line)
 	s := strings.Split(line, d.delim)
 	for idx, i := range s {
 		i = strings.TrimSpace(i)

@@ -54,6 +54,7 @@ service_name TEXT
 Zoo TINYINT
 Aza TINYINT
 Institute TINYINT
+Approved TINYINT
 account_id INT
 
 # Taxonomy
