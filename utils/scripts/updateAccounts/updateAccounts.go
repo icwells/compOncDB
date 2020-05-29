@@ -171,7 +171,7 @@ func (u *updater) updateAccounts() {
 func main() {
 	start := time.Now()
 	fmt.Println("\n\tUpdating account values in database...")
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration("config.txt", "smrupp", false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration("smrupp", false))
 	u := newUpdater(db)
 	u.updateSources()
 	u.updateAccounts()

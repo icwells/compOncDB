@@ -53,7 +53,7 @@ func getSource() map[string][]string {
 func connectToDatabase() *dbIO.DBIO {
 	// Manages call to Connect and GetTableColumns
 	flag.Parse()
-	c := codbutils.SetConfiguration("config.txt", *user, true)
+	c := codbutils.SetConfiguration(*user, true)
 	db, err := dbIO.Connect(c.Host, c.Testdb, c.User, *password)
 	if err != nil {
 		os.Exit(1000)
