@@ -10,11 +10,6 @@ addons:
       - aspell
       - libaspell-dev
 
-before_script:
-  - export GOBIN=$GOPATH/bin
-  - export PATH=$PATH:$GOBIN
-  - ./install.sh test
-
 script:
   - ./test.sh whitebox
 
