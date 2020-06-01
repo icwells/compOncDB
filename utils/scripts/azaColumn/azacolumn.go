@@ -63,7 +63,7 @@ func (a *azaidentifier) readAccounts() {
 			a.queries.Add(s[2])
 			a.accounts[s[2]] = s[0]
 		} else {
-			delim = iotools.GetDelim(line)
+			delim, _ = iotools.GetDelim(line)
 			first = false
 		}
 	}

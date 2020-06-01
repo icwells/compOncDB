@@ -95,7 +95,7 @@ func (n *nwzpyears) readInfile() {
 func main() {
 	start := time.Now()
 	kingpin.Parse()
-	n := newNwzpyears(codbutils.ConnectToDatabase(codbutils.SetConfiguration("config.txt", *user, false)))
+	n := newNwzpyears(codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false)))
 	n.readInfile()
 	n.nwzpIDs()
 	//n.setYears()

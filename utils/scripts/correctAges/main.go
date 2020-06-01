@@ -30,7 +30,7 @@ type ageCorrection struct {
 // newAgeCorrection connects to database and returns initialized struct.
 func newAgeCorrection() *ageCorrection {
 	a := new(ageCorrection)
-	a.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration("config.txt", *user, false))
+	a.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
 	a.header = "ID,Age,Comments"
 	a.matcher = diagnoses.NewMatcher()
 	a.outfile = *outfile
