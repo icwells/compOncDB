@@ -1,5 +1,4 @@
-// This script will summarize and upload the taxonomy
-//table for the comparative oncology database
+// This script will summarize and upload the taxonomy table for the comparative oncology database
 
 package dbupload
 
@@ -15,10 +14,12 @@ import (
 func getTaxon(genus, species string) string {
 	// Returns lowest taxon present
 	var ret string
-	if species != "NA" && len(species) > 1 {
+	species = strings.TrimSpace(species)
+	genus = strings.TrimSpace(genus)
+	if len(species) > 1 && strings.ToUpper(species) != "NA" {
 		ret = speciesCaps(species)
-	} else if genus != "NA" && len(genus) > 1 {
-		ret = strings.Title(species)
+	} else if len(genus) > 1 && strings.ToUpper(genus) != "NA" {
+		ret = strings.Title(genus)
 	}
 	return ret
 }
