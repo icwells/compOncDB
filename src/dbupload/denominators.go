@@ -4,6 +4,7 @@ package dbupload
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"os"
@@ -88,7 +89,7 @@ func (d *denominators) upload() {
 func (d *denominators) readDenominators() {
 	// Reads data from input file
 	first := true
-	com := EntryMap(d.db.GetTable("Common"))
+	com := codbutils.EntryMap(d.db.GetTable("Common"))
 	f := iotools.OpenFile(d.infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)

@@ -5,7 +5,6 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/strarray"
@@ -29,7 +28,7 @@ func (s *searcher) setErr(e codbutils.Evaluation) {
 
 func (s *searcher) setPatient() {
 	// Reads all patient records with ids in s.ids
-	s.res = dbupload.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*"))
+	s.res = codbutils.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*"))
 }
 
 func (s *searcher) submitEvaluation(e codbutils.Evaluation) []string {
@@ -70,7 +69,7 @@ func (s *searcher) searchSingleTable(table string) {
 	} else {
 		ids = strings.Join(s.taxaids, ",")
 	}
-	s.res = dbupload.ToMap(s.db.GetRows(table, typ, ids, "*"))
+	s.res = codbutils.ToMap(s.db.GetRows(table, typ, ids, "*"))
 }
 
 func (s *searcher) searchPatientIDs(patients []codbutils.Evaluation) {

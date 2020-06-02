@@ -5,7 +5,6 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
@@ -65,7 +64,7 @@ func newUpdater(db *dbIO.DBIO) updater {
 	u.header = make(map[int]string)
 	u.columns = db.Columns
 	u.tables = make(map[string]*tableupdate)
-	u.taxa = dbupload.EntryMap(u.db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
+	u.taxa = codbutils.EntryMap(u.db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	return u
 }
 

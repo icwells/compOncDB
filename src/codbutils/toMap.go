@@ -1,6 +1,6 @@
-// Helper fucntions for dbupload
+// Map conversion functions
 
-package dbupload
+package codbutils
 
 import (
 	"github.com/icwells/go-tools/strarray"

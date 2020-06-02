@@ -5,6 +5,7 @@ package dbupload
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
@@ -126,7 +127,7 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 
 func LoadLifeHistory(db *dbIO.DBIO, infile string) {
 	// Loads unique entries into comparative oncology taxonomy table
-	species := EntryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
+	species := codbutils.EntryMap(db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	ids := db.GetColumnText("Life_history", "taxa_id")
 	traits := extractTraits(infile, ids, species)
 	uploadTraits(db, traits)

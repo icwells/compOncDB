@@ -5,7 +5,6 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"strconv"
@@ -111,7 +110,7 @@ func (c *cancerRates) countRecords() {
 
 func (c *cancerRates) appendLifeHistory() {
 	// Determines age of infancy and adds life history if needed
-	lifehist := dbupload.ToMap(c.db.GetRows("Life_history", "taxa_id", getRecKeys(c.records), "*"))
+	lifehist := codbutils.ToMap(c.db.GetRows("Life_history", "taxa_id", getRecKeys(c.records), "*"))
 	for k, v := range c.records {
 		if lh, ex := lifehist[k]; ex {
 			v.Lifehistory = lh
@@ -123,7 +122,7 @@ func (c *cancerRates) appendLifeHistory() {
 
 func (c *cancerRates) addDenominators() {
 	// Adds fixed values from denominators table
-	for k, v := range dbupload.ToMap(c.db.GetTable("Denominators")) {
+	for k, v := range codbutils.ToMap(c.db.GetTable("Denominators")) {
 		if _, ex := c.records[k]; ex {
 			if t, err := strconv.Atoi(v[0]); err == nil {
 				c.records[k].Total += t

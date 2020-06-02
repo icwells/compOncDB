@@ -3,8 +3,8 @@
 package dbupload
 
 import (
-	"bufio"
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"math"
@@ -92,7 +92,7 @@ func newEntries(db *dbIO.DBIO, test bool) *entries {
 	e := new(entries)
 	if db != nil {
 		e.count = db.GetMax("Patient", "ID")
-		e.accounts = MapOfMaps(db.GetTable("Accounts"))
+		e.accounts = codbutils.MapOfMaps(db.GetTable("Accounts"))
 		e.taxa = GetTaxaIDs(db, false)
 	} else {
 		e.accounts = make(map[string]map[string]string)
@@ -208,7 +208,7 @@ func (e *entries) extractPatients(infile string) {
 	fmt.Printf("\n\tExtracting patient data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
-	input := bufio.NewScanner(f)
+	input := iotools.GetScanner(f)
 	for input.Scan() {
 		spl := strings.Split(string(input.Text()), ",")
 		if first == false {

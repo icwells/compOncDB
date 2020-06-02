@@ -3,7 +3,7 @@
 package dbextract
 
 import (
-	"github.com/icwells/compOncDB/src/dbupload"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/simpleset"
@@ -22,8 +22,8 @@ func newTaxaMerger(db *dbIO.DBIO) *taxaMerger {
 	t := new(taxaMerger)
 	t.header = strings.Split(db.Columns["Taxonomy"], ",")
 	t.header[0] = "Common"
-	t.taxa = dbupload.ToMap(db.GetTable("Taxonomy"))
-	t.common = dbupload.ToMap(db.GetTable("Common"))
+	t.taxa = codbutils.ToMap(db.GetTable("Taxonomy"))
+	t.common = codbutils.ToMap(db.GetTable("Common"))
 	t.com = simpleset.NewStringSet()
 	return t
 }

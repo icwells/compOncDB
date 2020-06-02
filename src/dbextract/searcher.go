@@ -4,7 +4,6 @@ package dbextract
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/simpleset"
@@ -110,7 +109,7 @@ func (s *searcher) filterInfantRecords() {
 
 func (s *searcher) appendSource() {
 	// Appends data from source table to res
-	m := dbupload.ToMap(s.db.GetRows("Source", "ID", strings.Join(s.ids, ","), "*"))
+	m := codbutils.ToMap(s.db.GetRows("Source", "ID", strings.Join(s.ids, ","), "*"))
 	for k, v := range s.res {
 		row, ex := m[k]
 		if ex == true {
@@ -123,7 +122,7 @@ func (s *searcher) appendSource() {
 
 func (s *searcher) getTaxonomy() {
 	// Stores taxonomy (ids must be set first)
-	s.taxa = dbupload.ToMap(s.db.GetRows("Taxonomy", "taxa_id", strings.Join(s.taxaids, ","), "taxa_id,Kingdom,Phylum,Class,Orders,Family,Genus,Species"))
+	s.taxa = codbutils.ToMap(s.db.GetRows("Taxonomy", "taxa_id", strings.Join(s.taxaids, ","), "taxa_id,Kingdom,Phylum,Class,Orders,Family,Genus,Species"))
 }
 
 func (s *searcher) appendTaxonomy() {
@@ -143,8 +142,8 @@ func (s *searcher) appendTaxonomy() {
 
 func (s *searcher) appendDiagnosis() {
 	// Appends data from tumor and tumor relation tables
-	d := dbupload.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
-	t := dbupload.ToMap(s.db.GetRows("Tumor", "ID", strings.Join(s.ids, ","), "*"))
+	d := codbutils.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
+	t := codbutils.ToMap(s.db.GetRows("Tumor", "ID", strings.Join(s.ids, ","), "*"))
 	for k := range s.res {
 		// Concatenate tables
 		diag, ex := d[k]

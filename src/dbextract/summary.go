@@ -4,7 +4,7 @@ package dbextract
 
 import (
 	"fmt"
-	"github.com/icwells/compOncDB/src/dbupload"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/simpleset"
 	"strconv"
@@ -16,9 +16,9 @@ func getMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
 	var table map[string]string
 	ages := make(map[string]float64)
 	if len(taxaids) >= 1 {
-		table = dbupload.EntryMap(db.GetRows("Life_history", "taxa_id", strings.Join(taxaids, ","), "Infancy,taxa_id"))
+		table = codbutils.EntryMap(db.GetRows("Life_history", "taxa_id", strings.Join(taxaids, ","), "Infancy,taxa_id"))
 	} else {
-		table = dbupload.EntryMap(db.GetColumns("Life_history", []string{"Infancy", "taxa_id"}))
+		table = codbutils.EntryMap(db.GetColumns("Life_history", []string{"Infancy", "taxa_id"}))
 	}
 	// Convert string ages to float
 	for k, v := range table {

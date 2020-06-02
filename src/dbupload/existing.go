@@ -3,6 +3,7 @@
 package dbupload
 
 import (
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 )
 
@@ -60,7 +61,7 @@ func NewExisting(db *dbIO.DBIO) *Existing {
 	e.Entries = make(map[string]map[string]*Entry)
 	e.Unmatched = make(map[string]*Entry)
 	if db != nil {
-		e.accounts = EntryMap(db.GetColumns("Source", []string{"account_id", "ID"}))
+		e.accounts = codbutils.EntryMap(db.GetColumns("Source", []string{"account_id", "ID"}))
 		e.setEntries()
 		e.setUnmatched()
 	}
