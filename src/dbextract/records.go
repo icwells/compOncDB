@@ -18,6 +18,7 @@ type Record struct {
 	Cancerage    float64
 	Malecancer   int
 	Femalecancer int
+	Malignant    int
 	Lifehistory  []string
 }
 
@@ -65,6 +66,12 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 	ret = append(ret, strconv.Itoa(r.Total))
 	ret = append(ret, strconv.Itoa(r.Cancer))
 	ret = append(ret, strconv.FormatFloat(float64(r.Cancer)/float64(r.Total), 'f', 2, 64))
+	ret = append(ret, strconv.Itoa(r.Malignant))
+	if r.Cancer > 0 {
+		ret = append(ret, strconv.FormatFloat(float64(r.Malignant)/float64(r.Cancer), 'f', 2, 64))
+	} else {
+		ret = append(ret, "0.00")
+	}
 	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
 	ret = append(ret, strconv.Itoa(r.Male))

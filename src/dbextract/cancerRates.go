@@ -63,8 +63,29 @@ func (c *cancerRates) formatRates() {
 	}
 }
 
+func (c *cancerRates) countNeoplasia(idx int, tid, sex string, age float64) {
+	// Counts cancer related data
+	if mp, err := c.df.GetCell(idx, "Masspresent"); err == nil {
+		if mp == "1" {
+			// Increment cancer count and age if masspresent == true
+			c.records[tid].Cancer++
+			c.records[tid].Cancerage = c.records[tid].Cancerage + age
+			if sex == "male" {
+				c.records[tid].Malecancer++
+			} else if sex == "female" {
+				c.records[tid].Femalecancer++
+			}
+			if mal, er := c.df.GetCell(idx, "Malignant"); er == nil {
+				if mal == "1" {
+					c.records[tid].Malignant++
+				}
+			}
+		}
+	}
+}
+
 func (c *cancerRates) countRecords() {
-	// Returns struct with number of total, adult, and adult cancer occurances by species
+	// Counts the number of total, adult, and adult cancer occurances by species
 	for idx := range c.df.Rows {
 		tid, _ := c.df.GetCell(idx, "taxa_id")
 		if _, ex := c.records[tid]; ex {
@@ -81,18 +102,7 @@ func (c *cancerRates) countRecords() {
 					} else if sex == "female" {
 						c.records[tid].Female++
 					}
-					if mp, e := c.df.GetCell(idx, "Masspresent"); e == nil {
-						if mp == "1" {
-							// Increment cancer count and age if masspresent == true
-							c.records[tid].Cancer++
-							c.records[tid].Cancerage = c.records[tid].Cancerage + age
-							if sex == "male" {
-								c.records[tid].Malecancer++
-							} else if sex == "female" {
-								c.records[tid].Femalecancer++
-							}
-						}
-					}
+					c.countNeoplasia(idx, tid, sex, age)
 				}
 			}
 		}
