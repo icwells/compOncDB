@@ -61,7 +61,7 @@ func getExpectedRates() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	var s [][]string
 	coyote := []string{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "1", "1", "1", "1", "1.00", "24", "24", "1", "0", "1", "0"}
-	wolf := []string{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "6", "2", "0.33", "2", "1.00", "135", "144", "2", "3", "0", "2"}
+	wolf := []string{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "6", "2", "0.33", "2", "0.33", "135", "144", "2", "3", "0", "2"}
 	fox := []string{"3", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Urocyon", "Urocyon cinereoargenteus", "1", "-1", "1", "0", "0.00", "0", "0", "0", "-1", "0", "0"}
 	s = append(s, codbutils.CancerRateHeader())
 	s = append(s, wolf)

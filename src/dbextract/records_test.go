@@ -48,8 +48,8 @@ func getExpectedRecords() [][]string {
 	// Return slice of expected values
 	var expected [][]string
 	canis, vulpes := canidTaxa()
-	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "5", "0.20", "10.00", "10.00", "50", "50", "15", "10"}...)
-	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "3", "0.10", "8.18", "10.00", "50", "70", "12", "18"}...)
+	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "5", "0.05", "10.00", "10.00", "50", "50", "15", "10"}...)
+	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "3", "0.03", "8.18", "10.00", "50", "70", "12", "18"}...)
 	fox := append(vulpes, []string{"Vulpes vulpes", "50", "0", "0.00", "0", "0.00", "12.00", "NA", "25", "35", "50", "0"}...)
 	expected = append(expected, wolf)
 	expected = append(expected, coyote)
