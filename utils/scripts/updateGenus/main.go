@@ -5,7 +5,6 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/iotools"
@@ -66,7 +65,7 @@ func newGenera(db *dbIO.DBIO) *genera {
 	g.header = "ID,taxa_id,source_name,genus"
 	g.id = "69"
 	g.key = "NA"
-	g.taxa = dbupload.ToMap(g.db.GetRows("Taxonomy", "Species", g.key, "taxa_id,Family,Genus"))
+	g.taxa = codbutils.ToMap(g.db.GetRows("Taxonomy", "Species", g.key, "taxa_id,Family,Genus"))
 	g.setRecords()
 	return g
 }

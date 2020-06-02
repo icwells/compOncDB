@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/clusteraccounts"
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"math"
 	"os"
@@ -66,9 +65,9 @@ func newUpdater(db *dbIO.DBIO) *updater {
 	u := new(updater)
 	u.db = db
 	u.newaccounts = make(map[string][]string)
-	u.keys = dbupload.ToMap(u.db.GetColumns("Source", []string{"account_id", "ID"}))
-	u.source = dbupload.ToMap(u.db.GetTable("Source"))
-	u.accounts = dbupload.ToMap(u.db.GetTable("Accounts"))
+	u.keys = codbutils.ToMap(u.db.GetColumns("Source", []string{"account_id", "ID"}))
+	u.source = codbutils.ToMap(u.db.GetTable("Source"))
+	u.accounts = codbutils.ToMap(u.db.GetTable("Accounts"))
 	u.setAccounts()
 	return u
 }
