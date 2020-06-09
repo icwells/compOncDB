@@ -4,92 +4,133 @@ package main
 
 import (
 	"github.com/icwells/go-tools/iotools"
+	"strconv"
 	"strings"
 )
 
 // Node stores data for each node of the tree.
 type Node struct {
-	Ancestor string
+	Ancestor    *Node
 	Descendants []*Node
-	Length float64
-	Name string
+	Length      float64
+	Name        string
 }
 
 // NewNode returns new node struct.
-func NewNode(length float64) *Node {
+func NewNode(name string, length float64, descendants []*Node) *Node {
 	n := new(Node)
 	n.Length = length
 	n.Name = name
+	for _, i := range descendants {
+		n.AddDescendant(i)
+	}
 	return n
+}
+
+// AddDescendant appends a new descendant to the node.
+func (n *Node) AddDescendant(d *Node) {
+	d.Ancestor = n
+	n.Descendants = append(n.Descendants, d)
+}
+
+// IsLeaf returns true if node has no descendants
+func (n *Node) IsLeaf() bool {
+	if len(n.Descendants) == 0 {
+		return true
+	}
+	return false
 }
 
 // NewickTree stores nodes for parsing.
 type NewickTree struct {
-	keys map[string][]int
-	nodes [][]*Node
+	nodes map[string]*Node
+	root  *Node
 }
 
 // NewTree returns a Newick tree struct from the given string
-func NewTree(tree string) (*NewickTree, error) {
+func NewTree(tree string) *NewickTree {
+	var err error
 	t := new(NewickTree)
-	t.keys = make(map[string][]int)
-	err := t.parseNodes(tree)
-	return t, err
+	t.nodes = make(map[string]*Node)
+	t.root = t.parseNodes(tree)
+	return t
 }
 
-def _parse_name_and_length(s):
-    length = None
-    if ':' in s:
-        s, length = s.split(':', 1)
-    return s or None, length or None
+// parseName returns the node name and length.
+func (t *NewickTree) parseName(s string) (string, float64) {
+	var length float64
+	var name string
+	if strings.Contains(s, ":") {
+		n := strings.Split(s, ":")
+		name = strings.TrimSpace(n[0])
+		if len(n) > 1 {
+			length, _ = strconv.ParseFloat(n[1], 64)
+		}
+	}
+	return name, length
+}
 
-
-def _parse_siblings(s, **kw):
-    bracket_level = 0
-    current = []
-
-    # trick to remove special-case of trailing chars
-    for c in (s + ","):
-        if c == "," and bracket_level == 0:
-            yield parse_node("".join(current), **kw)
-            current = []
-        else:
-            if c == "(":
-                bracket_level += 1
-            elif c == ")":
-                bracket_level -= 1
-            current.append(c)
+func (t *NewickTree) parseSiblings(s string) <-chan *Node {
+	var level int
+	var builder strings.Builder
+	ch := make(chan *Node)
+	// Remove special-case of trailing chars
+	for _, c := range s + "," {
+		if c == ',' && level == 0 {
+			// Recursively submits entries on the same level
+			go func() {
+				ch <- t.parseNodes(builder.String())
+				builder.Reset()
+				close(ch)
+			}()
+		} else {
+			if c == '(' {
+				level++
+			} else if c == ')' {
+				level--
+			}
+			builder.WriteRune(c)
+		}
+	}
+	return ch
+}
 
 // parseNodes parses string into node structs.
-func (t *NewickTree) parseNodes(s) {
+func (t *NewickTree) parseNodes(s string) *Node {
 	var err error
-    parts = strings.Split(s, ")")
-    if len(parts) == 1 {
-        descendants, label = [], s
-    } else {
-        if parts[0] != '(' {
-            err = fmt.Error("unmatched braces %s", parts[0][:100])
+	var descendants []*Node
+	parts := strings.Split(s, ")")
+	label := s
+	if len(parts) > 1 {
+		for d := range t.parseSiblings(strings.Join(parts[:len(parts)-1][1:], ")")) {
+			descendants = append(descendants, d)
 		}
-        descendants = list(_parse_siblings(')'.join(parts[:-1])[1:], **kw))
-        label = parts[-1]
-    name, length = _parse_name_and_length(label)
-    return Node.create(name=name, length=length, descendants=descendants, **kw)
+		label = parts[len(parts)-1]
+	}
+	name, length := t.parseName(label)
+	t.nodes[name] = NewNode(name, length, descendants)
+	return t.nodes[name]
 }
 
+// Divergeance returns the sum of lengths between two nodes.
+/*func (t *NewickTree) Divergeance(a, b string) float64 {
+	var ret float64
+
+	return ret
+}*/
+
 // FromString returns a Newick tree from the given string
-func FromString(tree string) (*NewickTree, error) {
+func FromString(tree string) *NewickTree {
 	tree = strings.Replace(strings.TrimSpace(tree), ";", "", 1)
 	return NewTree(tree)
 }
 
 // FromFile reads a single Newick tree from the given file.
-func FromFile(infile string) (*NewickTree, error) {
+func FromFile(infile string) *NewickTree {
 	var line string
-	iotools.CheckFile(infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
-	input := iotools.GetScanner()
-	defer input.Close()
+	input := iotools.GetScanner(f)
 	for input.Scan() {
 		line = strings.TrimSpace(string(input.Text()))
 		break
