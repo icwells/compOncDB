@@ -45,20 +45,21 @@ func TestNewTree(t *testing.T) {
 	}
 }
 
-func TestDivergeance(t *testing.T) {
+func TestDivergence(t *testing.T) {
 	tree := FromString(testTree())
 	cases := []struct {
 		a    string
 		b    string
 		dist float64
 	}{
-		{"A", "B", 0.3},
-		{"E", "B", 0.7},
-		{"C", "D", 0.7},
+		{"A", "B", 0.2},
+		{"E", "B", 0.5},
+		{"C", "D", 0.4},
 		{"C", "E", 0.3},
+		{"F", "D", 0.9},
 	}
 	for _, i := range cases {
-		act := tree.Divergeance(i.a, i.b)
+		act := tree.Divergence(i.a, i.b)
 		if act != i.dist {
 			t.Errorf("Actual distance between %s and %s %f does not equal expected: %f", i.a, i.b, act, i.dist)
 		}

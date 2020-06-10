@@ -3,8 +3,9 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/icwells/go-tools/iotools"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -88,32 +89,43 @@ func (t *NewickTree) parseNodes(s string) *Node {
 func (t *NewickTree) walkBack(name string) []*Node {
 	var ret []*Node
 	n := t.nodes[name]
-	for n.Name != t.root.Name {
+	for n.Ancestor != nil {
 		ret = append([]*Node{n}, ret...)
 		n = n.Ancestor
 	}
-	return append([]*Node{t.root}, ret...)
+	ret = append([]*Node{t.root}, ret...)
+	return ret
 }
 
-// Divergeance returns the sum of lengths between two nodes.
-func (t *NewickTree) Divergeance(a, b string) float64 {
+// totalLength returns the length of a given branch.
+func (t *NewickTree) totalLength(s []*Node) float64 {
 	var ret float64
+	for _, i := range s {
+		if i.Name != t.root.Name {
+			ret += i.Length
+		}
+	}
+	return ret
+}
+
+// Divergence returns the sum of lengths between two nodes.
+func (t *NewickTree) Divergence(a, b string) float64 {
 	apath := t.walkBack(a)
 	bpath := t.walkBack(b)
-	for idx, i := range apath {
-		if i.Name != bpath[idx].Name {
+	l := len(apath)
+	if len(bpath) < l {
+		l = len(bpath)
+	}
+	for idx := 0; idx < l; idx++ {
+		if apath[idx].Name != bpath[idx].Name {
 			// Record where paths diverge
+			fmt.Println(a, b, apath[idx].Name, bpath[idx].Name)
 			apath = apath[idx:]
 			bpath = bpath[idx:]
 			break
 		}
 	}
-	for _, path := range [][]*Node{apath, bpath} {
-		for _, i := range path {
-			ret += i.Length
-		}
-	}
-	return ret
+	return math.Max(t.totalLength(apath), t.totalLength(bpath))
 }
 
 // FromString returns a Newick tree from the given string
