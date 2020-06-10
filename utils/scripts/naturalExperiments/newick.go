@@ -3,43 +3,11 @@
 package main
 
 import (
+	//"fmt"
 	"github.com/icwells/go-tools/iotools"
 	"strconv"
 	"strings"
 )
-
-// Node stores data for each node of the tree.
-type Node struct {
-	Ancestor    *Node
-	Descendants []*Node
-	Length      float64
-	Name        string
-}
-
-// NewNode returns new node struct.
-func NewNode(name string, length float64, descendants []*Node) *Node {
-	n := new(Node)
-	n.Length = length
-	n.Name = name
-	for _, i := range descendants {
-		n.AddDescendant(i)
-	}
-	return n
-}
-
-// AddDescendant appends a new descendant to the node.
-func (n *Node) AddDescendant(d *Node) {
-	d.Ancestor = n
-	n.Descendants = append(n.Descendants, d)
-}
-
-// IsLeaf returns true if node has no descendants
-func (n *Node) IsLeaf() bool {
-	if len(n.Descendants) == 0 {
-		return true
-	}
-	return false
-}
 
 // NewickTree stores nodes for parsing.
 type NewickTree struct {
@@ -49,7 +17,6 @@ type NewickTree struct {
 
 // NewTree returns a Newick tree struct from the given string
 func NewTree(tree string) *NewickTree {
-	var err error
 	t := new(NewickTree)
 	t.nodes = make(map[string]*Node)
 	t.root = t.parseNodes(tree)
@@ -70,8 +37,9 @@ func (t *NewickTree) parseName(s string) (string, float64) {
 	return name, length
 }
 
-func (t *NewickTree) parseSiblings(s string) <-chan *Node {
+func (t *NewickTree) parseSiblings(s string) []*Node {
 	var level int
+	var ret []*Node
 	var builder strings.Builder
 	ch := make(chan *Node)
 	// Remove special-case of trailing chars
@@ -80,9 +48,12 @@ func (t *NewickTree) parseSiblings(s string) <-chan *Node {
 			// Recursively submits entries on the same level
 			go func() {
 				ch <- t.parseNodes(builder.String())
-				builder.Reset()
-				close(ch)
 			}()
+			d := <-ch
+			if d != nil {
+				ret = append(ret, d)
+			}
+			builder.Reset()
 		} else {
 			if c == '(' {
 				level++
@@ -92,17 +63,18 @@ func (t *NewickTree) parseSiblings(s string) <-chan *Node {
 			builder.WriteRune(c)
 		}
 	}
-	return ch
+	close(ch)
+	return ret
 }
 
 // parseNodes parses string into node structs.
 func (t *NewickTree) parseNodes(s string) *Node {
-	var err error
 	var descendants []*Node
 	parts := strings.Split(s, ")")
 	label := s
 	if len(parts) > 1 {
-		for d := range t.parseSiblings(strings.Join(parts[:len(parts)-1][1:], ")")) {
+		// Recusively append descendants
+		for _, d := range t.parseSiblings(strings.Join(parts[:len(parts)-1], ")")[1:]) {
 			descendants = append(descendants, d)
 		}
 		label = parts[len(parts)-1]
@@ -112,12 +84,37 @@ func (t *NewickTree) parseNodes(s string) *Node {
 	return t.nodes[name]
 }
 
-// Divergeance returns the sum of lengths between two nodes.
-/*func (t *NewickTree) Divergeance(a, b string) float64 {
-	var ret float64
+// walkBack traverses the tree in reverse, starting from given node.
+func (t *NewickTree) walkBack(name string) []*Node {
+	var ret []*Node
+	n := t.nodes[name]
+	for n.Name != t.root.Name {
+		ret = append([]*Node{n}, ret...)
+		n = n.Ancestor
+	}
+	return append([]*Node{t.root}, ret...)
+}
 
+// Divergeance returns the sum of lengths between two nodes.
+func (t *NewickTree) Divergeance(a, b string) float64 {
+	var ret float64
+	apath := t.walkBack(a)
+	bpath := t.walkBack(b)
+	for idx, i := range apath {
+		if i.Name != bpath[idx].Name {
+			// Record where paths diverge
+			apath = apath[idx:]
+			bpath = bpath[idx:]
+			break
+		}
+	}
+	for _, path := range [][]*Node{apath, bpath} {
+		for _, i := range path {
+			ret += i.Length
+		}
+	}
 	return ret
-}*/
+}
 
 // FromString returns a Newick tree from the given string
 func FromString(tree string) *NewickTree {
