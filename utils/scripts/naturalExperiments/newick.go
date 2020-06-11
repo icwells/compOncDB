@@ -94,6 +94,10 @@ func (t *NewickTree) walkBack(name string) []*Node {
 		n = n.Ancestor
 	}
 	ret = append([]*Node{t.root}, ret...)
+	for _, i := range ret {
+		fmt.Print(i.Name + " ")
+	}
+	fmt.Println()
 	return ret
 }
 
@@ -110,6 +114,7 @@ func (t *NewickTree) totalLength(s []*Node) float64 {
 
 // Divergence returns the sum of lengths between two nodes.
 func (t *NewickTree) Divergence(a, b string) float64 {
+	var ret float64
 	apath := t.walkBack(a)
 	bpath := t.walkBack(b)
 	l := len(apath)
@@ -119,13 +124,20 @@ func (t *NewickTree) Divergence(a, b string) float64 {
 	for idx := 0; idx < l; idx++ {
 		if apath[idx].Name != bpath[idx].Name {
 			// Record where paths diverge
-			fmt.Println(a, b, apath[idx].Name, bpath[idx].Name)
 			apath = apath[idx:]
 			bpath = bpath[idx:]
+			ret = math.Max(t.totalLength(apath), t.totalLength(bpath))
 			break
+		} else if idx == l - 1 {
+			// Account for differnce in length: last entry in one will be an ancestor in the other
+			if apath[idx].Name == a {
+				ret = t.totalLength(bpath[idx + 1:])
+			} else if bpath[idx].Name == b {
+				ret = t.totalLength(apath[idx + 1:])
+			}
 		}
 	}
-	return math.Max(t.totalLength(apath), t.totalLength(bpath))
+	return ret
 }
 
 // FromString returns a Newick tree from the given string
