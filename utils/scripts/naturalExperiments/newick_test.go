@@ -25,10 +25,10 @@ func testCases() map[string]string {
 func TestNewTree(t *testing.T) {
 	tree := FromString(testTree())
 	cases := testCases()
-	root := tree.root.String()
+	root := tree.Root.String()
 	if root != cases["F"] {
 		t.Errorf("Root node %s does not equal %s", root, cases["F"])
-	} else if tree.root.Ancestor != nil {
+	} else if tree.Root.Ancestor != nil {
 		t.Error("Root node has ancestor node.")
 	}
 	for k, exp := range cases {

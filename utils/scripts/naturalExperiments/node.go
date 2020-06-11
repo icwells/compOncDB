@@ -44,3 +44,20 @@ func (n *Node) IsLeaf() bool {
 	}
 	return false
 }
+
+// Walk traverses tree starting from this node.
+func (n *Node) Walk() <-chan *Node {
+	ch := make(chan *Node)
+	ch <- n
+	go func() {
+		for idx, i := range n.Descendants {
+			for i := range i.Walk() {
+				ch <- i
+			}
+			if idx == len(n.Descendants) - 1 {
+				close(ch)
+			}
+		}
+	}()
+	return ch
+}

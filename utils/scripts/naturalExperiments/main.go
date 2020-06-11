@@ -4,8 +4,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/dataframe"
-	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"math"
 	"strconv"
@@ -18,7 +18,7 @@ var (
 	malignant = kingpin.Flag("malignant", "Examine malignancy rates (examines neoplasia rate by default).").Default("false").Bool()
 	max       = kingpin.Flag("max", "The maximum divergeance allowed to compare species.").Default("200.0").Float()
 	min       = kingpin.Flag("min", "The minimum difference in cancer rates to report results.").Default("0.1").Float()
-	outfile   = kingpin.Flag("outfile", "Name of output file.").Short('o').Default("nil").String()
+	outfile   = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
 	treefile  = kingpin.Flag("treefile", "Path to newick tree file.").Short('t').Required().String()
 )
 
@@ -51,6 +51,9 @@ func newIdentifier() *identifier {
 	fmt.Println("\n\tReading tree file...")
 	id.tree = FromFile(*treefile)
 	id.setRates(*infile, *malignant)
+	for i := range id.tree.Root.Walk() {
+		fmt.Println(i)
+	}
 	return id
 }
 
@@ -89,7 +92,8 @@ func (id *identifier) formatFloat(f float64) string {
 func (id *identifier) checkDistance(a, b *cancerRate) {
 	// Stores results if distance is less than max
 	d := id.tree.Divergence(a.name, b.name)
-	if d <= id.max {
+	//fmt.Println(d)
+	if d > 0.0 && d <= id.max {
 		row := []string{a.name, id.formatFloat(a.rate), b.name, id.formatFloat(b.rate), id.formatFloat(math.Abs(a.rate - b.rate)), id.formatFloat(d)}
 		id.results = append(id.results, row)
 	}
@@ -107,16 +111,11 @@ func (id *identifier) identify() {
 	}
 }
 
-func (id *identifier) writeOutput(outfile string) {
-	// Writes results to outfile
-	iotools.WriteToCSV(outfile, "SpeciesA,RateA,SpeciesB,RateB,Difference,Divergeance", id.results)
-}
-
 func main() {
 	start := time.Now()
 	kingpin.Parse()
 	id := newIdentifier()
-	id.identify()
-	id.writeOutput(*outfile)
+	//id.identify()
+	codbutils.WriteResults(*outfile, "SpeciesA,RateA,SpeciesB,RateB,Difference,Divergence", id.results)
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }
