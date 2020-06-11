@@ -54,8 +54,8 @@ func (n *Node) Walk() <-chan *Node {
 			for i := range i.Walk() {
 				ch <- i
 			}
-			close(ch)
 		}
+		close(ch)
 	}()
 	return ch
 }
