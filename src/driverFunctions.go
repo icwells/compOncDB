@@ -137,6 +137,8 @@ func extractFromDB() time.Time {
 		codbutils.WriteResults(*outfile, db.Columns[*dump], table)
 	} else if *dumpdb {
 		dbextract.DumpDatabase(db, *outfile)
+	} else if *lhsummary {
+		writeDF(dbextract.LifeHistorySummary(db, *alltaxa))
 	} else if *reftaxa {
 		writeDF(dbextract.GetReferenceTaxonomy(db))
 	} else if *sum {

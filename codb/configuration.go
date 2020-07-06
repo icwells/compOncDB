@@ -11,39 +11,37 @@ import (
 )
 
 type urls struct {
-	source   string
+	changepw string
+	get      string
+	lifehist string
 	login    string
+	logout   string
 	menu     string
-	search   string
+	newpw    string
+	output   string
+	reftaxa  string
+	source   string
+	static   string
 	summary  string
 	table    string
-	rates    string
-	reftaxa  string
-	output   string
-	get      string
-	logout   string
-	newpw    string
-	changepw string
-	static   string
 }
 
 func setURLs() *urls {
 	// Stores url stems
 	u := new(urls)
-	u.source = "/codb/"
+	u.changepw = "/codb/changepassword"
+	u.get = "/codb/get/"
+	u.lifehist = "/codb/lifehistory/"
 	u.login = "/codb/login"
+	u.logout = "/codb/logout"
 	u.menu = "/codb/menu/"
-	//u.search = "/codb/search/"
+	u.newpw = "/codb/newpassword"
+	u.output = "/codb/results/"
+	u.reftaxa = "/codb/referencetaxonomy/"
+	u.source = "/codb/"
+	u.static = "/static/"
 	u.summary = "/codb/summary/"
 	u.table = "/codb/extractTable/"
-	u.rates = "/codb/cancerRates/"
-	u.reftaxa = "/codb/referencetaxonomy/"
-	u.output = "/codb/results/"
-	u.get = "/codb/get/"
-	u.logout = "/codb/logout"
-	u.newpw = "/codb/newpassword"
-	u.changepw = "/codb/changepassword"
-	u.static = "/static/"
 	return u
 }
 

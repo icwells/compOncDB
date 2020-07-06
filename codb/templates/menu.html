@@ -35,6 +35,17 @@
       {{template "buttonbox"}}
     </form>
   </div>
+  <!--Life history completeness expandable-->
+  <p class="blanklink" id="lhsummary">Summarize Life History Table</p>
+  <div class="tab hide" id="LifeHistoryDiv">
+    <form method="POST" action="/codb/lifehistory/">
+      <div>
+        <input id="AllTaxa" type="checkbox" name="AllTaxa">
+	    <label for="AllTaxa">Include species without patient records in the summary.</label>
+      </div>
+      {{template "buttonbox"}}
+    </form>
+  </div>
   <p class="blanklink" id="searchselect">Search database or calculate cancer rates</p>
   {{template "search"}}
 </section>

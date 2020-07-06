@@ -97,19 +97,14 @@ func menuHandler(w http.ResponseWriter, r *http.Request) {
 	handleRender(w, r, C.temp.menu, C.temp.login, "Please login to access database.")
 }
 
-func formHandler(w http.ResponseWriter, r *http.Request) {
-	// Renders search form
-	handleRender(w, r, C.temp.search, C.temp.login, "Please login to access database.")
-}
-
 func summaryHandler(w http.ResponseWriter, r *http.Request) {
 	// Performs and renders database summary
 	handlePost(w, r, C.u.summary)
 }
 
-func cancerRateHandler(w http.ResponseWriter, r *http.Request) {
+func lifeHistHandler(w http.ResponseWriter, r *http.Request) {
 	// Handles cancer rate calculations
-	handlePost(w, r, C.u.rates)
+	handlePost(w, r, C.u.lifehist)
 }
 
 func referenceTaxonomyHandler(w http.ResponseWriter, r *http.Request) {
@@ -124,7 +119,7 @@ func tableDumpHandler(w http.ResponseWriter, r *http.Request) {
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
-	handlePost(w, r, C.u.search)
+	handlePost(w, r, C.u.output)
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
@@ -157,10 +152,9 @@ func main() {
 	r.HandleFunc(C.u.changepw, changeHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.newpw, passwordHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.menu, menuHandler).Methods(http.MethodGet)
-	//r.HandleFunc(C.u.rates, cancerRateHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.lifehist, lifeHistHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.reftaxa, referenceTaxonomyHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.table, tableDumpHandler).Methods(http.MethodPost)
-	//r.HandleFunc(C.u.search, formHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.output, searchHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.get+"{filename}", downloadHandler).Methods(http.MethodGet)

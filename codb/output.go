@@ -112,6 +112,16 @@ func (o *Output) extractTable() {
 	}
 }
 
+func (o *Output) lifeHistorySummary() {
+	// Returns summary of life history table
+	opt := setOptions(o.r)
+	o.getTempFile("lifeHistorySummary")
+	res := dbextract.LifeHistorySummary(o.db, opt.AllTaxa)
+	res.ToCSV(o.Outfile)
+	o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
+	C.renderTemplate(C.temp.result, o)
+}
+
 func (o *Output) searchDB() {
 	// Performs searches and cancer rate calculations
 	var name string
@@ -152,13 +162,13 @@ func (o *Output) routePost(source string) {
 	switch source {
 	case C.u.summary:
 		o.summary()
-	//case C.u.rates:
-	//o.cancerRates()
 	case C.u.reftaxa:
 		o.referenceTaxonomy()
 	case C.u.table:
 		o.extractTable()
-	case C.u.search:
+	case C.u.lifehist:
+		o.lifeHistorySummary()
+	case C.u.output:
 		o.searchDB()
 	}
 }
