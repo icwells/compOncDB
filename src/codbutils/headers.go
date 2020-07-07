@@ -25,7 +25,7 @@ func NewHeaders() *Headers {
 	h.Life_history = []string{"taxa_id", "female_maturity", "male_maturity", "Gestation", "Weaning", "Infancy", "litter_size", "litters_year", "interbirth_interval", "birth_weight", "weaning_weight", "adult_weight", "growth_rate", "max_longevity", "metabolic_rate"}
 	h.Patient = []string{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments"}
 	h.Rates = []string{"TotalRecords", "NeoplasiaRecords", "NeoplasiaRate", "Malignant", "MalignancyRate", "PropMalignant", "AverageAge(months)", "AvgAgeNeoplasia(months)",
-		"Male", "Female", "MaleNeoplasia", "FemaleNeoplasia"}
+		"Male", "Female", "MaleNeoplasia", "FemaleNeoplasia", "Necropsies"}
 	h.Source = []string{"ID", "service_name", "Zoo", "Aza", "Institute", "Approved", "account_id"}
 	h.Taxonomy = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "Source"}
 	h.Tumor = []string{"ID", "primary_tumor", "Malignant", "Type", "Location"}

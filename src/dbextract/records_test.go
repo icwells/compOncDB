@@ -31,9 +31,9 @@ func testRecords() []Record {
 	// Returns slice of records for testing
 	canis, vulpes := canidTaxa()
 	return []Record{
-		{append(canis, "Canis lupus"), 100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, nil},
-		{append(canis, "Canis latrans"), 110, 900.0, 50, 70, 30, 300.0, 12, 18, 3, nil},
-		{append(vulpes, "Vulpes vulpes"), 50, 600.0, 25, 35, 0, 0.0, 50, 0, 0, nil},
+		{append(canis, "Canis lupus"), 100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 20, nil},
+		{append(canis, "Canis latrans"), 110, 900.0, 50, 70, 30, 300.0, 12, 18, 3, 5, nil},
+		{append(vulpes, "Vulpes vulpes"), 50, 600.0, 25, 35, 0, 0.0, 50, 0, 0, 0, nil},
 	}
 }
 
@@ -48,9 +48,9 @@ func getExpectedRecords() [][]string {
 	// Return slice of expected values
 	var expected [][]string
 	canis, vulpes := canidTaxa()
-	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "5", "0.05", "0.20", "10.00", "10.00", "50", "50", "15", "10"}...)
-	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "3", "0.03", "0.10", "8.18", "10.00", "50", "70", "12", "18"}...)
-	fox := append(vulpes, []string{"Vulpes vulpes", "50", "0", "0.00", "0", "0.00", "0.00", "12.00", "NA", "25", "35", "50", "0"}...)
+	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "5", "0.05", "0.20", "10.00", "10.00", "50", "50", "15", "10", "20"}...)
+	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "3", "0.03", "0.10", "8.18", "10.00", "50", "70", "12", "18", "5"}...)
+	fox := append(vulpes, []string{"Vulpes vulpes", "50", "0", "0.00", "0", "0.00", "0.00", "12.00", "NA", "25", "35", "50", "0", "0"}...)
 	expected = append(expected, wolf)
 	expected = append(expected, coyote)
 	return append(expected, fox)

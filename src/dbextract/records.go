@@ -19,6 +19,7 @@ type Record struct {
 	Malecancer   int
 	Femalecancer int
 	Malignant    int
+	Necropsy     int
 	Lifehistory  []string
 }
 
@@ -58,7 +59,7 @@ func (r *Record) formatRate(n, d int) string {
 	// Divides n by d and returns formatted string
 	var v float64
 	if d != 0 {
-		v = float64(n)/float64(d)
+		v = float64(n) / float64(d)
 	}
 	return strconv.FormatFloat(v, 'f', 2, 64)
 }
@@ -84,6 +85,7 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 	ret = append(ret, strconv.Itoa(r.Female))
 	ret = append(ret, strconv.Itoa(r.Malecancer))
 	ret = append(ret, strconv.Itoa(r.Femalecancer))
+	ret = append(ret, strconv.Itoa(r.Necropsy))
 	for idx, i := range ret {
 		// Replace -1 with NA
 		if strings.Split(i, ".")[0] == "-1" {

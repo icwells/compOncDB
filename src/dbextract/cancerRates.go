@@ -90,6 +90,9 @@ func (c *cancerRates) countRecords() {
 		if _, ex := c.records[tid]; ex {
 			// Increment total
 			c.records[tid].Total++
+			if nec, _ := c.df.GetCell(idx, "Necropsy"); nec == "1" {
+				c.records[tid].Necropsy++
+			}
 			age, err := c.df.GetCellFloat(idx, "Age")
 			if err == nil {
 				// Increment adult if age is greater than age of infancy
