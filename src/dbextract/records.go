@@ -54,6 +54,15 @@ func (r *Record) CalculateAvgAges() {
 	r.Cancerage = avgAge(r.Cancerage, r.Cancer)
 }
 
+func (r *Record) formatRate(n, d int) string {
+	// Divides n by d and returns formatted string
+	var v float64
+	if d != 0 {
+		v = float64(n)/float64(d)
+	}
+	return strconv.FormatFloat(v, 'f', 2, 64)
+}
+
 func (r *Record) CalculateRates(id string, lh bool) []string {
 	// Returns string slice of rates
 	var ret []string
@@ -65,9 +74,10 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 	//"AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
 	ret = append(ret, strconv.Itoa(r.Total))
 	ret = append(ret, strconv.Itoa(r.Cancer))
-	ret = append(ret, strconv.FormatFloat(float64(r.Cancer)/float64(r.Total), 'f', 2, 64))
+	ret = append(ret, r.formatRate(r.Cancer, r.Total))
 	ret = append(ret, strconv.Itoa(r.Malignant))
-	ret = append(ret, strconv.FormatFloat(float64(r.Malignant)/float64(r.Total), 'f', 2, 64))
+	ret = append(ret, r.formatRate(r.Malignant, r.Total))
+	ret = append(ret, r.formatRate(r.Malignant, r.Cancer))
 	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
 	ret = append(ret, strconv.Itoa(r.Male))

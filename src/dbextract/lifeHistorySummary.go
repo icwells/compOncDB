@@ -72,7 +72,7 @@ func (l *lifeHist) summarize() {
 				complete++
 			}
 		}
-		p := float64(complete)/float64(len(v))*100
+		p := float64(complete) / float64(len(v)) * 100
 		row = append(row, strconv.FormatFloat(p, 'f', 2, 64))
 		l.res.AddRow(row)
 	}
