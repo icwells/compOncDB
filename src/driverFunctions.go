@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
@@ -12,6 +13,7 @@ import (
 	"github.com/icwells/go-tools/dataframe"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -37,7 +39,14 @@ func newDatabase() time.Time {
 	// Creates new database and tables
 	c := codbutils.SetConfiguration(*user, false)
 	db := dbIO.CreateDatabase(c.Host, c.Database, *user)
-	db.NewTables(c.Tables)
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("\n\tAre you sure you want to initialize a new database? This will erase existing data.")
+	text, _ := reader.ReadString('\n')
+	text = strings.ToLower(text)
+	if text == "y" || text == "yes" {
+		fmt.Println("\tInitializing new tables...")
+		db.NewTables(c.Tables)
+	}
 	return db.Starttime
 }
 

@@ -32,6 +32,16 @@ func NewHeaders() *Headers {
 	return h
 }
 
+func LifeHistorySummaryHeader() []string {
+	// Returns header for life history summary
+	tail := []string{"%Complete", "Neoplasia", "Malignant"}
+	h := NewHeaders()
+	// Remove source column
+	ret := h.Taxonomy[:len(h.Taxonomy)-1]
+	ret = append(ret, h.Life_history[1:]...)
+	return append(ret, tail...)
+}
+
 func RecordsHeader() []string {
 	var ret []string
 	h := NewHeaders()
