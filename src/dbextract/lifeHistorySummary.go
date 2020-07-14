@@ -37,7 +37,7 @@ func newLifeHist(db *dbIO.DBIO, all bool) *lifeHist {
 func (l *lifeHist) setDiagnses() {
 	// Stores number of neoplasia and malignant records
 	var patients []string
-	ids := codbutils.ToMap(l.db.GetRows("Taxonomy", "taxa_id", l.taxaids, "ID,taxa_id"))
+	ids := codbutils.ToMap(l.db.GetRows("Patient", "taxa_id", l.taxaids, "ID,taxa_id"))
 	for k := range ids {
 		patients = append(patients, k)
 	}
