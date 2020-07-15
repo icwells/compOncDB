@@ -34,7 +34,7 @@ func NewHeaders() *Headers {
 
 func LifeHistorySummaryHeader() []string {
 	// Returns header for life history summary
-	tail := []string{"%Complete", "Neoplasia", "Malignant"}
+	tail := []string{"%Complete", "Neoplasia", "Malignant", "Total"}
 	h := NewHeaders()
 	// Remove source column
 	ret := h.Taxonomy[:len(h.Taxonomy)-1]

@@ -15,7 +15,7 @@ import (
 type lifeHist struct {
 	all       bool
 	db        *dbIO.DBIO
-	diagnosis map[string][]int
+	diagnosis *dataframe.Dataframe
 	res       *dataframe.Dataframe
 	taxa      map[string][]string
 	taxaids   string
@@ -23,34 +23,15 @@ type lifeHist struct {
 
 func newLifeHist(db *dbIO.DBIO, all bool) *lifeHist {
 	// Returns initialized struct
+	var e [][]codbutils.Evaluation
 	l := new(lifeHist)
 	l.all = all
-	l.diagnosis = make(map[string][]int)
+	l.diagnosis = GetCancerRates(db, 1, false, false, false, e)
 	l.db = db
 	l.res, _ = dataframe.NewDataFrame(-1)
 	l.res.SetHeader(codbutils.LifeHistorySummaryHeader())
 	l.setTaxa()
-	l.setDiagnses()
 	return l
-}
-
-func (l *lifeHist) setDiagnses() {
-	// Stores number of neoplasia and malignant records
-	var patients []string
-	ids := codbutils.ToMap(l.db.GetRows("Patient", "taxa_id", l.taxaids, "ID,taxa_id"))
-	for k := range ids {
-		patients = append(patients, k)
-	}
-	for _, i := range l.db.GetRows("Tumor", "ID", strings.Join(patients, ","), "ID,Malignant") {
-		tid := ids[i[0]][0]
-		if _, ex := l.diagnosis[tid]; !ex {
-			l.diagnosis[tid] = []int{0, 0}
-		}
-		l.diagnosis[tid][0]++
-		if i[1] == "1" {
-			l.diagnosis[tid][1]++
-		}
-	}
 }
 
 func (l *lifeHist) setTaxa() {
@@ -87,8 +68,10 @@ func (l *lifeHist) summarize() {
 		}
 		p := float64(complete) / float64(len(v)) * 100
 		row = append(row, strconv.FormatFloat(p, 'f', 2, 64))
-		row = append(row, strconv.Itoa(l.diagnosis[k][0]))
-		row = append(row, strconv.Itoa(l.diagnosis[k][1]))
+		for _, i := range []string{"NeoplasiaRecords", "Malignant", "TotalRecords"} {
+			name, _ := l.diagnosis.GetCell(k, i)
+			row = append(row, name)
+		}
 		l.res.AddRow(row)
 	}
 }
