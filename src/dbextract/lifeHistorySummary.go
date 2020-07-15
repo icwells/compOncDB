@@ -15,7 +15,7 @@ import (
 type lifeHist struct {
 	all       bool
 	db        *dbIO.DBIO
-	diagnosis *dataframe.Dataframe
+	diagnosis map[string][]int
 	res       *dataframe.Dataframe
 	taxa      map[string][]string
 	taxaids   string
@@ -23,19 +23,45 @@ type lifeHist struct {
 
 func newLifeHist(db *dbIO.DBIO, all bool) *lifeHist {
 	// Returns initialized struct
-	var e [][]codbutils.Evaluation
 	l := new(lifeHist)
 	l.all = all
-	l.diagnosis = GetCancerRates(db, 1, false, false, false, e)
+	l.diagnosis = make(map[string][]int)
 	l.db = db
 	l.res, _ = dataframe.NewDataFrame(-1)
 	l.res.SetHeader(codbutils.LifeHistorySummaryHeader())
 	l.setTaxa()
+	l.setDiagnses()
 	return l
+}
+
+func (l *lifeHist) setDiagnses() {
+	// Stores number of neoplasia and malignant records
+	fmt.Println("\tGetting number of records per species...")
+	var patients []string
+	ids := codbutils.ToMap(l.db.GetRows("Patient", "taxa_id", l.taxaids, "ID,taxa_id"))
+	for k, v := range ids {
+		patients = append(patients, k)
+		i := v[0]
+		if _, ex := l.diagnosis[i]; !ex {
+			l.diagnosis[i] = []int{0, 0, 0}
+		}
+		l.diagnosis[i][2]++
+	}
+	tumor := codbutils.ToMap(l.db.GetRows("Tumor", "ID", strings.Join(patients, ","), "ID,Malignant"))
+	for _, i := range l.db.GetRows("Diagnosis", "ID", strings.Join(patients, ","), "ID,Masspresent") {
+		tid := ids[i[0]][0]
+		if i[1] == "1" {
+			l.diagnosis[tid][0]++
+		}
+		if tumor[tid][0] == "1" {
+			l.diagnosis[tid][1]++
+		}
+	}
 }
 
 func (l *lifeHist) setTaxa() {
 	// Sets taxonomy map and
+	fmt.Println("\tGetting taxa ids...")
 	col := strings.Split(l.db.Columns["Taxonomy"], ",")
 	// Remove source column
 	col = col[:len(col)-1]
@@ -55,6 +81,7 @@ func (l *lifeHist) setTaxa() {
 
 func (l *lifeHist) summarize() {
 	// Stores y/n if value is set
+	fmt.Println("\tSummarizing table...")
 	for k, v := range codbutils.ToMap(l.db.GetRows("Life_history", "taxa_id", l.taxaids, "*")) {
 		row := append([]string{k}, l.taxa[k]...)
 		var complete int
@@ -68,9 +95,8 @@ func (l *lifeHist) summarize() {
 		}
 		p := float64(complete) / float64(len(v)) * 100
 		row = append(row, strconv.FormatFloat(p, 'f', 2, 64))
-		for _, i := range []string{"NeoplasiaRecords", "Malignant", "TotalRecords"} {
-			name, _ := l.diagnosis.GetCell(k, i)
-			row = append(row, name)
+		for _, i := range l.diagnosis[k] {
+			row = append(row, strconv.Itoa(i))
 		}
 		l.res.AddRow(row)
 	}
