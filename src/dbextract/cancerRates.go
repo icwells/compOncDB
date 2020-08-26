@@ -16,6 +16,7 @@ type cancerRates struct {
 	df      *dataframe.Dataframe
 	header  []string
 	infant  bool
+	key     string
 	lh      bool
 	min     int
 	nas     []string
@@ -23,14 +24,17 @@ type cancerRates struct {
 	records map[string]*Record
 }
 
-func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool) *cancerRates {
+func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRates {
 	// Returns initialized cancerRates struct
 	c := new(cancerRates)
+	c.setKey(typ)
 	c.db = db
 	c.min = min
-	c.lh = lh
+	if c.key == "species" {
+		c.lh = lh
+	}
 	c.infant = inf
-	c.header = codbutils.CancerRateHeader()
+	c.header = codbutils.CancerRateHeader(c.key)
 	if c.lh {
 		// Omit taxa_id column
 		tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
@@ -44,6 +48,19 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool) *cancerRates {
 	c.rates.SetHeader(c.header)
 	return c
 }
+
+func (c *cancerRates) setKey(t string) {
+	// Stores target column name
+	switch strings.ToLower(t) {
+		case "location":
+			c.key = "Location"
+		case "type":
+			c.key = "Type"
+		default:
+			c.key = "taxa_id"
+	}
+}
+
 
 func (c *cancerRates) formatRates() {
 	// Adds taxonomies to structs, calculates rates, and formats for printing
@@ -146,16 +163,20 @@ func (c *cancerRates) setTaxonomy(idx int) []string {
 	return ret
 }
 
-func (c *cancerRates) getTargetSpecies() {
+func (c *cancerRates) setRecords() {
 	// Stores map of empty species records with >= min occurances
 	for idx := range c.df.Rows {
-		tid, _ := c.df.GetCell(idx, "taxa_id")
+		tid, _ := c.df.GetCell(idx, c.key)
 		if _, ex := c.records[tid]; !ex {
 			c.records[tid] = NewRecord(c.setTaxonomy(idx))
 		}
 	}
-	c.addDenominators()
-	c.appendLifeHistory()
+	if c.key == "species" {
+		c.addDenominators()
+		if c.lh {
+			c.appendLifeHistory()
+		}
+	}
 }
 
 func (c *cancerRates) setDataframe(eval [][]codbutils.Evaluation, nec bool) {
@@ -172,19 +193,19 @@ func (c *cancerRates) setDataframe(eval [][]codbutils.Evaluation, nec bool) {
 	c.df, _ = SearchColumns(c.db, "", eval, c.infant)
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval [][]codbutils.Evaluation) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval [][]codbutils.Evaluation, typ string) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
-	c := newCancerRates(db, min, lh, inf)
+	c := newCancerRates(db, min, lh, inf, typ)
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
 	c.setDataframe(eval, nec)
-	c.getTargetSpecies()
+	c.setRecords()
 	c.countRecords()
 	c.formatRates()
 	fmt.Printf("\tFound %d records with at least %d entries.\n", c.rates.Length(), c.min)
 	return c.rates
 }
 
-func SearchCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval, infile string) *dataframe.Dataframe {
+func SearchCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, typ, eval, infile string) *dataframe.Dataframe {
 	// Wraps call to GetCancerRates
 	var e [][]codbutils.Evaluation
 	if eval != "nil" {
@@ -192,5 +213,5 @@ func SearchCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval, infile s
 	} else if infile != "nil" {
 		e = codbutils.OperationsFromFile(db.Columns, infile)
 	}
-	return GetCancerRates(db, min, nec, inf, lh, e)
+	return GetCancerRates(db, min, nec, inf, lh, e, typ)
 }

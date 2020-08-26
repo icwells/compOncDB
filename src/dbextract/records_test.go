@@ -58,7 +58,7 @@ func getExpectedRecords() [][]string {
 
 func TestCalculateRates(t *testing.T) {
 	// Tests calculateRates method
-	head := codbutils.CancerRateHeader()
+	head := codbutils.CancerRateHeader("taxa_id")
 	expected := getExpectedRecords()
 	//rec := testRecords()
 	for ind, r := range testRecords() {
