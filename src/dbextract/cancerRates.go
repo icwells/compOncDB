@@ -52,15 +52,14 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRat
 func (c *cancerRates) setKey(t string) {
 	// Stores target column name
 	switch strings.ToLower(t) {
-		case "location":
-			c.key = "Location"
-		case "type":
-			c.key = "Type"
-		default:
-			c.key = "taxa_id"
+	case "location":
+		c.key = "Location"
+	case "type":
+		c.key = "Type"
+	default:
+		c.key = "taxa_id"
 	}
 }
-
 
 func (c *cancerRates) formatRates() {
 	// Adds taxonomies to structs, calculates rates, and formats for printing
@@ -166,12 +165,18 @@ func (c *cancerRates) setTaxonomy(idx int) []string {
 func (c *cancerRates) setRecords() {
 	// Stores map of empty species records with >= min occurances
 	for idx := range c.df.Rows {
-		tid, _ := c.df.GetCell(idx, c.key)
-		if _, ex := c.records[tid]; !ex {
-			c.records[tid] = NewRecord(c.setTaxonomy(idx))
+		id, err := c.df.GetCell(idx, c.key)
+		fmt.Println(c.key, id, err)
+		if id != "NA" && id != "-1" {
+			if _, ex := c.records[id]; !ex {
+				c.records[id] = NewRecord()
+				if c.key == "taxa_id" {
+					c.records[id].setTaxonomy(c.setTaxonomy(idx))
+				}
+			}
 		}
 	}
-	if c.key == "species" {
+	if c.key == "taxa_id" {
 		c.addDenominators()
 		if c.lh {
 			c.appendLifeHistory()

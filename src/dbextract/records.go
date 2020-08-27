@@ -23,11 +23,14 @@ type Record struct {
 	Lifehistory  []string
 }
 
-func NewRecord(taxonomy []string) *Record {
+func NewRecord() *Record {
 	// Initializes new record struct
-	r := new(Record)
+	return new(Record)
+}
+
+func (r *Record) setTaxonomy(taxonomy []string) {
+	// Stores taxonomy
 	r.Taxonomy = taxonomy
-	return r
 }
 
 func avgAge(n float64, d int) float64 {
@@ -71,7 +74,9 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 	if id != "" {
 		ret = append(ret, id)
 	}
-	ret = append(ret, r.Taxonomy...)
+	if len(r.Taxonomy) > 0 {
+		ret = append(ret, r.Taxonomy...)
+	}
 	//"AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
 	ret = append(ret, strconv.Itoa(r.Total))
 	ret = append(ret, strconv.Itoa(r.Cancer))
