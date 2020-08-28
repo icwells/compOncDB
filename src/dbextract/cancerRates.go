@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+var TID = "taxa_id"
+
 type cancerRates struct {
 	db      *dbIO.DBIO
 	df      *dataframe.Dataframe
@@ -22,6 +24,7 @@ type cancerRates struct {
 	nas     []string
 	rates   *dataframe.Dataframe
 	records map[string]*Record
+	species bool
 }
 
 func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRates {
@@ -30,11 +33,11 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRat
 	c.setKey(typ)
 	c.db = db
 	c.min = min
-	if c.key == "species" {
-		c.lh = lh
-	}
 	c.infant = inf
 	c.header = codbutils.CancerRateHeader(c.key)
+	if c.species {
+		c.lh = lh
+	}
 	if c.lh {
 		// Omit taxa_id column
 		tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
@@ -57,7 +60,8 @@ func (c *cancerRates) setKey(t string) {
 	case "type":
 		c.key = "Type"
 	default:
-		c.key = "taxa_id"
+		c.key = TID
+		c.species = true
 	}
 }
 
@@ -129,7 +133,7 @@ func (c *cancerRates) countRecords() {
 
 func (c *cancerRates) appendLifeHistory() {
 	// Determines age of infancy and adds life history if needed
-	lifehist := codbutils.ToMap(c.db.GetRows("Life_history", "taxa_id", getRecKeys(c.records), "*"))
+	lifehist := codbutils.ToMap(c.db.GetRows("Life_history", TID, getRecKeys(c.records), "*"))
 	for k, v := range c.records {
 		if lh, ex := lifehist[k]; ex {
 			v.Lifehistory = lh
@@ -154,7 +158,7 @@ func (c *cancerRates) setTaxonomy(idx int) []string {
 	// Stores taxonomy for given record
 	var ret []string
 	for _, k := range strings.Split(c.db.Columns["Taxonomy"], ",") {
-		if k != "Source" && k != "taxa_id" {
+		if k != "Source" && k != TID {
 			val, _ := c.df.GetCell(idx, k)
 			ret = append(ret, val)
 		}
@@ -169,13 +173,13 @@ func (c *cancerRates) setRecords() {
 		if id != "NA" && id != "-1" {
 			if _, ex := c.records[id]; !ex {
 				c.records[id] = NewRecord()
-				if c.key == "taxa_id" {
+				if c.species {
 					c.records[id].setTaxonomy(c.setTaxonomy(idx))
 				}
 			}
 		}
 	}
-	if c.key == "taxa_id" {
+	if c.species {
 		c.addDenominators()
 		if c.lh {
 			c.appendLifeHistory()
