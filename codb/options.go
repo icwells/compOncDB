@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/schema"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"net/http"
@@ -14,6 +15,7 @@ type Options struct {
 	AllTaxa     bool
 	Cancerrate  bool
 	Infant      bool
+	Key         string
 	Lifehistory bool
 	Min         int
 	Necropsy    bool
@@ -25,6 +27,7 @@ func setOptions(r *http.Request) *Options {
 	opt := new(Options)
 	decoder := schema.NewDecoder()
 	decoder.Decode(opt, r.PostForm)
+	fmt.Println(opt.Key)
 	return opt
 }
 

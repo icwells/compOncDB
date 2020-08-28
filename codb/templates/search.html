@@ -18,12 +18,18 @@ New searches, on the other hand, are completely independent of one another (Thes
     </div>
     <div id="Rates" class="hide tab">
       <div>
-        <label for="Min">The minimum number of entries required to examine a species:</label>
+        <label for="Min">The minimum number of entries required to examine a species or tumor type:</label>
         <input type="number" name="Min" min="0" value="1">
       </div>
       <div>
         <input type="checkbox" name="Lifehistory">
-        <label for="Lifehistory">Append life history information to results</label>
+        <label for="Lifehistory">Append life history information to results (for species only).</label>
+      </div>
+      <p>Select value to summarize cancer rates by:</p>
+      <div class="tab">
+          <input type="radio" name="Key" value="species" checked="checked"> Species</input><br>
+          <input type="radio" name="Key" value="location"> Location</input><br>
+          <input type="radio" name="Key" value="type"> Type</input><br>
       </div>
 	</div>
     <div>
