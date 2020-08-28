@@ -102,7 +102,7 @@ func (c *cancerRates) countNeoplasia(idx int, tid, sex string, age float64) {
 func (c *cancerRates) countRecords() {
 	// Counts the number of total, adult, and adult cancer occurances by species
 	for idx := range c.df.Rows {
-		tid, _ := c.df.GetCell(idx, "taxa_id")
+		tid, _ := c.df.GetCell(idx, c.key)
 		if _, ex := c.records[tid]; ex {
 			// Increment total
 			c.records[tid].Total++
@@ -165,8 +165,7 @@ func (c *cancerRates) setTaxonomy(idx int) []string {
 func (c *cancerRates) setRecords() {
 	// Stores map of empty species records with >= min occurances
 	for idx := range c.df.Rows {
-		id, err := c.df.GetCell(idx, c.key)
-		fmt.Println(c.key, id, err)
+		id, _ := c.df.GetCell(idx, c.key)
 		if id != "NA" && id != "-1" {
 			if _, ex := c.records[id]; !ex {
 				c.records[id] = NewRecord()
