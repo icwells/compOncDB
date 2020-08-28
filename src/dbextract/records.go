@@ -67,12 +67,12 @@ func (r *Record) formatRate(n, d int) string {
 	return strconv.FormatFloat(v, 'f', 2, 64)
 }
 
-func (r *Record) CalculateRates(id string, lh bool) []string {
+func (r *Record) CalculateRates(id []string, lh bool) []string {
 	// Returns string slice of rates
 	var ret []string
 	r.CalculateAvgAges()
-	if id != "" {
-		ret = append(ret, id)
+	if len(id) > 0 {
+		ret = append(ret, id...)
 	}
 	if len(r.Taxonomy) > 0 {
 		ret = append(ret, r.Taxonomy...)
@@ -101,6 +101,20 @@ func (r *Record) CalculateRates(id string, lh bool) []string {
 		ret = append(ret, r.Lifehistory...)
 	}
 	return ret
+}
+
+func (r *Record) Add(v *Record) {
+	// Add values from v to r
+	r.Total += v.Total
+	r.Age += v.Age
+	r.Male += v.Male
+	r.Female += v.Female
+	r.Cancer += v.Cancer
+	r.Cancerage += v.Cancerage
+	r.Malecancer += v.Malecancer
+	r.Femalecancer += v.Femalecancer
+	r.Malignant += v.Malignant
+	r.Necropsy += v.Necropsy
 }
 
 func getRecKeys(records map[string]*Record) string {

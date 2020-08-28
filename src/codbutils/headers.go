@@ -52,7 +52,7 @@ func RecordsHeader() []string {
 	return append(ret, h.Source[1:]...)
 }
 
-func CancerRateHeader(key string) []string {
+func CancerRateHeader(key, second string) []string {
 	// Returns header for cancer rate output
 	var ret []string
 	h := NewHeaders()
@@ -60,6 +60,7 @@ func CancerRateHeader(key string) []string {
 		ret = append(ret, h.Taxonomy[:len(h.Taxonomy) - 1]...)
 	} else {
 		ret = append(ret, key)
+		ret = append(ret, second)
 	}
 	return append(ret, h.Rates...)
 }
