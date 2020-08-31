@@ -19,6 +19,7 @@ type Record struct {
 	Malecancer   int
 	Femalecancer int
 	Malignant    int
+	Benign       int
 	Necropsy     int
 	Lifehistory  []string
 }
@@ -84,6 +85,9 @@ func (r *Record) CalculateRates(id []string, lh bool) []string {
 	ret = append(ret, strconv.Itoa(r.Malignant))
 	ret = append(ret, r.formatRate(r.Malignant, r.Total))
 	ret = append(ret, r.formatRate(r.Malignant, r.Cancer))
+	ret = append(ret, strconv.Itoa(r.Benign))
+	ret = append(ret, r.formatRate(r.Benign, r.Total))
+	ret = append(ret, r.formatRate(r.Benign, r.Cancer))
 	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
 	ret = append(ret, strconv.Itoa(r.Male))
@@ -114,6 +118,7 @@ func (r *Record) Add(v *Record) {
 	r.Malecancer += v.Malecancer
 	r.Femalecancer += v.Femalecancer
 	r.Malignant += v.Malignant
+	r.Benign += v.Benign
 	r.Necropsy += v.Necropsy
 }
 

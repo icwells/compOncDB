@@ -35,6 +35,8 @@ func (c *cancerRates) countNeoplasia(idx int, field, id, sex string, age float64
 			if mal, er := c.df.GetCell(idx, "Malignant"); er == nil {
 				if mal == "1" {
 					c.records[field][id].Malignant++
+				} else if mal == "0" {
+					c.records[field][id].Benign++
 				}
 			}
 		}
