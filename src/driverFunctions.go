@@ -26,7 +26,7 @@ func backup(pw string) {
 	password := fmt.Sprintf("-p%s", pw)
 	host := fmt.Sprintf("-h%s", c.Host)
 	res := fmt.Sprintf("--result-file=%s.%s.sql", c.Database, datestamp)
-	bu := exec.Command("mysqldump", user, host, password, res, c.Database)
+	bu := exec.Command("mysqldump", user, host, password, res, c.Database, "--column-statistics=0")
 	err := bu.Run()
 	if err == nil {
 		fmt.Println("\tBackup complete.")
