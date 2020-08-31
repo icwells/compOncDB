@@ -15,6 +15,7 @@ import (
 type tableupdate struct {
 	table  string
 	target string
+	total  int
 	values map[string]map[string]string
 }
 
@@ -33,6 +34,7 @@ func (t *tableupdate) add(id string, col string, val string) {
 		t.values[col] = make(map[string]string)
 	}
 	t.values[col][id] = val
+	t.total++
 }
 
 func (t *tableupdate) updateTable(db *dbIO.DBIO) {
@@ -41,7 +43,7 @@ func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 	if pass == false {
 		fmt.Printf("\t[Warning] Failed to upload to %s.\n", t.table)
 	} else {
-		fmt.Printf("\tUpdated %d records in %s.\n", len(t.values), t.table)
+		fmt.Printf("\tUpdated %d records in %s.\n", t.total, t.table)
 	}
 }
 
