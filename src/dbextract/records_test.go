@@ -4,6 +4,7 @@ package dbextract
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/simpleset"
 	"testing"
 )
 
@@ -37,19 +38,21 @@ func canidTaxa() ([]string, []string) {
 func testRecords() []Record {
 	// Returns slice of records for testing
 	canis, vulpes := canidTaxa()
+	set := simpleset.NewStringSet()
 	return []Record{
-		{append(canis, "Canis lupus"), 100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20, nil},
-		{append(canis, "Canis latrans"), 110, 900.0, 50, 70, 30, 300.0, 12, 18, 3, 5, 5, nil},
-		{append(vulpes, "Vulpes vulpes"), 50, 600.0, 25, 35, 0, 0.0, 50, 0, 0, 0, 0, nil},
+		{append(canis, "Canis lupus"), 100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20, nil, set},
+		{append(canis, "Canis latrans"), 110, 900.0, 50, 70, 30, 300.0, 12, 18, 3, 5, 5, nil, set},
+		{append(vulpes, "Vulpes vulpes"), 50, 600.0, 25, 35, 0, 0.0, 50, 0, 0, 0, 0, nil, set},
 	}
 }
 
 func TestAdd(t *testing.T) {
 	r := NewRecord()
+	set := simpleset.NewStringSet()
 	exp := []*Record{
-		{[]string{""}, 100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20, nil},
-		{[]string{""}, 210, 1900.0, 100, 120, 55, 550.0, 27, 28, 8, 15, 25, nil},
-		{[]string{""}, 260, 2500.0, 125, 155, 55, 550.0, 77, 28, 8, 15, 25, nil},
+		{[]string{""}, 100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20, nil, set},
+		{[]string{""}, 210, 1900.0, 100, 120, 55, 550.0, 27, 28, 8, 15, 25, nil, set},
+		{[]string{""}, 260, 2500.0, 125, 155, 55, 550.0, 77, 28, 8, 15, 25, nil, set},
 	}
 	for idx, v := range testRecords() {
 		i := &v
@@ -84,9 +87,9 @@ func getExpectedRecords() [][]string {
 	// Return slice of expected values
 	var expected [][]string
 	canis, vulpes := canidTaxa()
-	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "5", "0.05", "0.20", "10", "0.10", "0.40", "10.00", "10.00", "50", "50", "15", "10", "20"}...)
-	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "3", "0.03", "0.10", "5", "0.05", "0.17", "8.18", "10.00", "50", "70", "12", "18", "5"}...)
-	fox := append(vulpes, []string{"Vulpes vulpes", "50", "0", "0.00", "0", "0.00", "0.00", "0", "0.00", "0.00","12.00", "NA", "25", "35", "50", "0", "0"}...)
+	wolf := append(canis, []string{"Canis lupus", "100", "25", "0.25", "5", "0.05", "0.20", "10", "0.10", "0.40", "10.00", "10.00", "50", "50", "15", "10", "20", "0"}...)
+	coyote := append(canis, []string{"Canis latrans", "110", "30", "0.27", "3", "0.03", "0.10", "5", "0.05", "0.17", "8.18", "10.00", "50", "70", "12", "18", "5", "0"}...)
+	fox := append(vulpes, []string{"Vulpes vulpes", "50", "0", "0.00", "0", "0.00", "0.00", "0", "0.00", "0.00", "12.00", "NA", "25", "35", "50", "0", "0", "0"}...)
 	expected = append(expected, wolf)
 	expected = append(expected, coyote)
 	return append(expected, fox)
@@ -96,7 +99,6 @@ func TestCalculateRates(t *testing.T) {
 	// Tests calculateRates method
 	head := codbutils.CancerRateHeader("taxa_id", "")
 	expected := getExpectedRecords()
-	//rec := testRecords()
 	for ind, r := range testRecords() {
 		actual := r.CalculateRates([]string{}, false)
 		for idx, i := range actual {

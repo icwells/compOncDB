@@ -4,6 +4,7 @@ package dbextract
 
 import (
 	"fmt"
+	"github.com/icwells/simpleset"
 	"strconv"
 	"strings"
 )
@@ -22,11 +23,14 @@ type Record struct {
 	Benign       int
 	Necropsy     int
 	Lifehistory  []string
+	Sources      *simpleset.Set
 }
 
 func NewRecord() *Record {
 	// Initializes new record struct
-	return new(Record)
+	r := new(Record)
+	r.Sources = simpleset.NewStringSet()
+	return r
 }
 
 func (r *Record) setTaxonomy(taxonomy []string) {
@@ -68,6 +72,14 @@ func (r *Record) formatRate(n, d int) string {
 	return strconv.FormatFloat(v, 'f', 2, 64)
 }
 
+func (r *Record) setSources() string {
+	// Returns number of unique sources
+	if r.Sources.Length() > 0 {
+		return strconv.Itoa(r.Sources.Length())
+	}
+	return "0"
+}
+
 func (r *Record) CalculateRates(id []string, lh bool) []string {
 	// Returns string slice of rates
 	var ret []string
@@ -95,6 +107,7 @@ func (r *Record) CalculateRates(id []string, lh bool) []string {
 	ret = append(ret, strconv.Itoa(r.Malecancer))
 	ret = append(ret, strconv.Itoa(r.Femalecancer))
 	ret = append(ret, strconv.Itoa(r.Necropsy))
+	ret = append(ret, r.setSources())
 	for idx, i := range ret {
 		// Replace -1 with NA
 		if strings.Split(i, ".")[0] == "-1" {

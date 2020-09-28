@@ -74,6 +74,8 @@ func (c *cancerRates) countRecords() {
 					c.countNeoplasia(idx, field, id, sex, age)
 				}
 			}
+			source, _ := c.df.GetCell(idx, "account_id") 
+			c.records[field][id].Sources.Add(source)
 		}
 	}
 }
