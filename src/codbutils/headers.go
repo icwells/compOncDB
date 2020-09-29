@@ -26,7 +26,7 @@ func NewHeaders() *Headers {
 	h.Common = []string{"taxa_id", "Name", "Curator"}
 	h.Denominators = []string{"taxa_id", "Noncancer"}
 	h.Diagnosis = []string{"ID", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis"}
-	h.Life_history = []string{"taxa_id", "female_maturity(months)", "male_maturity(months)", "Gestation(months)", "Weaning(months)", "Infancy(months)", "litter_size", "litters_year", "interbirth_interval", "birth_weight(g)", "weaning_weight(g)", "adult_weight(g)", "growth_rate(1/days)", "max_longevity(months)", "metabolic_rate(W)"}
+	h.Life_history = []string{"taxa_id", "female_maturity(months)", "male_maturity(months)", "Gestation(months)", "Weaning(months)", "Infancy(months)", "litter_size", "litters_year", "interbirth_interval", "birth_weight(g)", "weaning_weight(g)", "adult_weight(g)", "growth_rate(1/days)", "max_longevity(months)", "metabolic_rate(mLO2/hr)"}
 	h.Patient = []string{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments"}
 	h.Rates = []string{"TotalRecords", "NeoplasiaRecords", "NeoplasiaRate", "Malignant", "MalignancyRate", "PropMalignant", "Benign", "BenignRate", "PropBenign", "AverageAge(months)", "AvgAgeNeoplasia(months)", "Male", "Female", "MaleNeoplasia", "FemaleNeoplasia", "Necropsies", "#Sources"}
 	h.Source = []string{"ID", "service_name", "Zoo", "Aza", "Institute", "Approved", "account_id"}
