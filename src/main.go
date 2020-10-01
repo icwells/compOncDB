@@ -44,7 +44,7 @@ var (
 	extract    = kingpin.Command("extract", "Extract data from the database and perform optional analyses or searches.")
 	alltaxa    = extract.Flag("alltaxa", "Summarizes life history table for all species (performs summary for species with records in patient table by default).").Default("false").Bool()
 	col        = extract.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
-	cr         = extract.Flag("cancerRate", "Calculates cancer rates for species/locations/tumor types with greater than min entries (specify 'species', 'location', or 'type').").Default("nil").String()
+	cr         = extract.Flag("cancerRate", "Calculates cancer rates for species (optionally by locations/tumor types) with greater than min entries (specify 'species' for species-level only, or 'location' or 'type' to summarize species records by tumor location or type).").Default("nil").String()
 	dump       = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
 	dumpdb     = extract.Flag("dump_db", "Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).").Default("false").Bool()
 	infant     = extract.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()

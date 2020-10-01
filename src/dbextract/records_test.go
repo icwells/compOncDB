@@ -97,10 +97,10 @@ func getExpectedRecords() [][]string {
 
 func TestCalculateRates(t *testing.T) {
 	// Tests calculateRates method
-	head := codbutils.CancerRateHeader("taxa_id", "")
+	head := codbutils.CancerRateHeader("")
 	expected := getExpectedRecords()
 	for ind, r := range testRecords() {
-		actual := r.CalculateRates([]string{}, false)
+		actual := r.CalculateRates("", false)
 		for idx, i := range actual {
 			if i != expected[ind][idx] {
 				t.Errorf("%d: Actual calculated rate %s %s does not equal expected: %s", ind, head[idx+1], i, expected[ind][idx])

@@ -1,4 +1,4 @@
-// This scrpt will calculate cancer rates for species with  at least a given number of entries
+// This script will calculate cancer rates for species with  at least a given number of entries
 
 package dbextract
 
@@ -25,6 +25,7 @@ type cancerRates struct {
 	records map[string]map[string]*Record
 	sec     string
 	species bool
+	total   string
 }
 
 func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRates {
@@ -34,10 +35,8 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRat
 	c.db = db
 	c.min = min
 	c.infant = inf
-	c.header = codbutils.CancerRateHeader(c.key, c.sec)
-	if c.species {
-		c.lh = lh
-	}
+	c.header = codbutils.CancerRateHeader(c.sec)
+	c.lh = lh
 	if c.lh {
 		// Omit taxa_id column
 		tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
@@ -49,25 +48,24 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRat
 	c.records = make(map[string]map[string]*Record)
 	c.rates, _ = dataframe.NewDataFrame(-1)
 	c.rates.SetHeader(c.header)
+	c.total = "total"
 	return c
 }
 
 func (c *cancerRates) setKey(t string) {
 	// Stores target column name
+	c.key = TID
 	switch strings.ToLower(t) {
 	case "location":
-		c.key = "Location"
-		c.sec = "Type"
-	case "type":
-		c.key = "Type"
 		c.sec = "Location"
+	case "type":
+		c.sec = "Type"
 	default:
-		c.key = TID
 		c.species = true
 	}
 }
 
-func (c *cancerRates) calculateRates(v *Record, name []string) {
+func (c *cancerRates) calculateRates(v *Record, name string) {
 	// Calclates cancer rates and adds to dataframe
 	if v.Total >= c.min {
 		// Calculate cancer rates
@@ -82,24 +80,18 @@ func (c *cancerRates) calculateRates(v *Record, name []string) {
 
 func (c *cancerRates) formatRates() {
 	// Calculates rates, and formats for printing
-	var name []string
 	if len(c.records) > 0 {
-		for key, val := range c.records {
-			if c.species {
-				name = []string{"total"}
-			} else {
-				name = []string{key, "total"}
-			}
-			c.calculateRates(val["total"], name)
-			for k, v := range val {
-				if k != "total" {
-					if c.species {
-						name = []string{k}
-					} else {
-						name = []string{key, k}
+		for _, val := range c.records {
+			if !c.species {
+				c.calculateRates(val[c.total], c.total)
+				for k, v := range val {
+					if k != c.total {
+						c.calculateRates(v, k)
 					}
-					c.calculateRates(v, name)
 				}
+			} else {
+				// Omit location/type column
+				c.calculateRates(val[c.total], "")
 			}
 		}
 	}
@@ -124,13 +116,11 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval [][]codbutil
 	c := newCancerRates(db, min, lh, inf, typ)
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
 	c.setDataframe(eval, nec)
-	if c.species {
-		c.setTaxaRecords()
-	} else {
-		c.setTumorRecords()
-	}
+	c.setRecords()
 	c.countRecords()
-	c.getTotals()
+	if !c.species {
+		c.getTotals()
+	}
 	c.formatRates()
 	fmt.Printf("\tFound %d records with at least %d entries.\n", c.rates.Length(), c.min)
 	return c.rates
