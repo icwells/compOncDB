@@ -80,15 +80,18 @@ func (r *Record) setSources() string {
 	return "0"
 }
 
-func (r *Record) CalculateRates(id string, lh bool) []string {
+func (r *Record) CalculateRates(id, name string, lh bool) []string {
 	// Returns string slice of rates
 	var ret []string
 	r.CalculateAvgAges()
+	if len(id) > 0 {
+		ret = append(ret, id)
+	}
 	if len(r.Taxonomy) > 0 {
 		ret = append(ret, r.Taxonomy...)
 	}
-	if len(id) > 0 {
-		ret = append(ret, id)
+	if len(name) > 0 {
+		ret = append(ret, name)
 	}
 	//"AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
 	ret = append(ret, strconv.Itoa(r.Total))

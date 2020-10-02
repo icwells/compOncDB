@@ -62,7 +62,7 @@ func (c *cancerRates) countRecords() {
 			}
 			if age, err := c.df.GetCellFloat(idx, "Age"); err == nil {
 				// Increment adult if age is greater than age of infancy
-				c.records[id][field].Age = c.records[field][id].Age + age
+				c.records[id][field].Age = c.records[id][field].Age + age
 				sex, er := c.df.GetCell(idx, "Sex")
 				if er == nil {
 					if sex == "male" {

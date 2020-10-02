@@ -75,7 +75,7 @@ func CancerRateHeader(key string) []string {
 	var ret []string
 	h := NewHeaders()
 	ret = append(ret, h.Taxonomy[:len(h.Taxonomy) - 1]...)
-	if key != "" {
+	if len(key) > 0 {
 		ret = append(ret, key)
 	}
 	return append(ret, h.Rates...)
