@@ -9,9 +9,9 @@ import (
 
 var H = codbutils.NewHeaders()
 
-func setDF(s [][]string) *dataframe.Dataframe {
+func setDF(col int, s [][]string) *dataframe.Dataframe {
 	// Initializes dataframe with given data
-	ret, _ := dataframe.NewDataFrame(0)
+	ret, _ := dataframe.NewDataFrame(col)
 	ret.SetHeader(s[0])
 	for _, i := range s[1:] {
 		ret.AddRow(i)
@@ -26,7 +26,7 @@ func getAccounts() *dataframe.Dataframe {
 		{"1", "X520", "XYZ"},
 		{"2", "A16", "Kv Zoo"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getCommon() *dataframe.Dataframe {
@@ -37,7 +37,7 @@ func getCommon() *dataframe.Dataframe {
 		{"2", "Wolf", "Shake"},
 		{"3", "Gray Fox", "Shake"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getDenominators() *dataframe.Dataframe {
@@ -46,7 +46,7 @@ func getDenominators() *dataframe.Dataframe {
 		H.Denominators,
 		{"3", "1"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getDiagnosis() *dataframe.Dataframe {
@@ -73,7 +73,7 @@ func getDiagnosis() *dataframe.Dataframe {
 		{"18", "0", "0", "-1", "-1"},
 		{"19", "0", "0", "-1", "-1"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getLifeHistory() *dataframe.Dataframe {
@@ -84,7 +84,7 @@ func getLifeHistory() *dataframe.Dataframe {
 		{"2", "669", "669", "2.03813280736358", "1.54503616042078", "1.54503616042078", "4.98", "0.8", "365", "450", "5250", "26625", "0.0177", "247.2", "33100"},
 		{"3", "345", "365", "1.87376725838264", "1.80802103879027", "1.80802103879027", "3.71", "1.1", "365", "95", "519.7", "4750", "0.0127", "194.4", "-1"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getPatient() *dataframe.Dataframe {
@@ -111,7 +111,7 @@ func getPatient() *dataframe.Dataframe {
 		{"18", "male", "-1", "0", "2", "18", "GRAY WOLF", "30463", "2016", "NA"},
 		{"19", "male", "-1", "0", "2", "19", "GRAY WOLF", "32688", "2016", "NA"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getSource() *dataframe.Dataframe {
@@ -138,7 +138,7 @@ func getSource() *dataframe.Dataframe {
 		{"18", "NWZP", "1", "0", "0", "-1", "2"},
 		{"19", "NWZP", "1", "0", "0", "-1", "2"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getTaxonomy() *dataframe.Dataframe {
@@ -149,7 +149,7 @@ func getTaxonomy() *dataframe.Dataframe {
 		{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52624675`},
 		{"3", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Urocyon", "Urocyon cinereoargenteus", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52578011`},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getTumor() *dataframe.Dataframe {
@@ -176,7 +176,7 @@ func getTumor() *dataframe.Dataframe {
 		{"18", "0", "-1", "NA", "NA"},
 		{"19", "0", "-1", "NA", "NA"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getExpectedTables() map[string]*dataframe.Dataframe {

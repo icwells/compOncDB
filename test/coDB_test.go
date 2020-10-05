@@ -31,6 +31,8 @@ func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 	ec, er := exp.Dimensions()
 	if ac != ec && ar != er {
 		t.Errorf("Actual %s dimensions [%d, %d] do not equal expected: [%d, %d]", name, ac, ar, ec, er)
+		t.Error(exp.GetHeader())
+		t.Error(exp.GetRow(1))
 	} else {
 		for key := range act.Index {
 			for k := range act.Header {

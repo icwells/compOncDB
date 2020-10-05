@@ -67,7 +67,7 @@ func getExpectedRates() *dataframe.Dataframe {
 	s = append(s, wolf)
 	s = append(s, coyote)
 	s = append(s, fox)
-	return setDF(s)
+	return setDF(-1, s)
 }
 
 //----------------------Search------------------------------------------------
@@ -80,7 +80,7 @@ func getCanisResults() *dataframe.Dataframe {
 		{"12", "male", "60", "-1", "2", "12", "wolf", "NA", "1990", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "-1", "2"},
 		{"17", "male", "144", "1", "2", "17", "GRAY WOLF", "NA", "2016", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "-1", "2"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getCoyoteResults() *dataframe.Dataframe {
@@ -89,7 +89,7 @@ func getCoyoteResults() *dataframe.Dataframe {
 		codbutils.RecordsHeader(),
 		{"3", "male", "24", "-1", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "-1", "1"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 func getLitterResults() *dataframe.Dataframe {
@@ -98,7 +98,7 @@ func getLitterResults() *dataframe.Dataframe {
 		codbutils.LifeHistoryTestHeader(),
 		{"1", "274", "274", "2.07100591715976", "1.9723865877712", "1.9723865877712", "5.72", "1.1", "365", "250", "1517", "13250", "0.0183", "261.6", "19.423"},
 	}
-	return setDF(s)
+	return setDF(0, s)
 }
 
 type searchCase struct {
