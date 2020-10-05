@@ -83,7 +83,11 @@ func (c *cancerRates) countRecords() {
 
 func (c *cancerRates) appendLifeHistory() {
 	// Determines age of infancy and adds life history if needed
-	lifehist := codbutils.ToMap(c.db.GetRows("Life_history", TID, getRecKeys(c.records[TID]), "*"))
+	/*var blank []string
+	for i := 0; i < len(c.nas); i++ {
+		blank = append(blank, "")
+	}*/
+	lifehist := codbutils.ToMap(c.db.GetRows("Life_history", TID, strings.Join(c.tids, ","), "*"))
 	for k, v := range c.records {
 		if lh, ex := lifehist[k]; ex {
 			v[c.total].Lifehistory = lh
@@ -118,18 +122,21 @@ func (c *cancerRates) setTaxonomy(idx int) []string {
 
 func (c *cancerRates) setRecords() {
 	// Stores map of empty species records with >= min occurances
+	blank := make([]string, len(c.nas))
 	for idx := range c.df.Rows {
 		if id, err := c.df.GetCell(idx, c.key); err == nil {
 			if _, ex := c.records[id]; !ex {
 				c.records[id] = make(map[string]*Record)
 				c.records[id][c.total] = NewRecord()
 				c.records[id][c.total].setTaxonomy(c.setTaxonomy(idx))
+				c.tids = append(c.tids, id)
 			}
 			if !c.species {
 				field, _ := c.df.GetCell(idx, c.sec)
 				if _, ex := c.records[id][field]; !ex {
 					c.records[id][field] = NewRecord()
-					c.records[id][field].setTaxonomy([]string{"", "", "", "", "", "", ""})
+					c.records[id][field].setTaxonomy(blank[:7])
+					c.records[id][field].Lifehistory = blank
 				}
 			}
 		}
@@ -139,22 +146,3 @@ func (c *cancerRates) setRecords() {
 		c.appendLifeHistory()
 	}
 }
-
-/*func (c *cancerRates) setTaxaRecords() {
-	// Sets records by taxa_ id
-	c.records[TID] = make(map[string]*Record)
-	c.records[TID]["total"] = NewRecord()
-	// Store blank taxonomy to preserve spacing
-	c.records[TID]["total"].setTaxonomy([]string{"", "", "", "", "", "", ""})
-	for idx := range c.df.Rows {
-		id, _ := c.df.GetCell(idx, c.key)
-		if _, ex := c.records[TID][id]; !ex {
-			c.records[TID][id] = NewRecord()
-			c.records[TID][id].setTaxonomy(c.setTaxonomy(idx))
-		}
-	}
-	c.addDenominators()
-	if c.lh {
-		c.appendLifeHistory()
-	}
-}*/

@@ -131,7 +131,7 @@ func (o *Output) searchDB() {
 	eval, o.Flash = checkEvaluations(o.r, o.db.Columns)
 	if opt.Cancerrate {
 		o.Flash = ""
-		res = dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, eval, opt.Key)
+		res = dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, opt.Location, opt.Type, eval)
 		name = fmt.Sprintf("cancerRates.min%d", opt.Min)
 	} else if o.Flash == "" {
 		res, o.Count = dbextract.SearchColumns(o.db, "", eval, opt.Infant)

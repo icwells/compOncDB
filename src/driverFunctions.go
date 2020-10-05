@@ -134,13 +134,17 @@ func writeDF(table *dataframe.Dataframe) {
 	}
 }
 
+func calculateCancerRates() time.Time {
+	// Extract cancer rates
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
+	writeDF(dbextract.SearchCancerRates(db, *min, *nec, *infant, *lifehist, *location, *tumortype, *eval, *infile))
+	return db.Starttime
+}
+
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
-	if *cr != "nil" {
-		// Extract cancer rates
-		writeDF(dbextract.SearchCancerRates(db, *min, *nec, *infant, *lifehist, *cr, *eval, *infile))
-	} else if *dump != "nil" {
+	if *dump != "nil" {
 		// Extract entire table
 		table := db.GetTable(*dump)
 		codbutils.WriteResults(*outfile, db.Columns[*dump], table)

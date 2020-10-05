@@ -25,13 +25,14 @@ type cancerRates struct {
 	records map[string]map[string]*Record
 	sec     string
 	species bool
+	tids    []string
 	total   string
 }
 
-func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRates {
+func newCancerRates(db *dbIO.DBIO, min int, lh, inf, location, tumortype bool) *cancerRates {
 	// Returns initialized cancerRates struct
 	c := new(cancerRates)
-	c.setKey(typ)
+	c.setKey(location, tumortype)
 	c.db = db
 	c.min = min
 	c.infant = inf
@@ -52,15 +53,14 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, typ string) *cancerRat
 	return c
 }
 
-func (c *cancerRates) setKey(t string) {
+func (c *cancerRates) setKey(location, tumortype bool) {
 	// Stores target column name
 	c.key = TID
-	switch strings.ToLower(t) {
-	case "location":
+	if location {
 		c.sec = "Location"
-	case "type":
+	} else if tumortype {
 		c.sec = "Type"
-	default:
+	} else {
 		c.species = true
 	}
 }
@@ -73,7 +73,6 @@ func (c *cancerRates) calculateRates(v *Record, id, name string) {
 		// Add to dataframe
 		err := c.rates.AddRow(r)
 		if err != nil {
-			fmt.Println(r)
 			fmt.Printf("\t[Error] Adding row to dataframe: %v\n", err)
 		}
 	}
@@ -112,9 +111,9 @@ func (c *cancerRates) setDataframe(eval [][]codbutils.Evaluation, nec bool) {
 	c.df, _ = SearchColumns(c.db, "", eval, c.infant)
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval [][]codbutils.Evaluation, typ string) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, location, tumortype bool, eval [][]codbutils.Evaluation) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
-	c := newCancerRates(db, min, lh, inf, typ)
+	c := newCancerRates(db, min, lh, inf, location, tumortype)
 	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
 	c.setDataframe(eval, nec)
 	c.setRecords()
@@ -127,7 +126,7 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval [][]codbutil
 	return c.rates
 }
 
-func SearchCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, typ, eval, infile string) *dataframe.Dataframe {
+func SearchCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, location, tumortype bool, eval, infile string) *dataframe.Dataframe {
 	// Wraps call to GetCancerRates
 	var e [][]codbutils.Evaluation
 	if eval != "nil" {
@@ -135,5 +134,5 @@ func SearchCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, typ, eval, inf
 	} else if infile != "nil" {
 		e = codbutils.OperationsFromFile(db.Columns, infile)
 	}
-	return GetCancerRates(db, min, nec, inf, lh, e, typ)
+	return GetCancerRates(db, min, nec, inf, lh, location, tumortype, e)
 }

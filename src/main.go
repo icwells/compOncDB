@@ -18,6 +18,8 @@ var (
 	table   = kingpin.Flag("table", "Perform operations on this table only.").Default("nil").String()
 	infile  = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
 	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
+	infant  = extract.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
+	nec     = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
 
 	ver = kingpin.Command("version", "Prints version info and exits.")
 	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; output is written to current directory).")
@@ -44,17 +46,18 @@ var (
 	extract    = kingpin.Command("extract", "Extract data from the database and perform optional analyses or searches.")
 	alltaxa    = extract.Flag("alltaxa", "Summarizes life history table for all species (performs summary for species with records in patient table by default).").Default("false").Bool()
 	col        = extract.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
-	cr         = extract.Flag("cancerRate", "Calculates cancer rates for species (optionally by locations/tumor types) with greater than min entries (specify 'species' for species-level only, or 'location' or 'type' to summarize species records by tumor location or type).").Default("nil").String()
 	dump       = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
 	dumpdb     = extract.Flag("dump_db", "Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).").Default("false").Bool()
-	infant     = extract.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 	lhsummary  = extract.Flag("lhsummary", "Summarizes life history table.").Default("false").Bool()
-	lifehist   = extract.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
-	min        = extract.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
-	nec        = extract.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
 	reftaxa    = extract.Flag("reference_taxonomy", "Returns merged common and taxonomy tables.").Short('r').Default("false").Bool()
 	sum        = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
 	taxonomies = extract.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
+
+	cancerrates = kingpin.Command("cancerrates", "Calculate cancer rates for species.")
+	lifehist    = cancerrates.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
+	location    = cancerrates.Flag("location", "Include tumor location summary for each species.").Default("false").Bool()
+	min         = cancerrates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
+	tumortype   = cancerrates.Flag("type", "Include tumor type summary for each species.").Default("false").Bool()
 )
 
 func version() {
@@ -84,6 +87,8 @@ func main() {
 		start = updateDB()
 	case extract.FullCommand():
 		start = extractFromDB()
+	case cancerrates.FullCommand():
+		start = calculateCancerRates()
 	}
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }

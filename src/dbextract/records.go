@@ -136,21 +136,7 @@ func (r *Record) Add(v *Record) {
 	r.Malignant += v.Malignant
 	r.Benign += v.Benign
 	r.Necropsy += v.Necropsy
-}
-
-func getRecKeys(records map[string]*Record) string {
-	// Returns string of taxa_ids
-	first := true
-	var buffer strings.Builder
-	for k := range records {
-		if first == false {
-			// Write name with preceding comma
-			buffer.WriteByte(',')
-			buffer.WriteString(k)
-		} else {
-			buffer.WriteString(k)
-			first = false
-		}
+	for _, i := range v.Sources.ToStringSlice() {
+		r.Sources.Add(i)
 	}
-	return buffer.String()
 }
