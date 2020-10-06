@@ -38,13 +38,13 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf, location, tumortype bool) *
 	c.infant = inf
 	c.header = codbutils.CancerRateHeader(c.sec)
 	c.lh = lh
+	// Set NAs and optionally add life history header
+	tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
+	for i := 0; i < len(tail); i++ {
+		c.nas = append(c.nas, "NA")
+	}
 	if c.lh {
-		// Omit taxa_id column
-		tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
 		c.header = append(c.header, tail...)
-		for i := 0; i < len(tail); i++ {
-			c.nas = append(c.nas, "NA")
-		}
 	}
 	c.records = make(map[string]map[string]*Record)
 	c.rates, _ = dataframe.NewDataFrame(-1)
@@ -86,6 +86,8 @@ func (c *cancerRates) formatRates() {
 				c.calculateRates(val[c.total], key, c.total)
 				for k, v := range val {
 					if k != c.total {
+						// Set to species level totals
+						v.Total = val[c.total].Total
 						c.calculateRates(v, key, k)
 					}
 				}
