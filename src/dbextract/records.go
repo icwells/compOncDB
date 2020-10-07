@@ -80,10 +80,14 @@ func (r *Record) setSources() string {
 	return "0"
 }
 
-func (r *Record) CalculateRates(id, name string, lh bool) []string {
+func (r *Record) CalculateRates(id, name string, den int, lh bool) []string {
 	// Returns string slice of rates
 	var ret []string
 	r.CalculateAvgAges()
+	if den < 0 {
+		// Set denominator as species total
+		den = r.Total
+	}
 	if len(id) > 0 {
 		ret = append(ret, id)
 	}
@@ -96,12 +100,12 @@ func (r *Record) CalculateRates(id, name string, lh bool) []string {
 	//"AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
 	ret = append(ret, strconv.Itoa(r.Total))
 	ret = append(ret, strconv.Itoa(r.Cancer))
-	ret = append(ret, r.formatRate(r.Cancer, r.Total))
+	ret = append(ret, r.formatRate(r.Cancer, den))
 	ret = append(ret, strconv.Itoa(r.Malignant))
-	ret = append(ret, r.formatRate(r.Malignant, r.Total))
+	ret = append(ret, r.formatRate(r.Malignant, den))
 	ret = append(ret, r.formatRate(r.Malignant, r.Cancer))
 	ret = append(ret, strconv.Itoa(r.Benign))
-	ret = append(ret, r.formatRate(r.Benign, r.Total))
+	ret = append(ret, r.formatRate(r.Benign, den))
 	ret = append(ret, r.formatRate(r.Benign, r.Cancer))
 	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
