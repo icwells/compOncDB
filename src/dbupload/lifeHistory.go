@@ -1,10 +1,8 @@
-// This script will summarize and upload the life history
-//table for the comparative oncology database
+// This script will summarize and upload the life history table for the comparative oncology database
 
 package dbupload
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
@@ -89,12 +87,13 @@ func getColumnIndeces(head []string) map[string]int {
 
 func extractTraits(infile string, ids []string, species map[string]string) [][]string {
 	// Extracts taxonomy from input file
-	missed := 0
-	first := true
 	var l int
 	var traits [][]string
 	var col map[string]int
-	fmt.Printf("\n\tExtracting life history data from %s\n", infile)
+	missed := 0
+	first := true
+	logger := codbutils.GetLogger()
+	logger.Printf("Extracting life history data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := iotools.GetScanner(f)
@@ -120,7 +119,7 @@ func extractTraits(infile string, ids []string, species map[string]string) [][]s
 		}
 	}
 	if missed > 0 {
-		fmt.Printf("\t[Warning] %d records not in taxonomy database.\n", missed)
+		logger.Printf("[Warning] %d records not in taxonomy database.\n", missed)
 	}
 	return traits
 }

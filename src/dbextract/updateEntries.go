@@ -8,20 +8,23 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
+	"log"
 	"strconv"
 	"strings"
 )
 
 type tableupdate struct {
+	logger *log.Logger
 	table  string
 	target string
 	total  int
 	values map[string]map[string]string
 }
 
-func newTableUpdate(table, target string) *tableupdate {
+func newTableUpdate(logger *log.Logger, table, target string) *tableupdate {
 	// Initializes new update struct
 	t := new(tableupdate)
+	t.logger = logger
 	t.table = table
 	t.target = target
 	t.values = make(map[string]map[string]string)
@@ -41,21 +44,22 @@ func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 	// Uploads contents to database
 	pass := db.UpdateColumns(t.table, t.target, t.values)
 	if pass == false {
-		fmt.Printf("\t[Warning] Failed to upload to %s.\n", t.table)
+		t.logger.Printf("[Warning] Failed to upload to %s.\n", t.table)
 	} else {
-		fmt.Printf("\tUpdated %d records in %s.\n", t.total, t.table)
+		t.logger.Printf("Updated %d records in %s.\n", t.total, t.table)
 	}
 }
 
 //----------------------------------------------------------------------------
 
 type updater struct {
+	columns map[string]string
 	db      *dbIO.DBIO
 	delim   string
-	target  string
 	header  map[int]string
-	columns map[string]string
+	logger  *log.Logger
 	tables  map[string]*tableupdate
+	target  string
 	taxa    map[string]string
 }
 
@@ -63,8 +67,9 @@ func newUpdater(db *dbIO.DBIO) updater {
 	// Initializes new update struct
 	var u updater
 	u.db = db
-	u.header = make(map[int]string)
 	u.columns = db.Columns
+	u.header = make(map[int]string)
+	u.logger = codbutils.GetLogger()
 	u.tables = make(map[string]*tableupdate)
 	u.taxa = codbutils.EntryMap(u.db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	return u
@@ -114,7 +119,7 @@ func (u *updater) evaluateRow(row []string) {
 					table := codbutils.GetTable(u.columns, v)
 					if _, ex := u.tables[table]; ex == false {
 						// Initialize new struct
-						u.tables[table] = newTableUpdate(table, u.target)
+						u.tables[table] = newTableUpdate(u.logger, table, u.target)
 					}
 					// Add new value
 					u.tables[table].add(u.checkTaxaID(id), v, val)
@@ -127,7 +132,7 @@ func (u *updater) evaluateRow(row []string) {
 func (u *updater) getUpdateFile(infile string) {
 	// Returns map of data to be updated
 	first := true
-	fmt.Println("\n\tReading input file...")
+	u.logger.Println("Reading input file...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
@@ -147,7 +152,7 @@ func (u *updater) updateTables() {
 	fmt.Println("\tUpdating tables...")
 	for _, v := range u.tables {
 		if v.table == "Accounts" {
-			fmt.Print("\n\t[Warning] Skipping Accounts table.\n\n")
+			u.logger.Print("[Warning] Skipping Accounts table.\n\n")
 		} else {
 			v.updateTable(u.db)
 		}
@@ -165,11 +170,12 @@ func UpdateEntries(db *dbIO.DBIO, infile string) {
 
 func UpdateSingleTable(db *dbIO.DBIO, table, column, value, target, op, key string) {
 	// Updates single table
-	fmt.Printf("\n\tUpdating %s...\n", table)
+	logger := codbutils.GetLogger()
+	logger.Printf("Updating %s...\n", table)
 	c := db.UpdateRow(table, column, value, target, op, key)
 	if c == false {
-		fmt.Printf("\t[Warning] Failed to upload to %s.\n", table)
+		logger.Printf("[Warning] Failed to upload to %s.\n", table)
 	} else {
-		fmt.Printf("\tSuccessfully updated %s.\n", table)
+		logger.Printf("Successfully updated %s.\n", table)
 	}
 }

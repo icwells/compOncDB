@@ -3,29 +3,30 @@
 package dbupload
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
-	"os"
+	"log"
 	"strconv"
 	"strings"
 )
 
 type denominators struct {
-	db      *dbIO.DBIO
-	infile  string
-	delim   string
-	species int
 	cancer  int
-	total   int
+	db      *dbIO.DBIO
+	delim   string
+	infile  string
+	logger  *log.Logger
 	rec     map[string]int
+	species int
+	total   int
 }
 
 func newDenominators(db *dbIO.DBIO, infile string) denominators {
 	// Returns initialized struct with existing data from table
 	var d denominators
 	d.db = db
+	d.logger = codbutils.GetLogger()
 	d.infile = infile
 	d.species = -1
 	d.cancer = -1
@@ -56,8 +57,7 @@ func (d *denominators) parseHeader(line string) {
 		}
 	}
 	if d.species < 0 || d.cancer < 0 || d.total < 0 {
-		fmt.Print("\n\t[Error] Cannot determine column numbers. Exiting.\n\n")
-		os.Exit(110)
+		d.logger.Fatalf("Cannot determine column numbers. Exiting.\n")
 	}
 }
 
@@ -120,8 +120,8 @@ func (d *denominators) readDenominators() {
 
 func LoadNonCancerTotals(db *dbIO.DBIO, infile string) {
 	// Loads denominator
-	fmt.Println("\n\tUploading to denominators table...")
 	d := newDenominators(db, infile)
+	d.logger.Println("Uploading to denominators table...")
 	db.TruncateTable("Denominators")
 	d.readDenominators()
 	d.upload()

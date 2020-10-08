@@ -3,11 +3,11 @@
 package dbextract
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/simpleset"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -16,6 +16,7 @@ type lifeHist struct {
 	all       bool
 	db        *dbIO.DBIO
 	diagnosis map[string][]int
+	logger    *log.Logger
 	res       *dataframe.Dataframe
 	taxa      map[string][]string
 	taxaids   string
@@ -25,8 +26,9 @@ func newLifeHist(db *dbIO.DBIO, all bool) *lifeHist {
 	// Returns initialized struct
 	l := new(lifeHist)
 	l.all = all
-	l.diagnosis = make(map[string][]int)
 	l.db = db
+	l.diagnosis = make(map[string][]int)
+	l.logger = codbutils.GetLogger()
 	l.res, _ = dataframe.NewDataFrame(-1)
 	l.res.SetHeader(codbutils.LifeHistorySummaryHeader())
 	l.setTaxa()
@@ -36,7 +38,7 @@ func newLifeHist(db *dbIO.DBIO, all bool) *lifeHist {
 
 func (l *lifeHist) setDiagnses() {
 	// Stores number of neoplasia and malignant records
-	fmt.Println("\tGetting number of records per species...")
+	l.logger.Println("Getting number of records per species...")
 	var patients []string
 	ids := codbutils.ToMap(l.db.GetRows("Patient", "taxa_id", l.taxaids, "ID,taxa_id"))
 	for k, v := range ids {
@@ -61,7 +63,7 @@ func (l *lifeHist) setDiagnses() {
 
 func (l *lifeHist) setTaxa() {
 	// Sets taxonomy map and
-	fmt.Println("\tGetting taxa ids...")
+	l.logger.Println("Getting taxa ids...")
 	col := strings.Split(l.db.Columns["Taxonomy"], ",")
 	// Remove source column
 	col = col[:len(col)-1]
@@ -81,7 +83,7 @@ func (l *lifeHist) setTaxa() {
 
 func (l *lifeHist) summarize() {
 	// Stores y/n if value is set
-	fmt.Println("\tSummarizing table...")
+	l.logger.Println("Summarizing table...")
 	for k, v := range codbutils.ToMap(l.db.GetRows("Life_history", "taxa_id", l.taxaids, "*")) {
 		row := append([]string{k}, l.taxa[k]...)
 		var complete int
@@ -104,9 +106,9 @@ func (l *lifeHist) summarize() {
 
 func LifeHistorySummary(db *dbIO.DBIO, all bool) *dataframe.Dataframe {
 	// Returns life history database summarized for completeness
-	fmt.Println("\n\tSummarizing life history table...")
 	l := newLifeHist(db, all)
+	l.logger.Println("Summarizing life history table...")
 	l.summarize()
-	fmt.Printf("\tSummarized %d rows from life history table.\n", l.res.Length())
+	l.logger.Printf("Summarized %d rows from life history table.\n", l.res.Length())
 	return l.res
 }

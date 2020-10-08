@@ -5,7 +5,6 @@ package codbutils
 import (
 	"fmt"
 	"github.com/icwells/go-tools/dataframe"
-	"os"
 	"strings"
 )
 
@@ -69,8 +68,7 @@ func (e *Evaluation) setOperation(eval string) {
 		}
 	}
 	if found == false {
-		fmt.Printf("\n\t[Error] %s is not a valid evaluation argument. Exiting.\n\n", eval)
-		os.Exit(1001)
+		GetLogger().Fatalf("%s is not a valid evaluation argument. Exiting.\n", eval)
 	}
 }
 
@@ -84,8 +82,7 @@ func SetOperations(columns map[string]string, eval string) [][]Evaluation {
 		ret = append(ret, e)
 	}
 	if len(ret) == 0 {
-		fmt.Print("\n\t[Error] Please supply an evaluation argument. Exiting.\n\n")
-		os.Exit(1002)
+		GetLogger().Fatalf("Please supply an evaluation argument. Exiting.\n")
 	}
 	return [][]Evaluation{ret}
 }
@@ -95,8 +92,7 @@ func OperationsFromFile(columns map[string]string, infile string) [][]Evaluation
 	var ret [][]Evaluation
 	df, err := dataframe.FromFile(infile, -1)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Cannot read evaluation file: %v\n\n", err)
-		os.Exit(1000)
+		GetLogger().Fatalf("Cannot read evaluation file: %v\n", err)
 	}
 	header := df.GetHeader()
 	for _, row := range df.Rows {
@@ -163,8 +159,7 @@ func GetTable(tables map[string]string, col string) string {
 	// Determines which table column is in, exits if there is an error
 	ret, msg := FindTable(tables, col)
 	if len(ret) == 0 {
-		fmt.Printf("\n\t[Error] %s Exiting.\n\n", msg)
-		os.Exit(1001)
+		GetLogger().Fatalf("%s Exiting.\n", msg)
 	}
 	return ret
 }

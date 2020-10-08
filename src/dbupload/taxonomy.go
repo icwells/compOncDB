@@ -3,10 +3,11 @@
 package dbupload
 
 import (
-	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -87,24 +88,26 @@ func GetTaxaIDs(db *dbIO.DBIO, commonNames bool) map[string]string {
 //----------------------------------------------------------------------------
 
 type taxa struct {
-	db          *dbIO.DBIO
-	count       int
-	commonNames bool
 	col         map[string]int
-	taxaids     map[string]string
-	neu         map[string][]string
 	common      map[string][][]string
+	commonNames bool
+	count       int
+	db          *dbIO.DBIO
+	logger      *log.Logger
+	neu         map[string][]string
+	taxaids     map[string]string
 }
 
 func newTaxa(db *dbIO.DBIO, common bool) *taxa {
 	// Returns new taxonomy struct
 	t := new(taxa)
 	t.db = db
-	t.count = t.db.GetMax("Taxonomy", "taxa_id") + 1
+	t.common = make(map[string][][]string)
 	t.commonNames = common
+	t.count = t.db.GetMax("Taxonomy", "taxa_id") + 1
+	t.logger = codbutils.GetLogger()
 	t.taxaids = GetTaxaIDs(t.db, t.commonNames)
 	t.neu = make(map[string][]string)
-	t.common = make(map[string][][]string)
 	return t
 }
 
@@ -184,7 +187,7 @@ func (t *taxa) extractTaxa(infile string) {
 	// Extracts taxonomy from input file
 	var rows [][]string
 	cur := true
-	fmt.Printf("\n\tExtracting taxa from %s\n", infile)
+	t.logger.Printf("Extracting taxa from %s\n", infile)
 	rows, t.col = iotools.ReadFile(infile, true)
 	l := len(t.col)
 	if _, ex := t.col["Name"]; ex == false {

@@ -8,11 +8,17 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/simpleset"
+	"log"
 	"os"
 	"path"
 	"strings"
 	"time"
 )
+
+func GetLogger() *log.Logger {
+	// Returns logger
+	return log.New(os.Stdout, "compOnDB: ", log.Ldate|log.Ltime)
+}
 
 func Getutils() string {
 	// Returns path to utils directory
@@ -25,7 +31,7 @@ func getAbsPath(f string) string {
 		f = path.Join(Getutils(), f)
 	}
 	if iotools.Exists(f) == false {
-		fmt.Printf("\n\t[Error] Cannot find %s file. Exiting.\n", f)
+		GetLogger().Fatalf("Cannot find %s file. Exiting.\n", f)
 		os.Exit(1)
 	}
 	return f
@@ -75,8 +81,7 @@ func ConnectToDatabase(c Configuration) *dbIO.DBIO {
 	}
 	db, err := dbIO.Connect(c.Host, d, c.User, "")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1000)
+		GetLogger().Fatal(err)
 	}
 	db.GetTableColumns()
 	return db

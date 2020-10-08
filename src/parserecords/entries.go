@@ -3,26 +3,28 @@
 package parserecords
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/clusteraccounts"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/diagnoses"
 	"github.com/icwells/go-tools/iotools"
+	"log"
 	"os"
 	"strings"
 )
 
 type entries struct {
-	d           string
-	col         columns
-	service     string
-	taxa        map[string][]string
 	accounts    map[string][]string
-	match       diagnoses.Matcher
+	col         columns
+	complete    int
+	d           string
 	dups        duplicates
 	dupsPresent bool
 	extracted   int
 	found       int
-	complete    int
+	logger      *log.Logger
+	match       diagnoses.Matcher
+	service     string
+	taxa        map[string][]string
 }
 
 func NewEntries(service, infile string) entries {
@@ -30,9 +32,10 @@ func NewEntries(service, infile string) entries {
 	var e entries
 	e.service = service
 	e.col = newColumns()
-	e.match = diagnoses.NewMatcher()
 	e.dups = newDuplicates()
 	e.dupsPresent = false
+	e.logger = codbutils.GetLogger()
+	e.match = diagnoses.NewMatcher(e.logger)
 	if infile != "" {
 		e.setAccounts(infile)
 	}
@@ -69,7 +72,7 @@ func (e *entries) GetTaxonomy(infile string) {
 	col := make(map[string]int)
 	first := true
 	e.taxa = make(map[string][]string)
-	fmt.Println("\tReading taxonomy file...")
+	e.logger.Println("Reading taxonomy file...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)

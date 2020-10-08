@@ -3,6 +3,7 @@
 package diagnoses
 
 import (
+	"github.com/icwells/compOncDB/src/codbutils"
 	"strings"
 	"testing"
 )
@@ -47,7 +48,7 @@ func getTissueLocations() []string {
 }
 
 func TestNewMatcher(t *testing.T) {
-	m := NewMatcher()
+	m := NewMatcher(codbutils.GetLogger())
 	if len(m.location) == 0 {
 		t.Error("Matcher locations were not read from file.")
 	} else {
@@ -61,7 +62,7 @@ func TestNewMatcher(t *testing.T) {
 
 func TestTumor(t *testing.T) {
 	// Tests getMatch method
-	m := NewMatcher()
+	m := NewMatcher(codbutils.GetLogger())
 	matches := NewMatches()
 	for _, i := range matches {
 		typ, loc, mal := m.GetTumor(i.Line, i.Sex, true)
@@ -76,7 +77,7 @@ func TestTumor(t *testing.T) {
 }
 
 func TestGetCastrated(t *testing.T) {
-	m := NewMatcher()
+	m := NewMatcher(codbutils.GetLogger())
 	matches := NewMatches()
 	for _, i := range matches {
 		actual := m.GetCastrated(i.Line)
@@ -87,7 +88,7 @@ func TestGetCastrated(t *testing.T) {
 }
 
 func TestInfantRecords(t *testing.T) {
-	m := NewMatcher()
+	m := NewMatcher(codbutils.GetLogger())
 	matches := NewMatches()
 	for _, i := range matches {
 		actual := m.InfantRecords(i.Line)
@@ -98,7 +99,7 @@ func TestInfantRecords(t *testing.T) {
 }
 
 func TestGetAge(t *testing.T) {
-	m := NewMatcher()
+	m := NewMatcher(codbutils.GetLogger())
 	matches := NewMatches()
 	for _, i := range matches {
 		actual := m.GetAge(i.Line)

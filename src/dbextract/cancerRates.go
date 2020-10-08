@@ -3,10 +3,10 @@
 package dbextract
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
+	"log"
 	"strings"
 )
 
@@ -19,6 +19,7 @@ type cancerRates struct {
 	infant  bool
 	key     string
 	lh      bool
+	logger  *log.Logger
 	min     int
 	nas     []string
 	rates   *dataframe.Dataframe
@@ -38,6 +39,7 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf, location, tumortype bool) *
 	c.infant = inf
 	c.header = codbutils.CancerRateHeader(c.sec)
 	c.lh = lh
+	c.logger = codbutils.GetLogger()
 	// Set NAs and optionally add life history header
 	tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
 	for i := 0; i < len(tail); i++ {
@@ -73,7 +75,7 @@ func (c *cancerRates) calculateRates(v *Record, id, name string, den int) {
 		// Add to dataframe
 		err := c.rates.AddRow(r)
 		if err != nil {
-			fmt.Printf("\t[Error] Adding row to dataframe: %v\n", err)
+			c.logger.Printf("Adding row to dataframe: %v\n", err)
 		}
 	}
 }
@@ -109,13 +111,13 @@ func (c *cancerRates) setDataframe(eval [][]codbutils.Evaluation, nec bool) {
 		// Set evaluation to return everything
 		eval = codbutils.SetOperations(c.db.Columns, "ID > 0")
 	}
-	c.df, _ = SearchColumns(c.db, "", eval, c.infant)
+	c.df, _ = SearchColumns(c.db, c.logger, "", eval, c.infant)
 }
 
 func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, location, tumortype bool, eval [][]codbutils.Evaluation) *dataframe.Dataframe {
 	// Returns slice of string slices of cancer rates and related info
 	c := newCancerRates(db, min, lh, inf, location, tumortype)
-	fmt.Printf("\n\tCalculating rates for species with at least %d entries...\n", c.min)
+	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.setDataframe(eval, nec)
 	c.setRecords()
 	c.countRecords()
@@ -123,7 +125,7 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, location, tumortype bo
 		c.getTotals()
 	}
 	c.formatRates()
-	fmt.Printf("\tFound %d records with at least %d entries.\n", c.rates.Length(), c.min)
+	c.logger.Printf("Found %d records with at least %d entries.\n", c.rates.Length(), c.min)
 	return c.rates
 }
 

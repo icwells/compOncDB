@@ -3,7 +3,6 @@
 package parserecords
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/iotools"
 	"os"
@@ -48,8 +47,7 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 	} else if e.col.species >= 0 {
 		idx = e.col.species
 	} else {
-		fmt.Print("\n\t[Error] Cannot determine species column. Exiting.\n")
-		os.Exit(20)
+		e.logger.Fatalf("Cannot determine species column. Exiting.\n")
 	}
 	if len(line) >= e.col.max && len(line[idx]) >= 3 && strings.ToUpper(line[idx]) != "N/A" {
 		// Proceed if line is properly formatted and species is present
@@ -99,7 +97,7 @@ func (e *entries) SortRecords(debug bool, infile, outfile string) {
 	var wg sync.WaitGroup
 	var mut sync.RWMutex
 	var total int
-	fmt.Println("\tParsing input records...")
+	e.logger.Println("Parsing input records...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	out := e.getOutputFile(outfile, codbutils.ParseHeader(debug))
@@ -130,7 +128,7 @@ func (e *entries) SortRecords(debug bool, infile, outfile string) {
 			}
 		}
 	}
-	fmt.Printf("\tExtracted %d records from %d total records.\n", e.extracted, total)
-	fmt.Printf("\tFound diagnosis data for %d records.\n", e.found)
-	fmt.Printf("\tFound complete information for %d records.\n", e.complete)
+	e.logger.Printf("Extracted %d records from %d total records.\n", e.extracted, total)
+	e.logger.Printf("Found diagnosis data for %d records.\n", e.found)
+	e.logger.Printf("Found complete information for %d records.\n", e.complete)
 }

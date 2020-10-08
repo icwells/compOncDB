@@ -1,4 +1,4 @@
-// Defines struct for identifying redundant
+// Defines struct for identifying redundant records
 
 package dbupload
 

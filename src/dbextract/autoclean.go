@@ -3,7 +3,7 @@
 package dbextract
 
 import (
-	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/simpleset"
@@ -64,7 +64,7 @@ func AutoCleanDatabase(db *dbIO.DBIO) {
 	// Cleans database and recalcutates species totals
 	count := dbupload.FilterPatients(db)
 	if count > 0 {
-		fmt.Printf("\tRemoved %d duplicate patient records.\n", count)
+		codbutils.GetLogger().Printf("Removed %d duplicate patient records.\n", count)
 	}
 	c := newCleaner(db)
 	c.cleanTables("ID", []string{"Diagnosis", "Tumor", "Source"}, c.pids, c.pchild)

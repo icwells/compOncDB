@@ -129,6 +129,7 @@ func writeDF(table *dataframe.Dataframe) {
 		if *outfile != "nil" {
 			table.ToCSV(*outfile)
 		} else {
+			fmt.Println()
 			table.Print()
 		}
 	}

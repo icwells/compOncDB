@@ -3,26 +3,29 @@
 package dbextract
 
 import (
-	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/strarray"
 	"github.com/lithammer/fuzzysearch/fuzzy"
+	"log"
 	"sort"
 )
 
 type speciesSearcher struct {
-	species map[string]string
-	list    []string
-	taxa    map[string][]string
 	found   int
+	list    []string
+	logger  *log.Logger
+	species map[string]string
+	taxa    map[string][]string
 }
 
 func newSpeciesSearcher(db *dbIO.DBIO) speciesSearcher {
 	// Initializes new searcher
 	var s speciesSearcher
 	// Get map of scientific and common species names
+	s.logger = codbutils.GetLogger()
 	s.species = dbupload.GetTaxaIDs(db, true)
 	s.taxa = db.GetTableMap("Taxonomy")
 	for k := range s.species {
@@ -58,11 +61,11 @@ func (s *speciesSearcher) getTaxonomy(ch chan []string, n string) {
 
 func SearchSpeciesNames(db *dbIO.DBIO, names []string) *dataframe.Dataframe {
 	// Finds taxonomies for input terms
-	ret, _ := dataframe.NewDataFrame(-1)
 	ch := make(chan []string)
-	ret.SetHeader(append([]string{"Term", "MatchedName"}, db.Columns["Taxonomy"][1:]))
-	fmt.Print("\n\tSearching for taxonomy matches...\n")
 	s := newSpeciesSearcher(db)
+	s.logger.Println("Searching for taxonomy matches...")
+	ret, _ := dataframe.NewDataFrame(-1)
+	ret.SetHeader(append([]string{"Term", "MatchedName"}, db.Columns["Taxonomy"][1:]))
 	for _, i := range names {
 		go s.getTaxonomy(ch, i)
 		row := <-ch
@@ -70,6 +73,6 @@ func SearchSpeciesNames(db *dbIO.DBIO, names []string) *dataframe.Dataframe {
 			ret.AddRow(row)
 		}
 	}
-	fmt.Printf("\tFound taxonomy matches for %d of %d queries.\n", s.found, len(names))
+	s.logger.Printf("Found taxonomy matches for %d of %d queries.\n", s.found, len(names))
 	return ret
 }

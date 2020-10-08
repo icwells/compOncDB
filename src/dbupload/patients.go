@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -74,22 +75,24 @@ func tumorPairs(typ, loc string) [][]string {
 //----------------------------------------------------------------------------
 
 type entries struct {
-	count     int
-	p         [][]string
-	d         [][]string
-	t         [][]string
-	s         [][]string
-	unmatched [][]string
 	accounts  map[string]map[string]string
-	taxa      map[string]string
 	col       map[string]int
+	count     int
+	d         [][]string
 	ex        *Existing
 	length    int
+	logger    *log.Logger
+	p         [][]string
+	s         [][]string
+	t         [][]string
+	taxa      map[string]string
+	unmatched [][]string
 }
 
 func newEntries(db *dbIO.DBIO, test bool) *entries {
 	// Initializes new struct
 	e := new(entries)
+	e.logger = codbutils.GetLogger()
 	if db != nil {
 		e.count = db.GetMax("Patient", "ID")
 		e.accounts = codbutils.MapOfMaps(db.GetTable("Accounts"))
@@ -205,7 +208,7 @@ func (e *entries) extractPatients(infile string) {
 	// Assigns patient data to appropriate slices with unique entry IDs
 	first := true
 	start := e.count
-	fmt.Printf("\n\tExtracting patient data from %s\n", infile)
+	e.logger.Printf("Extracting patient data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := iotools.GetScanner(f)
@@ -219,7 +222,7 @@ func (e *entries) extractPatients(infile string) {
 			first = false
 		}
 	}
-	fmt.Printf("\tExtracted %d records.\n", e.count-start)
+	e.logger.Printf("Extracted %d records.\n", e.count-start)
 }
 
 func LoadPatients(db *dbIO.DBIO, infile string, test bool) {

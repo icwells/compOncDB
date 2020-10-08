@@ -3,6 +3,7 @@
 package diagnoses
 
 import (
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -24,7 +25,7 @@ type Matcher struct {
 	biopsy     *regexp.Regexp
 }
 
-func NewMatcher() Matcher {
+func NewMatcher(logger *log.Logger) Matcher {
 	// Compiles regular expressions
 	var m Matcher
 	digit := `([0-9]*[.])?[0-9]+`
@@ -39,7 +40,7 @@ func NewMatcher() Matcher {
 	m.Primary = regexp.MustCompile(`(?i)primary|single|solitary|source`)
 	m.necropsy = regexp.MustCompile(`(?i)(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissect*|euthan.*)`)
 	m.biopsy = regexp.MustCompile(`(?i)biopsy`)
-	m.setTypes()
+	m.setTypes(logger)
 	return m
 }
 

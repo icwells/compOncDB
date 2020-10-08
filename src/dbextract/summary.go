@@ -139,7 +139,7 @@ func (s *summary) setTotals(db *dbIO.DBIO) {
 
 func GetSummary(db *dbIO.DBIO) [][]string {
 	// Returns summary statistics from database
-	fmt.Println("\n\tGenerating database summary statistics...")
+	codbutils.GetLogger().Println("Generating database summary statistics...")
 	s := new(summary)
 	s.setTotals(db)
 	return s.toSlice()

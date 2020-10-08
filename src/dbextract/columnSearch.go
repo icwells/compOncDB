@@ -9,13 +9,14 @@ import (
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/strarray"
 	"github.com/lithammer/fuzzysearch/fuzzy"
+	"log"
 	"sort"
 	"strings"
 )
 
 func (s *searcher) setErr(e codbutils.Evaluation) {
 	// Stores error message if no match is found for given evalutation
-	s.msg = fmt.Sprintf("\tFound 0 records where %s is %s.", e.Column, e.Value)
+	s.msg = fmt.Sprintf("Found 0 records where %s is %s.", e.Column, e.Value)
 	matches := fuzzy.RankFindFold(e.Value, s.db.GetColumnText(e.Table, e.Column))
 	if matches.Len() > 0 {
 		sort.Sort(matches)
@@ -135,9 +136,9 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 	}
 }
 
-func columnSearch(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, inf bool) *searcher {
+func columnSearch(db *dbIO.DBIO, logger *log.Logger, table string, eval []codbutils.Evaluation, inf bool) *searcher {
 	// Determines search procedure
-	s := newSearcher(db, inf)
+	s := newSearcher(db, logger, inf)
 	s.assignSearch(eval)
 	if len(s.res) >= 1 {
 		if s.infant == false {
@@ -156,17 +157,17 @@ func columnSearch(db *dbIO.DBIO, table string, eval []codbutils.Evaluation, inf 
 	return s
 }
 
-func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, inf bool) (*dataframe.Dataframe, string) {
+func SearchColumns(db *dbIO.DBIO, logger *log.Logger, table string, eval [][]codbutils.Evaluation, inf bool) (*dataframe.Dataframe, string) {
 	// Wraps calls to columnSearch
 	var ret *dataframe.Dataframe
-	fmt.Println("\tSearching for matching records...")
+	logger.Println("Searching for matching records...")
 	for idx, i := range eval {
-		s := columnSearch(db, table, i, inf)
+		s := columnSearch(db, logger, table, i, inf)
 		res := s.toDF()
 		if s.msg != "" {
-			fmt.Print(s.msg)
+			logger.Print(s.msg)
 		} else {
-			fmt.Printf("\tFound %d records where %s.\n", res.Length(), i[0].String())
+			logger.Printf("Found %d records where %s.\n", res.Length(), i[0].String())
 		}
 		if idx == 0 {
 			ret = res
@@ -180,11 +181,12 @@ func SearchColumns(db *dbIO.DBIO, table string, eval [][]codbutils.Evaluation, i
 func SearchDatabase(db *dbIO.DBIO, table, eval, infile string, infant bool) (*dataframe.Dataframe, string) {
 	// Directs queries to appropriate functions
 	var e [][]codbutils.Evaluation
+	logger := codbutils.GetLogger()
 	if eval != "nil" && eval != "" {
 		// Search for column/value match
 		e = codbutils.SetOperations(db.Columns, eval)
 	} else if infile != "nil" && infile != "" {
 		e = codbutils.OperationsFromFile(db.Columns, infile)
 	}
-	return SearchColumns(db, table, e, infant)
+	return SearchColumns(db, logger, table, e, infant)
 }

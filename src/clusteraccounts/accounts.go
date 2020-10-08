@@ -3,17 +3,17 @@
 package clusteraccounts
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/simpleset"
 	"github.com/trustmaster/go-aspell"
-	"os"
+	"log"
 	"path"
 	"strings"
 )
 
 type Accounts struct {
+	logger          *log.Logger
 	speller         aspell.Speller
 	Queries, corpus *simpleset.Set
 	terms           []*term
@@ -24,10 +24,10 @@ func NewAccounts(infile string) *Accounts {
 	// Returns pointer to initialized struct
 	a := new(Accounts)
 	var err error
+	a.logger = codbutils.GetLogger()
 	a.speller, err = aspell.NewSpeller(map[string]string{"lang": "en_US"})
 	if err != nil {
-		fmt.Printf("\n\t[Error] Cannot initialize speller. Exiting.\n%v", err)
-		os.Exit(500)
+		a.logger.Fatalf("Cannot initialize speller. Exiting.\n%v", err)
 	}
 	a.Queries = simpleset.NewStringSet()
 	a.corpus = simpleset.NewStringSet()
@@ -52,7 +52,7 @@ func (a *Accounts) getAccounts() map[string][]string {
 		counter.Add(i.name)
 		total.Add(i.query)
 	}
-	fmt.Printf("\tFormatted %d names from a total of %d account entries.\n", counter.Length(), total.Length())
+	a.logger.Printf("Formatted %d names from a total of %d account entries.\n", counter.Length(), total.Length())
 	return ret
 }
 
@@ -73,7 +73,7 @@ func (a *Accounts) readAccounts(infile string) {
 	var delim string
 	var sub int
 	first := true
-	fmt.Println("\tReading accounts from input file...")
+	a.logger.Println("Reading accounts from input file...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)

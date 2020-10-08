@@ -4,11 +4,11 @@
 package dbupload
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -16,6 +16,7 @@ import (
 type accounts struct {
 	db       *dbIO.DBIO
 	count    int
+	logger   *log.Logger
 	acc, neu map[string][]string
 }
 
@@ -23,8 +24,9 @@ func newAccounts(db *dbIO.DBIO) *accounts {
 	// Returns new account struct
 	a := new(accounts)
 	a.db = db
-	a.count = a.db.GetMax("Accounts", "account_id") + 1
 	a.acc = codbutils.ToMap(a.db.GetColumns("Accounts", []string{"Account", "submitter_name"}))
+	a.count = a.db.GetMax("Accounts", "account_id") + 1
+	a.logger = codbutils.GetLogger()
 	a.neu = make(map[string][]string)
 	return a
 }
@@ -42,7 +44,7 @@ func (a *accounts) extractAccounts(infile string) {
 	var col map[string]int
 	var l int
 	first := true
-	fmt.Printf("\n\tExtracting accounts from %s\n", infile)
+	a.logger.Printf("Extracting accounts from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	input := iotools.GetScanner(f)

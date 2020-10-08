@@ -3,7 +3,6 @@
 package clusteraccounts
 
 import (
-	"fmt"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"sort"
 	"strings"
@@ -91,7 +90,7 @@ func (a *Accounts) correctSpellings() {
 
 func (a *Accounts) ResolveAccounts() map[string][]string {
 	// Resolves differences in account names
-	fmt.Println("\tFormatting account names...")
+	a.logger.Println("Formatting account names...")
 	ch := make(chan string)
 	for _, i := range a.Queries.ToStringSlice() {
 		go a.checkAbbreviations(ch, i)

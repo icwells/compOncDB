@@ -3,25 +3,24 @@
 package parserecords
 
 import (
-	"fmt"
 	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"strings"
 )
 
 type duplicates struct {
-	ids     map[string][]string
-	reps    map[string][]string
 	count   int
+	ids     map[string][]string
 	records map[string]map[string]record
+	reps    map[string][]string
 }
 
 func newDuplicates() duplicates {
 	// Makes duplicates maps
 	var d duplicates
 	d.ids = make(map[string][]string)
-	d.reps = make(map[string][]string)
 	d.records = make(map[string]map[string]record)
+	d.reps = make(map[string][]string)
 	return d
 }
 
@@ -58,7 +57,7 @@ func (e *entries) getDuplicates(infile string) {
 	first := true
 	e.dups = newDuplicates()
 	e.dupsPresent = true
-	fmt.Println("\tIdentifying duplicate entries...")
+	e.logger.Println("Identifying duplicate entries...")
 	f := iotools.OpenFile(infile)
 	defer f.Close()
 	scanner := iotools.GetScanner(f)
@@ -78,7 +77,7 @@ func (e *entries) getDuplicates(infile string) {
 			first = false
 		}
 	}
-	fmt.Printf("\tFound %d duplicate patients.\n", e.dups.count)
+	e.logger.Printf("Found %d duplicate patients.\n", e.dups.count)
 }
 
 func (e *entries) resolveDuplicates(rec record) {

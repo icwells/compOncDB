@@ -7,7 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/simpleset"
-	"os"
+	"log"
 	"path"
 	"regexp"
 	"strings"
@@ -95,7 +95,7 @@ func (m *Matcher) setLocation(l, exp string) string {
 	return l
 }
 
-func (m *Matcher) setTypes() {
+func (m *Matcher) setTypes(logger *log.Logger) {
 	// Sets type and location maps from file
 	var loc string
 	m.location = make(map[string]*regexp.Regexp)
@@ -103,8 +103,7 @@ func (m *Matcher) setTypes() {
 	infile := path.Join(codbutils.Getutils(), "diagnoses.csv")
 	df, err := dataframe.FromFile(infile, -1)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Reading diagnoses file: %v\n", err)
-		os.Exit(1)
+		logger.Fatalf("Reading diagnoses file: %v\n", err)
 	}
 	for idx := range df.Rows {
 		l, err := df.GetCell(idx, "Location")

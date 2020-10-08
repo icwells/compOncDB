@@ -7,32 +7,35 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/simpleset"
+	"log"
 	"strconv"
 	"strings"
 )
 
 type searcher struct {
 	db      *dbIO.DBIO
+	header  string
+	ids     []string
 	infant  bool
+	logger  *log.Logger
+	msg     string
+	na      []string
 	res     map[string][]string
 	taxa    map[string][]string
-	ids     []string
 	taxaids []string
-	header  string
-	na      []string
-	msg     string
 }
 
-func newSearcher(db *dbIO.DBIO, inf bool) *searcher {
+func newSearcher(db *dbIO.DBIO, logger *log.Logger, inf bool) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
+	// Add default header
+	s.db = db
+	s.header = strings.Join(codbutils.RecordsHeader(), ",")
+	s.infant = inf
+	s.logger = logger
+	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	s.res = make(map[string][]string)
 	s.taxa = make(map[string][]string)
-	// Add default header
-	s.header = strings.Join(codbutils.RecordsHeader(), ",")
-	s.db = db
-	s.infant = inf
-	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	return s
 }
 
