@@ -20,19 +20,26 @@ func (c *cancerRates) getTotals() {
 	}
 }
 
-func (c *cancerRates) countNeoplasia(idx int, field, id, sex string, age float64) {
+func (c *cancerRates) countNeoplasia(idx int, field, id, service, sex string, age float64) {
 	// Counts cancer related data
 	if mp, err := c.df.GetCell(idx, "Masspresent"); err == nil {
 		if mp == "1" {
 			// Increment cancer count and age if masspresent == true
-			c.records[id][field].Cancer++
-			c.records[id][field].Cancerage = c.records[id][field].Cancerage + age
-			if sex == "male" {
-				c.records[id][field].Malecancer++
-			} else if sex == "female" {
-				c.records[id][field].Femalecancer++
+			c.records[id][field].allcancer++
+			mal, _ := c.df.GetCell(idx, "Malignant")
+			if mal == "1" {
+				c.records[id][field].maltotal++
+			} else if mal == "0" {
+				c.records[id][field].bentotal++
 			}
-			if mal, er := c.df.GetCell(idx, "Malignant"); er == nil {
+			if service != "MSU" {
+				c.records[id][field].Cancer++
+				c.records[id][field].Cancerage += age
+				if sex == "male" {
+					c.records[id][field].Malecancer++
+				} else if sex == "female" {
+					c.records[id][field].Femalecancer++
+				}
 				if mal == "1" {
 					c.records[id][field].Malignant++
 				} else if mal == "0" {
@@ -56,25 +63,26 @@ func (c *cancerRates) countRecords() {
 		}
 		if _, ex := c.records[id][field]; ex {
 			// Increment total
-			c.records[id][field].Total++
-			if nec, _ := c.df.GetCell(idx, "Necropsy"); nec == "1" {
-				c.records[id][field].Necropsy++
-			}
-			if age, err := c.df.GetCellFloat(idx, "Age"); err == nil {
-				// Increment adult if age is greater than age of infancy
-				c.records[id][field].Age = c.records[id][field].Age + age
-				sex, er := c.df.GetCell(idx, "Sex")
-				if er == nil {
-					if sex == "male" {
-						c.records[id][field].Male++
-					} else if sex == "female" {
-						c.records[id][field].Female++
-					}
-					c.countNeoplasia(idx, field, id, sex, age)
-				}
-			}
+			c.records[id][field].grandtotal++
+			age, _ := c.df.GetCellFloat(idx, "Age")
+			service, _ := c.df.GetCell(idx, "service_name")
+			sex, _ := c.df.GetCell(idx, "Sex")
 			source, _ := c.df.GetCell(idx, "account_id")
 			c.records[id][field].Sources.Add(source)
+			c.countNeoplasia(idx, field, id, service, sex, age)
+			if service != "MSU" {
+				c.records[id][field].Total++
+				if nec, _ := c.df.GetCell(idx, "Necropsy"); nec == "1" {
+					c.records[id][field].Necropsy++
+				}
+				// Increment adult if age is greater than age of infancy
+				c.records[id][field].Age = c.records[id][field].Age + age
+				if sex == "male" {
+					c.records[id][field].Male++
+				} else if sex == "female" {
+					c.records[id][field].Female++
+				}
+			}
 		}
 	}
 }
@@ -83,10 +91,6 @@ func (c *cancerRates) countRecords() {
 
 func (c *cancerRates) appendLifeHistory() {
 	// Determines age of infancy and adds life history if needed
-	/*var blank []string
-	for i := 0; i < len(c.nas); i++ {
-		blank = append(blank, "")
-	}*/
 	lifehist := codbutils.ToMap(c.db.GetRows("Life_history", TID, strings.Join(c.tids, ","), "*"))
 	for k, v := range c.records {
 		if lh, ex := lifehist[k]; ex {

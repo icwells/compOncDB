@@ -10,20 +10,24 @@ import (
 )
 
 type Record struct {
-	Taxonomy     []string
-	Total        int
 	Age          float64
-	Male         int
-	Female       int
+	allcancer    int
+	Benign       int
+	bentotal     int
 	Cancer       int
 	Cancerage    float64
-	Malecancer   int
+	Female       int
 	Femalecancer int
-	Malignant    int
-	Benign       int
-	Necropsy     int
+	grandtotal   int
 	Lifehistory  []string
+	Male         int
+	Malecancer   int
+	Malignant    int
+	maltotal     int
+	Necropsy     int
 	Sources      *simpleset.Set
+	Taxonomy     []string
+	Total        int
 }
 
 func NewRecord() *Record {
@@ -80,14 +84,10 @@ func (r *Record) setSources() string {
 	return "0"
 }
 
-func (r *Record) CalculateRates(id, name string, den int, lh bool) []string {
+func (r *Record) CalculateRates(id, name string, lh bool) []string {
 	// Returns string slice of rates
 	var ret []string
 	r.CalculateAvgAges()
-	if den < 0 {
-		// Set denominator as species total
-		den = r.Total
-	}
 	if len(id) > 0 {
 		ret = append(ret, id)
 	}
@@ -100,13 +100,13 @@ func (r *Record) CalculateRates(id, name string, den int, lh bool) []string {
 	//"AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
 	ret = append(ret, strconv.Itoa(r.Total))
 	ret = append(ret, strconv.Itoa(r.Cancer))
-	ret = append(ret, r.formatRate(r.Cancer, den))
+	ret = append(ret, r.formatRate(r.Cancer, r.grandtotal))
 	ret = append(ret, strconv.Itoa(r.Malignant))
-	ret = append(ret, r.formatRate(r.Malignant, den))
-	ret = append(ret, r.formatRate(r.Malignant, r.Cancer))
+	ret = append(ret, r.formatRate(r.Malignant, r.grandtotal))
+	ret = append(ret, r.formatRate(r.maltotal, r.allcancer))
 	ret = append(ret, strconv.Itoa(r.Benign))
-	ret = append(ret, r.formatRate(r.Benign, den))
-	ret = append(ret, r.formatRate(r.Benign, r.Cancer))
+	ret = append(ret, r.formatRate(r.Benign, r.grandtotal))
+	ret = append(ret, r.formatRate(r.bentotal, r.allcancer))
 	ret = append(ret, strconv.FormatFloat(r.Age, 'f', 2, 64))
 	ret = append(ret, strconv.FormatFloat(r.Cancerage, 'f', 2, 64))
 	ret = append(ret, strconv.Itoa(r.Male))
@@ -140,6 +140,10 @@ func (r *Record) Add(v *Record) {
 	r.Malignant += v.Malignant
 	r.Benign += v.Benign
 	r.Necropsy += v.Necropsy
+	r.grandtotal += v.grandtotal
+	r.allcancer += v.allcancer
+	r.maltotal += v.maltotal
+	r.bentotal += v.bentotal
 	for _, i := range v.Sources.ToStringSlice() {
 		r.Sources.Add(i)
 	}

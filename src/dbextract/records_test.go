@@ -4,7 +4,6 @@ package dbextract
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/simpleset"
 	"testing"
 )
 
@@ -35,27 +34,45 @@ func canidTaxa() ([]string, []string) {
 	return canis, vulpes
 }
 
-func testRecords() []Record {
+func setRecord(taxonomy []string, v []float64) *Record {
+	// Initilaizes new testing record
+	r := NewRecord()
+	r.setTaxonomy(taxonomy)
+	r.Total = int(v[0])
+	r.Age = v[1]
+	r.Male = int(v[2])
+	r.Female = int(v[3])
+	r.Cancer = int(v[4])
+	r.Cancerage = v[5]
+	r.Malecancer = int(v[6])
+	r.Femalecancer = int(v[7])
+	r.Malignant = int(v[8])
+	r.Benign = int(v[9])
+	r.Necropsy = int(v[10])
+	r.grandtotal = r.Total
+	r.allcancer = r.Cancer
+	r.maltotal = r.Malignant
+	r.bentotal = r.Benign
+	return r
+}
+
+func testRecords() []*Record {
 	// Returns slice of records for testing
 	canis, vulpes := canidTaxa()
-	set := simpleset.NewStringSet()
-	return []Record{
-		{append(canis, "Canis lupus"), 100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20, nil, set},
-		{append(canis, "Canis latrans"), 110, 900.0, 50, 70, 30, 300.0, 12, 18, 3, 5, 5, nil, set},
-		{append(vulpes, "Vulpes vulpes"), 50, 600.0, 25, 35, 0, 0.0, 50, 0, 0, 0, 0, nil, set},
-	}
+	var ret []*Record
+	ret = append(ret, setRecord(append(canis, "Canis lupus"), []float64{100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20}))
+	ret = append(ret, setRecord(append(canis, "Canis latrans"), []float64{110, 900.0, 50, 70, 30, 300.0, 12, 18, 3, 5, 5}))
+	ret = append(ret, setRecord(append(vulpes, "Vulpes vulpes"), []float64{50, 600.0, 25, 35, 0, 0.0, 50, 0, 0, 0, 0}))
+	return ret
 }
 
 func TestAdd(t *testing.T) {
 	r := NewRecord()
-	set := simpleset.NewStringSet()
-	exp := []*Record{
-		{[]string{""}, 100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20, nil, set},
-		{[]string{""}, 210, 1900.0, 100, 120, 55, 550.0, 27, 28, 8, 15, 25, nil, set},
-		{[]string{""}, 260, 2500.0, 125, 155, 55, 550.0, 77, 28, 8, 15, 25, nil, set},
-	}
-	for idx, v := range testRecords() {
-		i := &v
+	var exp []*Record
+	exp = append(exp, setRecord([]string{""}, []float64{100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20}))
+	exp = append(exp, setRecord([]string{""}, []float64{210, 1900.0, 100, 120, 55, 550.0, 27, 28, 8, 15, 25}))
+	exp = append(exp, setRecord([]string{""}, []float64{260, 2500.0, 125, 155, 55, 550.0, 77, 28, 8, 15, 25}))
+	for idx, i := range testRecords() {
 		r.Add(i)
 		if r.Total != exp[idx].Total {
 			t.Errorf("%d: Total %d does not equal expected: %d", idx, r.Total, exp[idx].Total)
@@ -79,6 +96,14 @@ func TestAdd(t *testing.T) {
 			t.Errorf("%d: Benign %d does not equal expected: %d", idx, r.Benign, exp[idx].Benign)
 		} else if r.Necropsy != exp[idx].Necropsy {
 			t.Errorf("%d: Necropsy %d does not equal expected: %d", idx, r.Necropsy, exp[idx].Necropsy)
+		} else if r.grandtotal != exp[idx].grandtotal {
+			t.Errorf("%d: grandtotal %d does not equal expected: %d", idx, r.grandtotal, exp[idx].grandtotal)
+		} else if r.allcancer != exp[idx].allcancer {
+			t.Errorf("%d: allcancer %d does not equal expected: %d", idx, r.allcancer, exp[idx].allcancer)
+		} else if r.maltotal != exp[idx].maltotal {
+			t.Errorf("%d: maltotal %d does not equal expected: %d", idx, r.maltotal, exp[idx].maltotal)
+		} else if r.bentotal != exp[idx].bentotal {
+			t.Errorf("%d: bentotal %d does not equal expected: %d", idx, r.bentotal, exp[idx].bentotal)
 		}
 	}
 }
@@ -100,7 +125,7 @@ func TestCalculateRates(t *testing.T) {
 	head := codbutils.CancerRateHeader("")
 	expected := getExpectedRecords()
 	for ind, r := range testRecords() {
-		actual := r.CalculateRates("", "", -1, false)
+		actual := r.CalculateRates("", "", false)
 		for idx, i := range actual {
 			if i != expected[ind][idx] {
 				t.Errorf("%d: Actual calculated rate %s %s does not equal expected: %s", ind, head[idx+1], i, expected[ind][idx])

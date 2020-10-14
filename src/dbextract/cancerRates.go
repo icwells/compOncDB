@@ -67,11 +67,11 @@ func (c *cancerRates) setKey(location, tumortype bool) {
 	}
 }
 
-func (c *cancerRates) calculateRates(v *Record, id, name string, den int) {
+func (c *cancerRates) calculateRates(v *Record, id, name string) {
 	// Calclates cancer rates and adds to dataframe
 	if v.Total >= c.min {
 		// Calculate cancer rates
-		r := v.CalculateRates(id, name, den, c.lh)
+		r := v.CalculateRates(id, name, c.lh)
 		// Add to dataframe
 		err := c.rates.AddRow(r)
 		if err != nil {
@@ -84,17 +84,17 @@ func (c *cancerRates) formatRates() {
 	// Calculates rates, and formats for printing
 	if len(c.records) > 0 {
 		for key, val := range c.records {
-			d := val[c.total].Total
 			if !c.species {
-				c.calculateRates(val[c.total], key, c.total, d)
+				c.calculateRates(val[c.total], key, c.total)
 				for k, v := range val {
 					if k != c.total {
-						c.calculateRates(v, key, k, d)
+						v.grandtotal = val[c.total].Total
+						c.calculateRates(v, key, k)
 					}
 				}
 			} else {
 				// Omit location/type column
-				c.calculateRates(val[c.total], key, "", d)
+				c.calculateRates(val[c.total], key, "")
 			}
 		}
 	}
