@@ -32,7 +32,7 @@ func newAgeCorrection() *ageCorrection {
 	a := new(ageCorrection)
 	a.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
 	a.header = "ID,Age,Comments"
-	a.matcher = diagnoses.NewMatcher()
+	a.matcher = diagnoses.NewMatcher(codbutils.GetLogger())
 	a.outfile = *outfile
 	fmt.Println("\n\tExtracting table from database...")
 	a.table = a.db.EvaluateRows("Patient", "Age", "!=", "NA", a.header)
