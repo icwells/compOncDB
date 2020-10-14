@@ -74,6 +74,7 @@ func TestAdd(t *testing.T) {
 	exp = append(exp, setRecord([]string{""}, []float64{260, 2500.0, 125, 155, 55, 550.0, 77, 28, 8, 15, 25}))
 	for idx, i := range testRecords() {
 		r.Add(i)
+		r.grandtotal = r.Total
 		if r.Total != exp[idx].Total {
 			t.Errorf("%d: Total %d does not equal expected: %d", idx, r.Total, exp[idx].Total)
 		} else if r.Age != exp[idx].Age {

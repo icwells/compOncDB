@@ -97,6 +97,9 @@ func (r *Record) CalculateRates(id, name string, lh bool) []string {
 	if len(name) > 0 {
 		ret = append(ret, name)
 	}
+	if r.grandtotal == 0 {
+		r.grandtotal = r.Total
+	}
 	//"AdultRecords,CancerRecords,CancerRate,AverageAge(months),AvgAgeCancer(months),Male,Female\n"
 	ret = append(ret, strconv.Itoa(r.Total))
 	ret = append(ret, strconv.Itoa(r.Cancer))
@@ -140,7 +143,6 @@ func (r *Record) Add(v *Record) {
 	r.Malignant += v.Malignant
 	r.Benign += v.Benign
 	r.Necropsy += v.Necropsy
-	r.grandtotal += v.grandtotal
 	r.allcancer += v.allcancer
 	r.maltotal += v.maltotal
 	r.bentotal += v.bentotal
