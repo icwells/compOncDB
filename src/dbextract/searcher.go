@@ -91,7 +91,7 @@ func (s *searcher) setTaxaIDs() {
 func (s *searcher) filterInfantRecords() {
 	// Removes infant records from search results
 	// In summary.go
-	ages := getMinAges(s.db, s.taxaids)
+	ages := GetMinAges(s.db, s.taxaids)
 	// Filter results
 	for k, v := range s.res {
 		if len(v) >= 4 {

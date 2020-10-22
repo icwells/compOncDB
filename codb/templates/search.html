@@ -10,11 +10,11 @@ See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for co
       <input id="addsearch" type="button" value="Add new search">
     </div>
     <p>Note: Additional search parameters are cumulative and all fields will be applied together. 
-New searches, on the other hand, are completely independent of one another (These will not be applied to cancer rate calculations).</p>
+New searches, on the other hand, are completely independent of one another (These will not be applied to cancer prevalence calculations).</p>
     <hr>
     <div>
       <input id="canceratebox" type="checkbox" name="Cancerrate">
-      <label for="Cancerrate">Calculate cancer rates.</label>
+      <label for="Cancerrate">Calculate cancer prevalence.</label>
     </div>
     <div id="Rates" class="hide tab">
       <div>
@@ -25,7 +25,7 @@ New searches, on the other hand, are completely independent of one another (Thes
         <input type="checkbox" name="Lifehistory">
         <label for="Lifehistory">Append life history information to results (for species only).</label>
       </div>
-      <p>Select value to summarize cancer rates by:</p>
+      <p>Select value to summarize cancer prevalence by:</p>
       <div class="tab">
           <input type="radio" name="Key" value="species" checked="checked"> Species Only</input><br>
           <input type="radio" name="Key" value="location"> Species and Location</input><br>

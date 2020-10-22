@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func getMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
+func GetMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
 	// Returns map of minumum ages by taxa id
 	var table map[string]string
 	ages := make(map[string]float64)
@@ -100,7 +100,7 @@ func (s *summary) setCancerTaxa(db *dbIO.DBIO) {
 func (s *summary) getNumAdult(db *dbIO.DBIO) {
 	// Gets total adult and infant records
 	var x []string
-	ages := getMinAges(db, x)
+	ages := GetMinAges(db, x)
 	table := db.GetColumns("Patient", []string{"taxa_id", "Age"})
 	// Filter results
 	for _, i := range table {

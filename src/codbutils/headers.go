@@ -28,7 +28,7 @@ func NewHeaders() *Headers {
 	h.Diagnosis = []string{"ID", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis"}
 	h.Life_history = []string{"taxa_id", "female_maturity(months)", "male_maturity(months)", "Gestation(months)", "Weaning(months)", "Infancy(months)", "litter_size", "litters_year", "interbirth_interval", "birth_weight(g)", "weaning_weight(g)", "adult_weight(g)", "growth_rate(1/days)", "max_longevity(months)", "metabolic_rate(mLO2/hr)"}
 	h.Patient = []string{"ID", "Sex", "Age", "Castrated", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments"}
-	h.Rates = []string{"TotalRecords", "NeoplasiaRecords", "NeoplasiaRate", "Malignant", "MalignancyRate", "PropMalignant", "Benign", "BenignRate", "PropBenign", "AverageAge(months)", "AvgAgeNeoplasia(months)", "Male", "Female", "MaleNeoplasia", "FemaleNeoplasia", "Necropsies", "#Sources"}
+	h.Rates = []string{"Location", "TotalRecords", "RecordsWithDenominators", "NeoplasiaRecords", "NeoplasiaPrevalence", "Malignant", "MalignancyPrevalence", "PropMalignant", "Benign", "BenignPrevalence", "PropBenign", "AverageAge(months)", "AvgAgeNeoplasia(months)", "Male", "Female", "MaleNeoplasia", "FemaleNeoplasia", "Necropsies", "#Sources"}
 	h.Source = []string{"ID", "service_name", "Zoo", "Aza", "Institute", "Approved", "account_id"}
 	h.Taxonomy = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "Source"}
 	h.Tumor = []string{"ID", "primary_tumor", "Malignant", "Type", "Location"}
@@ -70,15 +70,10 @@ func RecordsHeader() []string {
 	return append(ret, h.Source[1:]...)
 }
 
-func CancerRateHeader(key string) []string {
+func CancerRateHeader() []string {
 	// Returns header for cancer rate output
-	var ret []string
 	h := NewHeaders()
-	ret = append(ret, h.Taxonomy[:len(h.Taxonomy) - 1]...)
-	if key != "" {
-		ret = append(ret, key)
-	}
-	return append(ret, h.Rates...)
+	return append(h.Taxonomy[:len(h.Taxonomy) - 1], h.Rates...)
 }
 
 func ParseHeader(debug bool) string {

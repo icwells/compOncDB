@@ -1,9 +1,9 @@
 // Performs white box tests on various methods in the compOncDB package
 
-package dbextract
+package cancerrates
 
 import (
-	"github.com/icwells/compOncDB/src/codbutils"
+	//"github.com/icwells/compOncDB/src/codbutils"
 	"testing"
 )
 
@@ -27,7 +27,7 @@ func TestAvgAge(t *testing.T) {
 	}
 }
 
-func canidTaxa() ([]string, []string) {
+/*func canidTaxa() ([]string, []string) {
 	// Returns taxonomies for records
 	canis := []string{"Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis"}
 	vulpes := []string{"Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Vulpes"}
@@ -133,4 +133,4 @@ func TestCalculateRates(t *testing.T) {
 			}
 		}
 	}
-}
+}*/
