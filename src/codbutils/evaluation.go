@@ -46,7 +46,7 @@ func (e *Evaluation) SetTable(columns map[string]string, quit bool) string {
 	return ret
 }
 
-func (e *Evaluation) setOperation(eval string) {
+func (e *Evaluation) SetOperation(eval string) {
 	// Splits eval into column, operator, value
 	found := false
 	operators := []string{"!=", "==", ">=", "<=", "=", ">", "<", "^"}
@@ -77,7 +77,7 @@ func SetOperations(columns map[string]string, eval string) [][]Evaluation {
 	var ret []Evaluation
 	for _, i := range strings.Split(eval, ",") {
 		var e Evaluation
-		e.setOperation(i)
+		e.SetOperation(i)
 		e.SetTable(columns, true)
 		ret = append(ret, e)
 	}
@@ -100,7 +100,7 @@ func OperationsFromFile(columns map[string]string, infile string) [][]Evaluation
 		for idx, i := range row {
 			if len(strings.TrimSpace(i)) > 0 {
 				var e Evaluation
-				e.setOperation(fmt.Sprintf("%s = %s", header[idx], i))
+				e.SetOperation(fmt.Sprintf("%s = %s", header[idx], i))
 				e.SetTable(columns, true)
 				eval = append(eval, e)
 			}
