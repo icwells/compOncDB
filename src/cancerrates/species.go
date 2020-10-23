@@ -46,8 +46,10 @@ func (s *species) toSlice() [][]string {
 		tissue := []string{s.id}
 		tissue = append(tissue, emptySlice(len(s.taxonomy))...)
 		tissue = append(tissue, s.location)
-		tissue = append(tissue, s.total.calculateRates()...)
-		tissue = append(tissue, emptySlice(len(s.lifehistory))...)
+		tissue = append(tissue, s.tissue.calculateRates()...)
+		if len(s.lifehistory) > 0 {
+			tissue = append(tissue, emptySlice(len(s.lifehistory))...)
+		}
 		ret = append(ret, tissue)
 	}
 	return ret

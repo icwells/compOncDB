@@ -72,24 +72,24 @@ func (r *record) calculateRates() []string {
 	// Returns string slice of rates
 	var ret []string
 	r.CalculateAvgages()
-	ret = append(ret, strconv.Itoa(r.grandtotal)) //TotalRecords
-	ret = append(ret, strconv.Itoa(r.total)) //RecordsWithDenominators
-	ret = append(ret, strconv.Itoa(r.cancer)) //NeoplasiaRecords
-	ret = append(ret, r.formatRate(r.cancer, r.grandtotal)) //NeoplasiaPrevalence
-	ret = append(ret, strconv.Itoa(r.malignant)) //Malignant
-	ret = append(ret, r.formatRate(r.malignant, r.grandtotal)) //MalignancyPrevalence
-	ret = append(ret, r.formatRate(r.maltotal, r.allcancer)) //PropMalignant
-	ret = append(ret, strconv.Itoa(r.benign)) //benign
-	ret = append(ret, r.formatRate(r.benign, r.grandtotal)) //benignPrevalence
-	ret = append(ret, r.formatRate(r.bentotal, r.allcancer)) //Propbenign
-	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64)) //AverageAge(months)
+	ret = append(ret, strconv.Itoa(r.grandtotal))                   //TotalRecords
+	ret = append(ret, strconv.Itoa(r.total))                        //RecordsWithDenominators
+	ret = append(ret, strconv.Itoa(r.cancer))                       //NeoplasiaRecords
+	ret = append(ret, r.formatRate(r.cancer, r.grandtotal))         //NeoplasiaPrevalence
+	ret = append(ret, strconv.Itoa(r.malignant))                    //Malignant
+	ret = append(ret, r.formatRate(r.malignant, r.grandtotal))      //MalignancyPrevalence
+	ret = append(ret, r.formatRate(r.maltotal, r.allcancer))        //PropMalignant
+	ret = append(ret, strconv.Itoa(r.benign))                       //benign
+	ret = append(ret, r.formatRate(r.benign, r.grandtotal))         //benignPrevalence
+	ret = append(ret, r.formatRate(r.bentotal, r.allcancer))        //Propbenign
+	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64))       //AverageAge(months)
 	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64)) //AvgAgeNeoplasia(months)
-	ret = append(ret, strconv.Itoa(r.male)) //Male
-	ret = append(ret, strconv.Itoa(r.female)) //Female
-	ret = append(ret, strconv.Itoa(r.malecancer)) //MaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.femalecancer)) //FemaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.necropsy)) //Necropsies
-	ret = append(ret, r.setsources()) //Sources
+	ret = append(ret, strconv.Itoa(r.male))                         //Male
+	ret = append(ret, strconv.Itoa(r.female))                       //Female
+	ret = append(ret, strconv.Itoa(r.malecancer))                   //MaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.femalecancer))                 //FemaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.necropsy))                     //Necropsies
+	ret = append(ret, r.setsources())                               //Sources
 	for idx, i := range ret {
 		// Replace -1 with NA
 		if strings.Split(i, ".")[0] == "-1" {
@@ -129,24 +129,3 @@ func (r *record) addTotal(n int) {
 	r.grandtotal += n
 	r.total += n
 }
-
-/*func (r *record) Add(v *record) {
-	// Add values from v to r
-	r.total += v.total
-	r.age += v.age
-	r.male += v.male
-	r.female += v.female
-	r.cancer += v.cancer
-	r.cancerage += v.cancerage
-	r.malecancer += v.malecancer
-	r.femalecancer += v.femalecancer
-	r.malignant += v.malignant
-	r.benign += v.benign
-	r.necropsy += v.necropsy
-	r.allcancer += v.allcancer
-	r.maltotal += v.maltotal
-	r.bentotal += v.bentotal
-	for _, i := range v.sources.ToStringSlice() {
-		r.sources.Add(i)
-	}
-}*/

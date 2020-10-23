@@ -4,6 +4,7 @@ package main
 
 import (
 	"flag"
+	"github.com/icwells/compOncDB/src/cancerrates"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
@@ -43,10 +44,11 @@ func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 					af, ef, err := toFloat(a, e)
 					if err != nil || af != ef {
 						t.Errorf("%s-%s: Actual %s value %s does not equal expected: %s", name, key, k, a, e)
-						break
+
 					}
 				}
 			}
+			break
 		}
 	}
 }
@@ -123,9 +125,8 @@ func TestFilterPatients(t *testing.T) {
 
 func TestCancerRates(t *testing.T) {
 	// Tests taxonomy search output
-	var e [][]codbutils.Evaluation
 	db := connectToDatabase()
-	rates := dbextract.GetCancerRates(db, 1, false, false, false, false, false, e)
+	rates := cancerrates.GetCancerRates(db, 1, false, false, false, "", "")
 	rates.DeleteRow("total")
 	compareTables(t, "Cancer Rates", getExpectedRates(), rates)
 }

@@ -27,13 +27,6 @@ func TestAvgAge(t *testing.T) {
 	}
 }
 
-/*func canidTaxa() ([]string, []string) {
-	// Returns taxonomies for records
-	canis := []string{"Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis"}
-	vulpes := []string{"Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Vulpes"}
-	return canis, vulpes
-}*/
-
 func setRecord(v []float64) *record {
 	// Initilaizes new testing record
 	r := newRecord()
@@ -91,46 +84,3 @@ func TestCalculateRates(t *testing.T) {
 		}
 	}
 }
-
-/*func TestAdd(t *testing.T) {
-	r := newRecord()
-	var exp []*record
-	exp = append(exp, setRecord([]float64{100, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20}))
-	exp = append(exp, setRecord([]float64{210, 1900.0, 100, 120, 55, 550.0, 27, 28, 8, 15, 25}))
-	exp = append(exp, setRecord([]float64{260, 2500.0, 125, 155, 55, 550.0, 77, 28, 8, 15, 25}))
-	for idx, i := range testRecords() {
-		r.Add(i)
-		r.grandtotal = r.total
-		if r.total != exp[idx].total {
-			t.Errorf("%d: Total %d does not equal expected: %d", idx, r.total, exp[idx].total)
-		} else if r.age != exp[idx].age {
-			t.Errorf("%d: Age %f does not equal expected: %f", idx, r.age, exp[idx].age)
-		} else if r.male != exp[idx].male {
-			t.Errorf("%d: Male %d does not equal expected: %d", idx, r.male, exp[idx].male)
-		} else if r.female != exp[idx].female {
-			t.Errorf("%d: Female %d does not equal expected: %d", idx, r.female, exp[idx].female)
-		} else if r.cancer != exp[idx].cancer {
-			t.Errorf("%d: Cancer %d does not equal expected: %d", idx, r.cancer, exp[idx].cancer)
-		} else if r.cancerage != exp[idx].cancerage {
-			t.Errorf("%d: Cancerage %f does not equal expected: %f", idx, r.cancerage, exp[idx].cancerage)
-		} else if r.malecancer != exp[idx].malecancer {
-			t.Errorf("%d: Malecancer %d does not equal expected: %d", idx, r.malecancer, exp[idx].malecancer)
-		} else if r.femalecancer != exp[idx].femalecancer {
-			t.Errorf("%d: Femalecancer %d does not equal expected: %d", idx, r.femalecancer, exp[idx].femalecancer)
-		} else if r.malignant != exp[idx].malignant {
-			t.Errorf("%d: Malignant %d does not equal expected: %d", idx, r.malignant, exp[idx].malignant)
-		} else if r.benign != exp[idx].benign {
-			t.Errorf("%d: Benign %d does not equal expected: %d", idx, r.benign, exp[idx].benign)
-		} else if r.necropsy != exp[idx].necropsy {
-			t.Errorf("%d: Necropsy %d does not equal expected: %d", idx, r.necropsy, exp[idx].necropsy)
-		} else if r.grandtotal != exp[idx].grandtotal {
-			t.Errorf("%d: grandtotal %d does not equal expected: %d", idx, r.grandtotal, exp[idx].grandtotal)
-		} else if r.allcancer != exp[idx].allcancer {
-			t.Errorf("%d: allcancer %d does not equal expected: %d", idx, r.allcancer, exp[idx].allcancer)
-		} else if r.maltotal != exp[idx].maltotal {
-			t.Errorf("%d: maltotal %d does not equal expected: %d", idx, r.maltotal, exp[idx].maltotal)
-		} else if r.bentotal != exp[idx].bentotal {
-			t.Errorf("%d: bentotal %d does not equal expected: %d", idx, r.bentotal, exp[idx].bentotal)
-		}
-	}
-}*/

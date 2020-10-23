@@ -53,11 +53,10 @@ var (
 	sum        = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
 	taxonomies = extract.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
 
-	cancerrates = kingpin.Command("cancerrates", "Calculate cancer rates for species.")
-	lifehist    = cancerrates.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
-	location    = cancerrates.Flag("location", "Include tumor location summary for each species.").Default("false").Bool()
-	min         = cancerrates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
-	tumortype   = cancerrates.Flag("type", "Include tumor type summary for each species.").Default("false").Bool()
+	cancerRates = kingpin.Command("cancerrates", "Calculate cancer rates for species.")
+	lifehist    = cancerRates.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
+	location    = cancerRates.Flag("location", "Include tumor location summary for each species.").Default("").String()
+	min         = cancerRates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
 )
 
 func version() {
@@ -87,7 +86,7 @@ func main() {
 		start = updateDB()
 	case extract.FullCommand():
 		start = extractFromDB()
-	case cancerrates.FullCommand():
+	case cancerRates.FullCommand():
 		start = calculateCancerRates()
 	}
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))

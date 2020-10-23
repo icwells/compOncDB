@@ -15,6 +15,7 @@ WD=$(pwd)
 
 APP="$WD/codb/*.go"
 CDB="compOncDB"
+CNRT="$WD/src/cancerrates/*.go"
 CLSRC="$WD/src/clusteraccounts/*.go"
 CUSRC="$WD/src/codbutils/*.go"
 DBSRC="$WD/src/*.go"
@@ -36,13 +37,13 @@ getUser () {
 whiteBoxTests () {
 	echo ""
 	echo "Running white box tests..."
+	go test $CNRT
 	go test $CLSRC
 	go test $DIAG
 	go test $PRSRC
 	go test $CUSRC
 	go test $DUSRC
 	go test $DESRC
-	#go test $APP
 }
 
 testParseRecords () {
@@ -84,6 +85,8 @@ checkSource () {
 	echo ""
 	echo "Running go $1..."
 	go $1 $APP
+	go $1 $CNRT
+	go $1 $CNRT
 	go $1 $CLSRC
 	go $1 $DIAG
 	go $1 $PRSRC

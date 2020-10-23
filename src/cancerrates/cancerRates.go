@@ -39,11 +39,11 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, location string) *canc
 	c.lh = lh
 	c.logger = codbutils.GetLogger()
 	c.min = min
+	c.setHeader()
 	c.rates, _ = dataframe.NewDataFrame(0)
 	c.rates.SetHeader(c.header)
 	c.records = make(map[string]*species)
 	c.total = "total"
-	c.setHeader()
 	return c
 }
 
@@ -136,9 +136,9 @@ func (c *cancerRates) getTaxa(eval string) {
 	if eval != "" {
 		var e codbutils.Evaluation
 		e.SetOperation(eval)
-		taxa = codbutils.ToMap(c.db.GetRows("Taxonomy", e.Column, e.Value, strings.Join(c.header[:9], ",")))
+		taxa = codbutils.ToMap(c.db.GetRows("Taxonomy", e.Column, e.Value, strings.Join(c.header[:8], ",")))
 	} else {
-		taxa = codbutils.ToMap(c.db.GetColumns("Taxonomy", c.header[:9]))
+		taxa = codbutils.ToMap(c.db.GetColumns("Taxonomy", c.header[:8]))
 	}
 	for k, v := range taxa {
 		c.tids = append(c.tids, k)

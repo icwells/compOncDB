@@ -14,23 +14,12 @@ type Options struct {
 	AllTaxa     bool
 	Cancerrate  bool
 	Infant      bool
-	Key         string
 	Lifehistory bool
-	Location    bool
+	Location    string
 	Min         int
 	Necropsy    bool
 	Print       bool
-	Type        bool
-}
-
-func (o *Options) decodeKey() {
-	// Sets location and type values from Key
-	switch o.Key {
-	case "location":
-		o.Location = true
-	case "type":
-		o.Type = true
-	}
+	Taxa        string
 }
 
 func setOptions(r *http.Request) *Options {
@@ -38,7 +27,6 @@ func setOptions(r *http.Request) *Options {
 	opt := new(Options)
 	decoder := schema.NewDecoder()
 	decoder.Decode(opt, r.PostForm)
-	opt.decodeKey()
 	return opt
 }
 

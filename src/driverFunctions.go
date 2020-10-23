@@ -5,6 +5,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/icwells/compOncDB/src/cancerrates"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
@@ -138,7 +139,7 @@ func writeDF(table *dataframe.Dataframe) {
 func calculateCancerRates() time.Time {
 	// Extract cancer rates
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
-	writeDF(dbextract.SearchCancerRates(db, *min, *nec, *infant, *lifehist, *location, *tumortype, *eval, *infile))
+	writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *eval, *location))
 	return db.Starttime
 }
 

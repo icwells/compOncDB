@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/icwells/compOncDB/src/cancerrates"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
@@ -131,7 +132,7 @@ func (o *Output) searchDB() {
 	eval, o.Flash = checkEvaluations(o.r, o.db.Columns)
 	if opt.Cancerrate {
 		o.Flash = ""
-		res = dbextract.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, opt.Location, opt.Type, eval)
+		res = cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, opt.Taxa, opt.Location)
 		name = fmt.Sprintf("cancerRates.min%d", opt.Min)
 	} else if o.Flash == "" {
 		res, o.Count = dbextract.SearchColumns(o.db, codbutils.GetLogger(), "", eval, opt.Infant)
