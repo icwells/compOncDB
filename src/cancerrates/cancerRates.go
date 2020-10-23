@@ -134,7 +134,8 @@ func (c *cancerRates) getTaxa(eval string) {
 	// Gets records map
 	var taxa map[string][]string
 	if eval != "" {
-		e := codbutils.SetOperation(c.db.Columns, eval)
+		var e codbutils.Evaluation
+		e.SetOperation(eval)
 		taxa = codbutils.ToMap(c.db.GetRows("Taxonomy", e.Column, e.Value, strings.Join(c.header[:9], ",")))
 	} else {
 		taxa = codbutils.ToMap(c.db.GetColumns("Taxonomy", c.header[:9]))

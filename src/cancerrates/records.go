@@ -38,7 +38,7 @@ type record struct {
 	total        int
 }
 
-func NewRecord() *record {
+func newRecord() *record {
 	// Initializes new record struct
 	r := new(record)
 	r.sources = simpleset.NewStringSet()
@@ -72,26 +72,24 @@ func (r *record) calculateRates() []string {
 	// Returns string slice of rates
 	var ret []string
 	r.CalculateAvgages()
-	//TotalRecords,RecordsWithDenominators,NeoplasiaRecords,NeoplasiaPrevalence,Malignant,MalignancyPrevalence,PropMalignant,
-	//benign,benignPrevalence,Propbenign,AverageAge(months),AvgAgeNeoplasia(months),Male,Female,MaleNeoplasia,FemaleNeoplasia,Necropsies,Sources
-	ret = append(ret, strconv.Itoa(r.grandtotal))
-	ret = append(ret, strconv.Itoa(r.total))
-	ret = append(ret, strconv.Itoa(r.cancer))
-	ret = append(ret, r.formatRate(r.cancer, r.grandtotal))
-	ret = append(ret, strconv.Itoa(r.malignant))
-	ret = append(ret, r.formatRate(r.malignant, r.grandtotal))
-	ret = append(ret, r.formatRate(r.maltotal, r.allcancer))
-	ret = append(ret, strconv.Itoa(r.benign))
-	ret = append(ret, r.formatRate(r.benign, r.grandtotal))
-	ret = append(ret, r.formatRate(r.bentotal, r.allcancer))
-	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64))
-	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64))
-	ret = append(ret, strconv.Itoa(r.male))
-	ret = append(ret, strconv.Itoa(r.female))
-	ret = append(ret, strconv.Itoa(r.malecancer))
-	ret = append(ret, strconv.Itoa(r.femalecancer))
-	ret = append(ret, strconv.Itoa(r.necropsy))
-	ret = append(ret, r.setsources())
+	ret = append(ret, strconv.Itoa(r.grandtotal)) //TotalRecords
+	ret = append(ret, strconv.Itoa(r.total)) //RecordsWithDenominators
+	ret = append(ret, strconv.Itoa(r.cancer)) //NeoplasiaRecords
+	ret = append(ret, r.formatRate(r.cancer, r.grandtotal)) //NeoplasiaPrevalence
+	ret = append(ret, strconv.Itoa(r.malignant)) //Malignant
+	ret = append(ret, r.formatRate(r.malignant, r.grandtotal)) //MalignancyPrevalence
+	ret = append(ret, r.formatRate(r.maltotal, r.allcancer)) //PropMalignant
+	ret = append(ret, strconv.Itoa(r.benign)) //benign
+	ret = append(ret, r.formatRate(r.benign, r.grandtotal)) //benignPrevalence
+	ret = append(ret, r.formatRate(r.bentotal, r.allcancer)) //Propbenign
+	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64)) //AverageAge(months)
+	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64)) //AvgAgeNeoplasia(months)
+	ret = append(ret, strconv.Itoa(r.male)) //Male
+	ret = append(ret, strconv.Itoa(r.female)) //Female
+	ret = append(ret, strconv.Itoa(r.malecancer)) //MaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.femalecancer)) //FemaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.necropsy)) //Necropsies
+	ret = append(ret, r.setsources()) //Sources
 	for idx, i := range ret {
 		// Replace -1 with NA
 		if strings.Split(i, ".")[0] == "-1" {

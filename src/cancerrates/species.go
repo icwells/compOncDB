@@ -27,6 +27,8 @@ func newSpecies(id, location string, taxonomy []string) *species {
 	s := new(species)
 	s.id = id
 	s.taxonomy = taxonomy
+	s.tissue = newRecord()
+	s.total = newRecord()
 	return s
 }
 
@@ -93,7 +95,7 @@ func (s *species) addNonCancer(age float64, sex, service, aid string) {
 }
 
 func (s *species) addDenominator(d int) {
-	// Adds dneominator to records
+	// Adds denominator to records
 	s.tissue.addTotal(d)
 	s.total.addTotal(d)
 }
