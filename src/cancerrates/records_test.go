@@ -60,8 +60,8 @@ func testRecords() []*record {
 func getExpectedRecords() [][]string {
 	// Return slice of expected values
 	var expected [][]string
-	expected = append(expected, []string{"100", "50", "25", "0.25", "5", "0.05", "0.20", "10", "0.10", "0.40", "20.00", "10.00", "50", "50", "15", "10", "20", "0"})
-	expected = append(expected, []string{"110", "100", "30", "0.27", "3", "0.03", "0.14", "5", "0.05", "0.23", "9.00", "10.00", "50", "70", "12", "18", "5", "0"})
+	expected = append(expected, []string{"100", "50", "25", "0.50", "5", "0.10", "0.20", "10", "0.20", "0.40", "20.00", "10.00", "50", "50", "15", "10", "20", "0"})
+	expected = append(expected, []string{"110", "100", "30", "0.30", "3", "0.03", "0.14", "5", "0.05", "0.23", "9.00", "10.00", "50", "70", "12", "18", "5", "0"})
 	expected = append(expected, []string{"50", "50", "0", "0.00", "0", "0.00", "0.00", "0", "0.00", "0.00", "12.00", "NA", "25", "35", "50", "0", "0", "0"})
 	return expected
 }
@@ -72,7 +72,7 @@ func TestCalculateRates(t *testing.T) {
 	head := h.Rates[1:]
 	expected := getExpectedRecords()
 	for ind, r := range testRecords() {
-		actual := r.calculateRates()
+		actual := r.calculateRates(-1)
 		if len(actual) != len(expected[ind]) {
 			t.Errorf("%d: Actual length %d does not equal expected: %d", ind, len(actual), len(expected[ind]))
 			break
@@ -80,6 +80,7 @@ func TestCalculateRates(t *testing.T) {
 		for idx, i := range actual {
 			if i != expected[ind][idx] {
 				t.Errorf("%d: Actual calculated rate %s %s does not equal expected: %s", ind, head[idx], i, expected[ind][idx])
+				break
 			}
 		}
 	}

@@ -37,7 +37,7 @@ func (s *species) toSlice() [][]string {
 	var ret [][]string
 	total := append([]string{s.id}, s.taxonomy...)
 	total = append(total, "all")
-	total = append(total, s.total.calculateRates()...)
+	total = append(total, s.total.calculateRates(-1)...)
 	if len(s.lifehistory) > 0 {
 		total = append(total, s.lifehistory...)
 	}
@@ -46,7 +46,7 @@ func (s *species) toSlice() [][]string {
 		tissue := []string{s.id}
 		tissue = append(tissue, emptySlice(len(s.taxonomy))...)
 		tissue = append(tissue, s.location)
-		tissue = append(tissue, s.tissue.calculateRates()...)
+		tissue = append(tissue, s.tissue.calculateRates(s.total.total)...)
 		if len(s.lifehistory) > 0 {
 			tissue = append(tissue, emptySlice(len(s.lifehistory))...)
 		}
@@ -80,18 +80,16 @@ func (s *species) addCancer(age float64, sex, mal, loc, service, aid string) {
 
 func (s *species) addNonCancer(age float64, sex, service, aid string) {
 	// Adds non-cancer measures
+	s.total.grandtotal++
 	if service != "MSU" {
 		// Add to total and grandtotal
-		s.total.addTotal(1)
-		s.total.age++
+		s.total.total++
+		s.total.age += age
 		if sex == "male" {
 			s.total.male++
 		} else if sex == "female" {
 			s.total.female++
 		}
-	} else {
-		// Increment grand total
-		s.total.grandtotal++
 	}
 	s.total.sources.Add(aid)
 }

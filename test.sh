@@ -52,20 +52,23 @@ testParseRecords () {
 	go test $TSTDIR --run TestParseRecords
 }
 
-testDataBase () {
-	# Installs and tests database functions
+testCancerRates () {
+	# Tests cancer rate calculation with clean upload
 	echo ""
 	echo "Running black box tests on database upload..."
-	# Compare tables to expected
 	go test $TSTDIR --run TestUpload $ARGS
+	echo ""
+	echo "Running black box tests on cancer rate calculation..."
+	go test $TSTDIR --run TestCancerRates $ARGS
+}
+
+testDataBase () {
+	# Installs and tests database functions
+	testCancerRates
 
 	echo ""
 	echo "Running black box tests on database filtering..."
 	go test $TSTDIR --run TestFilterPatients $ARGS
-
-	echo ""
-	echo "Running black box tests on cancer rate calculation..."
-	go test $TSTDIR --run TestCancerRates $ARGS
 
 	echo ""
 	echo "Running black box tests on database search..."
@@ -106,6 +109,7 @@ helpText () {
 	echo "whitebox		Runs white box tests."
 	echo "blackbox		Runs all black box tests (parse, upload, search, and update)."
 	echo "parse		Runs parseRecords black box tests."
+	echo "cancerrate	Runs cancer rate calculation black box tests."
 	echo "db		Runs upload, search, update, and delete black box tests."
 	echo "fmt		Runs go fmt on all source files."
 	echo "vet		Runs go vet on all source files."
@@ -127,6 +131,9 @@ elif [ $1 = "blackbox" ]; then
 	testDataBase
 elif [ $1 = "parse" ]; then
 	testParseRecords
+elif [ $1 = "cancerrate" ]; then
+	getUser
+	testCancerRates
 elif [ $1 = "db" ]; then
 	getUser
 	testDataBase

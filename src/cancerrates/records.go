@@ -68,19 +68,22 @@ func (r *record) setsources() string {
 	return "0"
 }
 
-func (r *record) calculateRates() []string {
+func (r *record) calculateRates(d int) []string {
 	// Returns string slice of rates
 	var ret []string
+	if d < 0 {
+		d = r.total
+	}
 	r.CalculateAvgages()
 	ret = append(ret, strconv.Itoa(r.grandtotal))                   //TotalRecords
 	ret = append(ret, strconv.Itoa(r.total))                        //RecordsWithDenominators
 	ret = append(ret, strconv.Itoa(r.cancer))                       //NeoplasiaRecords
-	ret = append(ret, r.formatRate(r.cancer, r.grandtotal))         //NeoplasiaPrevalence
+	ret = append(ret, r.formatRate(r.cancer, d))                    //NeoplasiaPrevalence
 	ret = append(ret, strconv.Itoa(r.malignant))                    //Malignant
-	ret = append(ret, r.formatRate(r.malignant, r.grandtotal))      //MalignancyPrevalence
+	ret = append(ret, r.formatRate(r.malignant, d))                 //MalignancyPrevalence
 	ret = append(ret, r.formatRate(r.maltotal, r.allcancer))        //PropMalignant
 	ret = append(ret, strconv.Itoa(r.benign))                       //benign
-	ret = append(ret, r.formatRate(r.benign, r.grandtotal))         //benignPrevalence
+	ret = append(ret, r.formatRate(r.benign, d))                    //benignPrevalence
 	ret = append(ret, r.formatRate(r.bentotal, r.allcancer))        //Propbenign
 	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64))       //AverageAge(months)
 	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64)) //AvgAgeNeoplasia(months)
@@ -102,9 +105,14 @@ func (r *record) calculateRates() []string {
 func (r *record) cancerMeasures(age float64, sex, mal, service string) {
 	// Adds cancer measures
 	r.allcancer++
+	if mal == "1" {
+		r.maltotal++
+	} else if mal == "0" {
+		r.bentotal++
+	}
 	if service != "MSU" {
 		r.cancer++
-		r.cancerage++
+		r.cancerage += age
 		if sex == "male" {
 			r.malecancer++
 		} else if sex == "female" {
@@ -116,16 +124,34 @@ func (r *record) cancerMeasures(age float64, sex, mal, service string) {
 			r.benign++
 		}
 	}
-	// Count all malignant and benign
-	if mal == "1" {
-		r.maltotal++
-	} else if mal == "0" {
-		r.bentotal++
-	}
 }
 
 func (r *record) addTotal(n int) {
 	// Adds n to total and grandtotal
 	r.grandtotal += n
 	r.total += n
+}
+
+func (r *record) Copy() *record {
+	// Returns deep copy of struct
+	c := newRecord()
+	c.age = r.age
+	c.allcancer = r.allcancer
+	c.benign = r.benign
+	c.bentotal = r.bentotal
+	c.cancer = r.cancer
+	c.cancerage = r.cancerage
+	c.female = r.female
+	c.femalecancer = r.femalecancer
+	c.grandtotal = r.grandtotal
+	c.male = r.male
+	c.malecancer = r.malecancer
+	c.malignant = r.malignant
+	c.maltotal = r.maltotal
+	c.necropsy = r.necropsy
+	c.total = r.total
+	for _, i := range r.sources.ToStringSlice() {
+		c.sources.Add(i)
+	}
+	return c
 }

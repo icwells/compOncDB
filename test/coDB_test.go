@@ -32,8 +32,6 @@ func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 	ec, er := exp.Dimensions()
 	if ac != ec && ar != er {
 		t.Errorf("Actual %s dimensions [%d, %d] do not equal expected: [%d, %d]", name, ac, ar, ec, er)
-		t.Error(exp.GetHeader())
-		t.Error(exp.GetRow(1))
 	} else {
 		for key := range act.Index {
 			for k := range act.Header {
@@ -44,11 +42,10 @@ func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 					af, ef, err := toFloat(a, e)
 					if err != nil || af != ef {
 						t.Errorf("%s-%s: Actual %s value %s does not equal expected: %s", name, key, k, a, e)
-
+						break
 					}
 				}
 			}
-			break
 		}
 	}
 }
