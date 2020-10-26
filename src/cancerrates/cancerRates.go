@@ -62,13 +62,15 @@ func (c *cancerRates) setHeader() {
 func (c *cancerRates) formatRates() {
 	// Calculates rates, and formats for printing
 	for _, v := range c.records {
-		for _, i := range v.toSlice() {
-			// Add to dataframe
-			err := c.rates.AddRow(i)
-			if err != nil {
-				c.logger.Printf("Adding row to dataframe: %v\n", err)
-			} else {
-				c.rows++
+		if v.total.total >= c.min {
+			for _, i := range v.toSlice() {
+				// Add to dataframe
+				err := c.rates.AddRow(i)
+				if err != nil {
+					c.logger.Printf("Adding row to dataframe: %v\n", err)
+				} else {
+					c.rows++
+				}
 			}
 		}
 	}

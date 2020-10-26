@@ -5,18 +5,16 @@ package cancerrates
 import (
 	"github.com/icwells/simpleset"
 	"strconv"
-	"strings"
+	//"strings"
 )
 
-func avgAge(n float64, d int) float64 {
+func avgAge(n float64, d int) string {
 	// Returns n/d
-	var ret float64
 	if n > 0.0 && d > 0 {
-		ret = n / float64(d)
-	} else {
-		ret = -1.0
+		r := n / float64(d)
+		return strconv.FormatFloat(r, 'f', 2, 64)
 	}
-	return ret
+	return "0.00"
 }
 
 type record struct {
@@ -45,19 +43,13 @@ func newRecord() *record {
 	return r
 }
 
-func (r *record) CalculateAvgages() {
-	// Sets average age and average cancer age
-	r.age = avgAge(r.age, r.total)
-	r.cancerage = avgAge(r.cancerage, r.cancer)
-}
-
 func (r *record) formatRate(n, d int) string {
 	// Divides n by d and returns formatted string
-	var v float64
 	if d != 0 {
-		v = float64(n) / float64(d)
+		v := float64(n) / float64(d)
+		return strconv.FormatFloat(v, 'f', 2, 64)
 	}
-	return strconv.FormatFloat(v, 'f', 2, 64)
+	return "0.00"
 }
 
 func (r *record) setsources() string {
@@ -74,7 +66,6 @@ func (r *record) calculateRates(d int) []string {
 	if d < 0 {
 		d = r.total
 	}
-	r.CalculateAvgages()
 	ret = append(ret, strconv.Itoa(r.grandtotal))                   //TotalRecords
 	ret = append(ret, strconv.Itoa(r.total))                        //RecordsWithDenominators
 	ret = append(ret, strconv.Itoa(r.cancer))                       //NeoplasiaRecords
@@ -85,20 +76,20 @@ func (r *record) calculateRates(d int) []string {
 	ret = append(ret, strconv.Itoa(r.benign))                       //benign
 	ret = append(ret, r.formatRate(r.benign, d))                    //benignPrevalence
 	ret = append(ret, r.formatRate(r.bentotal, r.allcancer))        //Propbenign
-	ret = append(ret, strconv.FormatFloat(r.age, 'f', 2, 64))       //AverageAge(months)
-	ret = append(ret, strconv.FormatFloat(r.cancerage, 'f', 2, 64)) //AvgAgeNeoplasia(months)
+	ret = append(ret, avgAge(r.age, r.total))				        //AverageAge(months)
+	ret = append(ret, avgAge(r.cancerage, r.cancer))                //AvgAgeNeoplasia(months)
 	ret = append(ret, strconv.Itoa(r.male))                         //Male
 	ret = append(ret, strconv.Itoa(r.female))                       //Female
 	ret = append(ret, strconv.Itoa(r.malecancer))                   //MaleNeoplasia
 	ret = append(ret, strconv.Itoa(r.femalecancer))                 //FemaleNeoplasia
 	ret = append(ret, strconv.Itoa(r.necropsy))                     //Necropsies
 	ret = append(ret, r.setsources())                               //Sources
-	for idx, i := range ret {
+	/*for idx, i := range ret {
 		// Replace -1 with NA
 		if strings.Split(i, ".")[0] == "-1" {
 			ret[idx] = "NA"
 		}
-	}
+	}*/
 	return ret
 }
 

@@ -155,11 +155,18 @@ func (e *entries) addSource(id, aid string, row []string) {
 func formatAge(age string) string {
 	// Returns age formatted for sql upload
 	ret := "-1.0"
-	f, err := strconv.ParseFloat(age, 64)
-	if err == nil {
-		age = fmt.Sprintf("%.2f", f)
-		if len(age) <= 7 {
-			ret = age
+	if _, err := strconv.ParseFloat(age, 64); err == nil {
+		if strings.Contains(age, ".") {
+			s := strings.Split(age, ".")
+			for len(s[1]) < 2 {
+				s[1] += "0"
+			}
+			age = fmt.Sprintf("%s.%s", s[0], s[1][:2])
+			if len(age) <= 7 {
+				ret = age
+			}
+		} else {
+			ret = age + ".00"
 		}
 	}
 	return ret
