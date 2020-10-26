@@ -8,56 +8,9 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"log"
-	"math"
 	"strconv"
 	"strings"
 )
-
-func sizeOf(list [][]string) int {
-	// Returns size of array in bytes
-	ret := 0
-	for _, i := range list {
-		for _, j := range i {
-			ret += len([]byte(j))
-		}
-	}
-	return ret * 8
-}
-
-func getDenominator(size int) int {
-	// Returns denominator for subsetting upload slice (size in bytes / 16Mb)
-	max := 10000000.0
-	return int(math.Ceil(float64(size) / max))
-}
-
-func uploadPatients(db *dbIO.DBIO, table string, list [][]string) {
-	// Uploads patient entries to db
-	l := len(list)
-	if l > 0 {
-		den := getDenominator(sizeOf(list))
-		if den <= 1 {
-			// Upload slice at once
-			vals, l := dbIO.FormatSlice(list)
-			db.UpdateDB(table, vals, l)
-		} else {
-			// Upload in chunks
-			var end int
-			idx := l / den
-			ind := 0
-			for i := 0; i < den; i++ {
-				if ind+idx > l {
-					// Get last less than idx rows
-					end = l
-				} else {
-					end = ind + idx
-				}
-				vals, ln := dbIO.FormatSlice(list[ind:end])
-				db.UpdateDB(table, vals, ln)
-				ind = ind + idx
-			}
-		}
-	}
-}
 
 func tumorPairs(typ, loc string) [][]string {
 	// Returns slice of pairs of type, location
@@ -71,8 +24,6 @@ func tumorPairs(typ, loc string) [][]string {
 	}
 	return ret
 }
-
-//----------------------------------------------------------------------------
 
 type entries struct {
 	accounts  map[string]map[string]string
@@ -237,9 +188,9 @@ func LoadPatients(db *dbIO.DBIO, infile string, test bool) {
 	e := newEntries(db, test)
 	// Get entry slices and upload to db
 	e.extractPatients(infile)
-	uploadPatients(db, "Patient", e.p)
-	uploadPatients(db, "Diagnosis", e.d)
-	uploadPatients(db, "Tumor", e.t)
-	uploadPatients(db, "Source", e.s)
-	uploadPatients(db, "Unmatched", e.unmatched)
+	db.UploadSlice("Patient", e.p)
+	db.UploadSlice("Diagnosis", e.d)
+	db.UploadSlice("Tumor", e.t)
+	db.UploadSlice("Source", e.s)
+	db.UploadSlice("Unmatched", e.unmatched)
 }
