@@ -64,7 +64,7 @@ func (s *species) addCancer(age float64, sex, mal, loc, service, aid string) {
 		if service != "MSU" {
 			// Add to total and grandtotal
 			s.tissue.addTotal(1)
-			s.tissue.age++
+			s.tissue.age += age
 			if sex == "male" {
 				s.tissue.male++
 			} else if sex == "female" {

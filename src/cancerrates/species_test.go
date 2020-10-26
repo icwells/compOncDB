@@ -67,11 +67,16 @@ func addRow(s *record, age float64, sex, mal, loc, service, aid string) {
 		s.bentotal++
 	}
 	if service != "MSU" {
+		s.total++
+		s.cancer++
 		s.age += age
+		s.cancerage += age
 		if sex == "male" {
 			s.male++
+			s.malecancer++
 		} else {
 			s.female++
+			s.femalecancer++
 		}
 		if mal == "1" {
 			s.malignant++
@@ -131,7 +136,7 @@ func TestAddMeasures(t *testing.T) {
 	}
 	for _, i := range input {
 		s := sp.total.Copy()
-		l := sp.total.Copy()
+		l := sp.tissue.Copy()
 		addRow(s, i.age, i.sex, i.mal, i.loc, i.service, i.aid)
 		if i.loc == "liver" {
 			addRow(l, i.age, i.sex, i.mal, i.loc, i.service, i.aid)
