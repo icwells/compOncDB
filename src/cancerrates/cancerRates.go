@@ -25,7 +25,7 @@ type cancerRates struct {
 	nas      []string
 	rates    *dataframe.Dataframe
 	records  map[string]*species
-	rows     int
+	species  int
 	tids     []string
 	total    string
 }
@@ -63,14 +63,17 @@ func (c *cancerRates) formatRates() {
 	// Calculates rates, and formats for printing
 	for _, v := range c.records {
 		if v.total.total >= c.min {
+			var err error
 			for _, i := range v.toSlice() {
 				// Add to dataframe
-				err := c.rates.AddRow(i)
+				err = c.rates.AddRow(i)
 				if err != nil {
 					c.logger.Printf("Adding row to dataframe: %v\n", err)
-				} else {
-					c.rows++
+					break
 				}
+			}
+			if err == nil {
+				c.species++
 			}
 		}
 	}
@@ -83,14 +86,15 @@ func (c *cancerRates) countRecords() {
 	tumor := codbutils.ToMap(c.db.GetColumns("Tumor", []string{"ID", "Malignant", "Location"}))
 	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,"+TID) {
 		s := c.records[i[3]]
+		id := i[0]
 		if f, err := strconv.ParseFloat(i[2], 64); err == nil {
 			// Ignore infant records if infant flag not set
 			if c.infant || f >= s.infancy {
-				acc := source[i[0]]
+				acc := source[id]
 				// Add non-cancer values
 				s.addNonCancer(f, i[1], acc[0], acc[1])
-				if val, ex := diag[i[3]]; ex && val == "1" {
-					if v, ex := tumor[i[0]]; ex {
+				if val, ex := diag[id]; ex && val == "1" {
+					if v, ex := tumor[id]; ex {
 						// Add tumor values
 						s.addCancer(f, i[1], v[0], v[1], acc[0], acc[1])
 					}
@@ -162,6 +166,6 @@ func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval, location st
 	c.getTaxa(eval)
 	c.countRecords()
 	c.formatRates()
-	c.logger.Printf("Found %d records with at least %d entries.\n", c.rows, c.min)
+	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)
 	return c.rates
 }

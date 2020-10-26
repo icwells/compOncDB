@@ -124,7 +124,7 @@ func TestCancerRates(t *testing.T) {
 	// Tests taxonomy search output
 	db := connectToDatabase()
 	rates := cancerrates.GetCancerRates(db, 1, false, false, false, "", "")
-	rates.DeleteRow("total")
+	//rates.DeleteRow("total")
 	compareTables(t, "Cancer Rates", getExpectedRates(), rates)
 }
 
