@@ -1,5 +1,29 @@
-{{define "search"}}
+{{define "cancerrate"}}
+<div id="Rates" class="hide">
+  <h2>Calculate neoplasia prevalence</h2>
+  <form method="POST" action="/codb/prevalence/">
 
+    <label for="Taxonomy">Taxonomic level to subset cancer rates by:</label>
+    <div type="select" id="SingleSearch"></div>
+
+    <label for="Location">Summarize neoplasia prevalence by location:</label>
+    <input type="select" id="Location"></input>
+    <div>
+      <label for="Min">The minimum number of entries required to examine a species or tumor type:</label>
+      <input type="number" name="Min" min="0" value="1">
+    </div>
+    <div>
+      <input type="checkbox" name="Lifehistory">
+      <label for="Lifehistory">Append life history information to results (for species only).</label>
+    </div>
+    {{template "searchoptions"}}
+    {{template "buttonbox"}}
+  </form>
+</div>
+{{end}}
+
+
+{{define "search"}}
 <div id="Search" class="hide">
   <h2>Search Database</h2>
   <form method="POST" action="/codb/results/">
@@ -12,38 +36,7 @@ See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for co
     <p>Note: Additional search parameters are cumulative and all fields will be applied together. 
 New searches, on the other hand, are completely independent of one another (These will not be applied to cancer prevalence calculations).</p>
     <hr>
-    <div>
-      <input id="canceratebox" type="checkbox" name="Cancerrate">
-      <label for="Cancerrate">Calculate cancer prevalence.</label>
-    </div>
-    <div id="Rates" class="hide tab">
-      <div>
-        <label for="Min">The minimum number of entries required to examine a species or tumor type:</label>
-        <input type="number" name="Min" min="0" value="1">
-      </div>
-      <div>
-        <input type="checkbox" name="Lifehistory">
-        <label for="Lifehistory">Append life history information to results (for species only).</label>
-      </div>
-      <p>Select value to summarize cancer prevalence by:</p>
-      <div class="tab">
-          <input type="radio" name="Key" value="species" checked="checked"> Species Only</input><br>
-          <input type="radio" name="Key" value="location"> Species and Location</input><br>
-          <input type="radio" name="Key" value="type"> Species and Tumor Type</input><br>
-      </div>
-	</div>
-    <div>
-      <input type="checkbox" name="Necropsy">
-      <label for="Necropsy">Extract only necropsy records (extracts all matches by default).</label>
-    </div>
-    <div>
-      <input type="checkbox" name="Infant">
-      <label for="Infant">Include infant records in results (excluded by default).</label>
-    </div>
-    <div>
-      <input type="checkbox" name="Print">
-      <label for="Print">View results in browser (returns file by default).</label>
-    </div>
+	{{template "searchoptions"}}
     {{template "buttonbox"}}
   </form>
 </div>
