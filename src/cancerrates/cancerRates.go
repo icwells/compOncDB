@@ -42,7 +42,7 @@ func newCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, location string) 
 	c.min = min
 	c.nec = nec
 	c.setHeader()
-	c.rates, _ = dataframe.NewDataFrame(0)
+	c.rates, _ = dataframe.NewDataFrame(-1)
 	c.rates.SetHeader(c.header)
 	c.records = make(map[string]*species)
 	c.total = "total"
@@ -92,14 +92,17 @@ func (c *cancerRates) countRecords() {
 		if f, err := strconv.ParseFloat(i[2], 64); err == nil {
 			// Ignore infant records if infant flag not set
 			if c.infant || f >= s.infancy {
-				acc := source[id]
 				diag := diagnosis[id]
-				// Add non-cancer values
-				s.addNonCancer(f, i[1], diag[1], acc[0], acc[1])
-				if diag[0] == "1" {
-					if v, ex := tumor[id]; ex {
-						// Add tumor values
-						s.addCancer(f, i[1], diag[1], v[0], v[1], acc[0], acc[1])
+				// Subset necropsy records if nec == true
+				if !c.nec || diag[1] == "1" {
+					acc := source[id]
+					// Add non-cancer values
+					s.addNonCancer(f, i[1], diag[1], acc[0], acc[1])
+					if diag[0] == "1" {
+						if v, ex := tumor[id]; ex {
+							// Add tumor values
+							s.addCancer(f, i[1], diag[1], v[0], v[1], acc[0], acc[1])
+						}
 					}
 				}
 			}

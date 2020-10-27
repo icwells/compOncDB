@@ -26,6 +26,7 @@ func newSpecies(id, location string, taxonomy []string) *species {
 	// Return new species struct
 	s := new(species)
 	s.id = id
+	s.location = location
 	s.taxonomy = taxonomy
 	s.tissue = newRecord()
 	s.total = newRecord()
@@ -61,9 +62,10 @@ func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string
 	if loc == s.location {
 		// Add all measures for target tissue
 		s.tissue.cancerMeasures(age, sex, mal, service)
+		s.tissue.grandtotal++
 		if service != "MSU" {
 			// Add to total and grandtotal
-			s.tissue.addTotal(1)
+			s.tissue.total++
 			s.tissue.age += age
 			if sex == "male" {
 				s.tissue.male++
@@ -73,9 +75,6 @@ func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string
 			if nec == "1" {
 				s.tissue.necropsy++
 			}
-		} else {
-			// Increment grand total
-			s.tissue.grandtotal++
 		}
 		s.tissue.sources.Add(aid)
 	}

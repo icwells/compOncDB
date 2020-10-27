@@ -68,7 +68,7 @@ func getExpectedRates() *dataframe.Dataframe {
 	s = append(s, wolf)
 	s = append(s, coyote)
 	s = append(s, fox)
-	return setDF(0, s)
+	return setDF(-1, s)
 }
 
 //----------------------Search------------------------------------------------
