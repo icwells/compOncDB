@@ -68,7 +68,8 @@ func (r *record) calculateRates(d int) []string {
 	}
 	ret = append(ret, strconv.Itoa(r.grandtotal))            //TotalRecords
 	ret = append(ret, strconv.Itoa(r.total))                 //RecordsWithDenominators
-	ret = append(ret, strconv.Itoa(r.cancer))                //NeoplasiaRecords
+	ret = append(ret, strconv.Itoa(r.allcancer))             //TotalNeoplasia
+	ret = append(ret, strconv.Itoa(r.cancer))                //NeoplasiaWithDenominators
 	ret = append(ret, r.formatRate(r.cancer, d))             //NeoplasiaPrevalence
 	ret = append(ret, strconv.Itoa(r.malignant))             //Malignant
 	ret = append(ret, r.formatRate(r.malignant, d))          //MalignancyPrevalence
