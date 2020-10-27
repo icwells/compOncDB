@@ -123,34 +123,44 @@ func (o *Output) lifeHistorySummary() {
 	C.renderTemplate(C.temp.result, o)
 }
 
+func (o *Output) renderResults(opt *Options, res *dataframe.Dataframe, name string) {
+	// Renders search and cancer rate results
+	if res.Length() >= 1 {
+		// Format link for download whether or not results are printed to screen
+		o.getTempFile(name)
+		res.ToCSV(o.Outfile)
+		if opt.Print {
+			o.formatTable(strings.Split(res.FormatHeader(","), ","), res.ToSlice())
+		}
+	}
+	if o.Count == "" {
+		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
+	}
+	C.renderTemplate(C.temp.result, o)
+}
+
+func (o *Output) neoplasiaPrevalence() {
+	// Performs cancer rate calculations
+	var eval string
+	opt := setOptions(o.r)
+	if opt.Taxa != "" && opt.Operation != "" && opt.Value != "" {
+		eval = opt.Taxa + opt.Operation + opt.Value
+	}
+	res := cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, eval, opt.Location)
+	o.renderResults(opt, res, fmt.Sprintf("cancerRates.min%d", opt.Min))
+}
+
 func (o *Output) searchDB() {
-	// Performs searches and cancer rate calculations
-	var name string
+	// Performs searches
 	var res *dataframe.Dataframe
 	var eval [][]codbutils.Evaluation
 	opt := setOptions(o.r)
 	eval, o.Flash = checkEvaluations(o.r, o.db.Columns)
-	if opt.Cancerrate {
-		o.Flash = ""
-		res = cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, opt.Taxa, opt.Location)
-		name = fmt.Sprintf("cancerRates.min%d", opt.Min)
-	} else if o.Flash == "" {
+	if o.Flash == "" {
 		res, o.Count = dbextract.SearchColumns(o.db, codbutils.GetLogger(), "", eval, opt.Infant)
-		name = o.User
 	}
 	if o.Flash == "" {
-		if res.Length() >= 1 {
-			// Format link for download whether or not results are printed to screen
-			o.getTempFile(name)
-			res.ToCSV(o.Outfile)
-			if opt.Print {
-				o.formatTable(strings.Split(res.FormatHeader(","), ","), res.ToSlice())
-			}
-		}
-		if o.Count == "" {
-			o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
-		}
-		C.renderTemplate(C.temp.result, o)
+		o.renderResults(opt, res, o.User)
 	} else {
 		// Return to search page with flash message
 		C.renderTemplate(C.temp.menu, o)
@@ -169,6 +179,8 @@ func (o *Output) routePost(source string) {
 		o.extractTable()
 	case C.u.lifehist:
 		o.lifeHistorySummary()
+	case C.u.prevalence:
+		o.neoplasiaPrevalence()
 	case C.u.output:
 		o.searchDB()
 	}

@@ -66,24 +66,24 @@ func (r *record) calculateRates(d int) []string {
 	if d < 0 {
 		d = r.total
 	}
-	ret = append(ret, strconv.Itoa(r.grandtotal))                   //TotalRecords
-	ret = append(ret, strconv.Itoa(r.total))                        //RecordsWithDenominators
-	ret = append(ret, strconv.Itoa(r.cancer))                       //NeoplasiaRecords
-	ret = append(ret, r.formatRate(r.cancer, d))                    //NeoplasiaPrevalence
-	ret = append(ret, strconv.Itoa(r.malignant))                    //Malignant
-	ret = append(ret, r.formatRate(r.malignant, d))                 //MalignancyPrevalence
-	ret = append(ret, r.formatRate(r.maltotal, r.allcancer))        //PropMalignant
-	ret = append(ret, strconv.Itoa(r.benign))                       //benign
-	ret = append(ret, r.formatRate(r.benign, d))                    //benignPrevalence
-	ret = append(ret, r.formatRate(r.bentotal, r.allcancer))        //Propbenign
-	ret = append(ret, avgAge(r.age, r.total))				        //AverageAge(months)
-	ret = append(ret, avgAge(r.cancerage, r.cancer))                //AvgAgeNeoplasia(months)
-	ret = append(ret, strconv.Itoa(r.male))                         //Male
-	ret = append(ret, strconv.Itoa(r.female))                       //Female
-	ret = append(ret, strconv.Itoa(r.malecancer))                   //MaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.femalecancer))                 //FemaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.necropsy))                     //Necropsies
-	ret = append(ret, r.setsources())                               //Sources
+	ret = append(ret, strconv.Itoa(r.grandtotal))            //TotalRecords
+	ret = append(ret, strconv.Itoa(r.total))                 //RecordsWithDenominators
+	ret = append(ret, strconv.Itoa(r.cancer))                //NeoplasiaRecords
+	ret = append(ret, r.formatRate(r.cancer, d))             //NeoplasiaPrevalence
+	ret = append(ret, strconv.Itoa(r.malignant))             //Malignant
+	ret = append(ret, r.formatRate(r.malignant, d))          //MalignancyPrevalence
+	ret = append(ret, r.formatRate(r.maltotal, r.allcancer)) //PropMalignant
+	ret = append(ret, strconv.Itoa(r.benign))                //benign
+	ret = append(ret, r.formatRate(r.benign, d))             //benignPrevalence
+	ret = append(ret, r.formatRate(r.bentotal, r.allcancer)) //Propbenign
+	ret = append(ret, avgAge(r.age, r.total))                //AverageAge(months)
+	ret = append(ret, avgAge(r.cancerage, r.cancer))         //AvgAgeNeoplasia(months)
+	ret = append(ret, strconv.Itoa(r.male))                  //Male
+	ret = append(ret, strconv.Itoa(r.female))                //Female
+	ret = append(ret, strconv.Itoa(r.malecancer))            //MaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.femalecancer))          //FemaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.necropsy))              //Necropsies
+	ret = append(ret, r.setsources())                        //Sources
 	/*for idx, i := range ret {
 		// Replace -1 with NA
 		if strings.Split(i, ".")[0] == "-1" {

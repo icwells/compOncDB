@@ -56,7 +56,7 @@ func TestAddDenominators(t *testing.T) {
 	}
 }
 
-func addRow(s *record, age float64, sex, mal, loc, service, aid string) {
+func addRow(s *record, age float64, sex, nec, mal, loc, service, aid string) {
 	// Adds values to struct
 	s.grandtotal++
 	s.allcancer++
@@ -82,6 +82,9 @@ func addRow(s *record, age float64, sex, mal, loc, service, aid string) {
 			s.malignant++
 		} else {
 			s.benign++
+		}
+		if nec == "1" {
+			s.necropsy++
 		}
 	}
 }
@@ -127,22 +130,22 @@ func TestAddMeasures(t *testing.T) {
 	// Tests addNonCancer and addCancer
 	sp := getSpecies()[0]
 	input := []struct {
-		age                         float64
-		sex, mal, loc, service, aid string
+		age                              float64
+		sex, nec, mal, loc, service, aid string
 	}{
-		{10.0, "male", "1", "liver", "NWZP", "13"},
-		{50.0, "female", "0", "kidney", "ZEPS", "2"},
-		{5.0, "male", "0", "liver", "MSU", "2"},
+		{10.0, "male", "0", "1", "liver", "NWZP", "13"},
+		{50.0, "female", "1", "0", "kidney", "ZEPS", "2"},
+		{5.0, "male", "0", "0", "liver", "MSU", "2"},
 	}
 	for _, i := range input {
 		s := sp.total.Copy()
 		l := sp.tissue.Copy()
-		addRow(s, i.age, i.sex, i.mal, i.loc, i.service, i.aid)
+		addRow(s, i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
 		if i.loc == "liver" {
-			addRow(l, i.age, i.sex, i.mal, i.loc, i.service, i.aid)
+			addRow(l, i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
 		}
-		sp.addNonCancer(i.age, i.sex, i.service, i.aid)
-		sp.addCancer(i.age, i.sex, i.mal, i.loc, i.service, i.aid)
+		sp.addNonCancer(i.age, i.sex, i.nec, i.service, i.aid)
+		sp.addCancer(i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
 		compareRecords(t, sp.total, s)
 		compareRecords(t, sp.tissue, l)
 	}

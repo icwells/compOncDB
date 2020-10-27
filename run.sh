@@ -21,7 +21,7 @@ runHost () {
 	# Start gunicorn with nohup and append stderr and stdout to serverLog
 	echo "Starting production server on $HOST:$PORT..."
 	cd codb/
-	nohup ./codbApplication -h $HOST -p $PORT > $LOG 2>&1 &
+	nohup go run *.go -h $HOST -p $PORT > $LOG 2>&1 &
 	# Save process ids for easy termination later
 	echo $! > ../$PID
 }

@@ -55,7 +55,7 @@ func (s *species) toSlice() [][]string {
 	return ret
 }
 
-func (s *species) addCancer(age float64, sex, mal, loc, service, aid string) {
+func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string) {
 	// Adds cancer measures
 	s.total.cancerMeasures(age, sex, mal, service)
 	if loc == s.location {
@@ -70,6 +70,9 @@ func (s *species) addCancer(age float64, sex, mal, loc, service, aid string) {
 			} else if sex == "female" {
 				s.tissue.female++
 			}
+			if nec == "1" {
+				s.tissue.necropsy++
+			}
 		} else {
 			// Increment grand total
 			s.tissue.grandtotal++
@@ -78,7 +81,7 @@ func (s *species) addCancer(age float64, sex, mal, loc, service, aid string) {
 	}
 }
 
-func (s *species) addNonCancer(age float64, sex, service, aid string) {
+func (s *species) addNonCancer(age float64, sex, nec, service, aid string) {
 	// Adds non-cancer measures
 	s.total.grandtotal++
 	if service != "MSU" {
@@ -89,6 +92,9 @@ func (s *species) addNonCancer(age float64, sex, service, aid string) {
 			s.total.male++
 		} else if sex == "female" {
 			s.total.female++
+		}
+		if nec == "1" {
+			s.total.necropsy++
 		}
 	}
 	s.total.sources.Add(aid)

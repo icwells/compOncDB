@@ -117,6 +117,11 @@ func tableDumpHandler(w http.ResponseWriter, r *http.Request) {
 	handlePost(w, r, C.u.table)
 }
 
+func prevalenceHandler(w http.ResponseWriter, r *http.Request) {
+	// Reads cancer rate form
+	handlePost(w, r, C.u.prevalence)
+}
+
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
 	handlePost(w, r, C.u.output)
@@ -156,6 +161,7 @@ func main() {
 	r.HandleFunc(C.u.reftaxa, referenceTaxonomyHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.table, tableDumpHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.prevalence, prevalenceHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.output, searchHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.get+"{filename}", downloadHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal

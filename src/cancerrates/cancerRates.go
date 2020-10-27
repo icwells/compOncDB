@@ -23,6 +23,7 @@ type cancerRates struct {
 	logger   *log.Logger
 	min      int
 	nas      []string
+	nec      bool
 	rates    *dataframe.Dataframe
 	records  map[string]*species
 	species  int
@@ -30,7 +31,7 @@ type cancerRates struct {
 	total    string
 }
 
-func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, location string) *cancerRates {
+func newCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, location string) *cancerRates {
 	// Returns initialized cancerRates struct
 	c := new(cancerRates)
 	c.db = db
@@ -39,6 +40,7 @@ func newCancerRates(db *dbIO.DBIO, min int, lh, inf bool, location string) *canc
 	c.lh = lh
 	c.logger = codbutils.GetLogger()
 	c.min = min
+	c.nec = nec
 	c.setHeader()
 	c.rates, _ = dataframe.NewDataFrame(0)
 	c.rates.SetHeader(c.header)
@@ -82,7 +84,7 @@ func (c *cancerRates) formatRates() {
 func (c *cancerRates) countRecords() {
 	// Counts Patient records
 	source := codbutils.ToMap(c.db.GetColumns("Source", []string{"ID", "service_name", "account_id"}))
-	diag := codbutils.EntryMap(c.db.GetColumns("Diagnosis", []string{"Masspresent", "ID"}))
+	diagnosis := codbutils.ToMap(c.db.GetColumns("Diagnosis", []string{"ID", "Masspresent", "Necropsy"}))
 	tumor := codbutils.ToMap(c.db.GetColumns("Tumor", []string{"ID", "Malignant", "Location"}))
 	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,"+TID) {
 		s := c.records[i[3]]
@@ -91,12 +93,13 @@ func (c *cancerRates) countRecords() {
 			// Ignore infant records if infant flag not set
 			if c.infant || f >= s.infancy {
 				acc := source[id]
+				diag := diagnosis[id]
 				// Add non-cancer values
-				s.addNonCancer(f, i[1], acc[0], acc[1])
-				if val, ex := diag[id]; ex && val == "1" {
+				s.addNonCancer(f, i[1], diag[1], acc[0], acc[1])
+				if diag[0] == "1" {
 					if v, ex := tumor[id]; ex {
 						// Add tumor values
-						s.addCancer(f, i[1], v[0], v[1], acc[0], acc[1])
+						s.addCancer(f, i[1], diag[1], v[0], v[1], acc[0], acc[1])
 					}
 				}
 			}
@@ -161,7 +164,7 @@ func (c *cancerRates) getTaxa(eval string) {
 
 func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
-	c := newCancerRates(db, min, lh, inf, location)
+	c := newCancerRates(db, min, nec, inf, lh, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.getTaxa(eval)
 	c.countRecords()

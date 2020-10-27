@@ -6,7 +6,6 @@
 # Required programs:	Go 1.11+
 ##############################################################################
 
-APP="codbApplication"
 MAIN="compOncDB"
 
 installPackages () {
@@ -37,13 +36,6 @@ installMain () {
 	echo ""
 }
 
-installApp () {
-	# Application
-	echo "Building $APP..."
-	cd codb/
-	go build -i -o $APP *.go
-}
-
 echo ""
 echo "Preparing compOncDB package..."
 echo "GOPATH identified as $GOPATH"
@@ -51,15 +43,11 @@ echo ""
 
 if [ $# -eq 0 ]; then
 	installMain
-	installApp
 elif [ $1 = "main" ]; then
 	installMain
-elif [ $1 = "app" ]; then
-	installApp
 elif [ $1 = "all" ]; then
 	installPackages
 	installMain
-	installApp
 elif [ $1 = "help" ]; then
 	echo "Installs Go scripts for compOnDB"
 	echo ""

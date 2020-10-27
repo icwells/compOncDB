@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/iotools"
 	"html/template"
@@ -11,37 +12,39 @@ import (
 )
 
 type urls struct {
-	changepw string
-	get      string
-	lifehist string
-	login    string
-	logout   string
-	menu     string
-	newpw    string
-	output   string
-	reftaxa  string
-	source   string
-	static   string
-	summary  string
-	table    string
+	changepw   string
+	get        string
+	lifehist   string
+	login      string
+	logout     string
+	menu       string
+	newpw      string
+	output     string
+	prevalence string
+	reftaxa    string
+	source     string
+	static     string
+	summary    string
+	table      string
 }
 
 func setURLs() *urls {
 	// Stores url stems
 	u := new(urls)
-	u.changepw = "/codb/changepassword"
-	u.get = "/codb/get/"
-	u.lifehist = "/codb/lifehistory/"
-	u.login = "/codb/login"
-	u.logout = "/codb/logout"
-	u.menu = "/codb/menu/"
-	u.newpw = "/codb/newpassword"
-	u.output = "/codb/results/"
-	u.reftaxa = "/codb/referencetaxonomy/"
 	u.source = "/codb/"
+	u.changepw = fmt.Sprintf("%schangepassword", u.source)
+	u.get = fmt.Sprintf("%sget/", u.source)
+	u.lifehist = fmt.Sprintf("%slifehistory/", u.source)
+	u.login = fmt.Sprintf("%slogin", u.source)
+	u.logout = fmt.Sprintf("%slogout", u.source)
+	u.menu = fmt.Sprintf("%smenu/", u.source)
+	u.newpw = fmt.Sprintf("%snewpassword", u.source)
+	u.output = fmt.Sprintf("%sresults/", u.source)
+	u.prevalence = fmt.Sprintf("%sprevalence/", u.source)
+	u.reftaxa = fmt.Sprintf("%sreferencetaxonomy/", u.source)
 	u.static = "/static/"
-	u.summary = "/codb/summary/"
-	u.table = "/codb/extractTable/"
+	u.summary = fmt.Sprintf("%ssummary/", u.source)
+	u.table = fmt.Sprintf("%sextractTable/", u.source)
 	return u
 }
 
