@@ -18,8 +18,10 @@ type Options struct {
 	Location    string
 	Min         int
 	Necropsy    bool
+	Operation   string
 	Print       bool
 	Taxa        string
+	Value       string
 }
 
 func setOptions(r *http.Request) *Options {
