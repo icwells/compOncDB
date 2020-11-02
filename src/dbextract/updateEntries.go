@@ -52,7 +52,7 @@ func (t *tableupdate) updateTable(db *dbIO.DBIO) {
 
 //----------------------------------------------------------------------------
 
-type updater struct {
+type Updater struct {
 	columns map[string]string
 	db      *dbIO.DBIO
 	delim   string
@@ -63,9 +63,9 @@ type updater struct {
 	taxa    map[string]string
 }
 
-func newUpdater(db *dbIO.DBIO) updater {
+func newUpdater(db *dbIO.DBIO) Updater {
 	// Initializes new update struct
-	var u updater
+	var u Updater
 	u.db = db
 	u.columns = db.Columns
 	u.header = make(map[int]string)
@@ -75,7 +75,7 @@ func newUpdater(db *dbIO.DBIO) updater {
 	return u
 }
 
-func (u *updater) setHeader(line string) {
+func (u *Updater) SetHeader(line string) {
 	// Stores input file columns to database tables and columns
 	u.delim, _ = iotools.GetDelim(line)
 	for idx, i := range strings.Split(line, u.delim) {
@@ -97,7 +97,7 @@ func (u *updater) setHeader(line string) {
 	}
 }
 
-func (u *updater) checkTaxaID(id string) string {
+func (u *Updater) checkTaxaID(id string) string {
 	// Replaces scentific name with taxa id
 	if _, err := strconv.Atoi(id); err != nil {
 		tid, ex := u.taxa[id]
@@ -108,7 +108,7 @@ func (u *updater) checkTaxaID(id string) string {
 	return id
 }
 
-func (u *updater) evaluateRow(row []string) {
+func (u *Updater) EvaluateRow(row []string) {
 	// Assigns row values to substruct
 	id := strings.TrimSpace(row[0])
 	if len(id) >= 1 {
@@ -129,7 +129,7 @@ func (u *updater) evaluateRow(row []string) {
 	}
 }
 
-func (u *updater) getUpdateFile(infile string) {
+func (u *Updater) getUpdateFile(infile string) {
 	// Returns map of data to be updated
 	first := true
 	u.logger.Println("Reading input file...")
@@ -139,15 +139,15 @@ func (u *updater) getUpdateFile(infile string) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(string(scanner.Text()))
 		if first == false {
-			u.evaluateRow(strings.Split(line, u.delim))
+			u.EvaluateRow(strings.Split(line, u.delim))
 		} else {
-			u.setHeader(line)
+			u.SetHeader(line)
 			first = false
 		}
 	}
 }
 
-func (u *updater) updateTables() {
+func (u *Updater) UpdateTables() {
 	// Updates database with all identified values
 	fmt.Println("\tUpdating tables...")
 	for _, v := range u.tables {
@@ -165,7 +165,7 @@ func UpdateEntries(db *dbIO.DBIO, infile string) {
 	// Updates taxonomy entries
 	u := newUpdater(db)
 	u.getUpdateFile(infile)
-	u.updateTables()
+	u.UpdateTables()
 }
 
 func UpdateSingleTable(db *dbIO.DBIO, table, column, value, target, op, key string) {

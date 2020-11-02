@@ -63,8 +63,10 @@ func addRow(s *record, age float64, sex, nec, mal, loc, service, aid string) {
 	s.sources.Add(aid)
 	if mal == "1" {
 		s.maltotal++
-	} else {
+		s.malknown++
+	} else if mal == "0" {
 		s.bentotal++
+		s.malknown++
 	}
 	if service != "MSU" {
 		s.total++
@@ -115,6 +117,8 @@ func compareRecords(t *testing.T, a, e *record) {
 		t.Errorf("Actual malecancer %d does not equal %d.", a.malecancer, e.malecancer)
 	} else if a.malignant != e.malignant {
 		t.Errorf("Actual malignant %d does not equal %d.", a.malignant, e.malignant)
+	} else if a.malknown != e.malknown {
+		t.Errorf("Actual malknown %d does not equal %d.", a.malknown, e.malknown)
 	} else if a.maltotal != e.maltotal {
 		t.Errorf("Actual maltotal %d does not equal %d.", a.maltotal, e.maltotal)
 	} else if a.necropsy != e.necropsy {
@@ -156,8 +160,8 @@ func TestAddMeasures(t *testing.T) {
 func locationSlice() [][]string {
 	// Return slice of expected location values
 	var ret [][]string
-	ret = append(ret, []string{"100", "5", "10", "5", "0.10", "2", "0.04", "0.40", "3", "0.06", "0.60", "10.00", "10.00", "2", "3", "2", "3", "1", "0"})
-	ret = append(ret, []string{"110", "5", "10", "5", "0.05", "2", "0.02", "0.40", "3", "0.03", "0.60", "10.00", "10.00", "2", "3", "2", "3", "1", "0"})
+	ret = append(ret, []string{"100", "5", "10", "5", "0.10", "10", "2", "0.04", "0.40", "3", "0.06", "0.60", "10.00", "10.00", "2", "3", "2", "3", "1", "0"})
+	ret = append(ret, []string{"110", "5", "10", "5", "0.05", "10", "2", "0.02", "0.40", "3", "0.03", "0.60", "10.00", "10.00", "2", "3", "2", "3", "1", "0"})
 	return ret
 }
 

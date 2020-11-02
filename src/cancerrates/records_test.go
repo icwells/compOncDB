@@ -45,6 +45,7 @@ func setRecord(v []float64) *record {
 	r.allcancer = int(v[12])
 	r.maltotal = int(v[13])
 	r.bentotal = int(v[14])
+	r.malknown = r.maltotal + r.bentotal
 	return r
 }
 
@@ -60,9 +61,9 @@ func testRecords() []*record {
 func getExpectedRecords() [][]string {
 	// Return slice of expected values
 	var expected [][]string
-	expected = append(expected, []string{"100", "50", "30", "25", "0.50", "5", "0.10", "0.20", "10", "0.20", "0.40", "20.00", "10.00", "50", "50", "15", "10", "20", "0"})
-	expected = append(expected, []string{"110", "100", "35", "30", "0.30", "3", "0.03", "0.14", "5", "0.05", "0.23", "9.00", "10.00", "50", "70", "12", "18", "5", "0"})
-	expected = append(expected, []string{"50", "50", "0", "0", "0.00", "0", "0.00", "0.00", "0", "0.00", "0.00", "12.00", "0.00", "25", "35", "50", "0", "0", "0"})
+	expected = append(expected, []string{"100", "50", "30", "25", "0.50", "18", "5", "0.10", "0.33", "10", "0.20", "0.67", "20.00", "10.00", "50", "50", "15", "10", "20", "0"})
+	expected = append(expected, []string{"110", "100", "35", "30", "0.30", "13", "3", "0.03", "0.38", "5", "0.05", "0.62", "9.00", "10.00", "50", "70", "12", "18", "5", "0"})
+	expected = append(expected, []string{"50", "50", "0", "0", "0.00", "0", "0", "0.00", "0.00", "0", "0.00", "0.00", "12.00", "0.00", "25", "35", "50", "0", "0", "0"})
 	return expected
 }
 

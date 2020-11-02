@@ -30,6 +30,7 @@ type record struct {
 	male         int
 	malecancer   int
 	malignant    int
+	malknown     int
 	maltotal     int
 	necropsy     int
 	sources      *simpleset.Set
@@ -66,25 +67,26 @@ func (r *record) calculateRates(d int) []string {
 	if d < 0 {
 		d = r.total
 	}
-	ret = append(ret, strconv.Itoa(r.grandtotal))            //TotalRecords
-	ret = append(ret, strconv.Itoa(r.total))                 //RecordsWithDenominators
-	ret = append(ret, strconv.Itoa(r.allcancer))             //TotalNeoplasia
-	ret = append(ret, strconv.Itoa(r.cancer))                //NeoplasiaWithDenominators
-	ret = append(ret, r.formatRate(r.cancer, d))             //NeoplasiaPrevalence
-	ret = append(ret, strconv.Itoa(r.malignant))             //Malignant
-	ret = append(ret, r.formatRate(r.malignant, d))          //MalignancyPrevalence
-	ret = append(ret, r.formatRate(r.maltotal, r.allcancer)) //PropMalignant
-	ret = append(ret, strconv.Itoa(r.benign))                //benign
-	ret = append(ret, r.formatRate(r.benign, d))             //benignPrevalence
-	ret = append(ret, r.formatRate(r.bentotal, r.allcancer)) //Propbenign
-	ret = append(ret, avgAge(r.age, r.total))                //AverageAge(months)
-	ret = append(ret, avgAge(r.cancerage, r.cancer))         //AvgAgeNeoplasia(months)
-	ret = append(ret, strconv.Itoa(r.male))                  //Male
-	ret = append(ret, strconv.Itoa(r.female))                //Female
-	ret = append(ret, strconv.Itoa(r.malecancer))            //MaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.femalecancer))          //FemaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.necropsy))              //Necropsies
-	ret = append(ret, r.setsources())                        //Sources
+	ret = append(ret, strconv.Itoa(r.grandtotal))           //TotalRecords
+	ret = append(ret, strconv.Itoa(r.total))                //RecordsWithDenominators
+	ret = append(ret, strconv.Itoa(r.allcancer))            //TotalNeoplasia
+	ret = append(ret, strconv.Itoa(r.cancer))               //NeoplasiaWithDenominators
+	ret = append(ret, r.formatRate(r.cancer, d))            //NeoplasiaPrevalence
+	ret = append(ret, strconv.Itoa(r.malknown))             //MalignancyKnown
+	ret = append(ret, strconv.Itoa(r.malignant))            //Malignant
+	ret = append(ret, r.formatRate(r.malignant, d))         //MalignancyPrevalence
+	ret = append(ret, r.formatRate(r.maltotal, r.malknown)) //PropMalignant
+	ret = append(ret, strconv.Itoa(r.benign))               //benign
+	ret = append(ret, r.formatRate(r.benign, d))            //benignPrevalence
+	ret = append(ret, r.formatRate(r.bentotal, r.malknown)) //Propbenign
+	ret = append(ret, avgAge(r.age, r.total))               //AverageAge(months)
+	ret = append(ret, avgAge(r.cancerage, r.cancer))        //AvgAgeNeoplasia(months)
+	ret = append(ret, strconv.Itoa(r.male))                 //Male
+	ret = append(ret, strconv.Itoa(r.female))               //Female
+	ret = append(ret, strconv.Itoa(r.malecancer))           //MaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.femalecancer))         //FemaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.necropsy))             //Necropsies
+	ret = append(ret, r.setsources())                       //Sources
 	/*for idx, i := range ret {
 		// Replace -1 with NA
 		if strings.Split(i, ".")[0] == "-1" {
@@ -99,8 +101,10 @@ func (r *record) cancerMeasures(age float64, sex, mal, service string) {
 	r.allcancer++
 	if mal == "1" {
 		r.maltotal++
+		r.malknown++
 	} else if mal == "0" {
 		r.bentotal++
+		r.malknown++
 	}
 	if service != "MSU" {
 		r.cancer++
@@ -138,6 +142,7 @@ func (r *record) Copy() *record {
 	c.grandtotal = r.grandtotal
 	c.male = r.male
 	c.malecancer = r.malecancer
+	c.malknown = r.malknown
 	c.malignant = r.malignant
 	c.maltotal = r.maltotal
 	c.necropsy = r.necropsy
