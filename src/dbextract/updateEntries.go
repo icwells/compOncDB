@@ -3,7 +3,6 @@
 package dbextract
 
 import (
-	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
@@ -63,7 +62,7 @@ type Updater struct {
 	taxa    map[string]string
 }
 
-func newUpdater(db *dbIO.DBIO) Updater {
+func NewUpdater(db *dbIO.DBIO) Updater {
 	// Initializes new update struct
 	var u Updater
 	u.db = db
@@ -73,6 +72,11 @@ func newUpdater(db *dbIO.DBIO) Updater {
 	u.tables = make(map[string]*tableupdate)
 	u.taxa = codbutils.EntryMap(u.db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
 	return u
+}
+
+func (u *Updater) ClearTables() {
+	// Empties tables map
+	u.tables = make(map[string]*tableupdate)
 }
 
 func (u *Updater) SetHeader(line string) {
@@ -149,7 +153,7 @@ func (u *Updater) getUpdateFile(infile string) {
 
 func (u *Updater) UpdateTables() {
 	// Updates database with all identified values
-	fmt.Println("\tUpdating tables...")
+	u.logger.Println("Updating tables...")
 	for _, v := range u.tables {
 		if v.table == "Accounts" {
 			u.logger.Print("[Warning] Skipping Accounts table.\n\n")
@@ -163,7 +167,7 @@ func (u *Updater) UpdateTables() {
 
 func UpdateEntries(db *dbIO.DBIO, infile string) {
 	// Updates taxonomy entries
-	u := newUpdater(db)
+	u := NewUpdater(db)
 	u.getUpdateFile(infile)
 	u.UpdateTables()
 }
