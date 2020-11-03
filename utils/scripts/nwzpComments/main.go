@@ -59,10 +59,9 @@ func (c *comments) upload() {
 		}
 		u.UpdateTables()
 		u.ClearTables()
-		fmt.Printf("\tUploaded %d of %d comments.", end, len(c.table))
+		fmt.Printf("\tUploaded %d of %d comments.\n", end, len(c.table))
 		start = end
 	}
-	fmt.Println()
 }
 
 func (c *comments) getComments() {
