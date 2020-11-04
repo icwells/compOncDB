@@ -145,7 +145,7 @@ func (c *cancerRates) addInfancy() {
 func (c *cancerRates) getTaxa(eval string) {
 	// Gets records map
 	var taxa map[string][]string
-	if eval != "" {
+	if eval != "" && eval != "nil" {
 		var e codbutils.Evaluation
 		e.SetOperation(eval)
 		taxa = codbutils.ToMap(c.db.GetRows("Taxonomy", e.Column, e.Value, strings.Join(c.header[:8], ",")))
