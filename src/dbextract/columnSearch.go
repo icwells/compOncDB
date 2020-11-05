@@ -29,7 +29,11 @@ func (s *searcher) setErr(e codbutils.Evaluation) {
 
 func (s *searcher) setPatient() {
 	// Reads all patient records with ids in s.ids
-	s.res = codbutils.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*"))
+	if len(s.ids) > 0 {
+		s.res = codbutils.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids, ","), "*"))
+	} else if len(s.taxaids) > 0 {
+		s.res = codbutils.ToMap(s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids, ","), "*"))
+	}
 }
 
 func (s *searcher) submitEvaluation(e codbutils.Evaluation) []string {
@@ -114,6 +118,36 @@ func (s *searcher) searchTaxaIDs(taxa []codbutils.Evaluation) {
 	}
 }
 
+func (s *searcher) searchJoin(id, table string, eval []codbutils.Evaluation) []string {
+	// Searches for given id type with given evaluations
+	var join, where, ret []string
+	target := fmt.Sprintf("%s.%s", table, id)
+	// Subset by taxa ids
+	if len(s.taxaids) > 0 {
+		where = append(where, fmt.Sprintf("%s.taxa_id IN (%s)", table, strings.Join(s.taxaids, ",")))
+	}
+	for _, i := range eval {
+		join = append(join, fmt.Sprintf("JOIN %s %s ON %s = %s.%s", table, i.Table, target, i.Table, id))
+		if i.Operator == "^" {
+			where = append(where, fmt.Sprintf("INSTR(%s.%s, '%s') > 0", i.Table, i.Column, i.Value))
+		} else {
+			where = append(where, fmt.Sprintf("%s.%s %s %s", i.Table, i.Column, i.Operator, i.Value))
+		}
+
+	}
+	cmd := fmt.Sprintf("SELECT %s FROM %s", target, table)
+	if len(eval) > 1 {
+		cmd = fmt.Sprintf("%s %s ", cmd, strings.Join(join, " "))
+	}
+	cmd = fmt.Sprintf("%s WHERE %s;", cmd, strings.Join(where, " AND "))
+	s.logger.Println(cmd)
+	for _, i := range s.db.Execute(cmd) {
+		// Convert to string slice
+		ret = append(ret, i[0])
+	}
+	return ret
+}
+
 func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 	// Runs appropriate search based on input
 	var taxa, patients []codbutils.Evaluation
@@ -121,14 +155,16 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 		// Sort by id type
 		if i.ID == "ID" {
 			patients = append(patients, i)
-		} else {
+		} else if i.ID == "taxa_id" {
 			taxa = append(taxa, i)
 		}
 	}
 	if len(taxa) > 0 {
+		//s.taxaids = s.searchJoin("taxa_id", "Taxonomy", taxa)
 		s.searchTaxaIDs(taxa)
 	}
 	if s.msg == "" {
+		//s.ids = s.searchJoin("ID", "Patient", patients)
 		s.searchPatientIDs(patients)
 		// Store patient results and update taxaids
 		s.setPatient()
