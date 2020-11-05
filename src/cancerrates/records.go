@@ -10,11 +10,11 @@ import (
 
 func avgAge(n float64, d int) string {
 	// Returns n/d
-	if n > 0.0 && d > 0 {
+	if d > 0 {
 		r := n / float64(d)
 		return strconv.FormatFloat(r, 'f', 2, 64)
 	}
-	return "0.00"
+	return "NA"
 }
 
 type record struct {
@@ -50,7 +50,7 @@ func (r *record) formatRate(n, d int) string {
 		v := float64(n) / float64(d)
 		return strconv.FormatFloat(v, 'f', 2, 64)
 	}
-	return "0.00"
+	return "NA"
 }
 
 func (r *record) setsources() string {
