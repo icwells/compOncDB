@@ -2,7 +2,7 @@
 <div id="Rates" class="hide">
   <h2>Calculate neoplasia prevalence</h2>
   <form method="POST" action="/codb/prevalence/">
-    <label for="Taxa">Taxonomic level to subset cancer rates by:</label>
+    <label for="Taxa">Taxonomic level to subset neoplasia prevalence by:</label>
 	<div>
       <select id="Taxa" name="Taxa">
         <option name="Taxa" value=""></option>
@@ -29,7 +29,7 @@
       </select>
 	</div>
     <div>
-      <label for="Min">The minimum number of entries required to examine a species or tumor type:</label>
+      <label for="Min">The minimum number of entries required to examine a species:</label>
       <input type="number" name="Min" min="0" value="1">
     </div>
     <div>
