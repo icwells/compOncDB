@@ -26,6 +26,7 @@ type urls struct {
 	static     string
 	summary    string
 	table      string
+	tutorial   string
 }
 
 func setURLs() *urls {
@@ -45,16 +46,18 @@ func setURLs() *urls {
 	u.static = "/static/"
 	u.summary = fmt.Sprintf("%ssummary/", u.source)
 	u.table = fmt.Sprintf("%sextractTable/", u.source)
+	u.tutorial = fmt.Sprintf("%stutorial/", u.source)
 	return u
 }
 
 type temps struct {
-	source string
-	login  string
-	change string
-	menu   string
-	search string
-	result string
+	source   string
+	login    string
+	change   string
+	menu     string
+	result   string
+	search   string
+	tutorial string
 }
 
 func setTemps() *temps {
@@ -64,8 +67,9 @@ func setTemps() *temps {
 	t.login = "login"
 	t.change = "changepassword"
 	t.menu = "menu"
-	t.search = "search"
 	t.result = "result"
+	t.search = "search"
+	t.tutorial = "tutorial"
 	return t
 }
 

@@ -127,6 +127,11 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	handlePost(w, r, C.u.output)
 }
 
+func tutorialHandler(w http.ResponseWriter, r *http.Request) {
+	// Renders tutorial page
+	handleRender(w, r, C.temp.tutorial, C.temp.login, "Please login to access database.")
+}
+
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves output files for download
 	user, pw, _ := getCredentials(w, r)
@@ -163,6 +168,7 @@ func main() {
 	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.prevalence, prevalenceHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.output, searchHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.tutorial, tutorialHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.get+"{filename}", downloadHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal
 	http.Handle("/", r)

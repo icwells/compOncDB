@@ -147,7 +147,11 @@ func (o *Output) neoplasiaPrevalence() {
 		eval = opt.Taxa + opt.Operation + opt.Value
 	}
 	res := cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, eval, opt.Location)
-	o.renderResults(opt, res, fmt.Sprintf("cancerRates.min%d", opt.Min))
+	if opt.Location == "" {
+		// Use location as file name stem
+		opt.Location = "neoplasiaPrevalence"
+	}
+	o.renderResults(opt, res, fmt.Sprintf("%s.min%d", opt.Location, opt.Min))
 }
 
 func (o *Output) searchDB() {
