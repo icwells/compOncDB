@@ -17,10 +17,6 @@ class plotter():
 					["litter_size", "litters_year", "interbirth_interval", "max_longevity", "metabolic_rate", "adult_weight"],
 					["birth_weight", "weaning_weight", "adult_weight", "growth_rate"]]
 
-	def __trimUnits__(self, n):
-		# Removes units from name
-		return n[:n.find("(")]
-
 	def __getColumns__(self, x, y):
 		# Returns paired values if both fields are >= 0
 		ret = [[], []]
@@ -41,7 +37,7 @@ class plotter():
 		ax.set(title = ("{} vs. {}").format(x, y), ylabel = y, xlabel = x)
 		pyplot.xscale("log")
 		pyplot.yscale("log")
-		fig.savefig(("{}{}-{}.svg").format(self.outdir, self.__trimUnits__(x), self.__trimUnits__(y)))
+		fig.savefig(("{}{}-{}.svg").format(self.outdir, x, y))
 		pyplot.close(fig)
 
 	def getPlots(self):
