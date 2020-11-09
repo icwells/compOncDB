@@ -14,7 +14,7 @@ class plotter():
 		self.df = read_csv(args.i, delimiter = ",", header = 0, index_col = 0)
 		self.outdir = unixpath.checkDir(args.o, True)
 		self.fields = [["female_maturity", "male_maturity", "Gestation", "Weaning", "Infancy"],
-					["litter_size", "litters_year", "interbirth_interval", "max_longevity", "metabolic_rate"],
+					["litter_size", "litters_year", "interbirth_interval", "max_longevity", "metabolic_rate", "adult_weight"],
 					["birth_weight", "weaning_weight", "adult_weight", "growth_rate"]]
 
 	def __trimUnits__(self, n):
