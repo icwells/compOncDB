@@ -16,6 +16,8 @@ class plotter():
 		self.fields = [["female_maturity", "male_maturity", "Gestation", "Weaning", "Infancy"],
 					["litter_size", "litters_year", "interbirth_interval", "max_longevity", "metabolic_rate", "adult_weight"],
 					["birth_weight", "weaning_weight", "adult_weight", "growth_rate"]]
+		self.x = args.x
+		self.y = args.y
 
 	def __getColumns__(self, x, y):
 		# Returns paired values if both fields are >= 0
@@ -28,7 +30,7 @@ class plotter():
 				ret[1].append(yvals[idx])
 		return ret
 
-	def __plot__(self, x, y):
+	def plot(self, x, y):
 		# Plots pair of columns and saves to csv
 		print(("\tPlotting {} and {}...").format(x, y))
 		vals = self.__getColumns__(x, y)
@@ -45,15 +47,20 @@ class plotter():
 		for col in self.fields:
 			pairs = combinations(col, 2)
 			for i in pairs:
-				self.__plot__(i[0], i[1])
+				self.plot(i[0], i[1])
 
 def main():
 	start = datetime.now()
 	parser = ArgumentParser("Creates scatter plots fro life history variables.")
 	parser.add_argument("-i", help = "Path to life history table.")
 	parser.add_argument("-o", help = "Path to output directory.")
+	parser.add_argument("-x", help = "Name of column for x-axis.")
+	parser.add_argument("-y", help = "Name of column for y-axis.")
 	p = plotter(parser.parse_args())
-	p.getPlots()
+	if p.x and p.y:
+		p.plot(p.x, p.y)
+	else:
+		p.getPlots()
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":
