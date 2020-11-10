@@ -59,44 +59,16 @@ func (s *species) toSlice() [][]string {
 func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string) {
 	// Adds cancer measures
 	s.total.cancerMeasures(age, sex, mal, service)
-	if loc == s.location {
+	if loc != "" && loc == s.location {
 		// Add all measures for target tissue
 		s.tissue.cancerMeasures(age, sex, mal, service)
-		s.tissue.grandtotal++
-		if service != "MSU" {
-			// Add to total and grandtotal
-			s.tissue.total++
-			s.tissue.age += age
-			if sex == "male" {
-				s.tissue.male++
-			} else if sex == "female" {
-				s.tissue.female++
-			}
-			if nec == "1" {
-				s.tissue.necropsy++
-			}
-		}
-		s.tissue.sources.Add(aid)
+		s.tissue.nonCancerMeasures(age, sex, nec, service, aid)
 	}
 }
 
 func (s *species) addNonCancer(age float64, sex, nec, service, aid string) {
 	// Adds non-cancer measures
-	s.total.grandtotal++
-	if service != "MSU" {
-		// Add to total and grandtotal
-		s.total.total++
-		s.total.age += age
-		if sex == "male" {
-			s.total.male++
-		} else if sex == "female" {
-			s.total.female++
-		}
-		if nec == "1" {
-			s.total.necropsy++
-		}
-	}
-	s.total.sources.Add(aid)
+	s.total.nonCancerMeasures(age, sex, nec, service, aid)
 }
 
 func (s *species) addDenominator(d int) {

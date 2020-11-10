@@ -122,6 +122,25 @@ func (r *record) cancerMeasures(age float64, sex, mal, service string) {
 	}
 }
 
+func (r *record) nonCancerMeasures(age float64, sex, nec, service, aid string) {
+	// Adds non-cancer meaures
+	r.grandtotal++
+	if service != "MSU" {
+		// Add to total and grandtotal
+		r.total++
+		r.age += age
+		if sex == "male" {
+			r.male++
+		} else if sex == "female" {
+			r.female++
+		}
+		if nec == "1" {
+			r.necropsy++
+		}
+	}
+	r.sources.Add(aid)
+}
+
 func (r *record) addTotal(n int) {
 	// Adds n to total and grandtotal
 	r.grandtotal += n
