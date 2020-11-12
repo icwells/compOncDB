@@ -15,14 +15,14 @@ import (
 type searcher struct {
 	db      *dbIO.DBIO
 	header  string
-	ids     []string
+	ids     *simpleset.Set
 	infant  bool
 	logger  *log.Logger
 	msg     string
 	na      []string
 	res     map[string][]string
 	taxa    map[string][]string
-	taxaids []string
+	taxaids *simpleset.Set
 }
 
 func newSearcher(db *dbIO.DBIO, logger *log.Logger, inf bool) *searcher {
@@ -31,11 +31,13 @@ func newSearcher(db *dbIO.DBIO, logger *log.Logger, inf bool) *searcher {
 	// Add default header
 	s.db = db
 	s.header = strings.Join(codbutils.RecordsHeader(), ",")
+	s.ids = simpleset.NewStringSet()
 	s.infant = inf
 	s.logger = logger
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	s.res = make(map[string][]string)
 	s.taxa = make(map[string][]string)
+	s.taxaids = simpleset.NewStringSet()
 	return s
 }
 
@@ -71,27 +73,24 @@ func getColumn(idx int, table [][]string) []string {
 	return tmp.ToStringSlice()
 }
 
-func (s *searcher) getIDs(table, column, value string) {
-	// Gets ids from target table and get patient records
-	s.ids = getColumn(0, s.db.GetRows(table, column, value, "ID"))
-}
-
 func (s *searcher) setIDs() {
 	// Sets IDs from s.res (ID must be in first column)
 	for k := range s.res {
-		s.ids = append(s.ids, k)
+		s.ids.Add(k)
 	}
 }
 
 func (s *searcher) setTaxaIDs() {
 	// Stores taxa ids from patient results
-	s.taxaids = getColumn(4, s.toSlice())
+	for _, v := range s.res {
+		s.taxaids.Add(v[4])
+	}
 }
 
 func (s *searcher) filterInfantRecords() {
 	// Removes infant records from search results
 	// In summary.go
-	ages := GetMinAges(s.db, s.taxaids)
+	ages := GetMinAges(s.db, s.taxaids.ToStringSlice())
 	// Filter results
 	for k, v := range s.res {
 		if len(v) >= 4 {
@@ -112,7 +111,7 @@ func (s *searcher) filterInfantRecords() {
 
 func (s *searcher) appendSource() {
 	// Appends data from source table to res
-	m := codbutils.ToMap(s.db.GetRows("Source", "ID", strings.Join(s.ids, ","), "*"))
+	m := codbutils.ToMap(s.db.GetRows("Source", "ID", strings.Join(s.ids.ToStringSlice(), ","), "*"))
 	for k, v := range s.res {
 		row, ex := m[k]
 		if ex == true {
@@ -125,12 +124,12 @@ func (s *searcher) appendSource() {
 
 func (s *searcher) getTaxonomy() {
 	// Stores taxonomy (ids must be set first)
-	s.taxa = codbutils.ToMap(s.db.GetRows("Taxonomy", "taxa_id", strings.Join(s.taxaids, ","), "taxa_id,Kingdom,Phylum,Class,Orders,Family,Genus,Species"))
+	s.taxa = codbutils.ToMap(s.db.GetRows("Taxonomy", "taxa_id", strings.Join(s.taxaids.ToStringSlice(), ","), "taxa_id,Kingdom,Phylum,Class,Orders,Family,Genus,Species"))
 }
 
 func (s *searcher) appendTaxonomy() {
 	// Appends raxonomy to s.res
-	if len(s.taxa) == 0 && len(s.taxaids) > 0 {
+	if len(s.taxa) == 0 && s.taxaids.Length() > 0 {
 		s.getTaxonomy()
 	}
 	for k, v := range s.res {
@@ -145,8 +144,8 @@ func (s *searcher) appendTaxonomy() {
 
 func (s *searcher) appendDiagnosis() {
 	// Appends data from tumor and tumor relation tables
-	d := codbutils.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids, ","), "*"))
-	t := codbutils.ToMap(s.db.GetRows("Tumor", "ID", strings.Join(s.ids, ","), "*"))
+	d := codbutils.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids.ToStringSlice(), ","), "*"))
+	t := codbutils.ToMap(s.db.GetRows("Tumor", "ID", strings.Join(s.ids.ToStringSlice(), ","), "*"))
 	for k := range s.res {
 		// Concatenate tables
 		diag, ex := d[k]
