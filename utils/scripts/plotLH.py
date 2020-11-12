@@ -11,13 +11,22 @@ class plotter():
 
 	def __init__(self, args):
 		print("\n\tReading input file...")
-		self.df = read_csv(args.i, delimiter = ",", header = 0, index_col = 0)
+		d = ","
+		if "anage" in args.i:
+			d = "\t"
+			self.x = "Birth weight (g)"
+			self.y = "Weaning weight (g)"
+		elif "Amniote" in  args.i:
+			self.x = "birth_or_hatching_weight_g"
+			self.y = "weaning_weight_g"
+		else:
+			self.x = args.x
+			self.y = args.y
+		self.df = read_csv(args.i, delimiter = d, header = 0, index_col = 0)
 		self.outdir = unixpath.checkDir(args.o, True)
 		self.fields = [["female_maturity", "male_maturity", "Gestation", "Weaning", "Infancy"],
 					["litter_size", "litters_year", "interbirth_interval", "max_longevity", "metabolic_rate", "adult_weight"],
 					["birth_weight", "weaning_weight", "adult_weight", "growth_rate"]]
-		self.x = args.x
-		self.y = args.y
 
 	def __getColumns__(self, x, y):
 		# Returns paired values if both fields are >= 0
