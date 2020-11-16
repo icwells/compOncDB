@@ -4,7 +4,7 @@ package cancerrates
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/dbextract"
+	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/simpleset"
@@ -160,7 +160,7 @@ func (c *cancerRates) addLifeHistory() {
 
 func (c *cancerRates) addInfancy() {
 	// Adds age of infancy to records
-	for k, v := range dbextract.GetMinAges(c.db, c.tids) {
+	for k, v := range search.GetMinAges(c.db, c.tids) {
 		if r, ex := c.records[k]; ex {
 			r.infancy = v
 		}

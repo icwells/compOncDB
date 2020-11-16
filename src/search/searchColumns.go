@@ -1,41 +1,14 @@
 // This script contains functions for searching tables for a given column/value combination
 
-package dbextract
+package search
 
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
-	"github.com/icwells/simpleset"
-	"github.com/lithammer/fuzzysearch/fuzzy"
 	"log"
-	"sort"
-	"strings"
 )
-
-func (s *searcher) setErr(e codbutils.Evaluation) {
-	// Stores error message if no match is found for given evalutation
-	s.msg = fmt.Sprintf("Found 0 records where %s is %s.", e.Column, e.Value)
-	matches := fuzzy.RankFindFold(e.Value, s.db.GetColumnText(e.Table, e.Column))
-	if matches.Len() > 0 {
-		sort.Sort(matches)
-		if matches[0].Target != e.Value {
-			s.msg += fmt.Sprintf(" Did you mean %s?", matches[0].Target)
-		}
-	}
-	s.msg += "\n"
-}
-
-func (s *searcher) setPatient() {
-	// Reads all patient records with ids in s.ids
-	if s.ids.Length() > 0 {
-		s.res = codbutils.ToMap(s.db.GetRows("Patient", "ID", strings.Join(s.ids.ToStringSlice(), ","), "*"))
-	} else if s.taxaids.Length() > 0 {
-		s.res = codbutils.ToMap(s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids.ToStringSlice(), ","), "*"))
-	}
-	s.setTaxaIDs()
-}
 
 func (s *searcher) submitEvaluation(e codbutils.Evaluation) <-chan string {
 	// Gets ids matching evaluation criteria
@@ -54,31 +27,6 @@ func (s *searcher) submitEvaluation(e codbutils.Evaluation) <-chan string {
 		close(ch)
 	}()
 	return ch
-}
-
-func (s *searcher) filterIDs(ids *simpleset.Set, e codbutils.Evaluation) *simpleset.Set {
-	// Removes target ids which are not present in ids slice
-	ret := simpleset.NewStringSet()
-	for i := range s.submitEvaluation(e) {
-		if ex, _ := ids.InSet(i); ex {
-			ret.Add(i)
-		}
-	}
-	return ret
-}
-
-func (s *searcher) searchSingleTable(table string) {
-	// Stores value from single table
-	var ids string
-	typ := "taxa_id"
-	s.header = s.db.Columns[table]
-	if table == "Patient" || !strings.Contains(s.header, typ) {
-		typ = "ID"
-		ids = strings.Join(s.ids.ToStringSlice(), ",")
-	} else {
-		ids = strings.Join(s.taxaids.ToStringSlice(), ",")
-	}
-	s.res = codbutils.ToMap(s.db.GetRows(table, typ, ids, "*"))
 }
 
 func (s *searcher) searchPatientIDs(patients []codbutils.Evaluation) {

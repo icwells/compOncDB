@@ -10,6 +10,7 @@ import (
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/compOncDB/src/parserecords"
+	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"os"
@@ -143,6 +144,25 @@ func calculateCancerRates() time.Time {
 	return db.Starttime
 }
 
+func searchDB() time.Time {
+	// Searches db with given queries
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
+	if *taxonomies == true {
+		names := codbutils.ReadList(*infile, *col)
+		writeDF(search.SearchSpeciesNames(db, names))
+	} else if *eval != "nil" || *infile != "nil" {
+		// Search for column/value match
+		res, msg := search.SearchDatabase(db, *table, *eval, *infile, *infant)
+		if msg != "" {
+			fmt.Print(msg)
+			writeDF(res)
+		}
+	} else {
+		commandError()
+	}
+	return db.Starttime
+}
+
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
@@ -159,16 +179,6 @@ func extractFromDB() time.Time {
 	} else if *sum {
 		summary := dbextract.GetSummary(db)
 		codbutils.WriteResults(*outfile, "Field,Total,%\n", summary)
-	} else if *taxonomies == true {
-		names := codbutils.ReadList(*infile, *col)
-		writeDF(dbextract.SearchSpeciesNames(db, names))
-	} else if *eval != "nil" || *infile != "nil" {
-		// Search for column/value match
-		res, msg := dbextract.SearchDatabase(db, *table, *eval, *infile, *infant)
-		if msg != "" {
-			fmt.Print(msg)
-			writeDF(res)
-		}
 	} else {
 		commandError()
 	}

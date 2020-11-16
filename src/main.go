@@ -43,15 +43,17 @@ var (
 	clean  = update.Flag("clean", "Remove extraneous records from the database.").Default("false").Bool()
 	del    = update.Flag("delete", "Delete records if column = value.").Default("false").Bool()
 
-	extract    = kingpin.Command("extract", "Extract data from the database and perform optional analyses or searches.")
-	alltaxa    = extract.Flag("alltaxa", "Summarizes life history table for all species (performs summary for species with records in patient table by default).").Default("false").Bool()
-	col        = extract.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
-	dump       = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
-	dumpdb     = extract.Flag("dump_db", "Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).").Default("false").Bool()
-	lhsummary  = extract.Flag("lhsummary", "Summarizes life history table.").Default("false").Bool()
-	reftaxa    = extract.Flag("reference_taxonomy", "Returns merged common and taxonomy tables.").Short('r').Default("false").Bool()
-	sum        = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
-	taxonomies = extract.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
+	extract   = kingpin.Command("extract", "Extract data from the database.")
+	alltaxa   = extract.Flag("alltaxa", "Summarizes life history table for all species (performs summary for species with records in patient table by default).").Default("false").Bool()
+	dump      = extract.Flag("dump", "Name of table to dump (writes all data from table to output file).").Short('d').Default("nil").String()
+	dumpdb    = extract.Flag("dump_db", "Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).").Default("false").Bool()
+	lhsummary = extract.Flag("lhsummary", "Summarizes life history table.").Default("false").Bool()
+	reftaxa   = extract.Flag("reference_taxonomy", "Returns merged common and taxonomy tables.").Short('r').Default("false").Bool()
+	sum       = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
+
+	searchdb   = kingpin.Command("search", "Search database for matches to queries.")
+	col        = searchdb.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
+	taxonomies = searchdb.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
 
 	cancerRates = kingpin.Command("cancerrates", "Calculate neoplasia prevalence for species.")
 	approved    = cancerRates.Flag("approved", "Calculate neoplasia prevalence using only records from approved zoos.").Default("false").Bool()
@@ -87,6 +89,8 @@ func main() {
 		start = updateDB()
 	case extract.FullCommand():
 		start = extractFromDB()
+	case searchdb.FullCommand():
+		start = searchDB()
 	case cancerRates.FullCommand():
 		start = calculateCancerRates()
 	}

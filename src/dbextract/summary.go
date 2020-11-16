@@ -5,30 +5,12 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/simpleset"
 	"strconv"
 	"strings"
 )
-
-func GetMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
-	// Returns map of minumum ages by taxa id
-	var table map[string]string
-	ages := make(map[string]float64)
-	if len(taxaids) >= 1 {
-		table = codbutils.EntryMap(db.GetRows("Life_history", "taxa_id", strings.Join(taxaids, ","), "Infancy,taxa_id"))
-	} else {
-		table = codbutils.EntryMap(db.GetColumns("Life_history", []string{"Infancy", "taxa_id"}))
-	}
-	// Convert string ages to float
-	for k, v := range table {
-		a, err := strconv.ParseFloat(v, 64)
-		if err == nil {
-			ages[k] = a
-		}
-	}
-	return ages
-}
 
 func getRow(name string, num, den int) []string {
 	// Returns string slice of name, numerator, and percent
@@ -100,7 +82,7 @@ func (s *summary) setCancerTaxa(db *dbIO.DBIO) {
 func (s *summary) getNumAdult(db *dbIO.DBIO) {
 	// Gets total adult and infant records
 	var x []string
-	ages := GetMinAges(db, x)
+	ages := search.GetMinAges(db, x)
 	table := db.GetColumns("Patient", []string{"taxa_id", "Age"})
 	// Filter results
 	for _, i := range table {

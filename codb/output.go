@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/cancerrates"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
+	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"net/http"
@@ -161,7 +162,7 @@ func (o *Output) searchDB() {
 	opt := setOptions(o.r)
 	eval, o.Flash = checkEvaluations(o.r, o.db.Columns)
 	if o.Flash == "" {
-		res, o.Count = dbextract.SearchColumns(o.db, codbutils.GetLogger(), "", eval, opt.Infant)
+		res, o.Count = search.SearchColumns(o.db, codbutils.GetLogger(), "", eval, opt.Infant)
 	}
 	if o.Flash == "" {
 		o.renderResults(opt, res, o.User)

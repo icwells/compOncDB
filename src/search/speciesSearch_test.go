@@ -1,6 +1,6 @@
 // Tests species search functions
 
-package dbextract
+package search
 
 import (
 	"strings"

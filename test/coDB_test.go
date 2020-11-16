@@ -8,6 +8,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
+	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"os"
@@ -33,6 +34,11 @@ func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 	if ac != ec && ar != er {
 		t.Errorf("Actual %s dimensions [%d, %d] do not equal expected: [%d, %d]", name, ac, ar, ec, er)
 	} else {
+		for key := range exp.Index {
+			if _, err := act.GetRow(key); err != nil {
+				t.Errorf("%s-%s: %v", name, key, err)
+			}
+		}
 		for key := range act.Index {
 			for k := range act.Header {
 				a, _ := act.GetCell(key, k)
@@ -133,7 +139,7 @@ func TestSearches(t *testing.T) {
 	db := connectToDatabase()
 	cases := newSearchCases(db.Columns)
 	for _, i := range cases {
-		res, _ := dbextract.SearchColumns(db, codbutils.GetLogger(), i.table, i.eval, false)
+		res, _ := search.SearchColumns(db, codbutils.GetLogger(), i.table, i.eval, false)
 		if i.name == "fox" && res.Length() > 0 {
 			t.Error("Results returned for gray fox (not present).")
 		} else {
@@ -141,7 +147,7 @@ func TestSearches(t *testing.T) {
 		}
 	}
 	// Test searching from file. Given search criteria will only match canis results.
-	res, _ := dbextract.SearchDatabase(db, "nil", "nil", searchfile, false)
+	res, _ := search.SearchDatabase(db, "nil", "nil", searchfile, false)
 	compareTables(t, "testSearch", getCanisResults(), res)
 }
 

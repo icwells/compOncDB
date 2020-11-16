@@ -5,6 +5,7 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"log"
@@ -60,7 +61,7 @@ func (d *dbCompress) getOutfile(name string) string {
 func (d *dbCompress) writeTables() {
 	// Writes tables to outdir
 	d.logger.Println("Extracting database tables...")
-	df, _ := SearchColumns(d.db, d.logger, "", codbutils.SetOperations(d.db.Columns, "ID > 0"), false)
+	df, _ := search.SearchColumns(d.db, d.logger, "", codbutils.SetOperations(d.db.Columns, "ID > 0"), false)
 	df.ToCSV(d.getOutfile("Records"))
 	for _, i := range d.tables {
 		table := d.db.GetTable(i)

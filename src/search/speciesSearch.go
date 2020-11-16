@@ -1,6 +1,6 @@
 // Finds taxonomy matches for external species names
 
-package dbextract
+package search
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
