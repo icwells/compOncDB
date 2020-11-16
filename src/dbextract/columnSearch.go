@@ -7,7 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
-	"github.com/icwells/go-tools/strarray"
+	"github.com/icwells/simpleset"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"log"
 	"sort"
@@ -34,40 +34,37 @@ func (s *searcher) setPatient() {
 	} else if s.taxaids.Length() > 0 {
 		s.res = codbutils.ToMap(s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids.ToStringSlice(), ","), "*"))
 	}
+	s.setTaxaIDs()
 }
 
-func (s *searcher) submitEvaluation(e codbutils.Evaluation) []string {
+func (s *searcher) submitEvaluation(e codbutils.Evaluation) <-chan string {
 	// Gets ids matching evaluation criteria
-	var ret []string
+	ch := make(chan string)
 	var ids [][]string
 	if e.Operator == "^" {
 		ids = s.db.ColumnContains(e.Table, e.Column, e.Value, e.ID)
 	} else {
 		ids = s.db.EvaluateRows(e.Table, e.Column, e.Operator, e.Value, e.ID)
 	}
-	for _, i := range ids {
-		// Convert to string slice
-		ret = append(ret, i[0])
+	go func() {
+		for _, i := range ids {
+			// Yield string
+			ch <- i[0]
+		}
+		close(ch)
+	}()
+	return ch
+}
+
+func (s *searcher) filterIDs(ids *simpleset.Set, e codbutils.Evaluation) *simpleset.Set {
+	// Removes target ids which are not present in ids slice
+	ret := simpleset.NewStringSet()
+	for i := range s.submitEvaluation(e) {
+		if ex, _ := ids.InSet(i); ex {
+			ret.Add(i)
+		}
 	}
 	return ret
-}
-
-func (s *searcher) filterTaxaIDs(match []string) {
-	// Removes target which are not present in ids slice
-	for _, i := range s.taxaids.ToStringSlice() {
-		if !strarray.InSliceStr(match, i) {
-			s.taxaids.Pop(i)
-		}
-	}
-}
-
-func (s *searcher) filterIDs(match []string) {
-	// Removes target which are not present in ids slice
-	for _, i := range s.ids.ToStringSlice() {
-		if !strarray.InSliceStr(match, i) {
-			s.ids.Pop(i)
-		}
-	}
 }
 
 func (s *searcher) searchSingleTable(table string) {
@@ -86,26 +83,11 @@ func (s *searcher) searchSingleTable(table string) {
 
 func (s *searcher) searchPatientIDs(patients []codbutils.Evaluation) {
 	// Populate patient ids
-	if s.taxaids.Length() > 0 {
-		for _, i := range s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids.ToStringSlice(), ","), "ID") {
-			s.ids.Add(i[0])
-		}
-	} else if len(patients) > 0 {
-		for _, i := range s.submitEvaluation(patients[0]) {
-			s.ids.Add(i)
-		}
-		if s.ids.Length() == 0 {
-			s.setErr(patients[0])
-		} else if len(patients) > 1 {
-			patients = patients[1:]
-		} else {
-			patients = nil
-		}
-	}
+	s.setIDs()
 	if s.msg == "" && len(patients) > 0 {
 		// Filter patient ids by additional criteria
 		for _, i := range patients {
-			s.filterIDs(s.submitEvaluation(i))
+			s.ids = s.filterIDs(s.ids, i)
 			if s.ids.Length() == 0 {
 				s.setErr(i)
 				break
@@ -118,11 +100,11 @@ func (s *searcher) searchTaxaIDs(taxa []codbutils.Evaluation) {
 	// Populates taxaids and filter with additional criteria
 	for idx, i := range taxa {
 		if idx == 0 {
-			for _, i := range s.submitEvaluation(i) {
+			for i := range s.submitEvaluation(i) {
 				s.taxaids.Add(i)
 			}
 		} else {
-			s.filterTaxaIDs(s.submitEvaluation(i))
+			s.taxaids = s.filterIDs(s.taxaids, i)
 		}
 		if s.taxaids.Length() == 0 {
 			s.setErr(i)
@@ -130,36 +112,6 @@ func (s *searcher) searchTaxaIDs(taxa []codbutils.Evaluation) {
 		}
 	}
 }
-
-/*func (s *searcher) searchJoin(id, table string, eval []codbutils.Evaluation) []string {
-	// Searches for given id type with given evaluations
-	var join, where, ret []string
-	target := fmt.Sprintf("%s.%s", table, id)
-	// Subset by taxa ids
-	if s.taxaids.Length() > 0 {
-		where = append(where, fmt.Sprintf("%s.taxa_id IN (%s)", table, strings.Join(s.taxaids.ToStringSlice(), ",")))
-	}
-	for _, i := range eval {
-		join = append(join, fmt.Sprintf("JOIN %s %s ON %s = %s.%s", table, i.Table, target, i.Table, id))
-		if i.Operator == "^" {
-			where = append(where, fmt.Sprintf("INSTR(%s.%s, '%s') > 0", i.Table, i.Column, i.Value))
-		} else {
-			where = append(where, fmt.Sprintf("%s.%s %s %s", i.Table, i.Column, i.Operator, i.Value))
-		}
-
-	}
-	cmd := fmt.Sprintf("SELECT %s FROM %s", target, table)
-	if len(eval) > 1 {
-		cmd = fmt.Sprintf("%s %s ", cmd, strings.Join(join, " "))
-	}
-	cmd = fmt.Sprintf("%s WHERE %s;", cmd, strings.Join(where, " AND "))
-	s.logger.Println(cmd)
-	for _, i := range s.db.Execute(cmd) {
-		// Convert to string slice
-		ret = append(ret, i[0])
-	}
-	return ret
-}*/
 
 func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 	// Runs appropriate search based on input
@@ -179,9 +131,8 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 	if s.msg == "" {
 		//s.ids = s.searchJoin("ID", "Patient", patients)
 		s.searchPatientIDs(patients)
-		// Store patient results and update taxaids
+		// Store patient results
 		s.setPatient()
-		s.setTaxaIDs()
 	}
 }
 

@@ -96,7 +96,7 @@ func (c *cancerRates) countRecords() {
 				// Subset necropsy records if nec == true
 				if !c.nec || diag[1] == "1" {
 					acc := source[id]
-					if acc[0] != "MSU" || diag[0] == "1"  {
+					if acc[0] != "MSU" || diag[0] == "1" {
 						// Add non-cancer values (skips non-cancer msu records)
 						s.addNonCancer(f, i[1], diag[1], acc[0], acc[1])
 					}

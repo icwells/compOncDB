@@ -74,16 +74,25 @@ func getColumn(idx int, table [][]string) []string {
 }
 
 func (s *searcher) setIDs() {
-	// Sets IDs from s.res (ID must be in first column)
-	for k := range s.res {
-		s.ids.Add(k)
+	// Stores initial ids set
+	s.ids.Clear()
+	if s.taxaids.Length() > 0 {
+		for _, i := range s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids.ToStringSlice(), ","), "ID") {
+			s.ids.Add(i[0])
+		}
+	} else {
+		// Get all ids
+		for _, i := range s.db.GetColumnText("Patient", "ID") {
+			s.ids.Add(i)
+		}
 	}
 }
 
 func (s *searcher) setTaxaIDs() {
 	// Stores taxa ids from patient results
+	s.taxaids.Clear()
 	for _, v := range s.res {
-		s.taxaids.Add(v[4])
+		s.taxaids.Add(v[3])
 	}
 }
 
@@ -100,12 +109,12 @@ func (s *searcher) filterInfantRecords() {
 				if err == nil && age <= min {
 					// Remove infant record
 					delete(s.res, k)
+					s.ids.Pop(k)
 				}
 			}
 		}
 	}
 	// Update ids
-	s.setIDs()
 	s.setTaxaIDs()
 }
 
@@ -128,7 +137,7 @@ func (s *searcher) getTaxonomy() {
 }
 
 func (s *searcher) appendTaxonomy() {
-	// Appends raxonomy to s.res
+	// Appends taxonomy to s.res
 	if len(s.taxa) == 0 && s.taxaids.Length() > 0 {
 		s.getTaxonomy()
 	}
