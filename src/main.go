@@ -53,14 +53,15 @@ var (
 	sum        = extract.Flag("summarize", "Compiles basic summary statistics of the database.").Default("false").Bool()
 	taxonomies = extract.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
 
-	cancerRates = kingpin.Command("cancerrates", "Calculate cancer rates for species.")
+	cancerRates = kingpin.Command("cancerrates", "Calculate neoplasia prevalence for species.")
+	approved    = cancerRates.Flag("approved", "Calculate neoplasia prevalence using only records from approved zoos.").Default("false").Bool()
 	lifehist    = cancerRates.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
 	location    = cancerRates.Flag("location", "Include tumor location summary for each species.").Default("").String()
 	min         = cancerRates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
 )
 
 func version() {
-	fmt.Println("\n\tCompOncDB v0.6.4 (07/13/20) is a package for managing the ASU comparative oncology database.")
+	fmt.Println("\n\tCompOncDB is a package for managing the ASU comparative oncology database.")
 	fmt.Println("\n\tCopyright 2020 by Shawn Rupp, Maley Lab, Biodesign Institute, Arizona State University.")
 	fmt.Println("\tThis program comes with ABSOLUTELY NO WARRANTY.")
 	fmt.Print("\n\tThis is free software, and you are welcome to redistribute it under certain conditions.\n\n")

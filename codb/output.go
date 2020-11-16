@@ -146,7 +146,7 @@ func (o *Output) neoplasiaPrevalence() {
 	if opt.Taxa != "" && opt.Operation != "" && opt.Value != "" {
 		eval = opt.Taxa + opt.Operation + opt.Value
 	}
-	res := cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, eval, opt.Location)
+	res := cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, opt.Approved, eval, opt.Location)
 	if opt.Location == "" {
 		// Use location as file name stem
 		opt.Location = "neoplasiaPrevalence"

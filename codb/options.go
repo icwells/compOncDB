@@ -11,6 +11,7 @@ import (
 )
 
 type Options struct {
+	Approved    bool
 	AllTaxa     bool
 	Cancerrate  bool
 	Infant      bool

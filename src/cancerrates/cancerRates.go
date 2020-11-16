@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
+	"github.com/icwells/simpleset"
 	"log"
 	"strconv"
 	"strings"
@@ -15,6 +16,8 @@ import (
 var TID = "taxa_id"
 
 type cancerRates struct {
+	approval *simpleset.Set
+	approved bool
 	db       *dbIO.DBIO
 	header   []string
 	infant   bool
@@ -31,10 +34,13 @@ type cancerRates struct {
 	total    string
 }
 
-func newCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, location string) *cancerRates {
+func newCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, appr bool, location string) *cancerRates {
 	// Returns initialized cancerRates struct
 	c := new(cancerRates)
+	c.approval = simpleset.NewStringSet()
+	c.approved = appr
 	c.db = db
+	c.setApproval()
 	c.infant = inf
 	c.location = location
 	c.lh = lh
@@ -47,6 +53,17 @@ func newCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, location string) 
 	c.records = make(map[string]*species)
 	c.total = "total"
 	return c
+}
+
+func (c *cancerRates) setApproval() {
+	// Stores approval status in set
+	if c.approved {
+		for _, i := range c.db.GetColumns("Source", []string{"ID", "Approved"}) {
+			if i[1] == "1" {
+				c.approval.Add(i[0])
+			}
+		}
+	}
 }
 
 func (c *cancerRates) setHeader() {
@@ -89,24 +106,27 @@ func (c *cancerRates) countRecords() {
 	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,"+TID) {
 		s := c.records[i[3]]
 		id := i[0]
-		if f, err := strconv.ParseFloat(i[2], 64); err == nil {
-			// Ignore infant records if infant flag not set
-			if c.infant || f >= s.infancy {
-				diag := diagnosis[id]
-				// Subset necropsy records if nec == true
-				if !c.nec || diag[1] == "1" {
-					acc := source[id]
-					if acc[0] != "MSU" || diag[0] == "1" {
-						// Add non-cancer values (skips non-cancer msu records)
-						s.addNonCancer(f, i[1], diag[1], acc[0], acc[1])
-					}
-					if diag[0] == "1" {
-						if v, ex := tumor[id]; ex {
-							// Add tumor values
-							s.addCancer(f, i[1], diag[1], v[0], v[1], acc[0], acc[1])
-						} else {
-							// Add values where masspresent is know, but further diagnosis data is missing
-							s.addCancer(f, i[1], diag[1], "-1", "", acc[0], acc[1])
+		appr, _ := c.approval.InSet(id)
+		if !c.approved || appr {
+			if f, err := strconv.ParseFloat(i[2], 64); err == nil {
+				// Ignore infant records if infant flag not set
+				if c.infant || f >= s.infancy {
+					diag := diagnosis[id]
+					// Subset necropsy records if nec == true
+					if !c.nec || diag[1] == "1" {
+						acc := source[id]
+						if acc[0] != "MSU" || diag[0] == "1" {
+							// Add non-cancer values (skips non-cancer msu records)
+							s.addNonCancer(f, i[1], diag[1], acc[0], acc[1])
+						}
+						if diag[0] == "1" {
+							if v, ex := tumor[id]; ex {
+								// Add tumor values
+								s.addCancer(f, i[1], diag[1], v[0], v[1], acc[0], acc[1])
+							} else {
+								// Add values where masspresent is know, but further diagnosis data is missing
+								s.addCancer(f, i[1], diag[1], "-1", "", acc[0], acc[1])
+							}
 						}
 					}
 				}
@@ -170,9 +190,9 @@ func (c *cancerRates) getTaxa(eval string) {
 	c.addDenominators()
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh bool, eval, location string) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, appr bool, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
-	c := newCancerRates(db, min, nec, inf, lh, location)
+	c := newCancerRates(db, min, nec, inf, lh, appr, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.getTaxa(eval)
 	c.countRecords()

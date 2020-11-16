@@ -139,7 +139,7 @@ func writeDF(table *dataframe.Dataframe) {
 func calculateCancerRates() time.Time {
 	// Extract cancer rates
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
-	writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *eval, *location))
+	writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *approved, *eval, *location))
 	return db.Starttime
 }
 
