@@ -52,9 +52,8 @@ Any missing Go packages will be downloaded and installed when running install.sh
 	./install.sh  
 
 ### Config File  
-The config file is located in the utils directory by default (although a different location can be specified with the --config flag). It contains 
-basic connection information which will be used for all connections. This includes the host (leave blank for local host), database name, test database name, 
-and the path to tableColumns.txt (also located in the bin by default). The host is the only field that may need changing, depending on whether you are using 
+The config file is located in the utils directory. It contains basic connection information which will be used for all connections. This includes the host (leave blank for local host), 
+database name, test database name, and the path to tableColumns.txt (also located in the bin by default). The host is the only field that may need changing, depending on whether you are using 
 a local or a remote connection.  
 
 Be sure to change the name of "example_config.txt" to "config.txt" (to prevent git from overwriting it).
@@ -83,7 +82,9 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 	parse			Parse and organize records for upload to the comparative oncology database.  
 	upload			Upload data to the database.  
 	update			Update or delete existing records from the database.  
-	extract			Extract data from the database and perform optional analyses or searches.  
+	extract			Extract data from the database.
+	search			Search database for matches to queries.
+	cancerrates		Calculate neoplasia prevalence for species.
 
 ### Commands  
 
@@ -96,7 +97,6 @@ Backs up database to local machine. Must use root password. Output is written to
 	compOncDB new {-u username}  
 
 	-u, --user="root"	MySQL username (default is root).  
-	--config="config.txt"  Path to config.txt (Default is in bin directory).  
 
 Initializes new tables in new database. The database itself must be initialized manually.  
 Make sure tableColumns.txt is in the bin/ directory.  
@@ -119,7 +119,6 @@ to make a csv file ready to upload to the MySQL database.
 	compOncDB upload {-u username} --{type_from_list_below} -i infile
 
 	-u, --user="root"		MySQL username (default is root).  
-	--config="config.txt"	Path to config.txt (Default is in utils directory).  
 	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.  
 	--common			Additionally extract common names from Kestrel output to update common name tables.  
 	--lh				Upload life history info from merged life history table to the database.   
@@ -139,7 +138,6 @@ are all the same file which must in the format of uploadTemplate.csv.
 	compOncDB update {-u username} {infile}
 
 	-u, --user="root"	MySQL username (default is root).  
-	--config="config.txt"	Path to config.txt (Default is in utils directory).   
 	--count			Recount species totals and update the Totals table.  
 	--delete		Delete records from given table if column = value. 
 	--table="nil"		Perform operations on this table only.   
@@ -170,23 +168,30 @@ a matching taxonomic level would be updated.
 	compOncDB extract {-u username} {--flags...} {-o outfile}
 
 	-u, --user="root"	MySQL username (default is root).  
-	--config="config.txt"	Path to config.txt (Default is in utils directory).  
-	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).    
 	--table="nil"		Perform operations on this table only.  
-	--cancerRate		Calculates cancer rates for species with greater than min entries.  
-	--count			Returns count of target records instead of printing entire records.  
 	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
-	--infant		Include infant records in results (excluded by default).  
-	-m, --min=50		Minimum number of entries required for calculations (default = 50).
-  	-n, --names=0		Column of input file containing scientific/common species names to search.  
-	--necropsy		Extract only necropsy records (extracts all matches by default).  
+	--lhsummary			Summarizes life history table.  
+	-r, --reference_taxonomy	Returns merged common and taxonomy tables.  
 	--summarize		Compiles basic summary statistics of the database.  
-	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
 
 	-i infile		Path to input file (see below for formatting).  
 	-o outfile		Name of output file (writes to stdout if not given).  
 
-Extract data from the database and perform optional analyses or searches.  
+Extract data from the database.  
+
+
+#### Search
+	compOncDB search {-u username} {--flags...} {-o outfile}
+
+	-u, --user="root"	MySQL username (default is root).  
+	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
+	--infant		Include infant records in results (excluded by default).  
+  	-n, --names=0		Column of input file containing scientific/common species names to search.    
+	--table="nil"		Perform operations on this table only.  
+	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
+
+	-i infile		Path to input file (see below for formatting).  
+	-o outfile		Name of output file (writes to stdout if not given).  
 
 For searching most tables, the only valid operators for the eval flag are = (or ==), !=, or ^. For searching the Totals or Life_history tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.  
 
@@ -199,7 +204,24 @@ If an input file is specified, it should follow a similar format to the update f
 
 will search for any match where Age == 20, records where taxa_id == 2 and Masspresent == 0, and records where taxa_id == 3, Age == 10, and Masspresent == 1.  
 
-The "--cancerRate" flag will return the cancer rates by species for records matching given search criteria. The "--min" flag specifies the minimum number of species required to report cancer rates.  
-
 Taxonomy information can be extracted for target species in a given input file by specifying the "--taxonomies" flag. 
-This will search for matches in the "-n" column of an input file (the first column by default). The species names can be either common or scientific names.
+This will search for matches in the "-n" column of an input file (the first column by default). The species names can be either common or scientific names.  
+
+#### Cancer Rates
+	compOncDB cancerrates {-u username} {--flags...} {-o outfile}
+
+	-u, --user="root"	MySQL username (default is root).  
+	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
+	--approved		Calculate neoplasia prevalence using only records from approved zoos.  
+	--infant		Include infant records in results (excluded by default).  
+	--lifehistory	Append life history values to cancer rate data.  
+	--location=""		Include tumor location summary for each species for given location.  
+	-m, --min=50		Minimum number of entries required for calculations (default = 50).  
+	--necropsy		Extract only necropsy records (extracts all matches by default).  
+
+	-i infile		Path to input file (see below for formatting).  
+	-o outfile		Name of output file (writes to stdout if not given).  
+
+Returns the cancer rates by species for records matching given search criteria. The "--min" flag specifies the minimum number of species required to report cancer rates.  
+
+
