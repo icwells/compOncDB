@@ -72,7 +72,6 @@ testCancerRates () {
 
 testDataBase () {
 	# Installs and tests database functions
-	testSearch
 	testCancerRates
 
 	echo ""

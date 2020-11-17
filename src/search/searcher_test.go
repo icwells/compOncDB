@@ -11,16 +11,41 @@ import (
 )
 
 var (
-	password     = flag.String("password", "", "MySQL password.")
-	user         = flag.String("user", "", "MySQL username.")
+	password = flag.String("password", "", "MySQL password.")
+	user     = flag.String("user", "", "MySQL username.")
 )
 
-func getTestSearcher() *searcher {
+func getTestConnection() *dbIO.DBIO {
 	// Returns database connection
 	flag.Parse()
 	c := codbutils.SetConfiguration(*user, false)
 	db, _ := dbIO.Connect(c.Host, c.Database, c.User, *password)
-	return newSearcher(db, codbutils.GetLogger(), false)
+	db.GetTableColumns()
+	return db
+}
+
+func TestLocations(t *testing.T) {
+	// Tests location results when multiple variables are submitted
+	db := getTestConnection()
+	input := []string{"Location=uterus, Sex=male", "Location=ovary, Sex=male", "Location=testis, Sex=female", "Location=mammary, Class=Reptilia"}
+	for _, i := range input {
+		var count int
+		eval := codbutils.SetOperations(db.Columns, i)
+		act, _ := SearchColumns(db, codbutils.GetLogger(), "", eval, false)
+		for key := range act.Rows {
+			for _, e := range eval[0] {
+				if a, _ := act.GetCell(key, e.Column); a != e.Value {
+					count++
+					break
+				}
+			}
+		}
+		if count > 0 {
+			e := eval[0]
+			t.Errorf("Found %d records where %s does not equal %s or %s does not equal %s.", count, e[0].Column, e[0].Value, e[1].Column, e[1].Value)
+			break
+		}
+	}	
 }
 
 func setIDs(ids [][]string) *simpleset.Set {
@@ -46,7 +71,7 @@ func filterIDs(ids *simpleset.Set, match []string) *simpleset.Set {
 
 func TestFilterIDs(t *testing.T) {
 	// tests filter ids algorithm
-	s := getTestSearcher()
+	s := newSearcher(getTestConnection(), codbutils.GetLogger(), false)
 	input := [][]string {
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"},
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"},

@@ -73,11 +73,9 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 		}
 	}
 	if len(taxa) > 0 {
-		//s.taxaids = s.searchJoin("taxa_id", "Taxonomy", taxa)
 		s.searchTaxaIDs(taxa)
 	}
 	if s.msg == "" {
-		//s.ids = s.searchJoin("ID", "Patient", patients)
 		s.searchPatientIDs(patients)
 		// Store patient results
 		s.setPatient()
@@ -115,6 +113,7 @@ func SearchColumns(db *dbIO.DBIO, logger *log.Logger, table string, eval [][]cod
 		if s.msg != "" {
 			logger.Print(s.msg)
 		} else {
+			//s.filter(res, i)
 			logger.Printf("Found %d records where %s.\n", res.Length(), i[0].String())
 		}
 		if idx == 0 {
