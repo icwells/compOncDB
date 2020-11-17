@@ -23,6 +23,7 @@ DUSRC="$WD/src/dbupload/*.go"
 DESRC="$WD/src/dbextract/*.go"
 DIAG="$WD/src/diagnoses/*.go"
 PRSRC="$WD/src/parserecords/*.go"
+SEARCH="$WD/src/search/*.go"
 TSTDIR="$WD/test/*.go"
 
 getUser () {
@@ -52,6 +53,13 @@ testParseRecords () {
 	go test $TSTDIR --run TestParseRecords
 }
 
+testSearch () {
+	# Performs white box testss for searcher
+	echo ""
+	echo "Running white box tests on database search..."
+	go test $SEARCH $ARGS
+}
+
 testCancerRates () {
 	# Tests cancer rate calculation with clean upload
 	echo ""
@@ -64,6 +72,7 @@ testCancerRates () {
 
 testDataBase () {
 	# Installs and tests database functions
+	testSearch
 	testCancerRates
 
 	echo ""
@@ -110,6 +119,7 @@ helpText () {
 	echo "blackbox		Runs all black box tests (parse, upload, search, and update)."
 	echo "parse		Runs parseRecords black box tests."
 	echo "cancerrate	Runs cancer rate calculation black box tests."
+	echo "search	Runs white box tests on database search."
 	echo "db		Runs upload, search, update, and delete black box tests."
 	echo "fmt		Runs go fmt on all source files."
 	echo "vet		Runs go vet on all source files."
@@ -134,6 +144,9 @@ elif [ $1 = "parse" ]; then
 elif [ $1 = "cancerrate" ]; then
 	getUser
 	testCancerRates
+elif [ $1 = "search" ]; then
+	getUser
+	testSearch
 elif [ $1 = "db" ]; then
 	getUser
 	testDataBase
