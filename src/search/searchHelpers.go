@@ -31,6 +31,24 @@ func GetMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
 	return ages
 }
 
+func TumorMap(db *dbIO.DBIO) map[string][]string {
+	// Returns map of all tumor entries per ID ni 2d slice
+	ret := make(map[string][]string)
+	for _, row := range db.GetTable("Tumor") {
+		id := row[0]
+		if _, ex := ret[id]; !ex {
+			// Add new entry
+			ret[id] = row[1:]
+		} else {
+			// Add new entry to existing cells
+			for idx, i := range row[1:] {
+				ret[id][idx] += ";" + i
+			}
+		}
+	}
+	return ret
+}
+
 func (s *searcher) searchSingleTable(table string) {
 	// Stores value from single table
 	var ids string
@@ -123,10 +141,12 @@ func (s *searcher) appendTaxonomy() {
 	}
 }
 
+
+
 func (s *searcher) appendDiagnosis() {
 	// Appends data from tumor and tumor relation tables
 	d := codbutils.ToMap(s.db.GetRows("Diagnosis", "ID", strings.Join(s.ids.ToStringSlice(), ","), "*"))
-	t := codbutils.ToMap(s.db.GetRows("Tumor", "ID", strings.Join(s.ids.ToStringSlice(), ","), "*"))
+	t := TumorMap(s.db)
 	for k := range s.res {
 		// Concatenate tables
 		diag, ex := d[k]

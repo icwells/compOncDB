@@ -56,6 +56,27 @@ func TestAddDenominators(t *testing.T) {
 	}
 }
 
+func TestCheckLocation(t *testing.T) {
+	// Tests location comparison
+	sp := getSpecies()[0]
+	input := []struct {
+		loc string
+		exp bool
+	}{
+		{"liver", true},
+		{"ovary;mammary", false},
+		{"testis;liver;kidney", true},
+		{"livr", false},
+		{"oral", false},
+	}
+	for _, i := range input {
+		act := sp.checkLocation(i.loc)
+		if act != i.exp {
+			t.Errorf("Actual result %v for %s does not equal %v.", act, i.loc, i.exp)
+		}
+	}
+}
+
 func addRow(s *record, age float64, sex, nec, mal, loc, service, aid string) {
 	// Adds values to struct
 	s.grandtotal++

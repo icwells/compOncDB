@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/simpleset"
+	"strings"
 	"testing"
 )
 
@@ -33,11 +34,11 @@ func TestLocations(t *testing.T) {
 		eval := codbutils.SetOperations(db.Columns, i)
 		act, _ := SearchColumns(db, codbutils.GetLogger(), "", eval, false)
 		for key := range act.Rows {
-			for _, e := range eval[0] {
-				if a, _ := act.GetCell(key, e.Column); a != e.Value {
-					count++
-					break
-				}
+			e := eval[0] 
+			if a, _ := act.GetCell(key, e[0].Column); strings.Contains(a, e[0].Value) {
+				count++
+			} else if a, _ := act.GetCell(key, e[1].Column); a != e[1].Value {
+				count++
 			}
 		}
 		if count > 0 {

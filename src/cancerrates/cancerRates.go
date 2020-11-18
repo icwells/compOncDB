@@ -102,7 +102,7 @@ func (c *cancerRates) countRecords() {
 	// Counts Patient records
 	source := codbutils.ToMap(c.db.GetColumns("Source", []string{"ID", "service_name", "account_id"}))
 	diagnosis := codbutils.ToMap(c.db.GetColumns("Diagnosis", []string{"ID", "Masspresent", "Necropsy"}))
-	tumor := codbutils.ToMap(c.db.GetColumns("Tumor", []string{"ID", "Malignant", "Location"}))
+	tumor := search.TumorMap(c.db)
 	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,"+TID) {
 		s := c.records[i[3]]
 		id := i[0]
@@ -122,7 +122,7 @@ func (c *cancerRates) countRecords() {
 						if diag[0] == "1" {
 							if v, ex := tumor[id]; ex {
 								// Add tumor values
-								s.addCancer(f, i[1], diag[1], v[0], v[1], acc[0], acc[1])
+								s.addCancer(f, i[1], diag[1], v[1], v[3], acc[0], acc[1])
 							} else {
 								// Add values where masspresent is know, but further diagnosis data is missing
 								s.addCancer(f, i[1], diag[1], "-1", "", acc[0], acc[1])

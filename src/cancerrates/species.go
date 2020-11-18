@@ -2,6 +2,10 @@
 
 package cancerrates
 
+import (
+	"strings"
+)
+
 func emptySlice(n int) []string {
 	// Returns empty slice of length n
 	var ret []string
@@ -56,10 +60,26 @@ func (s *species) toSlice() [][]string {
 	return ret
 }
 
+func (s *species) checkLocation(loc string) bool {
+	// Returns true if s.location is in loc
+	if loc != "" {
+		if strings.Contains(loc, ";") {
+			for _, i := range strings.Split(loc, ";") {
+				if i == s.location {
+					return true
+				}
+			}
+		} else if loc == s.location {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string) {
 	// Adds cancer measures
 	s.total.cancerMeasures(age, sex, mal, service)
-	if loc != "" && loc == s.location {
+	if s.checkLocation(loc) {
 		// Add all measures for target tissue
 		s.tissue.cancerMeasures(age, sex, mal, service)
 		s.tissue.nonCancerMeasures(age, sex, nec, service, aid)
