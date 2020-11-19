@@ -56,23 +56,44 @@ func TestAddDenominators(t *testing.T) {
 	}
 }
 
+func TestHighestMalignancy(t *testing.T) {
+	// Tests highest malignancy determination
+	sp := getSpecies()[0]
+	input := [][]string{
+		{"-1", "-1"},
+		{"0;-1", "0"},
+		{"0;1;-1", "1"},
+		{"-1;0;1;0", "1"},
+	}
+	for _, i := range input {
+		act := sp.highestMalignancy(i[0])
+		if act != i[1] {
+			t.Errorf("Actual highest malignancy %s does not equal %s.", act, i[1])
+		}
+	}
+}
+
 func TestCheckLocation(t *testing.T) {
 	// Tests location comparison
 	sp := getSpecies()[0]
 	input := []struct {
+		mal string
 		loc string
 		exp bool
+		m   string
 	}{
-		{"liver", true},
-		{"ovary;mammary", false},
-		{"testis;liver;kidney", true},
-		{"livr", false},
-		{"oral", false},
+		{"0", "liver", true, "0"},
+		{"0;-1", "ovary;mammary", false, ""},
+		{"0;1;-1", "testis;liver;kidney", true, "1"},
+		{"1", "livr", false, ""},
+		{"-1", "oral", false, ""},
 	}
 	for _, i := range input {
-		act := sp.checkLocation(i.loc)
+		act, m := sp.checkLocation(i.mal, i.loc)
 		if act != i.exp {
 			t.Errorf("Actual result %v for %s does not equal %v.", act, i.loc, i.exp)
+		} else if m != i.m {
+			t.Errorf("Actual malignant value %s does not equal %s.", m, i.m)
 		}
 	}
 }

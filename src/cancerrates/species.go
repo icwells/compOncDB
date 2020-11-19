@@ -3,6 +3,7 @@
 package cancerrates
 
 import (
+	"sort"
 	"strings"
 )
 
@@ -60,28 +61,39 @@ func (s *species) toSlice() [][]string {
 	return ret
 }
 
-func (s *species) checkLocation(loc string) bool {
+func (s *species) highestMalignancy(mal string) string {
+	// Returns highest malignacy code
+	if strings.Contains(mal, ";") {
+		m := strings.Split(mal, ";")
+		sort.Strings(m)
+		return m[len(m)-1]
+	}
+	return mal
+}
+
+func (s *species) checkLocation(mal, loc string) (bool, string) {
 	// Returns true if s.location is in loc
 	if loc != "" {
 		if strings.Contains(loc, ";") {
-			for _, i := range strings.Split(loc, ";") {
+			m := strings.Split(mal, ";")
+			for idx, i := range strings.Split(loc, ";") {
 				if i == s.location {
-					return true
+					return true, m[idx]
 				}
 			}
 		} else if loc == s.location {
-			return true
+			return true, mal
 		}
 	}
-	return false
+	return false, ""
 }
 
 func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string) {
 	// Adds cancer measures
-	s.total.cancerMeasures(age, sex, mal, service)
-	if s.checkLocation(loc) {
+	s.total.cancerMeasures(age, sex, s.highestMalignancy(mal), service)
+	if eq, m := s.checkLocation(mal, loc); eq {
 		// Add all measures for target tissue
-		s.tissue.cancerMeasures(age, sex, mal, service)
+		s.tissue.cancerMeasures(age, sex, m, service)
 		s.tissue.nonCancerMeasures(age, sex, nec, service, aid)
 	}
 }
