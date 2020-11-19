@@ -124,7 +124,7 @@ func (c *cancerRates) countRecords() {
 								// Add tumor values
 								s.addCancer(f, i[1], diag[1], v[1], v[3], acc[0], acc[1])
 							} else {
-								// Add values where masspresent is know, but further diagnosis data is missing
+								// Add values where masspresent is known, but further diagnosis data is missing
 								s.addCancer(f, i[1], diag[1], "-1", "", acc[0], acc[1])
 							}
 						}

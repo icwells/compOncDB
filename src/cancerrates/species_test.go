@@ -105,10 +105,8 @@ func addRow(s *record, age float64, sex, nec, mal, loc, service, aid string) {
 	s.sources.Add(aid)
 	if mal == "1" {
 		s.maltotal++
-		s.malknown++
 	} else if mal == "0" {
 		s.bentotal++
-		s.malknown++
 	}
 	if service != "MSU" {
 		s.total++
@@ -159,8 +157,6 @@ func compareRecords(t *testing.T, a, e *record) {
 		t.Errorf("Actual malecancer %d does not equal %d.", a.malecancer, e.malecancer)
 	} else if a.malignant != e.malignant {
 		t.Errorf("Actual malignant %d does not equal %d.", a.malignant, e.malignant)
-	} else if a.malknown != e.malknown {
-		t.Errorf("Actual malknown %d does not equal %d.", a.malknown, e.malknown)
 	} else if a.maltotal != e.maltotal {
 		t.Errorf("Actual maltotal %d does not equal %d.", a.maltotal, e.maltotal)
 	} else if a.necropsy != e.necropsy {

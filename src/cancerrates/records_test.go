@@ -45,7 +45,6 @@ func setRecord(v []float64) *record {
 	r.allcancer = int(v[12])
 	r.maltotal = int(v[13])
 	r.bentotal = int(v[14])
-	r.malknown = r.maltotal + r.bentotal
 	return r
 }
 
