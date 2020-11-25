@@ -18,8 +18,8 @@ func canidTaxa() [][]string {
 
 func setSpecies(taxa []string, r *record) *species {
 	// Returns test struct
-	s := newSpecies(taxa[0], "", taxa[1:])
-	s.location = "liver"
+	s := newSpecies(taxa[0], "liver", taxa[1:])
+	//s.location = "liver"
 	s.total = r
 	return s
 }

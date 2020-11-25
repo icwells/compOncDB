@@ -3,6 +3,7 @@
 package cancerrates
 
 import (
+	"github.com/icwells/simpleset"
 	"sort"
 	"strings"
 )
@@ -22,8 +23,10 @@ type species struct {
 	infancy     float64
 	lifehistory []string
 	location    string
+	locations   *simpleset.Set
 	taxonomy    []string
 	tissue      *record
+	tissues     map[string]*record
 	total       *record
 }
 
@@ -32,10 +35,40 @@ func newSpecies(id, location string, taxonomy []string) *species {
 	s := new(species)
 	s.id = id
 	s.location = location
+	s.locations = simpleset.NewStringSet()
 	s.taxonomy = taxonomy
 	s.tissue = newRecord()
+	s.tissues = make(map[string]*record)
 	s.total = newRecord()
+	s.setLocations()
 	return s
+}
+
+func (s *species) setLocations() {
+	// Initializes location set
+	if strings.Contains(s.location, ",") {
+		s.location = strings.Replace(s.location, ",", ";", -1)
+	}
+	if strings.Contains(s.location, ";") {
+		for _, i := range strings.Split(s.location, ";") {
+			s.locations.Add(i)
+			s.tissues[i] = newRecord()
+		}
+	} else {
+		s.locations.Add(s.location)
+	}
+}
+
+func (s *species) tissueSlice(name string, r *record) []string {
+	// Formats rows for specific tissues
+	ret := []string{s.id}
+	ret = append(ret, emptySlice(len(s.taxonomy))...)
+	ret = append(ret, name)
+	ret = append(ret, r.calculateRates(s.total.total)...)
+	if len(s.lifehistory) > 0 {
+		ret = append(ret, emptySlice(len(s.lifehistory))...)
+	}
+	return ret
 }
 
 func (s *species) toSlice() [][]string {
@@ -49,14 +82,12 @@ func (s *species) toSlice() [][]string {
 	}
 	ret = append(ret, total)
 	if s.location != "" {
-		tissue := []string{s.id}
-		tissue = append(tissue, emptySlice(len(s.taxonomy))...)
-		tissue = append(tissue, s.location)
-		tissue = append(tissue, s.tissue.calculateRates(s.total.total)...)
-		if len(s.lifehistory) > 0 {
-			tissue = append(tissue, emptySlice(len(s.lifehistory))...)
+		ret = append(ret, s.tissueSlice(s.location, s.tissue))
+		for k, v := range s.tissues {
+			if v.grandtotal > 0 {
+				ret = append(ret, s.tissueSlice(k, v))
+			}
 		}
-		ret = append(ret, tissue)
 	}
 	return ret
 }
@@ -77,11 +108,11 @@ func (s *species) checkLocation(mal, loc string) (bool, string) {
 		if strings.Contains(loc, ";") {
 			m := strings.Split(mal, ";")
 			for idx, i := range strings.Split(loc, ";") {
-				if i == s.location {
+				if ex, _ := s.locations.InSet(i); ex {
 					return true, m[idx]
 				}
 			}
-		} else if loc == s.location {
+		} else if ex, _ := s.locations.InSet(loc); ex {
 			return true, mal
 		}
 	}
@@ -95,6 +126,11 @@ func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string
 		// Add all measures for target tissue
 		s.tissue.cancerMeasures(age, sex, m, service)
 		s.tissue.nonCancerMeasures(age, sex, nec, service, aid)
+		if _, ex := s.tissues[loc]; ex {
+			// Add to specific location
+			s.tissues[loc].cancerMeasures(age, sex, m, service)
+			s.tissues[loc].nonCancerMeasures(age, sex, nec, service, aid)
+		}
 	}
 }
 
