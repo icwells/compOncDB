@@ -141,6 +141,6 @@ func (s *species) addNonCancer(age float64, sex, nec, service, aid string) {
 
 func (s *species) addDenominator(d int) {
 	// Adds denominator to records
-	s.tissue.addTotal(d)
+	//s.tissue.addTotal(d)
 	s.total.addTotal(d)
 }
