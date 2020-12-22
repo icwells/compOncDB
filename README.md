@@ -115,6 +115,26 @@ to make a csv file ready to upload to the MySQL database.
 	-t, --taxa="nil"			Path to kestrel output (used with the merge command).  
 	-d, --debug				Adds cancer and code column (if present) for hand checking.  
 
+Input files for parsing should have columns with the following names (in no particular order):
+
+	ID				Unique patient ID.
+	CommonName		Common species name of patient.
+	ScientificName	Binomial scientific species name.
+	Age				Patient age in months.
+	Sex				Patient sex (male/female).
+	Castrated		Whether patient was neutered/spayed.
+	Location		Tissue tumor occured in.
+	Type			Type of tumor (e.g. carcinoma).
+	PrimaryTumor	Whether tumor was the original tumor (if multiple found).
+	Metastasis		Whether tumor metastasized.
+	Malignant		Whether tumor was malignant.
+	Necropsy		Whether a necropsy was performed.
+	Date			Date of diagnosis.
+	Year			Year of diangosis.
+	Comments		Additional diangosis info.
+	Account			Account number or code.
+	Client			Name of record submitter.
+
 #### Upload  
 	compOncDB upload {-u username} --{type_from_list_below} -i infile
 
