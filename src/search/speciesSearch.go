@@ -3,6 +3,7 @@
 package search
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
@@ -11,6 +12,7 @@ import (
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"log"
 	"sort"
+	"strings"
 )
 
 type speciesSearcher struct {
@@ -65,13 +67,15 @@ func SearchSpeciesNames(db *dbIO.DBIO, names []string) *dataframe.Dataframe {
 	s := newSpeciesSearcher(db)
 	s.logger.Println("Searching for taxonomy matches...")
 	ret, _ := dataframe.NewDataFrame(-1)
-	ret.SetHeader(append([]string{"Term", "MatchedName"}, db.Columns["Taxonomy"][1:]))
-	for _, i := range names {
+	ret.SetHeader(append([]string{"Term", "MatchedName"}, strings.Split(db.Columns["Taxonomy"], ",")[1:]...))
+	s.logger.Println(ret.GetHeader())
+	for idx, i := range names {
 		go s.getTaxonomy(ch, i)
 		row := <-ch
 		if len(row) > 0 {
 			ret.AddRow(row)
 		}
+		fmt.Printf("\tDispatched %d of %d terms.\r", idx + 1, len(names))
 	}
 	s.logger.Printf("Found taxonomy matches for %d of %d queries.\n", s.found, len(names))
 	return ret
