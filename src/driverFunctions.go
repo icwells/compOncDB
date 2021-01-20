@@ -97,10 +97,22 @@ func uploadToDB() time.Time {
 	return db.Starttime
 }
 
+func writeDF(table *dataframe.Dataframe) {
+	// Writes dataframe to file/screen
+	if table.Length() >= 1 {
+		if *outfile != "nil" {
+			table.ToCSV(*outfile)
+		} else {
+			fmt.Println()
+			table.Print()
+		}
+	}
+}
+
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
-	if *clean == true {
+	if *clean {
 		dbextract.AutoCleanDatabase(db)
 		codbutils.UpdateTimeStamp(db)
 	} else if *infile != "nil" {
@@ -111,7 +123,7 @@ func updateDB() time.Time {
 		e := evaluations[0][0]
 		dbextract.UpdateSingleTable(db, e.Table, *column, *value, e.Column, e.Operator, e.Value)
 		codbutils.UpdateTimeStamp(db)
-	} else if *del == true && *eval != "nil" {
+	} else if *del && *eval != "nil" {
 		evaluations := codbutils.SetOperations(db.Columns, *eval)
 		e := evaluations[0][0]
 		if *table == "nil" {
@@ -123,18 +135,6 @@ func updateDB() time.Time {
 		commandError()
 	}
 	return db.Starttime
-}
-
-func writeDF(table *dataframe.Dataframe) {
-	// Writes dataframe to file/screen
-	if table.Length() >= 1 {
-		if *outfile != "nil" {
-			table.ToCSV(*outfile)
-		} else {
-			fmt.Println()
-			table.Print()
-		}
-	}
 }
 
 func calculateCancerRates() time.Time {
@@ -157,6 +157,9 @@ func searchDB() time.Time {
 			fmt.Print(msg)
 			writeDF(res)
 		}
+	} else if *top {
+		writeDF(search.LeaderBoard(db))
+		codbutils.UpdateTimeStamp(db)
 	} else {
 		commandError()
 	}
