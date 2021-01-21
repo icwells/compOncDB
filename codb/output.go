@@ -85,21 +85,6 @@ func (o *Output) getTempFile(name string) {
 	o.Outfile = fmt.Sprintf("/tmp/%s", o.File)
 }
 
-func (o *Output) summary() {
-	// Returns general database summary
-	header := []string{"Field", "Total", "%"}
-	o.formatTable(header, dbextract.GetSummary(o.db))
-	C.renderTemplate(C.temp.result, o)
-}
-
-func (o *Output) referenceTaxonomy() {
-	// Returns merged common name and taxonomy tables
-	table := dbextract.GetReferenceTaxonomy(o.db)
-	o.getTempFile("mergedTaxonomy")
-	table.ToCSV(o.Outfile)
-	C.renderTemplate(C.temp.result, o)
-}
-
 func (o *Output) extractTable() {
 	// Extracts given table from the database
 	name := strings.TrimSpace(o.r.PostForm.Get("Table"))
@@ -124,6 +109,29 @@ func (o *Output) lifeHistorySummary() {
 	C.renderTemplate(C.temp.result, o)
 }
 
+func (o *Output) neoplasiaPrevalence() {
+	// Performs cancer rate calculations
+	var eval string
+	opt := setOptions(o.r)
+	if opt.Taxa != "" && opt.Operation != "" && opt.Value != "" {
+		eval = opt.Taxa + opt.Operation + opt.Value
+	}
+	res := cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, opt.Approved, eval, opt.Location)
+	if opt.Location == "" {
+		// Use location as file name stem
+		opt.Location = "neoplasiaPrevalence"
+	}
+	o.renderResults(opt, res, fmt.Sprintf("%s.min%d", opt.Location, opt.Min))
+}
+
+func (o *Output) referenceTaxonomy() {
+	// Returns merged common name and taxonomy tables
+	table := dbextract.GetReferenceTaxonomy(o.db)
+	o.getTempFile("mergedTaxonomy")
+	table.ToCSV(o.Outfile)
+	C.renderTemplate(C.temp.result, o)
+}
+
 func (o *Output) renderResults(opt *Options, res *dataframe.Dataframe, name string) {
 	// Renders search and cancer rate results
 	if res.Length() >= 1 {
@@ -138,21 +146,6 @@ func (o *Output) renderResults(opt *Options, res *dataframe.Dataframe, name stri
 		o.Count = fmt.Sprintf("\tFound %d records matching search criteria.\n", res.Length())
 	}
 	C.renderTemplate(C.temp.result, o)
-}
-
-func (o *Output) neoplasiaPrevalence() {
-	// Performs cancer rate calculations
-	var eval string
-	opt := setOptions(o.r)
-	if opt.Taxa != "" && opt.Operation != "" && opt.Value != "" {
-		eval = opt.Taxa + opt.Operation + opt.Value
-	}
-	res := cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, opt.Approved, eval, opt.Location)
-	if opt.Location == "" {
-		// Use location as file name stem
-		opt.Location = "neoplasiaPrevalence"
-	}
-	o.renderResults(opt, res, fmt.Sprintf("%s.min%d", opt.Location, opt.Min))
 }
 
 func (o *Output) searchDB() {
@@ -172,12 +165,28 @@ func (o *Output) searchDB() {
 	}
 }
 
+func (o *Output) summary() {
+	// Returns general database summary
+	header := []string{"Field", "Total", "%"}
+	o.formatTable(header, dbextract.GetSummary(o.db))
+	C.renderTemplate(C.temp.result, o)
+}
+
+func (o *Output) tissueLeaderBoard() {
+	// Returns database tissue leaderboard
+	res := search.LeaderBoard(o.db)
+	o.formatTable(res.GetHeader(), res.ToSlice())
+	C.renderTemplate(C.temp.result, o)
+}
+
 func (o *Output) routePost(source string) {
 	// Sends post data to appropriate function
 	o.r.ParseForm()
 	switch source {
 	case C.u.summary:
 		o.summary()
+	case C.u.tissue:
+		o.tissueLeaderBoard()
 	case C.u.reftaxa:
 		o.referenceTaxonomy()
 	case C.u.table:

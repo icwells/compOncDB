@@ -17,6 +17,22 @@ var (
 	C     = setConfiguration()
 )
 
+func changeHandler(w http.ResponseWriter, r *http.Request) {
+	// Renders change password form
+	handleRender(w, r, C.temp.change, C.temp.login, "Please login to access database.")
+}
+
+func downloadHandler(w http.ResponseWriter, r *http.Request) {
+	// Serves output files for download
+	user, pw, _ := getCredentials(w, r)
+	if user != "" && pw != "" {
+		vars := mux.Vars(r)
+		http.ServeFile(w, r, fmt.Sprintf("/tmp/%s", vars["filename"]))
+	} else {
+		C.renderTemplate(C.temp.login, newFlash(w, "Please login to access database."))
+	}
+}
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Serves login page
 	login := true
@@ -33,6 +49,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		o, _ := newOutput(w, r, "", "", "")
 		C.renderTemplate(C.temp.login, o)
 	}
+}
+
+func lifeHistHandler(w http.ResponseWriter, r *http.Request) {
+	// Handles cancer rate calculations
+	handlePost(w, r, C.u.lifehist)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,9 +89,9 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, C.u.source, http.StatusFound)
 }
 
-func changeHandler(w http.ResponseWriter, r *http.Request) {
-	// Renders change password form
-	handleRender(w, r, C.temp.change, C.temp.login, "Please login to access database.")
+func menuHandler(w http.ResponseWriter, r *http.Request) {
+	// Renders menu page
+	handleRender(w, r, C.temp.menu, C.temp.login, "Please login to access database.")
 }
 
 func passwordHandler(w http.ResponseWriter, r *http.Request) {
@@ -92,19 +113,9 @@ func passwordHandler(w http.ResponseWriter, r *http.Request) {
 	C.renderTemplate(template, newFlash(w, msg))
 }
 
-func menuHandler(w http.ResponseWriter, r *http.Request) {
-	// Renders menu page
-	handleRender(w, r, C.temp.menu, C.temp.login, "Please login to access database.")
-}
-
-func summaryHandler(w http.ResponseWriter, r *http.Request) {
-	// Performs and renders database summary
-	handlePost(w, r, C.u.summary)
-}
-
-func lifeHistHandler(w http.ResponseWriter, r *http.Request) {
-	// Handles cancer rate calculations
-	handlePost(w, r, C.u.lifehist)
+func prevalenceHandler(w http.ResponseWriter, r *http.Request) {
+	// Reads cancer rate form
+	handlePost(w, r, C.u.prevalence)
 }
 
 func referenceTaxonomyHandler(w http.ResponseWriter, r *http.Request) {
@@ -112,35 +123,29 @@ func referenceTaxonomyHandler(w http.ResponseWriter, r *http.Request) {
 	handlePost(w, r, C.u.reftaxa)
 }
 
-func tableDumpHandler(w http.ResponseWriter, r *http.Request) {
-	// Handles full table extraction
-	handlePost(w, r, C.u.table)
-}
-
-func prevalenceHandler(w http.ResponseWriter, r *http.Request) {
-	// Reads cancer rate form
-	handlePost(w, r, C.u.prevalence)
-}
-
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Reads search form
 	handlePost(w, r, C.u.output)
 }
 
+func summaryHandler(w http.ResponseWriter, r *http.Request) {
+	// Performs and renders database summary
+	handlePost(w, r, C.u.summary)
+}
+
+func tableDumpHandler(w http.ResponseWriter, r *http.Request) {
+	// Handles full table extraction
+	handlePost(w, r, C.u.table)
+}
+
+func tissueHandler(w http.ResponseWriter, r *http.Request) {
+	// Performs and renders tissue leaderboard summary
+	handlePost(w, r, C.u.tissue)
+}
+
 func tutorialHandler(w http.ResponseWriter, r *http.Request) {
 	// Renders tutorial page
 	handleRender(w, r, C.temp.tutorial, C.temp.login, "Please login to access database.")
-}
-
-func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	// Serves output files for download
-	user, pw, _ := getCredentials(w, r)
-	if user != "" && pw != "" {
-		vars := mux.Vars(r)
-		http.ServeFile(w, r, fmt.Sprintf("/tmp/%s", vars["filename"]))
-	} else {
-		C.renderTemplate(C.temp.login, newFlash(w, "Please login to access database."))
-	}
 }
 
 func main() {
@@ -156,20 +161,21 @@ func main() {
 	fs := http.FileServer(http.Dir("." + C.u.static))
 	http.Handle(C.u.static, http.StripPrefix(C.u.static, fs))
 	// Register handler functions
-	r.HandleFunc(C.u.source, indexHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.changepw, changeHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.get+"{filename}", downloadHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.login, loginHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.logout, logoutHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.u.changepw, changeHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.u.newpw, passwordHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.u.menu, menuHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.lifehist, lifeHistHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.u.reftaxa, referenceTaxonomyHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.u.table, tableDumpHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.u.prevalence, prevalenceHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.menu, menuHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.newpw, passwordHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.output, searchHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.prevalence, prevalenceHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.reftaxa, referenceTaxonomyHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.source, indexHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.table, tableDumpHandler).Methods(http.MethodPost)
+	r.HandleFunc(C.u.tissue, tissueHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.tutorial, tutorialHandler).Methods(http.MethodGet)
-	r.HandleFunc(C.u.get+"{filename}", downloadHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", *host, *port), nil))

@@ -26,6 +26,7 @@ type urls struct {
 	static     string
 	summary    string
 	table      string
+	tissue     string
 	tutorial   string
 }
 
@@ -46,6 +47,7 @@ func setURLs() *urls {
 	u.static = "/static/"
 	u.summary = fmt.Sprintf("%ssummary/", u.source)
 	u.table = fmt.Sprintf("%sextractTable/", u.source)
+	u.tissue = fmt.Sprintf("%stissue/", u.source)
 	u.tutorial = fmt.Sprintf("%stutorial/", u.source)
 	return u
 }
