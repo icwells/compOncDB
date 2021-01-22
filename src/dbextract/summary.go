@@ -5,7 +5,6 @@ package dbextract
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/simpleset"
 	"strconv"
@@ -81,23 +80,8 @@ func (s *summary) setCancerTaxa(db *dbIO.DBIO) {
 
 func (s *summary) getNumAdult(db *dbIO.DBIO) {
 	// Gets total adult and infant records
-	var x []string
-	ages := search.GetMinAges(db, x)
-	table := db.GetColumns("Patient", []string{"taxa_id", "Age"})
-	// Filter results
-	for _, i := range table {
-		min, ex := ages[i[0]]
-		if ex == true {
-			age, err := strconv.ParseFloat(i[1], 64)
-			if err == nil {
-				if age > min {
-					s.adult++
-				} else {
-					s.infant++
-				}
-			}
-		}
-	}
+	s.adult = db.Count("Patient", "Infant", "Infant", "=", "0", false)
+	s.infant = db.Count("Patient", "Infant", "Infant", "=", "1", false)
 }
 
 func (s *summary) setTotals(db *dbIO.DBIO) {

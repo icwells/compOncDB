@@ -15,7 +15,6 @@ type searcher struct {
 	db      *dbIO.DBIO
 	header  string
 	ids     *simpleset.Set
-	infant  bool
 	logger  *log.Logger
 	msg     string
 	na      []string
@@ -24,14 +23,13 @@ type searcher struct {
 	taxaids *simpleset.Set
 }
 
-func newSearcher(db *dbIO.DBIO, logger *log.Logger, inf bool) *searcher {
+func newSearcher(db *dbIO.DBIO, logger *log.Logger) *searcher {
 	// Assigns starting values to searcher
 	s := new(searcher)
 	// Add default header
 	s.db = db
 	s.header = strings.Join(codbutils.RecordsHeader(), ",")
 	s.ids = simpleset.NewStringSet()
-	s.infant = inf
 	s.logger = logger
 	s.na = []string{"NA", "NA", "NA", "NA", "NA", "NA", "NA"}
 	s.res = make(map[string][]string)

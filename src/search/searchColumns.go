@@ -84,12 +84,13 @@ func (s *searcher) assignSearch(eval []codbutils.Evaluation) {
 
 func columnSearch(db *dbIO.DBIO, logger *log.Logger, table string, eval []codbutils.Evaluation, inf bool) *searcher {
 	// Determines search procedure
-	s := newSearcher(db, logger, inf)
+	s := newSearcher(db, logger)
+	if !inf {
+		// Add evaluation to remove
+		eval = append(eval, codbutils.Evaluation{"Patient", "ID", "Infant", "=", "0"})
+	}
 	s.assignSearch(eval)
 	if len(s.res) >= 1 {
-		if s.infant == false {
-			s.filterInfantRecords()
-		}
 		if table != "" && table != "nil" {
 			// Return results from single table
 			s.searchSingleTable(table)

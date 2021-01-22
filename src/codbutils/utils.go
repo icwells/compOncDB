@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -154,6 +155,25 @@ func DeleteEntries(d *dbIO.DBIO, table, column, value string) {
 	} else {
 		fmt.Println("\tSkipping deletion.")
 	}
+}
+
+func GetMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
+	// Returns map of minumum ages by taxa id
+	var table map[string]string
+	ages := make(map[string]float64)
+	if len(taxaids) >= 1 {
+		table = EntryMap(db.GetRows("Life_history", "taxa_id", strings.Join(taxaids, ","), "Infancy,taxa_id"))
+	} else {
+		table = EntryMap(db.GetColumns("Life_history", []string{"Infancy", "taxa_id"}))
+	}
+	// Convert string ages to float
+	for k, v := range table {
+		a, err := strconv.ParseFloat(v, 64)
+		if err == nil {
+			ages[k] = a
+		}
+	}
+	return ages
 }
 
 func GetUpdateTime(d *dbIO.DBIO) string {

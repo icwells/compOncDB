@@ -160,7 +160,7 @@ func (c *cancerRates) addLifeHistory() {
 
 func (c *cancerRates) addInfancy() {
 	// Adds age of infancy to records
-	for k, v := range search.GetMinAges(c.db, c.tids) {
+	for k, v := range codbutils.GetMinAges(c.db, c.tids) {
 		if r, ex := c.records[k]; ex {
 			r.infancy = v
 		}

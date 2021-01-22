@@ -8,28 +8,8 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"sort"
-	"strconv"
 	"strings"
 )
-
-func GetMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
-	// Returns map of minumum ages by taxa id
-	var table map[string]string
-	ages := make(map[string]float64)
-	if len(taxaids) >= 1 {
-		table = codbutils.EntryMap(db.GetRows("Life_history", "taxa_id", strings.Join(taxaids, ","), "Infancy,taxa_id"))
-	} else {
-		table = codbutils.EntryMap(db.GetColumns("Life_history", []string{"Infancy", "taxa_id"}))
-	}
-	// Convert string ages to float
-	for k, v := range table {
-		a, err := strconv.ParseFloat(v, 64)
-		if err == nil {
-			ages[k] = a
-		}
-	}
-	return ages
-}
 
 func TumorMap(db *dbIO.DBIO) map[string][]string {
 	// Returns map of all tumor entries per ID ni 2d slice
@@ -84,27 +64,6 @@ func (s *searcher) setPatient() {
 	} else if s.taxaids.Length() > 0 {
 		s.res = codbutils.ToMap(s.db.GetRows("Patient", "taxa_id", strings.Join(s.taxaids.ToStringSlice(), ","), "*"))
 	}
-	s.setTaxaIDs()
-}
-
-func (s *searcher) filterInfantRecords() {
-	// Removes infant records from search results
-	ages := GetMinAges(s.db, s.taxaids.ToStringSlice())
-	// Filter results
-	for k, v := range s.res {
-		if len(v) >= 4 {
-			min, ex := ages[v[3]]
-			if ex == true {
-				age, err := strconv.ParseFloat(v[1], 64)
-				if err == nil && age <= min {
-					// Remove infant record
-					delete(s.res, k)
-					s.ids.Pop(k)
-				}
-			}
-		}
-	}
-	// Update ids
 	s.setTaxaIDs()
 }
 
