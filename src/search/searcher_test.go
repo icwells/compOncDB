@@ -72,7 +72,7 @@ func filterIDs(ids *simpleset.Set, match []string) *simpleset.Set {
 
 func TestFilterIDs(t *testing.T) {
 	// tests filter ids algorithm
-	s := newSearcher(getTestConnection(), codbutils.GetLogger(), false)
+	s := newSearcher(getTestConnection(), codbutils.GetLogger())
 	input := [][]string {
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"},
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"},

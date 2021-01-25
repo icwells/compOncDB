@@ -48,10 +48,10 @@ func getExpected() *entries {
 	e := newEntries(nil, false)
 	e.count = 4
 	e.p = [][]string{
-		[]string{"1", "male", "-1.00", "-1", "1", "1", "coyote", "12-Dec", "2001", "Biopsy: NORMAL BLOOD SMEAR"},
-		[]string{"2", "NA", "-1.00", "-1", "1", "2", "coyote", "13-Jan", "2001", "ERYTHROPHAGOCYTOSIS"},
-		[]string{"3", "male", "24.00", "-1", "1", "3", "coyote", "1-Dec", "2001", "Lymphoma lymph nodes 2 year old male"},
-		[]string{"4", "NA", "-1.00", "-1", "1", "4", "coyote", "1-Dec", "2001", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"},
+		[]string{"1", "male", "-1.00", "-1", "-1", "1", "1", "coyote", "12-Dec", "2001", "Biopsy: NORMAL BLOOD SMEAR"},
+		[]string{"2", "NA", "-1.00", "-1", "-1", "1", "2", "coyote", "13-Jan", "2001", "ERYTHROPHAGOCYTOSIS"},
+		[]string{"3", "male", "24.00", "-1", "-1", "1", "3", "coyote", "1-Dec", "2001", "Lymphoma lymph nodes 2 year old male"},
+		[]string{"4", "NA", "-1.00", "-1", "-1", "1", "4", "coyote", "1-Dec", "2001", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy"},
 	}
 	e.d = [][]string{
 		[]string{"1", "0", "0", "0", "-1"},

@@ -54,7 +54,7 @@ testParseRecords () {
 }
 
 testSearch () {
-	# Performs white box testss for searcher
+	# Performs white box tests for searcher
 	echo ""
 	echo "Running white box tests on database search..."
 	go test $SEARCH $ARGS

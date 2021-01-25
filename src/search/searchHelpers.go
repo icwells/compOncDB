@@ -92,7 +92,7 @@ func (s *searcher) appendTaxonomy() {
 	}
 	for k, v := range s.res {
 		// Apppend taxonomy to records
-		taxonomy, ex := s.taxa[v[3]]
+		taxonomy, ex := s.taxa[v[4]]
 		if ex == false {
 			taxonomy = s.na
 		}
