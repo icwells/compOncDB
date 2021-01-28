@@ -73,7 +73,7 @@ func uploadToDB() time.Time {
 		fmt.Print("\n\t[Error] Please specify input file. Exiting.\n\n")
 		os.Exit(1)
 	}
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	if *taxa == true {
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *infile, *common)
@@ -111,7 +111,7 @@ func writeDF(table *dataframe.Dataframe) {
 
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	if *clean {
 		dbextract.AutoCleanDatabase(db)
 		codbutils.UpdateTimeStamp(db)
@@ -139,14 +139,14 @@ func updateDB() time.Time {
 
 func calculateCancerRates() time.Time {
 	// Extract cancer rates
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *approved, *eval, *location))
 	return db.Starttime
 }
 
 func searchDB() time.Time {
 	// Searches db with given queries
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	if *taxonomies == true {
 		names := codbutils.ReadList(*infile, *col)
 		writeDF(search.SearchSpeciesNames(db, names))
@@ -168,7 +168,7 @@ func searchDB() time.Time {
 
 func extractFromDB() time.Time {
 	// Extracts data to outfile/stdout (all input variables are global)
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	if *dump != "nil" {
 		// Extract entire table
 		table := db.GetTable(*dump)

@@ -74,13 +74,13 @@ func SetConfiguration(user string, test bool) Configuration {
 	return c
 }
 
-func ConnectToDatabase(c Configuration) *dbIO.DBIO {
+func ConnectToDatabase(c Configuration, pw string) *dbIO.DBIO {
 	// Manages call to Connect and GetTableColumns
 	d := c.Database
 	if c.Test == true {
 		d = c.Testdb
 	}
-	db, err := dbIO.Connect(c.Host, d, c.User, "")
+	db, err := dbIO.Connect(c.Host, d, c.User, pw)
 	if err != nil {
 		GetLogger().Fatal(err)
 	}
