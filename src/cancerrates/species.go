@@ -17,49 +17,49 @@ func emptySlice(n int) []string {
 	return ret
 }
 
-type species struct {
-	grandtotal  int
+type Species struct {
+	Grandtotal  int
 	id          string
 	infancy     float64
 	lifehistory []string
-	location    string
+	Location    string
 	locations   *simpleset.Set
 	taxonomy    []string
-	tissue      *record
-	tissues     map[string]*record
-	total       *record
+	tissue      *Record
+	tissues     map[string]*Record
+	total       *Record
 }
 
-func newSpecies(id, location string, taxonomy []string) *species {
+func newSpecies(id, location string, taxonomy []string) *Species {
 	// Return new species struct
-	s := new(species)
+	s := new(Species)
 	s.id = id
-	s.location = location
+	s.Location = location
 	s.locations = simpleset.NewStringSet()
 	s.taxonomy = taxonomy
 	s.tissue = newRecord()
-	s.tissues = make(map[string]*record)
+	s.tissues = make(map[string]*Record)
 	s.total = newRecord()
 	s.setLocations()
 	return s
 }
 
-func (s *species) setLocations() {
+func (s *Species) setLocations() {
 	// Initializes location set
-	if strings.Contains(s.location, ",") {
-		s.location = strings.Replace(s.location, ",", ";", -1)
+	if strings.Contains(s.Location, ",") {
+		s.Location = strings.Replace(s.Location, ",", ";", -1)
 	}
-	if strings.Contains(s.location, ";") {
-		for _, i := range strings.Split(s.location, ";") {
+	if strings.Contains(s.Location, ";") {
+		for _, i := range strings.Split(s.Location, ";") {
 			s.locations.Add(i)
 			s.tissues[i] = newRecord()
 		}
 	} else {
-		s.locations.Add(s.location)
+		s.locations.Add(s.Location)
 	}
 }
 
-func (s *species) tissueSlice(name string, r *record) []string {
+func (s *Species) tissueSlice(name string, r *Record) []string {
 	// Formats rows for specific tissues
 	ret := []string{s.id}
 	ret = append(ret, emptySlice(len(s.taxonomy))...)
@@ -71,7 +71,7 @@ func (s *species) tissueSlice(name string, r *record) []string {
 	return ret
 }
 
-func (s *species) toSlice() [][]string {
+func (s *Species) ToSlice() [][]string {
 	// Formats cancer rates and returns row for tissue and total
 	var ret [][]string
 	total := append([]string{s.id}, s.taxonomy...)
@@ -81,8 +81,8 @@ func (s *species) toSlice() [][]string {
 		total = append(total, s.lifehistory...)
 	}
 	ret = append(ret, total)
-	if s.location != "" {
-		ret = append(ret, s.tissueSlice(s.location, s.tissue))
+	if s.Location != "" {
+		ret = append(ret, s.tissueSlice(s.Location, s.tissue))
 		for k, v := range s.tissues {
 			if v.grandtotal > 0 {
 				ret = append(ret, s.tissueSlice(k, v))
@@ -92,7 +92,7 @@ func (s *species) toSlice() [][]string {
 	return ret
 }
 
-func (s *species) highestMalignancy(mal string) string {
+func (s *Species) highestMalignancy(mal string) string {
 	// Returns highest malignacy code
 	if strings.Contains(mal, ";") {
 		m := strings.Split(mal, ";")
@@ -102,7 +102,7 @@ func (s *species) highestMalignancy(mal string) string {
 	return mal
 }
 
-func (s *species) checkLocation(mal, loc string) (bool, string) {
+func (s *Species) checkLocation(mal, loc string) (bool, string) {
 	// Returns true if s.location is in loc
 	if loc != "" {
 		if strings.Contains(loc, ";") {
@@ -119,7 +119,7 @@ func (s *species) checkLocation(mal, loc string) (bool, string) {
 	return false, ""
 }
 
-func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string) {
+func (s *Species) addCancer(age float64, sex, nec, mal, loc, service, aid string) {
 	// Adds cancer measures
 	s.total.cancerMeasures(age, sex, s.highestMalignancy(mal), service)
 	if eq, m := s.checkLocation(mal, loc); eq {
@@ -134,13 +134,19 @@ func (s *species) addCancer(age float64, sex, nec, mal, loc, service, aid string
 	}
 }
 
-func (s *species) addNonCancer(age float64, sex, nec, service, aid string) {
+func (s *Species) addNonCancer(age float64, sex, nec, service, aid string) {
 	// Adds non-cancer measures
 	s.total.nonCancerMeasures(age, sex, nec, service, aid)
+	s.Grandtotal += s.total.grandtotal
 }
 
-func (s *species) addDenominator(d int) {
+func (s *Species) addDenominator(d int) {
 	// Adds denominator to records
 	//s.tissue.addTotal(d)
 	s.total.addTotal(d)
+}
+
+func (s *Species) AddTissue(v *Species) {
+	// Adds v.tissue to s.tissue
+	s.tissue.Add(v.tissue)
 }

@@ -16,7 +16,7 @@ func canidTaxa() [][]string {
 	return ret
 }
 
-func setSpecies(taxa []string, r *record) *species {
+func setSpecies(taxa []string, r *Record) *Species {
 	// Returns test struct
 	s := newSpecies(taxa[0], "liver", taxa[1:])
 	//s.location = "liver"
@@ -24,9 +24,9 @@ func setSpecies(taxa []string, r *record) *species {
 	return s
 }
 
-func getSpecies() []*species {
+func getSpecies() []*Species {
 	// Returns species structs for testing
-	var ret []*species
+	var ret []*Species
 	taxa := canidTaxa()
 	for idx, i := range testRecords() {
 		ret = append(ret, setSpecies(taxa[idx], i))
@@ -98,7 +98,7 @@ func TestCheckLocation(t *testing.T) {
 	}
 }
 
-func addRow(s *record, age float64, sex, nec, mal, loc, service, aid string) {
+func addRow(s *Record, age float64, sex, nec, mal, loc, service, aid string) {
 	// Adds values to struct
 	s.grandtotal++
 	s.allcancer++
@@ -131,7 +131,7 @@ func addRow(s *record, age float64, sex, nec, mal, loc, service, aid string) {
 	}
 }
 
-func compareRecords(t *testing.T, a, e *record) {
+func compareRecords(t *testing.T, a, e *Record) {
 	// Campares values in structs
 	if a.age != e.age {
 		t.Errorf("Actual age %f does not equal %f.", a.age, e.age)
@@ -203,9 +203,9 @@ func locationSlice() [][]string {
 	return ret
 }
 
-func locationRecords() []*record {
+func locationRecords() []*Record {
 	// Returns slice of records for testing
-	var ret []*record
+	var ret []*Record
 	ret = append(ret, setRecord([]float64{100, 5, 50.0, 2, 3, 5, 50.0, 2, 3, 2, 3, 1, 10, 4, 6}))
 	ret = append(ret, setRecord([]float64{110, 5, 50.0, 2, 3, 5, 50.0, 2, 3, 2, 3, 1, 10, 4, 6}))
 	return ret
@@ -231,9 +231,9 @@ func getExpectedSpecies() [][][]string {
 	return ret
 }
 
-func getTestSpecies() []*species {
+func getTestSpecies() []*Species {
 	// Returns slice of test structs
-	var ret []*species
+	var ret []*Species
 	taxa := canidTaxa()
 	loc := locationRecords()
 	for idx, i := range testRecords() {
@@ -241,7 +241,7 @@ func getTestSpecies() []*species {
 		if idx < 2 {
 			s.tissue = loc[idx]
 		} else {
-			s.location = ""
+			s.Location = ""
 		}
 		ret = append(ret, s)
 	}
@@ -252,7 +252,7 @@ func TestToSlice(t *testing.T) {
 	head := codbutils.CancerRateHeader()
 	expected := getExpectedSpecies()
 	for ind, s := range getTestSpecies() {
-		act := s.toSlice()
+		act := s.ToSlice()
 		exp := expected[ind]
 		if len(act) != len(exp) {
 			t.Errorf("%d: Actual number of rows %d does not equal expected: %d", ind, len(act), len(exp))

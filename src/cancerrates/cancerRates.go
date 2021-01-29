@@ -28,13 +28,13 @@ type cancerRates struct {
 	nas      []string
 	nec      bool
 	rates    *dataframe.Dataframe
-	records  map[string]*species
+	Records  map[string]*Species
 	species  int
 	tids     []string
 	total    string
 }
 
-func newCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, appr bool, location string) *cancerRates {
+func NewCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, appr bool, location string) *cancerRates {
 	// Returns initialized cancerRates struct
 	c := new(cancerRates)
 	c.approval = simpleset.NewStringSet()
@@ -50,7 +50,7 @@ func newCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, appr bool, location st
 	c.setHeader()
 	c.rates, _ = dataframe.NewDataFrame(-1)
 	c.rates.SetHeader(c.header)
-	c.records = make(map[string]*species)
+	c.Records = make(map[string]*Species)
 	c.total = "total"
 	return c
 }
@@ -80,10 +80,10 @@ func (c *cancerRates) setHeader() {
 
 func (c *cancerRates) formatRates() {
 	// Calculates rates, and formats for printing
-	for _, v := range c.records {
+	for _, v := range c.Records {
 		if v.total.total >= c.min {
 			var err error
-			for _, i := range v.toSlice() {
+			for _, i := range v.ToSlice() {
 				// Add to dataframe
 				err = c.rates.AddRow(i)
 				if err != nil {
@@ -98,13 +98,13 @@ func (c *cancerRates) formatRates() {
 	}
 }
 
-func (c *cancerRates) countRecords() {
+func (c *cancerRates) CountRecords() {
 	// Counts Patient records
 	source := codbutils.ToMap(c.db.GetColumns("Source", []string{"ID", "service_name", "account_id"}))
 	diagnosis := codbutils.ToMap(c.db.GetColumns("Diagnosis", []string{"ID", "Masspresent", "Necropsy"}))
 	tumor := search.TumorMap(c.db)
 	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,"+TID) {
-		s := c.records[i[3]]
+		s := c.Records[i[3]]
 		id := i[0]
 		appr, _ := c.approval.InSet(id)
 		if !c.approved || appr {
@@ -138,9 +138,9 @@ func (c *cancerRates) countRecords() {
 func (c *cancerRates) addDenominators() {
 	// Adds fixed values from denominators table
 	for k, v := range codbutils.ToMap(c.db.GetRows("Denominators", TID, strings.Join(c.tids, ","), "*")) {
-		if _, ex := c.records[k]; ex {
+		if _, ex := c.Records[k]; ex {
 			if t, err := strconv.Atoi(v[0]); err == nil {
-				c.records[k].addDenominator(t)
+				c.Records[k].addDenominator(t)
 			}
 		}
 	}
@@ -149,7 +149,7 @@ func (c *cancerRates) addDenominators() {
 func (c *cancerRates) addLifeHistory() {
 	// Add life history data
 	lifehist := codbutils.ToMap(c.db.GetRows("Life_history", TID, strings.Join(c.tids, ","), "*"))
-	for k, v := range c.records {
+	for k, v := range c.Records {
 		if lh, ex := lifehist[k]; ex {
 			v.lifehistory = lh
 		} else {
@@ -161,13 +161,13 @@ func (c *cancerRates) addLifeHistory() {
 func (c *cancerRates) addInfancy() {
 	// Adds age of infancy to records
 	for k, v := range codbutils.GetMinAges(c.db, c.tids) {
-		if r, ex := c.records[k]; ex {
+		if r, ex := c.Records[k]; ex {
 			r.infancy = v
 		}
 	}
 }
 
-func (c *cancerRates) getTaxa(eval string) {
+func (c *cancerRates) GetTaxa(eval string) {
 	// Gets records map
 	var taxa map[string][]string
 	if eval != "" && eval != "nil" {
@@ -179,7 +179,7 @@ func (c *cancerRates) getTaxa(eval string) {
 	}
 	for k, v := range taxa {
 		c.tids = append(c.tids, k)
-		c.records[k] = newSpecies(k, c.location, v)
+		c.Records[k] = newSpecies(k, c.location, v)
 	}
 	if !c.infant {
 		c.addInfancy()
@@ -192,10 +192,10 @@ func (c *cancerRates) getTaxa(eval string) {
 
 func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, appr bool, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
-	c := newCancerRates(db, min, nec, inf, lh, appr, location)
+	c := NewCancerRates(db, min, nec, inf, lh, appr, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
-	c.getTaxa(eval)
-	c.countRecords()
+	c.GetTaxa(eval)
+	c.CountRecords()
 	c.formatRates()
 	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)
 	return c.rates

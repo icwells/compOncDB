@@ -16,7 +16,7 @@ func avgAge(n float64, d int) string {
 	return "NA"
 }
 
-type record struct {
+type Record struct {
 	age          float64
 	allcancer    int
 	benign       int
@@ -35,14 +35,14 @@ type record struct {
 	total        int
 }
 
-func newRecord() *record {
+func newRecord() *Record {
 	// Initializes new record struct
-	r := new(record)
+	r := new(Record)
 	r.sources = simpleset.NewStringSet()
 	return r
 }
 
-func (r *record) formatRate(n, d int) string {
+func (r *Record) formatRate(n, d int) string {
 	// Divides n by d and returns formatted string
 	if d != 0 {
 		v := float64(n) / float64(d)
@@ -51,7 +51,7 @@ func (r *record) formatRate(n, d int) string {
 	return "NA"
 }
 
-func (r *record) setsources() string {
+func (r *Record) setsources() string {
 	// Returns number of unique sources
 	if r.sources.Length() > 0 {
 		return strconv.Itoa(r.sources.Length())
@@ -59,7 +59,7 @@ func (r *record) setsources() string {
 	return "0"
 }
 
-func (r *record) calculateRates(d int) []string {
+func (r *Record) calculateRates(d int) []string {
 	// Returns string slice of rates
 	var ret []string
 	if d < 0 {
@@ -89,7 +89,7 @@ func (r *record) calculateRates(d int) []string {
 	return ret
 }
 
-func (r *record) cancerMeasures(age float64, sex, mal, service string) {
+func (r *Record) cancerMeasures(age float64, sex, mal, service string) {
 	// Adds cancer measures
 	r.allcancer++
 	if mal == "1" {
@@ -113,7 +113,7 @@ func (r *record) cancerMeasures(age float64, sex, mal, service string) {
 	}
 }
 
-func (r *record) nonCancerMeasures(age float64, sex, nec, service, aid string) {
+func (r *Record) nonCancerMeasures(age float64, sex, nec, service, aid string) {
 	// Adds non-cancer meaures
 	r.grandtotal++
 	if service != "MSU" {
@@ -132,13 +132,35 @@ func (r *record) nonCancerMeasures(age float64, sex, nec, service, aid string) {
 	r.sources.Add(aid)
 }
 
-func (r *record) addTotal(n int) {
+func (r *Record) addTotal(n int) {
 	// Adds n to total and grandtotal
 	r.grandtotal += n
 	r.total += n
 }
 
-func (r *record) Copy() *record {
+func (r *Record) Add(v *Record) {
+	// Adds v values to record
+	r.age += v.age
+	r.allcancer += v.allcancer
+	r.benign += v.benign
+	r.bentotal += v.bentotal
+	r.cancer += v.cancer
+	r.cancerage += v.cancerage
+	r.female += v.female
+	r.femalecancer += v.femalecancer
+	r.grandtotal += v.grandtotal
+	r.male += v.male
+	r.malecancer += v.malecancer
+	r.malignant += v.malignant
+	r.maltotal += v.maltotal
+	r.necropsy += v.necropsy
+	r.total += v.total
+	for _, i := range v.sources.ToStringSlice() {
+		r.sources.Add(i)
+	}
+}
+
+func (r *Record) Copy() *Record {
 	// Returns deep copy of struct
 	c := newRecord()
 	c.age = r.age

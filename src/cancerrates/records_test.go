@@ -27,7 +27,7 @@ import (
 	}
 }*/
 
-func setRecord(v []float64) *record {
+func setRecord(v []float64) *Record {
 	// Initilaizes new testing record
 	r := newRecord()
 	r.grandtotal = int(v[0])
@@ -48,9 +48,9 @@ func setRecord(v []float64) *record {
 	return r
 }
 
-func testRecords() []*record {
+func testRecords() []*Record {
 	// Returns slice of records for testing
-	var ret []*record
+	var ret []*Record
 	ret = append(ret, setRecord([]float64{100, 50, 1000.0, 50, 50, 25, 250.0, 15, 10, 5, 10, 20, 30, 6, 12}))
 	ret = append(ret, setRecord([]float64{110, 100, 900.0, 50, 70, 30, 300.0, 12, 18, 3, 5, 5, 35, 5, 8}))
 	ret = append(ret, setRecord([]float64{50, 50, 600.0, 25, 35, 0, 0.0, 50, 0, 0, 0, 0, 0, 0, 0}))
