@@ -119,7 +119,7 @@ func (s *Species) checkLocation(mal, loc string) (bool, string) {
 	return false, ""
 }
 
-func (s *Species) addCancer(age float64, sex, nec, mal, loc, service, aid string) {
+func (s *Species) addCancer(age, sex, nec, mal, loc, service, aid string) {
 	// Adds cancer measures
 	s.total.cancerMeasures(age, sex, s.highestMalignancy(mal), service)
 	if eq, m := s.checkLocation(mal, loc); eq {
@@ -134,7 +134,7 @@ func (s *Species) addCancer(age float64, sex, nec, mal, loc, service, aid string
 	}
 }
 
-func (s *Species) addNonCancer(age float64, sex, nec, service, aid string) {
+func (s *Species) addNonCancer(age, sex, nec, service, aid string) {
 	// Adds non-cancer measures
 	s.total.nonCancerMeasures(age, sex, nec, service, aid)
 	s.Grandtotal += s.total.grandtotal

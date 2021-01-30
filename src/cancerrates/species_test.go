@@ -4,6 +4,7 @@ package cancerrates
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
+	"strconv"
 	"testing"
 )
 
@@ -98,8 +99,9 @@ func TestCheckLocation(t *testing.T) {
 	}
 }
 
-func addRow(s *Record, age float64, sex, nec, mal, loc, service, aid string) {
+func addRow(s *Record, age, sex, nec, mal, loc, service, aid string) {
 	// Adds values to struct
+	a, _ := strconv.ParseFloat(age, 64)
 	s.grandtotal++
 	s.allcancer++
 	s.sources.Add(aid)
@@ -111,8 +113,10 @@ func addRow(s *Record, age float64, sex, nec, mal, loc, service, aid string) {
 	if service != "MSU" {
 		s.total++
 		s.cancer++
-		s.age += age
-		s.cancerage += age
+		s.age += a
+		s.agetotal++
+		s.cancerage += a
+		s.catotal++
 		if sex == "male" {
 			s.male++
 			s.malecancer++
@@ -172,12 +176,11 @@ func TestAddMeasures(t *testing.T) {
 	// Tests addNonCancer and addCancer
 	sp := getSpecies()[0]
 	input := []struct {
-		age                              float64
-		sex, nec, mal, loc, service, aid string
+		age, sex, nec, mal, loc, service, aid string
 	}{
-		{10.0, "male", "0", "1", "liver", "NWZP", "13"},
-		{50.0, "female", "1", "0", "kidney", "ZEPS", "2"},
-		{5.0, "male", "0", "0", "liver", "MSU", "2"},
+		{"10.0", "male", "0", "1", "liver", "NWZP", "13"},
+		{"50.0", "female", "1", "0", "kidney", "ZEPS", "2"},
+		{"5.0", "male", "0", "0", "liver", "MSU", "2"},
 	}
 	for _, i := range input {
 		s := sp.total.Copy()

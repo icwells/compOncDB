@@ -103,30 +103,28 @@ func (c *cancerRates) CountRecords() {
 	source := codbutils.ToMap(c.db.GetColumns("Source", []string{"ID", "service_name", "account_id"}))
 	diagnosis := codbutils.ToMap(c.db.GetColumns("Diagnosis", []string{"ID", "Masspresent", "Necropsy"}))
 	tumor := search.TumorMap(c.db)
-	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,"+TID) {
-		s := c.Records[i[3]]
+	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,Infant,"+TID) {
+		s := c.Records[i[4]]
 		id := i[0]
 		appr, _ := c.approval.InSet(id)
 		if !c.approved || appr {
-			if f, err := strconv.ParseFloat(i[2], 64); err == nil {
-				// Ignore infant records if infant flag not set
-				if c.infant || f >= s.infancy {
-					diag := diagnosis[id]
-					// Subset necropsy records if nec == true
-					if !c.nec || diag[1] == "1" {
-						acc := source[id]
-						if acc[0] != "MSU" || diag[0] == "1" {
-							// Add non-cancer values (skips non-cancer msu records)
-							s.addNonCancer(f, i[1], diag[1], acc[0], acc[1])
-						}
-						if diag[0] == "1" {
-							if v, ex := tumor[id]; ex {
-								// Add tumor values
-								s.addCancer(f, i[1], diag[1], v[1], v[3], acc[0], acc[1])
-							} else {
-								// Add values where masspresent is known, but further diagnosis data is missing
-								s.addCancer(f, i[1], diag[1], "-1", "", acc[0], acc[1])
-							}
+			// Ignore infant records if infant flag not set
+			if c.infant || i[3] != "1" {
+				diag := diagnosis[id]
+				// Subset necropsy records if nec == true
+				if !c.nec || diag[1] == "1" {
+					acc := source[id]
+					if acc[0] != "MSU" || diag[0] == "1" {
+						// Add non-cancer values (skips non-cancer msu records)
+						s.addNonCancer(i[2], i[1], diag[1], acc[0], acc[1])
+					}
+					if diag[0] == "1" {
+						if v, ex := tumor[id]; ex {
+							// Add tumor values
+							s.addCancer(i[2], i[1], diag[1], v[1], v[3], acc[0], acc[1])
+						} else {
+							// Add values where masspresent is known, but further diagnosis data is missing
+							s.addCancer(i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
 						}
 					}
 				}
@@ -158,15 +156,6 @@ func (c *cancerRates) addLifeHistory() {
 	}
 }
 
-func (c *cancerRates) addInfancy() {
-	// Adds age of infancy to records
-	for k, v := range codbutils.GetMinAges(c.db, c.tids) {
-		if r, ex := c.Records[k]; ex {
-			r.infancy = v
-		}
-	}
-}
-
 func (c *cancerRates) GetTaxa(eval string) {
 	// Gets records map
 	var taxa map[string][]string
@@ -180,9 +169,6 @@ func (c *cancerRates) GetTaxa(eval string) {
 	for k, v := range taxa {
 		c.tids = append(c.tids, k)
 		c.Records[k] = newSpecies(k, c.location, v)
-	}
-	if !c.infant {
-		c.addInfancy()
 	}
 	if c.lh {
 		c.addLifeHistory()

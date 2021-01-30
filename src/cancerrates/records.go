@@ -18,11 +18,13 @@ func avgAge(n float64, d int) string {
 
 type Record struct {
 	age          float64
+	agetotal     int
 	allcancer    int
 	benign       int
 	bentotal     int
 	cancer       int
 	cancerage    float64
+	catotal      int
 	female       int
 	femalecancer int
 	grandtotal   int
@@ -78,8 +80,8 @@ func (r *Record) calculateRates(d int) []string {
 	ret = append(ret, strconv.Itoa(r.benign))             //benign
 	ret = append(ret, r.formatRate(r.benign, d))          //benignPrevalence
 	ret = append(ret, r.formatRate(r.bentotal, malknown)) //Propbenign
-	ret = append(ret, avgAge(r.age, r.total))             //AverageAge(months)
-	ret = append(ret, avgAge(r.cancerage, r.cancer))      //AvgAgeNeoplasia(months)
+	ret = append(ret, avgAge(r.age, r.agetotal))          //AverageAge(months)
+	ret = append(ret, avgAge(r.cancerage, r.catotal))     //AvgAgeNeoplasia(months)
 	ret = append(ret, strconv.Itoa(r.male))               //Male
 	ret = append(ret, strconv.Itoa(r.female))             //Female
 	ret = append(ret, strconv.Itoa(r.malecancer))         //MaleNeoplasia
@@ -89,7 +91,7 @@ func (r *Record) calculateRates(d int) []string {
 	return ret
 }
 
-func (r *Record) cancerMeasures(age float64, sex, mal, service string) {
+func (r *Record) cancerMeasures(age, sex, mal, service string) {
 	// Adds cancer measures
 	r.allcancer++
 	if mal == "1" {
@@ -99,7 +101,11 @@ func (r *Record) cancerMeasures(age float64, sex, mal, service string) {
 	}
 	if service != "MSU" {
 		r.cancer++
-		r.cancerage += age
+		f, err := strconv.ParseFloat(age, 64)
+		if err == nil && f >= 0.0 {
+			r.cancerage += f
+			r.catotal++
+		}
 		if sex == "male" {
 			r.malecancer++
 		} else if sex == "female" {
@@ -113,13 +119,17 @@ func (r *Record) cancerMeasures(age float64, sex, mal, service string) {
 	}
 }
 
-func (r *Record) nonCancerMeasures(age float64, sex, nec, service, aid string) {
+func (r *Record) nonCancerMeasures(age, sex, nec, service, aid string) {
 	// Adds non-cancer meaures
 	r.grandtotal++
 	if service != "MSU" {
 		// Add to total and grandtotal
 		r.total++
-		r.age += age
+		f, err := strconv.ParseFloat(age, 64)
+		if err == nil && f >= 0.0 {
+			r.age += f
+			r.agetotal++
+		}
 		if sex == "male" {
 			r.male++
 		} else if sex == "female" {

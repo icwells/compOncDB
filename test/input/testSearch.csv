@@ -1,4 +1,4 @@
-Name,Genus,Sex
-Gray fox,,
-,Canis,male
-coyote,,
+Name,Genus,Sex,Infant
+Gray fox,,,
+,Canis,male,0
+coyote,,,0

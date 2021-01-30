@@ -33,10 +33,12 @@ func setRecord(v []float64) *Record {
 	r.grandtotal = int(v[0])
 	r.total = int(v[1])
 	r.age = v[2]
+	r.agetotal = r.total
 	r.male = int(v[3])
 	r.female = int(v[4])
 	r.cancer = int(v[5])
 	r.cancerage = v[6]
+	r.catotal = r.cancer
 	r.malecancer = int(v[7])
 	r.femalecancer = int(v[8])
 	r.malignant = int(v[9])
