@@ -222,9 +222,13 @@ func LoadPatients(db *dbIO.DBIO, infile string, test bool) {
 	e := newEntries(db, test)
 	// Get entry slices and upload to db
 	e.extractPatients(infile)
-	db.UploadSlice("Patient", e.p)
-	db.UploadSlice("Diagnosis", e.d)
-	db.UploadSlice("Tumor", e.t)
-	db.UploadSlice("Source", e.s)
-	db.UploadSlice("Unmatched", e.unmatched)
+	if len(e.p) > 0 {
+		db.UploadSlice("Patient", e.p)
+		db.UploadSlice("Diagnosis", e.d)
+		db.UploadSlice("Tumor", e.t)
+		db.UploadSlice("Source", e.s)
+	}
+	if len(e.unmatched) > 0 {
+		db.UploadSlice("Unmatched", e.unmatched)
+	}
 }
