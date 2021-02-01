@@ -89,7 +89,7 @@ func uploadToDB() time.Time {
 	} else if *patient == true {
 		// Upload patient data
 		dbupload.LoadAccounts(db, *infile)
-		dbupload.LoadPatients(db, *infile, false)
+		dbupload.LoadPatients(db, *infile, false, false)
 		codbutils.UpdateTimeStamp(db)
 	} else {
 		commandError()

@@ -175,7 +175,6 @@ func (e *entries) evaluateRow(row []string) {
 func (e *entries) extractPatients(infile string) {
 	// Assigns patient data to appropriate slices with unique entry IDs
 	first := true
-	start := e.count
 	e.logger.Printf("Extracting patient data from %s\n", infile)
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -194,17 +193,21 @@ func (e *entries) extractPatients(infile string) {
 	e.logger.Printf("Found %d unmatched records.", len(e.unmatched))
 }
 
-func LoadPatients(db *dbIO.DBIO, infile string, test bool) {
+func LoadPatients(db *dbIO.DBIO, infile string, test, proceed bool) {
 	// Loads unique patient info to appropriate tables
 	e := newEntries(db, test)
 	// Get entry slices and upload to db
 	e.extractPatients(infile)
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("\n\tFound %d matched records and %d unmatched records.\n", len(e.p), len(e.unmatched))
-	fmt.Print("\tProceed with upload?")
-	text, _ := reader.ReadString('\n')
-	text = strings.TrimSpace(strings.ToLower(text))
-	if text == "y" || text == "yes" {
+	if !proceed {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("\tProceed with upload?")
+		text, _ := reader.ReadString('\n')
+		text = strings.TrimSpace(strings.ToLower(text))
+		if text == "y" || text == "yes" {
+			proceed = true
+		}
+	}
+	if proceed {
 		e.logger.Println("Proceeding with upload...")
 		if len(e.p) > 0 {
 			db.UploadSlice("Patient", e.p)

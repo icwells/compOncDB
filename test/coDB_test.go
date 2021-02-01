@@ -84,7 +84,7 @@ func TestUpload(t *testing.T) {
 	dbupload.LoadNonCancerTotals(db, denominators)
 	// Upload patient data
 	dbupload.LoadAccounts(db, uploadfile)
-	dbupload.LoadPatients(db, uploadfile, false)
+	dbupload.LoadPatients(db, uploadfile, false, true)
 	for k := range db.Columns {
 		// Dump all tables for comparison
 		if k != "Unmatched" && k != "Update_time" {
@@ -92,7 +92,7 @@ func TestUpload(t *testing.T) {
 		}
 	}
 	// Attempt again to test filtering of existing records
-	dbupload.LoadPatients(db, uploadfile, false)
+	dbupload.LoadPatients(db, uploadfile, false, true)
 	for k := range db.Columns {
 		if k != "Unmatched" && k != "Update_time" {
 			compareTables(t, k, exp[k], tableToDF(db, k))
@@ -116,8 +116,8 @@ func TestFilterPatients(t *testing.T) {
 	// Tests duplicate patient filtering
 	db := connectToDatabase()
 	exp := getExpectedTables()
-	dbupload.LoadPatients(db, uploadfile, false)
-	dbupload.LoadPatients(db, uploadfile, true)
+	dbupload.LoadPatients(db, uploadfile, false, true)
+	dbupload.LoadPatients(db, uploadfile, true, true)
 	dbextract.AutoCleanDatabase(db)
 	for k := range db.Columns {
 		if k != "Unmatched" && k != "Update_time" {
