@@ -27,11 +27,12 @@ func tumorPairs(typ, loc string) [][]string {
 
 type entries struct {
 	accounts  map[string]map[string]string
-	ages      map[string]float64
 	col       map[string]int
 	count     int
 	d         [][]string
+	dbset     bool
 	ex        *Existing
+	infant    *Infancy
 	length    int
 	logger    *log.Logger
 	p         [][]string
@@ -48,8 +49,9 @@ func newEntries(db *dbIO.DBIO, test bool) *entries {
 	if db != nil {
 		e.count = db.GetMax("Patient", "ID")
 		e.accounts = codbutils.MapOfMaps(db.GetTable("Accounts"))
-		e.ages = codbutils.GetMinAges(db, []string{})
+		e.infant = NewInfancy(db)
 		e.taxa = GetTaxaIDs(db, false)
+		e.dbset = true
 	} else {
 		e.accounts = make(map[string]map[string]string)
 		e.taxa = make(map[string]string)
@@ -125,44 +127,16 @@ func formatAge(age string) string {
 	return ret
 }
 
-func (e *entries) setInfant(id, age, comments string) string {
-	// Determines if records are infant records
-	ret := "-1"
-	if min, ex := e.ages[id]; ex {
-		if a, err := strconv.ParseFloat(age, 64); err == nil {
-			if a >= 0 {
-				if a <= min {
-					ret = "1"
-				} else {
-					ret = "0"
-				}
-			}
-		}
-	}
-	if ret == "-1" {
-		// Check comments for keywords
-		comments = strings.ToLower(comments)
-		for idx, i := range []string{"infant", "fetus", "juvenile", "immature", "adult", "mature"} {
-			if strings.Contains(comments, i) {
-				if idx <= 3 {
-					ret = "1"
-				} else {
-					ret = "0"
-				}
-				break
-			}
-		}
-	}
-	return ret
-}
-
 func (e *entries) addPatient(id, taxaid, age string, row []string) {
 	// Formats patient data for upload
+	infant := "-1"
 	if strings.Contains(row[e.col["ID"]], "NA") == true {
 		// Make sure source ID is an integer
 		row[e.col["ID"]] = "-1"
 	}
-	infant := e.setInfant(taxaid, age, row[e.col["Comments"]])
+	if e.dbset {
+		infant = e.infant.SetInfant(taxaid, age, row[e.col["Comments"]])
+	}
 	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
 	p := []string{id, row[e.col["Sex"]], age, infant, row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Name"]], row[e.col["Date"]], row[e.col["Year"]], row[e.col["Comments"]]}
 	e.p = append(e.p, p)
