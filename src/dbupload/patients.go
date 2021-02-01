@@ -3,11 +3,13 @@
 package dbupload
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -188,7 +190,8 @@ func (e *entries) extractPatients(infile string) {
 			first = false
 		}
 	}
-	e.logger.Printf("Extracted %d records.\n", e.count-start)
+	e.logger.Printf("Extracted %d records.\n", len(e.p))
+	e.logger.Printf("Found %d unmatched records.", len(e.unmatched))
 }
 
 func LoadPatients(db *dbIO.DBIO, infile string, test bool) {
@@ -196,13 +199,23 @@ func LoadPatients(db *dbIO.DBIO, infile string, test bool) {
 	e := newEntries(db, test)
 	// Get entry slices and upload to db
 	e.extractPatients(infile)
-	if len(e.p) > 0 {
-		db.UploadSlice("Patient", e.p)
-		db.UploadSlice("Diagnosis", e.d)
-		db.UploadSlice("Tumor", e.t)
-		db.UploadSlice("Source", e.s)
-	}
-	if len(e.unmatched) > 0 {
-		db.UploadSlice("Unmatched", e.unmatched)
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("\n\tFound %d matched records and %d unmatched records.\n", len(e.p), len(e.unmatched))
+	fmt.Print("\tProceed with upload?")
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(strings.ToLower(text))
+	if text == "y" || text == "yes" {
+		e.logger.Println("Proceeding with upload...")
+		if len(e.p) > 0 {
+			db.UploadSlice("Patient", e.p)
+			db.UploadSlice("Diagnosis", e.d)
+			db.UploadSlice("Tumor", e.t)
+			db.UploadSlice("Source", e.s)
+		}
+		if len(e.unmatched) > 0 {
+			db.UploadSlice("Unmatched", e.unmatched)
+		}
+	} else {
+		e.logger.Println("Aborting upload.")
 	}
 }
