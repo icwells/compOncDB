@@ -17,7 +17,7 @@ type Infancy struct {
 func NewInfancy(db *dbIO.DBIO) *Infancy {
 	i := new(Infancy)
 	i.ages = codbutils.GetMinAges(db, []string{})
-	i.terms = []string{"adult", "mature", "infant", "fetus", "juvenile", "immature", "adolescent", "hatchling", "subadult", "neonate", "polyp"}
+	i.terms = []string{"adult", "mature", "infant", "fetus", "juvenile", "immature", "adolescent", "hatchling", "subadult", "neonate", "polyp", "placenta"}
 	return i
 }
 
