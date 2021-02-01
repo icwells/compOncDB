@@ -5,17 +5,16 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/dbIO"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"strconv"
-	"strings"
 	"time"
 )
 
 var user = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 
 type infantColumn struct {
-	ages    map[string]float64
+	ages    *dbupload.Infancy
 	db      *dbIO.DBIO
 	infant  [][]string
 	patient map[string][]string
@@ -23,45 +22,21 @@ type infantColumn struct {
 
 func newinfantColumn() *infantColumn {
 	// Return new struct
-	var l []string
 	i := new(infantColumn)
-	i.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false))
+	i.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
 	fmt.Println("\n\tInitializing struct...")
-	i.ages = codbutils.GetMinAges(i.db, l)
-	i.patient = codbutils.ToMap(i.db.GetColumns("Patient", []string{"ID", "taxa_id", "Age", "Comments"}))
+	i.ages = dbupload.NewInfancy(i.db)
+	i.patient = codbutils.ToMap(i.db.GetColumns("Patient", []string{"ID", "taxa_id", "Age", "Infant", "Comments"}))
 	return i
 }
 
 func (i *infantColumn) setInfancy() {
 	// Determines if records are infant records
 	for k, v := range i.patient {
-		val := "-1"
-		if min, ex := i.ages[v[0]]; ex {
-			if age, err := strconv.ParseFloat(v[1], 64); err == nil {
-				if age >= 0 {
-					if age <= min {
-						val = "1"
-					} else {
-						val = "0"
-					}
-				}
-			}
+		val := i.ages.SetInfant(v[0], v[1], v[3])
+		if val != v[2] {
+			i.infant = append(i.infant, []string{k, val})
 		}
-		if val == "-1" {
-			// Check comments for keywords
-			comments := strings.ToLower(v[2])
-			for idx, j := range []string{"infant", "fetus", "juvenile", "immature", "adult", "mature"} {
-				if strings.Contains(comments, j) {
-					if idx <= 3 {
-						val = "1"
-					} else {
-						val = "0"
-					}
-					break
-				}
-			}
-		}
-		i.infant = append(i.infant, []string{k, val})
 	}
 }
 

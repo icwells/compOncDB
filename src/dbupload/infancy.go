@@ -10,16 +10,14 @@ import (
 )
 
 type Infancy struct {
-	adult  []string
-	ages   map[string]float64
-	infant []string
+	ages  map[string]float64
+	terms []string
 }
 
 func NewInfancy(db *dbIO.DBIO) *Infancy {
 	i := new(Infancy)
-	i.adult = []string{"adult", "mature"}
 	i.ages = codbutils.GetMinAges(db, []string{})
-	i.infant = []string{"infant", "fetus", "juvenile", "immature", "adolescent", "hatchling", "subadult", "neonate", "polyp"}
+	i.terms = []string{"adult", "mature", "infant", "fetus", "juvenile", "immature", "adolescent", "hatchling", "subadult", "neonate", "polyp"}
 	return i
 }
 
@@ -40,16 +38,16 @@ func (i *Infancy) checkAges(id, age string) string {
 	return ret
 }
 
-func (i *Infancy) checkComments(list []string, comments string) string {
+func (i *Infancy) checkComments(comments string) string {
 	// Checks comments for age-related key words
 	ret := "-1"
 	comments = strings.ToLower(comments)
-	for idx, i := range i.adult {
+	for idx, i := range i.terms {
 		if strings.Contains(comments, i) {
-			if idx <= 3 {
-				ret = "1"
-			} else {
+			if idx <= 1 {
 				ret = "0"
+			} else {
+				ret = "1"
 			}
 			break
 		}
@@ -61,10 +59,7 @@ func (i *Infancy) SetInfant(id, age, comments string) string {
 	// Determines if records are infant records
 	ret := i.checkAges(id, age)
 	if ret == "-1" {
-		ret = i.checkComments(i.adult, comments)
-		if ret == "-1" {
-			ret = i.checkComments(i.infant, comments)
-		}
+		ret = i.checkComments(comments)
 	}
 	return ret
 }
