@@ -9,6 +9,7 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"sort"
 	"strings"
 	"time"
 )
@@ -23,7 +24,6 @@ type record struct {
 	giset    bool
 	other    *cancerrates.Species
 	otherset bool
-	total    int
 }
 
 func newRecord(s *cancerrates.Species) *record {
@@ -50,20 +50,26 @@ func (r *record) addOther(s *cancerrates.Species) {
 		r.other.Location = "other"
 		r.otherset = true
 	} else {
-		r.gi.AddTissue(s)
+		r.other.AddTissue(s)
 	}
 }
 
 func (r *record) format() [][]string {
 	// Returns records as string slice
 	ret := r.gi.ToSlice()
-	other := r.other.ToSlice()
-	return append(ret, other[1])
+	if !r.giset {
+		ret = ret[:1]
+	}
+	if r.otherset {
+		ret = append(ret, r.other.ToSlice()[1])
+	}
+	return ret
 }
 
 type gimerger struct {
 	db      *dbIO.DBIO
 	gi      []string
+	records []*record
 	taxa    map[string]*record
 	tissues []string
 }
@@ -103,12 +109,33 @@ func (g *gimerger) setTissues() {
 	}
 }
 
+func (g *gimerger) Len() int {
+	return len(g.records)
+}
+
+func (g *gimerger) Less(i, j int) bool {
+	return g.records[i].gi.Grandtotal > g.records[j].gi.Grandtotal
+}
+
+func (g *gimerger) Swap(i, j int) {
+	g.records[i], g.records[j] = g.records[j], g.records[i]
+}
+
+func (g *gimerger) sort() {
+	// Sorts records slice by number of records
+	fmt.Println("\tSorting results...")
+	for _, v := range g.taxa {
+		g.records = append(g.records, v)
+	}
+	sort.Sort(g)
+}
+
 func (g *gimerger) printRecords() {
 	// Writes records to file
 	var res [][]string
 	fmt.Println("\tFormatting results...")
 	header := append(codbutils.CancerRateHeader(), strings.Split(g.db.Columns["Life_history"], ",")[1:]...)
-	for _, v := range g.taxa {
+	for _, v := range g.records {
 		res = append(res, v.format()...)
 	}
 	iotools.WriteToCSV(*outfile, strings.Join(header, ","), res)
@@ -118,6 +145,7 @@ func main() {
 	kingpin.Parse()
 	g := newGImerger()
 	g.setTissues()
+	g.sort()
 	g.printRecords()
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(g.db.Starttime))
 }

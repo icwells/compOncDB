@@ -150,3 +150,17 @@ func (s *Species) AddTissue(v *Species) {
 	// Adds v.tissue to s.tissue
 	s.tissue.Add(v.tissue)
 }
+
+func (s *Species) Copy() *Species {
+	// Returns deep copy of struct
+	ret := newSpecies(s.id, s.Location, s.taxonomy)
+	ret.Grandtotal = s.Grandtotal
+	ret.infancy = s.infancy
+	ret.lifehistory = s.lifehistory
+	ret.tissue = s.tissue.Copy()
+	for k, v := range s.tissues {
+		ret.tissues[k] = v.Copy()
+	}
+	ret.total = s.total.Copy()
+	return ret
+}

@@ -187,9 +187,7 @@ func (r *Record) Copy() *Record {
 	c.malignant = r.malignant
 	c.maltotal = r.maltotal
 	c.necropsy = r.necropsy
+	c.sources = r.sources.Copy()
 	c.total = r.total
-	for _, i := range r.sources.ToStringSlice() {
-		c.sources.Add(i)
-	}
 	return c
 }
