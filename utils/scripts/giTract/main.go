@@ -23,7 +23,7 @@ type record struct {
 	giset    bool
 	other    *cancerrates.Species
 	otherset bool
-	total	 int
+	total    int
 }
 
 func newRecord(s *cancerrates.Species) *record {
@@ -74,10 +74,7 @@ func newGImerger() *gimerger {
 	g.gi = []string{"liver", "bile duct", "gall bladder", "stomach", "small intestine", "colon", "esophagus", "oral", "duodenum", "abdomen"}
 	g.taxa = make(map[string]*record)
 	g.tissues = []string{"fibrous", "myxomatous tissue", "fat", "notochord", "smooth muscle", "striated muscle", "peripheral nerve sheath", "blood", "cartilage", "synovium", "bone", "bone marrow",
-		"lymph nodes", "spleen", "mast cell", "dendritic cell", "pigment cell", "skin", "hair follicle", "gland", "mammary", "glial cell", "meninges", "nerve cell", "pnet", "neuroepithelial", "spinal cord",
-		"brain", "pituitary gland", "parathyroid gland", "thyroid", "adrenal medulla ", "adrenal cortex", "pancreas", "carotid body", "neuroendocrine", "testis", "prostate", "ovary", "vulva",
-		"uterus", "kidney", "bladder", "oviduct", "iris", "pupil", "larynx", "trachea",
-		"lung", "nose", "transitional epithelium", "mesothelium", "heart", "widespread"}
+		"lymph nodes", "spleen", "mast cell", "dendritic cell", "pigment cell", "skin", "hair follicle", "gland", "mammary", "glial cell", "meninges", "nerve cell", "pnet", "neuroepithelial", "spinal cord", "brain", "pituitary gland", "parathyroid gland", "thyroid", "adrenal medulla ", "adrenal cortex", "pancreas", "carotid body", "neuroendocrine", "testis", "prostate", "ovary", "vulva", "uterus", "kidney", "bladder", "oviduct", "iris", "pupil", "larynx", "trachea", "lung", "nose", "transitional epithelium", "mesothelium", "heart", "widespread"}
 	return g
 }
 
