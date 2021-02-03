@@ -41,6 +41,20 @@
       <input type="checkbox" name="Approved">
       <label for="Approved">Calculate neoplasia prevalence using only records from approved zoos.</label>
     </div>
+    <p></p>
+    <div>
+      <input type="radio" name="Necropsy" value="all" checked="checked">
+      <label for="Necropsy">Extract necropsy and non-necropsy records.</label>
+    </div>
+    <div>
+      <input type="radio" name="Necropsy" value="necropsyonly">
+      <label for="Necropsy">Extract only necropsy records.</label>
+    </div>
+    <div>
+      <input type="radio" name="Necropsy" value="nonnecropsy">
+      <label for="Nonnecropsy">Extract only records which were not necropsied.</label>
+    </div>
+    <p></p>
     {{template "searchoptions"}}
     {{template "buttonbox"}}
   </form>

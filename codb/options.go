@@ -18,7 +18,7 @@ type Options struct {
 	Lifehistory bool
 	Location    string
 	Min         int
-	Necropsy    bool
+	Necropsy    string
 	Operation   string
 	Print       bool
 	Taxa        string

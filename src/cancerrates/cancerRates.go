@@ -26,7 +26,7 @@ type cancerRates struct {
 	logger   *log.Logger
 	min      int
 	nas      []string
-	nec      bool
+	nec      int
 	rates    *dataframe.Dataframe
 	Records  map[string]*Species
 	species  int
@@ -34,7 +34,7 @@ type cancerRates struct {
 	total    string
 }
 
-func NewCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, appr bool, location string) *cancerRates {
+func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, appr bool, location string) *cancerRates {
 	// Returns initialized cancerRates struct
 	c := new(cancerRates)
 	c.approval = simpleset.NewStringSet()
@@ -98,6 +98,19 @@ func (c *cancerRates) formatRates() {
 	}
 }
 
+func (c *cancerRates) checkNecropsy(v string) bool {
+	// Returns if records should be processed
+	var ret bool
+	if c.nec == 0 {
+		ret = true
+	} else if c.nec == 1 && v == "1" {
+		ret = true
+	} else if c.nec == -1 && v != "1" {
+		ret = true
+	}
+	return ret
+}
+
 func (c *cancerRates) CountRecords() {
 	// Counts Patient records
 	source := codbutils.ToMap(c.db.GetColumns("Source", []string{"ID", "service_name", "account_id"}))
@@ -112,7 +125,7 @@ func (c *cancerRates) CountRecords() {
 			if c.infant || i[3] != "1" {
 				diag := diagnosis[id]
 				// Subset necropsy records if nec == true
-				if !c.nec || diag[1] == "1" {
+				if c.checkNecropsy(diag[1]) {
 					acc := source[id]
 					if acc[0] != "MSU" || diag[0] == "1" {
 						// Add non-cancer values (skips non-cancer msu records)
@@ -176,7 +189,7 @@ func (c *cancerRates) GetTaxa(eval string) {
 	c.addDenominators()
 }
 
-func GetCancerRates(db *dbIO.DBIO, min int, nec, inf, lh, appr bool, eval, location string) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, appr bool, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
 	c := NewCancerRates(db, min, nec, inf, lh, appr, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)

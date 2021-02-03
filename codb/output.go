@@ -24,14 +24,12 @@ type HTMLTable struct {
 	Body   []TableRow
 }
 
-func (o *Output) formatTable(header []string, table [][]string) {
-	// Formats slice into table for display in a browser
-	o.Table.Header = header
-	for _, i := range table {
-		var c TableRow
-		c.Cells = i
-		o.Table.Body = append(o.Table.Body, c)
-	}
+func newFlash(w http.ResponseWriter, msg string) *Output {
+	// Returns output with flash error message
+	var o Output
+	o.w = w
+	o.Flash = msg
+	return &o
 }
 
 type Output struct {
@@ -66,12 +64,14 @@ func newOutput(w http.ResponseWriter, r *http.Request, user, pw, ut string) (*Ou
 	return o, err
 }
 
-func newFlash(w http.ResponseWriter, msg string) *Output {
-	// Returns output with flash error message
-	var o Output
-	o.w = w
-	o.Flash = msg
-	return &o
+func (o *Output) formatTable(header []string, table [][]string) {
+	// Formats slice into table for display in a browser
+	o.Table.Header = header
+	for _, i := range table {
+		var c TableRow
+		c.Cells = i
+		o.Table.Body = append(o.Table.Body, c)
+	}
 }
 
 func (o *Output) getTempFile(name string) {
@@ -112,11 +112,18 @@ func (o *Output) lifeHistorySummary() {
 func (o *Output) neoplasiaPrevalence() {
 	// Performs cancer rate calculations
 	var eval string
+	var necropsy int
 	opt := setOptions(o.r)
 	if opt.Taxa != "" && opt.Operation != "" && opt.Value != "" {
 		eval = opt.Taxa + opt.Operation + opt.Value
 	}
-	res := cancerrates.GetCancerRates(o.db, opt.Min, opt.Necropsy, opt.Infant, opt.Lifehistory, opt.Approved, eval, opt.Location)
+	switch opt.Necropsy {
+	case "necropsyonly":
+		necropsy = 1
+	case "nonnecropsy":
+		necropsy = -1
+	}
+	res := cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Approved, eval, opt.Location)
 	if opt.Location == "" {
 		// Use location as file name stem
 		opt.Location = "neoplasiaPrevalence"
