@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Required().String()
-	user    = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Required().String()
+	necropsy = kingpin.Flag("necropsy", "2: extract only necropsy records, 0: extract only non-necropsy records.").Short('n').Default("1").Int()
+	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Required().String()
+	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Required().String()
 )
 
 type record struct {
@@ -75,6 +76,7 @@ type gimerger struct {
 }
 
 func newGImerger() *gimerger {
+	*necropsy--
 	g := new(gimerger)
 	g.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
 	g.gi = []string{"liver", "bile duct", "gall bladder", "stomach", "small intestine", "colon", "esophagus", "oral", "duodenum", "abdomen"}
@@ -90,7 +92,7 @@ func (g *gimerger) setTissues() {
 	for idx, list := range [][]string{g.gi, g.tissues} {
 		for _, i := range list {
 			fmt.Printf("\tCalculating rates for %s...\n", i)
-			c := cancerrates.NewCancerRates(g.db, 1, false, false, true, false, i)
+			c := cancerrates.NewCancerRates(g.db, 1, *necropsy, false, true, false, i)
 			c.GetTaxa("")
 			c.CountRecords()
 			for k, v := range c.Records {
