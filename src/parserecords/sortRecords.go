@@ -41,7 +41,7 @@ func (e *entries) sortLine(wg *sync.WaitGroup, mut *sync.RWMutex, debug bool, ou
 	write := false
 	rec := newRecord()
 	var idx int
-	if e.col.common >= 0 {
+	if e.col.common >= 0 && line[e.col.common] != "NA" {
 		// Get common name if present
 		idx = e.col.common
 	} else if e.col.species >= 0 {
