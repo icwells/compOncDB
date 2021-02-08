@@ -15,6 +15,24 @@
 {{end}}
 
 <section class="content">
+
+<div name="services">
+  <h1 id="subheader">Service Names</h1>
+  <hr>
+  <table>
+    <tr><th>Service Code</th><th>Service Name</th></tr>
+    <tr><td>DLC</td><td>Duke Lemur Center</td></tr>
+    <tr><td>LZ</td><td>London Zoo</td></tr>
+    <tr><td>MSU</td><td>Michigan State University</td></tr>
+    <tr><td>NWZP</td><td>Northwest ZooPath</td></tr>
+    <tr><td>SDZ</td><td>San Diego Zoo</td></tr>
+    <tr><td>SNZ</td><td>Smithsonian National Zoo</td></tr>
+    <tr><td>WZ</td><td>Whipsnade Zoo</td></tr>
+    <tr><td>ZEPS</td><td>Zoo/Exotic Pathology Service (Drury)</td></tr>
+  </table>
+</div>
+
+<div name="neoplasiaPrevalence">
   {{if .Flash}}
     <div class="flash">{{.Flash}}</div>
   {{end}}
@@ -44,6 +62,7 @@
     <tr><td>Necropsies</td><td>Number of necrpsied records from databases which include non-neoplasia records.</td></tr>
     <tr><td>#Sources</td><td>Number of unique sources from all databases for that species.</td></tr>
   </table>
+</div>
 </section>
 {{template "footer"}}
 {{end}}

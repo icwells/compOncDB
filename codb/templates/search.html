@@ -1,7 +1,12 @@
 {{define "cancerrate"}}
 <div id="Rates" class="hide">
   <h2>Calculate neoplasia prevalence</h2>
-  <p>An explanation of the results file can be found <a href="/codb/tutorial/" target="_blank">here</a>.</p>
+  <div class="tab">
+    <p>
+      A list of service names and codes can be found <a href="/codb/tutorial/#services" target="_blank">here</a>.<br>
+      An explanation of the results file can be found <a href="/codb/tutorial/#neoplasiaPrevalence" target="_blank">here</a>.
+    </p>
+  </div>
   <form method="POST" action="/codb/prevalence/">
     <label for="Taxa">Taxonomic level to subset neoplasia prevalence by:</label>
 	<div>
@@ -65,6 +70,7 @@
 {{define "search"}}
 <div id="Search" class="hide">
   <h2>Search Database</h2>
+  <p class="tab">A list of service names and codes can be found <a href="/codb/tutorial/#services" target="_blank">here</a>.</p>
   <form method="POST" action="/codb/results/">
     <p>Enter the name of table containing target value, the columns containing the value, the operation to perform, and the value to search for. 
 See <a href="/static/databaseSchema.pdf" target="_blank">this diagram</a> for column names.</p>
