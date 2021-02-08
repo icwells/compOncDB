@@ -15,6 +15,17 @@ import (
 
 var TID = "taxa_id"
 
+func checkService(service, masspresent string) bool {
+	// Returns true if record should be counted (skips non-cancer msu and national zoo records)
+	var ret bool
+	if masspresent == "1" {
+		ret = true
+	} else if service != "MSU" && service != "SNZ" {
+		ret = true
+	}
+	return ret
+}
+
 type cancerRates struct {
 	approval *simpleset.Set
 	approved bool
@@ -127,7 +138,7 @@ func (c *cancerRates) CountRecords() {
 				// Subset necropsy records if nec == true
 				if c.checkNecropsy(diag[1]) {
 					acc := source[id]
-					if acc[0] != "MSU" || diag[0] == "1" {
+					if checkService(acc[0], diag[0]) {
 						// Add non-cancer values (skips non-cancer msu records)
 						s.addNonCancer(i[2], i[1], diag[1], acc[0], acc[1])
 					}

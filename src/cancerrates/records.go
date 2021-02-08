@@ -99,7 +99,7 @@ func (r *Record) cancerMeasures(age, sex, mal, service string) {
 	} else if mal == "0" {
 		r.bentotal++
 	}
-	if service != "MSU" {
+	if checkService(service, "") {
 		r.cancer++
 		f, err := strconv.ParseFloat(age, 64)
 		if err == nil && f >= 0.0 {
@@ -122,7 +122,7 @@ func (r *Record) cancerMeasures(age, sex, mal, service string) {
 func (r *Record) nonCancerMeasures(age, sex, nec, service, aid string) {
 	// Adds non-cancer meaures
 	r.grandtotal++
-	if service != "MSU" {
+	if checkService(service, "") {
 		// Add to total and grandtotal
 		r.total++
 		f, err := strconv.ParseFloat(age, 64)
