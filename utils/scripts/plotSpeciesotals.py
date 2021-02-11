@@ -12,7 +12,7 @@ class SpeciesTotals():
 		unixpath.checkFile(args.a)
 		unixpath.checkFile(args.n)
 		pyplot.style.use("seaborn-deep")
-		self.bins = 10
+		self.bins = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 		self.col = "RecordsWithDenominators"
 		self.label = ["all records", "necropsies"]
 		self.legend = "upper right"
@@ -42,7 +42,10 @@ class SpeciesTotals():
 			if not first:
 				n = int(i[header[self.col]])
 				if self.min <= n <= self.max:
-					l.append(n)
+					for j in self.bins:
+						if n >= j:
+							# Append value for each cutoff less than value
+							l.append(j)
 			else:
 				header = i
 				first = False
