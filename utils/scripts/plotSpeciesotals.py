@@ -12,7 +12,7 @@ class SpeciesTotals():
 		unixpath.checkFile(args.a)
 		unixpath.checkFile(args.n)
 		pyplot.style.use("seaborn-deep")
-		self.bins = [20, 30, 40, 50, 60, 70, 80, 90, 100]
+		self.bins = [20, 30, 40, 50, 60, 70, 80, 90, 100, 110]
 		self.col = "RecordsWithDenominators"
 		self.label = ["all records", "necropsies"]
 		self.legend = "upper right"
@@ -27,7 +27,7 @@ class SpeciesTotals():
 		# Plots counts and writes to csv
 		print("\tPlotting species counts...")
 		fig, ax = pyplot.subplots(nrows = 1, ncols = 1)
-		ax.hist([self.all, self.necropsy], self.bins, label = self.label)
+		ax.hist([self.all, self.necropsy], 10, label = self.label)
 		ax.set(title = "Species Totals", ylabel = "Number of Species", xlabel = "Total Records with Denominators")
 		ax.set_xlim(self.min, self.max)
 		ax.legend(loc=self.legend)
@@ -41,7 +41,7 @@ class SpeciesTotals():
 		for i in unixpath.readFile(infile, header = True, d = ","):
 			if not first:
 				n = int(i[header[self.col]])
-				if self.min <= n <= self.max:
+				if self.min < n:
 					for j in self.bins:
 						if n >= j:
 							# Append value for each cutoff less than value
@@ -49,7 +49,7 @@ class SpeciesTotals():
 			else:
 				header = i
 				first = False
-		l.sort()
+#		l.sort()
 		return l
 
 def main():
