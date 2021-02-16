@@ -130,8 +130,24 @@ func TestCancerRates(t *testing.T) {
 	// Tests taxonomy search output
 	db := connectToDatabase()
 	rates := cancerrates.GetCancerRates(db, 1, 0, false, false, false, "", "")
-	//rates.DeleteRow("total")
 	compareTables(t, "Cancer Rates", getExpectedRates(), rates)
+}
+
+func TestNecropsies(t *testing.T) {
+	// Tests necropsy filtering with full database
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
+	for _, val := range []int{-1, 1} {
+		rates := cancerrates.GetCancerRates(db, 1, val, false, false, false, "", "")
+		for _, idx := range rates.Index {
+			total, _ := rates.GetCellInt(idx, "RecordsWithDenominators")
+			nec, _ := rates.GetCellInt(idx, "Necropsy")
+			if val == 1 && total != nec {
+				t.Errorf("Total records %d does not equal necropsies: %d.", total, nec)
+			} else if nec != 0 {
+				t.Errorf("%d necropsies found in non-necropsies records.", nec)
+			}
+		}
+	}
 }
 
 func TestSearches(t *testing.T) {

@@ -91,6 +91,13 @@ testDataBase () {
 	go test $TSTDIR --run TestDelete $ARGS
 }
 
+testNecropsies () {
+	# Tests necropsy filtering with full database
+	echo ""
+	echo "Running black box tests on necropsy filtering..."
+	go test $TSTDIR --run TestNecropsies $ARGS
+}
+
 checkSource () {
 	# Runs go fmt/vet on source files (vet won't run in loop)
 	echo ""
@@ -118,6 +125,7 @@ helpText () {
 	echo "blackbox		Runs all black box tests (parse, upload, search, and update)."
 	echo "parse		Runs parseRecords black box tests."
 	echo "cancerrate	Runs cancer rate calculation black box tests."
+	echo "necropsy	Runs necropsy filtering black box tests."
 	echo "search	Runs white box tests on database search."
 	echo "db		Runs upload, search, update, and delete black box tests."
 	echo "fmt		Runs go fmt on all source files."
@@ -143,6 +151,9 @@ elif [ $1 = "parse" ]; then
 elif [ $1 = "cancerrate" ]; then
 	getUser
 	testCancerRates
+elif [ $1 = "necropsy" ]; then
+	getUser
+	testNecropsies
 elif [ $1 = "search" ]; then
 	getUser
 	testSearch
