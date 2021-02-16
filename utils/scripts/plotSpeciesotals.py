@@ -56,7 +56,7 @@ def main():
 	start = datetime.now()
 	parser = ArgumentParser("Plots histogram of species totals.")
 	parser.add_argument("-a", help = "Path to neoplasia prevalence file for all records.")
-	parser.add_argument("-n", help = "Path to neoplasia prevalence file for neoplasia records.")
+	parser.add_argument("-n", help = "Path to neoplasia prevalence file for necropsy records.")
 	s = SpeciesTotals(parser.parse_args())
 	s.plot()
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
