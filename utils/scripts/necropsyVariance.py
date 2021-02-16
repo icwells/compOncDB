@@ -91,7 +91,7 @@ class NecropsyVariance():
 		sd = str(self.sd)
 		print("\tWriting records to file...")
 		with open(self.outfile, "w") as out:
-			out.write("taxa_id,Species,TotalRecords,NonNecropsyRecords,NecropsyRecords,Difference,Significant,StandardDeviation\n")
+			out.write("taxa_id,Species,TotalRecords,NonNecropsyRecords,NecropsyRecords,Difference,Significance,StandardDeviation\n")
 			for k in self.records.keys():
 				row = [k]
 				row.extend(self.records[k].toList())
