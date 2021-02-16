@@ -9,9 +9,9 @@ import unixpath
 class Record():
 
 	def __init__(self, species):
-		self.difference = 0
-		self.other = 0
-		self.necropsy = 0
+		self.difference = None
+		self.other = None
+		self.necropsy = None
 		self.significant = 0
 		self.species = species
 
@@ -21,7 +21,8 @@ class Record():
 
 	def setDifference(self):
 		# Stores absolute value of difference between number of records
-		self.difference = abs(self.other - self.necropsy)
+		if self.other and self.necropsy:
+			self.difference = abs(self.other - self.necropsy)
 
 	def setOther(self, val):
 		# Stores non-necropsy total
@@ -55,14 +56,15 @@ class NecropsyVariance():
 		print("\tReading {}...".format(os.path.split(infile)[1]))
 		for i in unixpath.readFile(infile, header = True, d = ","):
 			if not first:
-				n = int(i[header[self.col]])
-				if self.min <= n:
+				total = int(i[header["RecordsWithDenominators"]])
+				if self.min < total:
 					tid = i[header["taxa_id"]]
 					if tid not in self.records.keys():
 						sp = i[header["Species"]]
 						if sp != "NA":
 							self.records[tid] = Record(sp)
 					if tid in self.records.keys():
+						n = int(i[header[self.col]])
 						if nec:
 							self.records[tid].setNecropsy(n)
 							# Calculate difference and store
@@ -81,10 +83,14 @@ class NecropsyVariance():
 		sd2 = self.sd * 2
 		print("\tFiltering records...")
 		for k in self.records.keys():
-			if self.records[k].difference > sd2:
+			if not self.records[k].difference:
+				rm.append(k)
+			elif self.records[k].difference > sd2:
 				self.records[k].significant = 2
 			elif self.records[k].difference > self.sd:
 				self.records[k].significant = 1
+		for k in rm:
+			self.records.pop(k)
 
 	def __write__(self):
 		# Writes records to file
@@ -93,10 +99,11 @@ class NecropsyVariance():
 		with open(self.outfile, "w") as out:
 			out.write("taxa_id,Species,TotalRecords,NonNecropsyRecords,NecropsyRecords,Difference,Significance,StandardDeviation\n")
 			for k in self.records.keys():
-				row = [k]
-				row.extend(self.records[k].toList())
-				row.append(sd)
-				out.write(",".join(row) + "\n")
+				if self.records[k].significant > 0:
+					row = [k]
+					row.extend(self.records[k].toList())
+					row.append(sd)
+					out.write(",".join(row) + "\n")
 
 def main():
 	start = datetime.now()
