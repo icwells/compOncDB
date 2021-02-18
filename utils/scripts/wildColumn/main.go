@@ -61,6 +61,6 @@ func main() {
 	kingpin.Parse()
 	w := newWildColumn()
 	w.setWildColumn()
-	//w.upload()
+	w.upload()
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }
