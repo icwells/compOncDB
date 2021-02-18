@@ -78,7 +78,7 @@ func (s *searcher) setTaxaIDs() {
 	// Stores taxa ids from patient results
 	s.taxaids.Clear()
 	for _, v := range s.res {
-		s.taxaids.Add(v[4])
+		s.taxaids.Add(v[5])
 	}
 }
 

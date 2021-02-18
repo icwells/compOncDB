@@ -77,9 +77,9 @@ func getCanisResults() *dataframe.Dataframe {
 	// Returns map of results for male canis records
 	s := [][]string{
 		codbutils.RecordsHeader(),
-		{"3", "male", "24", "0", "-1", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "-1", "1"},
-		{"12", "male", "60", "0", "-1", "2", "12", "wolf", "NA", "1990", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "-1", "2"},
-		{"17", "male", "144", "0", "1", "2", "17", "GRAY WOLF", "NA", "2016", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "-1", "2"},
+		{"3", "male", "24", "0", "-1", "0", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "-1", "1"},
+		{"12", "male", "60", "0", "-1", "0", "2", "12", "wolf", "NA", "1990", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "-1", "2"},
+		{"17", "male", "144", "0", "1", "0", "2", "17", "GRAY WOLF", "NA", "2016", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "-1", "2"},
 	}
 	return setDF(0, s)
 }
@@ -88,7 +88,7 @@ func getCoyoteResults() *dataframe.Dataframe {
 	// Returns map of coyote records
 	s := [][]string{
 		codbutils.RecordsHeader(),
-		{"3", "male", "24", "0", "-1", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "-1", "1"},
+		{"3", "male", "24", "0", "-1", "0", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "-1", "1"},
 	}
 	return setDF(0, s)
 }

@@ -42,6 +42,7 @@ Sex TEXT
 Age DECIMAL(6,2)
 Infant TINYINT
 Castrated TINYINT
+Wild TINYINT
 taxa_id INT
 source_id TEXT
 source_name TEXT

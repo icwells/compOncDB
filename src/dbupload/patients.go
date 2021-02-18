@@ -132,6 +132,7 @@ func formatAge(age string) string {
 func (e *entries) addPatient(id, taxaid, age string, row []string) {
 	// Formats patient data for upload
 	infant := "-1"
+	wild := "0"
 	if strings.Contains(row[e.col["ID"]], "NA") == true {
 		// Make sure source ID is an integer
 		row[e.col["ID"]] = "-1"
@@ -139,8 +140,11 @@ func (e *entries) addPatient(id, taxaid, age string, row []string) {
 	if e.dbset {
 		infant = e.infant.SetInfant(taxaid, age, row[e.col["Comments"]])
 	}
+	if strings.Contains(strings.ToLower(row[e.col["Comments"]]), "wild caught") {
+		wild = "1"
+	}
 	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
-	p := []string{id, row[e.col["Sex"]], age, infant, row[e.col["Castrated"]], taxaid, row[e.col["ID"]], row[e.col["Name"]], row[e.col["Date"]], row[e.col["Year"]], row[e.col["Comments"]]}
+	p := []string{id, row[e.col["Sex"]], age, infant, row[e.col["Castrated"]], wild, taxaid, row[e.col["ID"]], row[e.col["Name"]], row[e.col["Date"]], row[e.col["Year"]], row[e.col["Comments"]]}
 	e.p = append(e.p, p)
 }
 

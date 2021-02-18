@@ -10,8 +10,8 @@ class Record():
 
 	def __init__(self, species):
 		self.difference = None
-		self.other = None
-		self.necropsy = None
+		self.other = 0
+		self.necropsy = 0
 		self.significant = 0
 		self.species = species
 
@@ -21,8 +21,7 @@ class Record():
 
 	def setDifference(self):
 		# Stores absolute value of difference between number of records
-		if self.other and self.necropsy:
-			self.difference = abs(self.other - self.necropsy)
+		self.difference = abs(self.other - self.necropsy)
 
 	def setOther(self, val):
 		# Stores non-necropsy total
@@ -99,11 +98,10 @@ class NecropsyVariance():
 		with open(self.outfile, "w") as out:
 			out.write("taxa_id,Species,TotalRecords,NonNecropsyRecords,NecropsyRecords,Difference,Significance,StandardDeviation\n")
 			for k in self.records.keys():
-				if self.records[k].significant > 0:
-					row = [k]
-					row.extend(self.records[k].toList())
-					row.append(sd)
-					out.write(",".join(row) + "\n")
+				row = [k]
+				row.extend(self.records[k].toList())
+				row.append(sd)
+				out.write(",".join(row) + "\n")
 
 def main():
 	start = datetime.now()
