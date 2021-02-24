@@ -15,8 +15,10 @@ import (
 )
 
 var (
+	min      = kingpin.Flag("min", "Minimum number of records required for cancer rates.").Default("1").Int()
 	necropsy = kingpin.Flag("necropsy", "2: extract only necropsy records, 0: extract only non-necropsy records.").Short('n').Default("1").Int()
 	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Required().String()
+	repro    = kingpin.Flag("repro", "Extract reproductive tissues instead of gi tract.").Default("false").Bool()
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Required().String()
 )
 
@@ -37,7 +39,11 @@ func (r *record) addGI(s *cancerrates.Species) {
 	// Adds s.tissue to gi tract
 	if !r.giset {
 		r.gi = s
-		r.gi.Location = "gi tract"
+		if *repro {
+			r.gi.Location = "reproductive"
+		} else {
+			r.gi.Location = "gi tract"
+		}
 		r.giset = true
 	} else {
 		r.gi.AddTissue(s)
@@ -71,6 +77,7 @@ type gimerger struct {
 	db      *dbIO.DBIO
 	gi      []string
 	records []*record
+	repro   []string
 	taxa    map[string]*record
 	tissues []string
 }
@@ -80,9 +87,15 @@ func newGImerger() *gimerger {
 	g := new(gimerger)
 	g.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
 	g.gi = []string{"liver", "bile duct", "gall bladder", "stomach", "small intestine", "colon", "esophagus", "oral", "duodenum", "abdomen"}
+	g.repro = []string{"testis", "prostate", "ovary", "vulva", "uterus"}
 	g.taxa = make(map[string]*record)
-	g.tissues = []string{"fibrous", "myxomatous tissue", "fat", "notochord", "smooth muscle", "striated muscle", "peripheral nerve sheath", "blood", "cartilage", "synovium", "bone", "bone marrow",
-		"lymph nodes", "spleen", "mast cell", "dendritic cell", "pigment cell", "skin", "hair follicle", "gland", "mammary", "glial cell", "meninges", "nerve cell", "pnet", "neuroepithelial", "spinal cord", "brain", "pituitary gland", "parathyroid gland", "thyroid", "adrenal medulla ", "adrenal cortex", "pancreas", "carotid body", "neuroendocrine", "testis", "prostate", "ovary", "vulva", "uterus", "kidney", "bladder", "oviduct", "iris", "pupil", "larynx", "trachea", "lung", "nose", "transitional epithelium", "mesothelium", "heart", "widespread"}
+	g.tissues = []string{"fibrous", "myxomatous tissue", "fat", "notochord", "smooth muscle", "striated muscle", "peripheral nerve sheath", "blood", "cartilage", "synovium", "bone", "bone marrow", "lymph nodes", "spleen", "mast cell", "dendritic cell", "pigment cell", "skin", "hair follicle", "gland", "mammary", "glial cell", "meninges", "nerve cell", "pnet", "neuroepithelial", "spinal cord", "brain", "pituitary gland", "parathyroid gland", "thyroid", "adrenal medulla ", "adrenal cortex", "pancreas", "carotid body", "neuroendocrine", "kidney", "bladder", "oviduct", "iris", "pupil", "larynx", "trachea", "lung", "nose", "transitional epithelium", "mesothelium", "heart", "widespread"}
+	if *repro {
+		g.tissues = append(g.tissues, g.gi...)
+		g.gi = g.repro
+	} else {
+		g.tissues = append(g.tissues, g.repro...)
+	}
 	return g
 }
 
@@ -92,7 +105,7 @@ func (g *gimerger) setTissues() {
 	for idx, list := range [][]string{g.gi, g.tissues} {
 		for _, i := range list {
 			fmt.Printf("\tCalculating rates for %s...\n", i)
-			c := cancerrates.NewCancerRates(g.db, 1, *necropsy, false, true, false, i)
+			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, i)
 			c.GetTaxa("")
 			c.CountRecords()
 			for k, v := range c.Records {
@@ -127,7 +140,9 @@ func (g *gimerger) sort() {
 	// Sorts records slice by number of records
 	fmt.Println("\tSorting results...")
 	for _, v := range g.taxa {
-		g.records = append(g.records, v)
+		if v.gi.Grandtotal >= *min {
+			g.records = append(g.records, v)
+		}
 	}
 	sort.Sort(g)
 }
