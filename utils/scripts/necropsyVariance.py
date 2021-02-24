@@ -2,51 +2,77 @@
 
 from argparse import ArgumentParser
 from datetime import datetime
-from numpy import std
+from math import sqrt
 import os
 import unixpath
 
 class Record():
 
-	def __init__(self, species):
-		self.difference = None
-		self.other = 0
-		self.necropsy = 0
-		self.significant = 0
-		self.species = species
+	def __init__(self, records, cancer, prev):
+		self.cancer = cancer
+		self.prevalence = prev
+		self.records = records
 
 	def toList(self):
 		# Returns list of record values
-		return [self.species, str(self.other + self.necropsy), str(self.other), str(self.necropsy), str(self.difference), str(self.significant)]
+		return [str(self.records), str(self.cancer), str(self.prevalence)]
 
-	def setDifference(self):
+class Species():
+
+	def __init__(self, species):
+		self.necropsy = None
+		self.other = None
+		self.significance = None
+		self.significant = 0
+		self.species = species
+		self.total = 0
+
+	def toList(self):
+		# Returns list of record values
+		ret = [self.species, str(self.total)]
+		ret.extend(self.necropsy.toList())
+		ret.extend(self.other.toList())
+		ret.append(str(self.significance))
+		ret.append(str(self.significant))
+		return ret
+
+	def setSignificance(self):
 		# Stores absolute value of difference between number of records
-		self.difference = abs(self.other - self.necropsy)
+		self.total = self.necropsy.records + self.other.records
+		if self.necropsy.cancer < self.other.cancer:
+			n = self.necropsy.cancer
+			p = self.necropsy.prevalence
+			x = self.other.prevalence
+		else:
+			n = self.other.cancer
+			p = self.other.prevalence
+			x = self.necropsy.prevalence
+		self.significance = 2 * sqrt(n * p * (1 - p))
+		if x > self.significance + p:
+			self.significant = 1
 
-	def setOther(self, val):
+	def setOther(self, records, cancer, prev):
 		# Stores non-necropsy total
-		self.other = val
+		if cancer > 0:
+			self.other = Record(records, cancer, prev)
 
-	def setNecropsy(self, val):
+	def setNecropsy(self, records, cancer, prev):
 		# Stores necropsy total
-		self.necropsy = val		
+		if cancer > 0:
+			self.necropsy = Record(records, cancer, prev)
 
 class NecropsyVariance():
 
 	def __init__(self, args):
 		for i in [args.i, args.n]:
 			unixpath.checkFile(i)
-		self.col = "RecordsWithDenominators"
 		self.min = 50
 		self.outfile = args.o
 		self.records = {}
-		self.variance = []
 		print()
 		self.__setCounts__(args.i, False)
 		self.__setCounts__(args.n, True)
-		# Calculate two standard deviations
-		self.sd = std(self.variance)
-		self.__filter___()
+		self.__filter__()
 		self.__write__()
 
 	def __setCounts__(self, infile, nec):
@@ -61,46 +87,40 @@ class NecropsyVariance():
 					if tid not in self.records.keys():
 						sp = i[header["Species"]]
 						if sp != "NA":
-							self.records[tid] = Record(sp)
+							self.records[tid] = Species(sp)
 					if tid in self.records.keys():
-						n = int(i[header[self.col]])
+						rec = self.records[tid]
+						n = int(i[header["NeoplasiaWithDenominators"]])
+						p = float(i[header["NeoplasiaPrevalence"]])
 						if nec:
-							self.records[tid].setNecropsy(n)
-							# Calculate difference and store
-							self.records[tid].setDifference()
-							if self.records[tid].difference:
-								self.variance.append(self.records[tid].difference)
+							rec.setNecropsy(total, n, p)
+							if rec.necropsy and rec.other:
+								# Calculate significance and store
+								rec.setSignificance()
 						else:
-							self.records[tid].setOther(n)
+							rec.setOther(total, n, p)
 			else:
 				header = i
 				first = False
 
-	def __filter___(self):
-		# Identifies species with significant deviations in necropsy/non-necropsy counts
+	def __filter__(self):
+		# Removes species which are missing a records class
 		rm = []
-		sd2 = self.sd * 2
-		print("\tFiltering records...")
 		for k in self.records.keys():
-			if not self.records[k].difference:
+			r = self.records[k]
+			if not r.necropsy or not r.other:
 				rm.append(k)
-			elif self.records[k].difference > sd2:
-				self.records[k].significant = 2
-			elif self.records[k].difference > self.sd:
-				self.records[k].significant = 1
 		for k in rm:
 			self.records.pop(k)
 
 	def __write__(self):
 		# Writes records to file
-		sd = str(self.sd)
 		print("\tWriting records to file...")
 		with open(self.outfile, "w") as out:
-			out.write("taxa_id,Species,TotalRecords,NonNecropsyRecords,NecropsyRecords,Difference,Significance,StandardDeviation\n")
+			out.write("taxa_id,Species,TotalRecords,NecropsyRecords,NecropsyNeoplasia,NecropsyPrevalence,NonNecropsyRecords,NonNecropsyNeoplasia,NonNecropsyPrevalence,Variance,Significant\n")
 			for k in self.records.keys():
 				row = [k]
 				row.extend(self.records[k].toList())
-				row.append(sd)
 				out.write(",".join(row) + "\n")
 
 def main():
