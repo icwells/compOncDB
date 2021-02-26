@@ -24,7 +24,7 @@ class Species():
 		self.id = tid
 		self.necropsy = None
 		self.other = None
-		self.significance = 0
+		self.difference = 0
 		self.significant = 0
 		self.variance = None
 		self.species = species
@@ -36,13 +36,14 @@ class Species():
 		ret.extend(self.necropsy.toList())
 		ret.extend(self.other.toList())
 		ret.append(str(self.variance))
-		ret.append(str(self.significance))
+		ret.append(str(self.difference))
 		ret.append(str(self.significant))
 		return ret
 
 	def setSignificance(self):
 		# Stores absolute value of difference between number of records
 		self.total = self.necropsy.records + self.other.records
+		self.difference = abs(self.necropsy.prevalence - self.other.prevalence)
 		if self.necropsy.cancer > self.other.cancer:
 			n = self.necropsy.cancer
 			p = self.necropsy.prevalence
@@ -52,10 +53,8 @@ class Species():
 			p = self.other.prevalence
 			x = self.necropsy.prevalence
 		self.variance = 2 * sqrt(n * p * (1 - p))
-		if self.variance > 0:
-			self.significance = x - (self.variance + p)
-			if x > 0:
-				self.significant = 1
+		if self.variance > 0 and x > (self.variance + p):
+			self.significant = 1
 
 	def setOther(self, records, cancer, prev):
 		# Stores non-necropsy total
@@ -116,14 +115,14 @@ class NecropsyVariance():
 			r = self.records[k]
 			if r.necropsy and r.other:
 				self.rows.append(self.records[k])
-		self.rows.sort(key=operator.attrgetter("significance"))
+		self.rows.sort(key=operator.attrgetter("difference"), reverse=True)
 
 	def __write__(self):
 		# Writes records to file
 		print("\tWriting records to file...")
 		with open(self.outfile, "w") as out:
 			out.write("taxa_id,Species,TotalRecords,NecropsyRecords,NecropsyNeoplasia,NecropsyPrevalence,NonNecropsyRecords,\
-NonNecropsyNeoplasia,NonNecropsyPrevalence,Variance,Significance,Significant\n")
+NonNecropsyNeoplasia,NonNecropsyPrevalence,Variance,Difference,Significant\n")
 			for i in self.rows:
 				out.write(",".join(i.toList()) + "\n")
 
