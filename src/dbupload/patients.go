@@ -42,12 +42,14 @@ type entries struct {
 	t         [][]string
 	taxa      map[string]string
 	unmatched [][]string
+	wild      []string
 }
 
 func newEntries(db *dbIO.DBIO, test bool) *entries {
 	// Initializes new struct
 	e := new(entries)
 	e.logger = codbutils.GetLogger()
+	e.wild = []string{"wild caught", "free rang"}
 	if db != nil {
 		e.count = db.GetMax("Patient", "ID")
 		e.accounts = codbutils.MapOfMaps(db.GetTable("Accounts"))
@@ -140,8 +142,12 @@ func (e *entries) addPatient(id, taxaid, age string, row []string) {
 	if e.dbset {
 		infant = e.infant.SetInfant(taxaid, age, row[e.col["Comments"]])
 	}
-	if strings.Contains(strings.ToLower(row[e.col["Comments"]]), "wild caught") {
-		wild = "1"
+	comment := row[e.col["Comments"]]
+	for _, i := range e.wild {
+		if strings.Contains(comment, i) {
+			wild = "1"
+			break
+		}
 	}
 	// ID, Sex, Age, Castrated, taxa_id, source_id, Species, Date, Comments
 	p := []string{id, row[e.col["Sex"]], age, infant, row[e.col["Castrated"]], wild, taxaid, row[e.col["ID"]], row[e.col["Name"]], row[e.col["Date"]], row[e.col["Year"]], row[e.col["Comments"]]}

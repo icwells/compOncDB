@@ -16,7 +16,8 @@ var user = kingpin.Flag("user", "MySQL username (default is root).").Short('u').
 type wildColumn struct {
 	db      *dbIO.DBIO
 	records map[string]string
-	patient map[string]string
+	patient map[string][]string
+	terms   []string
 }
 
 func newWildColumn() *wildColumn {
@@ -25,7 +26,8 @@ func newWildColumn() *wildColumn {
 	w.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
 	fmt.Println("\n\tInitializing struct...")
 	w.records = make(map[string]string)
-	w.patient = codbutils.EntryMap(w.db.GetColumns("Patient", []string{"Comments", "ID"}))
+	w.patient = codbutils.ToMap(w.db.GetColumns("Patient", []string{"ID", "Comments", "Wild"}))
+	w.terms = []string{"wild caught", "free rang"}
 	return w
 }
 
@@ -35,11 +37,17 @@ func (w *wildColumn) setWildColumn() {
 	fmt.Println("\tIdentifying wild caught records...")
 	for k, v := range w.patient {
 		val := "0"
-		if strings.Contains(strings.ToLower(v), "wild caught") {
-			val = "1"
-			count++
+		comment := strings.ToLower(v[0])
+		for _, i := range w.terms {
+			if strings.Contains(comment, i) {
+				val = "1"
+				break
+			}
 		}
-		w.records[k] = val
+		if val != v[1] {
+			count++
+			w.records[k] = val
+		}
 	}
 	fmt.Printf("\tFound %d wild records.\n", count)
 }
