@@ -4,7 +4,6 @@ package main
 
 import (
 	"flag"
-	"github.com/icwells/compOncDB/src/cancerrates"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
@@ -122,30 +121,6 @@ func TestFilterPatients(t *testing.T) {
 	for k := range db.Columns {
 		if k != "Unmatched" && k != "Update_time" {
 			compareTables(t, k, exp[k], tableToDF(db, k))
-		}
-	}
-}
-
-func TestCancerRates(t *testing.T) {
-	// Tests taxonomy search output
-	db := connectToDatabase()
-	rates := cancerrates.GetCancerRates(db, 1, 0, false, false, false, "", "")
-	compareTables(t, "Cancer Rates", getExpectedRates(), rates)
-}
-
-func TestNecropsies(t *testing.T) {
-	// Tests necropsy filtering with full database
-	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-	for _, val := range []int{-1, 1} {
-		rates := cancerrates.GetCancerRates(db, 1, val, false, false, false, "", "")
-		for _, idx := range rates.Index {
-			total, _ := rates.GetCellInt(idx, "RecordsWithDenominators")
-			nec, _ := rates.GetCellInt(idx, "Necropsy")
-			if val == 1 && total != nec {
-				t.Errorf("Total records %d does not equal necropsies: %d.", total, nec)
-			} else if nec != 0 {
-				t.Errorf("%d necropsies found in non-necropsies records.", nec)
-			}
 		}
 	}
 }

@@ -47,6 +47,7 @@ type cancerRates struct {
 
 func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, appr bool, location string) *cancerRates {
 	// Returns initialized cancerRates struct
+	idx := 0
 	c := new(cancerRates)
 	c.approval = simpleset.NewStringSet()
 	c.approved = appr
@@ -59,7 +60,11 @@ func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, appr bool, location st
 	c.min = min
 	c.nec = nec
 	c.setHeader()
-	c.rates, _ = dataframe.NewDataFrame(-1)
+	if location != "" {
+		// Don't store by index when repeated taxa_ids are present
+		idx = -1
+	}
+	c.rates, _ = dataframe.NewDataFrame(idx)
 	c.rates.SetHeader(c.header)
 	c.Records = make(map[string]*Species)
 	c.total = "total"
