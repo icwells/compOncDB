@@ -137,7 +137,7 @@ func (s *Species) addCancer(age, sex, nec, mal, loc, service, aid string) {
 func (s *Species) addNonCancer(age, sex, nec, service, aid string) {
 	// Adds non-cancer measures
 	s.total.nonCancerMeasures(age, sex, nec, service, aid)
-	s.Grandtotal += s.total.grandtotal
+	s.Grandtotal = s.total.grandtotal
 }
 
 func (s *Species) addDenominator(d int) {

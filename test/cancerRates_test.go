@@ -21,28 +21,29 @@ func TestNecropsies(t *testing.T) {
 	flag.Parse()
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	for _, val := range []int{-1, 1} {
+		var count int
+		name := "necropsies"
+		if val == -1 {
+			name = "non-" + name
+		}
 		rates := cancerrates.GetCancerRates(db, 1, val, false, false, false, "", "")
 		if rates.Length() == 0 {
 			t.Error("Necropsy dataframe length is 0.")
 			break
 		}
 		for idx := range rates.Rows {
-			total, err := rates.GetCellInt(idx, "RecordsWithDenominators")
-			nec, er := rates.GetCellInt(idx, "Necropsies")
-			if err != nil {
-				t.Error(err)
-				break
-			} else if er != nil {
-				t.Error(er)
-				break
-			}
+			total, _ := rates.GetCellInt(idx, "RecordsWithDenominators")
+			nec, _ := rates.GetCellInt(idx, "Necropsies")
 			if val == 1 && total != nec {
-				t.Errorf("Total records %d does not equal necropsies: %d.", total, nec)
-				break
-			} else if nec != 0 {
-				t.Errorf("%d necropsies found in non-necropsies records.", nec)
-				break
+				count++
+				//t.Errorf("Total records %d does not equal necropsies: %d.", total, nec)
+			} else if count == -1 && nec != 0 {
+				count++
+				//t.Errorf("%d necropsies found in non-necropsies records.", nec)
 			}
+		}
+		if count > 0 {
+			t.Errorf("Found %d species with incorrect number of records for %s.", count, name)
 		}
 	}
 }

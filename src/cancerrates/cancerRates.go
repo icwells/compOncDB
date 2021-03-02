@@ -139,21 +139,22 @@ func (c *cancerRates) CountRecords() {
 		if !c.approved || appr {
 			// Ignore infant records if infant flag not set
 			if c.infant || i[3] != "1" {
-				diag := diagnosis[id]
-				// Subset necropsy records if nec == true
-				if c.checkNecropsy(diag[1]) {
-					acc := source[id]
-					if checkService(acc[0], diag[0]) {
-						// Add non-cancer values (skips non-cancer msu records)
-						s.addNonCancer(i[2], i[1], diag[1], acc[0], acc[1])
-					}
-					if diag[0] == "1" {
-						if v, ex := tumor[id]; ex {
-							// Add tumor values
-							s.addCancer(i[2], i[1], diag[1], v[1], v[3], acc[0], acc[1])
-						} else {
-							// Add values where masspresent is known, but further diagnosis data is missing
-							s.addCancer(i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
+				if diag, ex := diagnosis[id]; ex {
+					// Subset necropsy records if nec == true
+					if c.checkNecropsy(diag[1]) {
+						acc := source[id]
+						if checkService(acc[0], diag[0]) {
+							// Add non-cancer values (skips non-cancer msu records)
+							s.addNonCancer(i[2], i[1], diag[1], acc[0], acc[1])
+						}
+						if diag[0] == "1" {
+							if v, ex := tumor[id]; ex {
+								// Add tumor values
+								s.addCancer(i[2], i[1], diag[1], v[1], v[3], acc[0], acc[1])
+							} else {
+								// Add values where masspresent is known, but further diagnosis data is missing
+								s.addCancer(i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
+							}
 						}
 					}
 				}
@@ -164,10 +165,12 @@ func (c *cancerRates) CountRecords() {
 
 func (c *cancerRates) addDenominators() {
 	// Adds fixed values from denominators table
-	for k, v := range codbutils.ToMap(c.db.GetRows("Denominators", TID, strings.Join(c.tids, ","), "*")) {
-		if _, ex := c.Records[k]; ex {
-			if t, err := strconv.Atoi(v[0]); err == nil {
-				c.Records[k].addDenominator(t)
+	if c.nec == 0 {
+		for k, v := range codbutils.ToMap(c.db.GetRows("Denominators", TID, strings.Join(c.tids, ","), "*")) {
+			if _, ex := c.Records[k]; ex {
+				if t, err := strconv.Atoi(v[0]); err == nil {
+					c.Records[k].addDenominator(t)
+				}
 			}
 		}
 	}
