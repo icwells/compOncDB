@@ -3,8 +3,56 @@
 package codbutils
 
 import (
+	"github.com/icwells/simpleset"
 	"strings"
 )
+
+type Services struct {
+	allrecords		*simpleset.Set
+	denominators	*simpleset.Set
+	nodenominators  *simpleset.Set	
+}
+
+func (s *Services) setServices(l []string) *simpleset.Set {
+	// Returns set of input slice
+	ret := simpleset.NewStringSet()
+	for _, i := range l {
+		ret.Add(i)
+	}
+	return ret
+}
+
+func NewServices() *Services {
+	// Returns new string
+	s := new(Services)
+	s.allrecords = s.setServices([]string{"DLC", "LZ", "NWZP", "SDZ", "WZ"})
+	s.denominators = s.setServices([]string{"ZEPS"})
+	s.nodenominators = s.setServices([]string{"MSU", "SNZ"})
+	return s
+}
+
+func (s *Services) AllRecords(name string) bool {
+	// Returns true if name is in allrecords
+	ret, _ := s.allrecords.InSet(name)
+	return ret
+}
+
+func (s *Services) HasDenominators(name string) bool {
+	// Returns true is name is in allrecords or denominators
+	ret, _ := s.allrecords.InSet(name)
+	if !ret {
+		ret, _ = s.denominators.InSet(name)
+	}
+	return ret
+}
+
+func (s *Services) NoDenominators(name string) bool {
+	// Returns true if name is in nodenominators
+	ret, _ := s.nodenominators.InSet(name)
+	return ret
+}
+
+//----------------------------------------------------------------------------
 
 type Headers struct {
 	Accounts []string

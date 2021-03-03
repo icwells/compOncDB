@@ -13,14 +13,15 @@ import (
 	"strings"
 )
 
-var TID = "taxa_id"
+var (
+	SERVICES = codbutils.NewServices()
+	TID      = "taxa_id"
+)
 
 func checkService(service, masspresent string) bool {
 	// Returns true if record should be counted (skips non-cancer msu and national zoo records)
 	var ret bool
-	if masspresent == "1" {
-		ret = true
-	} else if service != "MSU" && service != "SNZ" {
+	if masspresent == "1" || SERVICES.HasDenominators(service) {
 		ret = true
 	}
 	return ret
@@ -114,15 +115,15 @@ func (c *cancerRates) formatRates() {
 	}
 }
 
-func (c *cancerRates) checkNecropsy(v string) bool {
+func (c *cancerRates) checkNecropsy(service, nec string) bool {
 	// Returns if records should be processed
 	var ret bool
 	if c.nec == 0 {
 		ret = true
-	} else if c.nec == 1 && v == "1" {
-		ret = true
-	} else if c.nec == -1 && v != "1" {
-		ret = true
+	} else if c.nec == 1 && nec == "1" {
+		ret = SERVICES.AllRecords(service)
+	} else if c.nec == -1 && nec != "1" {
+		ret = SERVICES.AllRecords(service)
 	}
 	return ret
 }
@@ -140,9 +141,9 @@ func (c *cancerRates) CountRecords() {
 			// Ignore infant records if infant flag not set
 			if c.infant || i[3] != "1" {
 				if diag, ex := diagnosis[id]; ex {
-					// Subset necropsy records if nec == true
-					if c.checkNecropsy(diag[1]) {
-						acc := source[id]
+					acc := source[id]
+					// Compare record against necropsy settings
+					if c.checkNecropsy(acc[0], diag[1]) {
 						if checkService(acc[0], diag[0]) {
 							// Add non-cancer values (skips non-cancer msu records)
 							s.addNonCancer(i[2], i[1], diag[1], acc[0], acc[1])
