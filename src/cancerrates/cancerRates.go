@@ -92,11 +92,13 @@ func (c *cancerRates) formatRates() {
 		if v.total.total >= c.min {
 			var err error
 			for _, i := range v.ToSlice() {
-				// Add to dataframe
-				err = c.rates.AddRow(i)
-				if err != nil {
-					c.logger.Printf("Adding row to dataframe: %v\n", err)
-					break
+				if len(i) > 0 {
+					// Add to dataframe
+					err = c.rates.AddRow(i)
+					if err != nil {
+						c.logger.Printf("Adding row to dataframe: %v\n", err)
+						break
+					}
 				}
 			}
 			if err == nil {

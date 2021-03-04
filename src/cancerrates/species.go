@@ -151,7 +151,7 @@ func (s *Species) addNonCancer(age, sex, nec, service, aid string) {
 func (s *Species) addDenominator(masspresent, loc string) {
 	// Adds to tissue denominator if no cancer or a reported location
 	if masspresent == "1" {
-		if loc == "NA" || loc != "" {
+		if loc == "NA" || loc == "" {
 			s.notissue++
 		} else if strings.Contains(loc, ";") {
 			var found bool
