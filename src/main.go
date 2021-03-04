@@ -58,10 +58,12 @@ var (
 
 	cancerRates = kingpin.Command("cancerrates", "Calculate neoplasia prevalence for species.")
 	approved    = cancerRates.Flag("approved", "Calculate neoplasia prevalence using only records from approved zoos.").Default("false").Bool()
+	aza         = cancerRates.Flag("aza", "Calculate neoplasia prevalence using only records from AZA zoos.").Default("false").Bool()
 	lifehist    = cancerRates.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
 	location    = cancerRates.Flag("location", "Include tumor location summary for each species.").Default("").String()
 	min         = cancerRates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
 	nec         = cancerRates.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
+	zoo         = cancerRates.Flag("zoo", "Calculate neoplasia prevalence using only records from zoos.").Default("false").Bool()
 )
 
 func version() {
