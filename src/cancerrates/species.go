@@ -18,18 +18,19 @@ func emptySlice(n int) []string {
 }
 
 type Species struct {
-	denominator int
-	Grandtotal  int
-	id          string
-	infancy     float64
-	lifehistory []string
-	Location    string
-	locations   *simpleset.Set
-	notissue    int
-	taxonomy    []string
-	tissue      *Record
-	tissues     map[string]*Record
-	total       *Record
+	denominator  int
+	Grandtotal   int
+	id           string
+	infancy      float64
+	lifehistory  []string
+	Location     string
+	locationprop float64
+	locations    *simpleset.Set
+	notissue     int
+	taxonomy     []string
+	tissue       *Record
+	tissues      map[string]*Record
+	total        *Record
 }
 
 func newSpecies(id, location string, taxonomy []string) *Species {
@@ -37,6 +38,7 @@ func newSpecies(id, location string, taxonomy []string) *Species {
 	s := new(Species)
 	s.id = id
 	s.Location = location
+	s.locationprop = 0.05
 	s.locations = simpleset.NewStringSet()
 	s.taxonomy = taxonomy
 	s.tissue = newRecord()
@@ -76,19 +78,22 @@ func (s *Species) tissueSlice(name string, r *Record) []string {
 func (s *Species) ToSlice() [][]string {
 	// Formats cancer rates and returns row for tissue and total
 	var ret [][]string
-	s.denominator = s.total.total - s.notissue
-	total := append([]string{s.id}, s.taxonomy...)
-	total = append(total, "all")
-	total = append(total, s.total.calculateRates(-1, s.notissue)...)
-	if len(s.lifehistory) > 0 {
-		total = append(total, s.lifehistory...)
-	}
-	ret = append(ret, total)
-	if s.Location != "" {
-		ret = append(ret, s.tissueSlice(s.Location, s.tissue))
-		for k, v := range s.tissues {
-			if v.grandtotal > 0 {
-				ret = append(ret, s.tissueSlice(k, v))
+	if s.Location == "" || s.tissue.total > 0 || float64(s.notissue)/float64(s.total.cancer) > s.locationprop {
+		// Keep records with target tissue or at least 5% of records have locations
+		s.denominator = s.total.total - s.notissue
+		total := append([]string{s.id}, s.taxonomy...)
+		total = append(total, "all")
+		total = append(total, s.total.calculateRates(-1, s.notissue)...)
+		if len(s.lifehistory) > 0 {
+			total = append(total, s.lifehistory...)
+		}
+		ret = append(ret, total)
+		if s.Location != "" {
+			ret = append(ret, s.tissueSlice(s.Location, s.tissue))
+			for k, v := range s.tissues {
+				if v.grandtotal > 0 {
+					ret = append(ret, s.tissueSlice(k, v))
+				}
 			}
 		}
 	}
