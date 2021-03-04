@@ -162,7 +162,9 @@ func (c *cancerRates) CountRecords() {
 								s.addCancer(i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
 							}
 						}
-						s.addDenominator(diag[0], location)
+						if checkService(acc[0], "") {
+							s.addDenominator(diag[0], location)
+						}
 					}
 				}
 			}

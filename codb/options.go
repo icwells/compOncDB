@@ -13,7 +13,7 @@ import (
 type Options struct {
 	Approved    bool
 	AllTaxa     bool
-	Aza			bool
+	Aza         bool
 	Cancerrate  bool
 	Infant      bool
 	Lifehistory bool
@@ -24,7 +24,7 @@ type Options struct {
 	Print       bool
 	Taxa        string
 	Value       string
-	Zoo			bool
+	Zoo         bool
 }
 
 func setOptions(r *http.Request) *Options {

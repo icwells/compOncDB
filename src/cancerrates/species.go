@@ -3,7 +3,6 @@
 package cancerrates
 
 import (
-	"fmt"
 	"github.com/icwells/simpleset"
 	"sort"
 	"strings"
@@ -77,6 +76,7 @@ func (s *Species) tissueSlice(name string, r *Record) []string {
 func (s *Species) ToSlice() [][]string {
 	// Formats cancer rates and returns row for tissue and total
 	var ret [][]string
+	s.denominator = s.total.total - s.notissue
 	total := append([]string{s.id}, s.taxonomy...)
 	total = append(total, "all")
 	total = append(total, s.total.calculateRates(-1, s.notissue)...)
@@ -145,26 +145,21 @@ func (s *Species) addNonCancer(age, sex, nec, service, aid string) {
 
 func (s *Species) addDenominator(masspresent, loc string) {
 	// Adds to tissue denominator if no cancer or a reported location
-	var found bool
-	if masspresent != "1" {
-		s.denominator++
-		found = true
-	} else if loc != "NA" && loc != "" {
-		if strings.Contains(loc, ";") {
+	if masspresent == "1" {
+		if loc == "NA" || loc != "" {
+			s.notissue++
+		} else if strings.Contains(loc, ";") {
+			var found bool
 			for _, i := range strings.Split(loc, ";") {
 				if i != "NA" {
-					s.denominator++
 					found = true
 					break
 				}
 			}
+			if !found {
+				s.notissue++
+			}
 		}
-	}
-	if !found {
-		if masspresent != "1" {
-			fmt.Println(loc)
-		}
-		s.notissue++
 	}
 }
 

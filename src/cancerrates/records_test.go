@@ -62,7 +62,7 @@ func testRecords() []*Record {
 func getExpectedRecords() [][]string {
 	// Return slice of expected values
 	var expected [][]string
-					//"TotalRecords", "RecordsWithDenominators", "NeoplasiaDenominators", "TotalNeoplasia", "NeoplasiaWithDenominators"
+	//"TotalRecords", "RecordsWithDenominators", "NeoplasiaDenominators", "TotalNeoplasia", "NeoplasiaWithDenominators"
 	expected = append(expected, []string{"100", "50", "50", "30", "25", "0.50", "18", "5", "0.10", "0.33", "10", "0.20", "0.67", "20.00", "10.00", "50", "50", "15", "10", "20", "0", "0"})
 	expected = append(expected, []string{"110", "100", "100", "35", "30", "0.30", "13", "3", "0.03", "0.38", "5", "0.05", "0.62", "9.00", "10.00", "50", "70", "12", "18", "5", "0", "0"})
 	expected = append(expected, []string{"50", "50", "50", "0", "0", "0.00", "0", "0", "0.00", "NA", "0", "0.00", "NA", "12.00", "NA", "25", "35", "50", "0", "0", "0", "0"})
