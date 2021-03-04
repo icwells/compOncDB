@@ -3,6 +3,7 @@
 package cancerrates
 
 import (
+	"fmt"
 	"github.com/icwells/simpleset"
 	"sort"
 	"strings"
@@ -18,12 +19,14 @@ func emptySlice(n int) []string {
 }
 
 type Species struct {
+	denominator int
 	Grandtotal  int
 	id          string
 	infancy     float64
 	lifehistory []string
 	Location    string
 	locations   *simpleset.Set
+	notissue    int
 	taxonomy    []string
 	tissue      *Record
 	tissues     map[string]*Record
@@ -64,7 +67,7 @@ func (s *Species) tissueSlice(name string, r *Record) []string {
 	ret := []string{s.id}
 	ret = append(ret, emptySlice(len(s.taxonomy))...)
 	ret = append(ret, name)
-	ret = append(ret, r.calculateRates(s.total.total)...)
+	ret = append(ret, r.calculateRates(s.denominator, -1)...)
 	if len(s.lifehistory) > 0 {
 		ret = append(ret, emptySlice(len(s.lifehistory))...)
 	}
@@ -76,7 +79,7 @@ func (s *Species) ToSlice() [][]string {
 	var ret [][]string
 	total := append([]string{s.id}, s.taxonomy...)
 	total = append(total, "all")
-	total = append(total, s.total.calculateRates(-1)...)
+	total = append(total, s.total.calculateRates(-1, s.notissue)...)
 	if len(s.lifehistory) > 0 {
 		total = append(total, s.lifehistory...)
 	}
@@ -104,7 +107,7 @@ func (s *Species) highestMalignancy(mal string) string {
 
 func (s *Species) checkLocation(mal, loc string) (bool, string) {
 	// Returns true if s.location is in loc
-	if loc != "" {
+	if loc != "" && loc != "NA" {
 		if strings.Contains(loc, ";") {
 			m := strings.Split(mal, ";")
 			for idx, i := range strings.Split(loc, ";") {
@@ -140,10 +143,29 @@ func (s *Species) addNonCancer(age, sex, nec, service, aid string) {
 	s.Grandtotal = s.total.grandtotal
 }
 
-func (s *Species) addDenominator(d int) {
-	// Adds denominator to records
-	//s.tissue.addTotal(d)
-	s.total.addTotal(d)
+func (s *Species) addDenominator(masspresent, loc string) {
+	// Adds to tissue denominator if no cancer or a reported location
+	var found bool
+	if masspresent != "1" {
+		s.denominator++
+		found = true
+	} else if loc != "NA" && loc != "" {
+		if strings.Contains(loc, ";") {
+			for _, i := range strings.Split(loc, ";") {
+				if i != "NA" {
+					s.denominator++
+					found = true
+					break
+				}
+			}
+		}
+	}
+	if !found {
+		if masspresent != "1" {
+			fmt.Println(loc)
+		}
+		s.notissue++
+	}
 }
 
 func (s *Species) AddTissue(v *Species) {

@@ -96,6 +96,8 @@ testNecropsies () {
 	echo ""
 	echo "Running black box tests on necropsy filtering..."
 	go test $TSTDIR --run TestNecropsies $ARGS
+	echo "Running black box tests on record numbers..."
+	go test $TSTDIR --run TestPrevlenceTotals $ARGS
 }
 
 checkSource () {

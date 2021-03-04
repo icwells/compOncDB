@@ -44,7 +44,7 @@ func TestAddDenominators(t *testing.T) {
 	}
 	for idx, i := range input {
 		s := sp[idx]
-		s.addDenominator(i[0])
+		s.total.addTotal(i[0])
 		if s.total.grandtotal != i[1] {
 			t.Errorf("%d: Actual grand total %d does not equal %d.", idx, s.total.grandtotal, i[1])
 		} else if s.total.total != i[2] {
@@ -201,8 +201,8 @@ func TestAddMeasures(t *testing.T) {
 func locationSlice() [][]string {
 	// Return slice of expected location values
 	var ret [][]string
-	ret = append(ret, []string{"100", "5", "10", "5", "0.10", "10", "2", "0.04", "0.40", "3", "0.06", "0.60", "10.00", "10.00", "2", "3", "2", "3", "1", "0"})
-	ret = append(ret, []string{"110", "5", "10", "5", "0.05", "10", "2", "0.02", "0.40", "3", "0.03", "0.60", "10.00", "10.00", "2", "3", "2", "3", "1", "0"})
+	ret = append(ret, []string{"100", "5", "50", "10", "5", "0.10", "10", "2", "0.04", "0.40", "3", "0.06", "0.60", "10.00", "10.00", "2", "3", "2", "3", "1", "0", ""})
+	ret = append(ret, []string{"110", "5", "100", "10", "5", "0.05", "10", "2", "0.02", "0.40", "3", "0.03", "0.60", "10.00", "10.00", "2", "3", "2", "3", "1", "0", ""})
 	return ret
 }
 
@@ -255,6 +255,7 @@ func TestToSlice(t *testing.T) {
 	head := codbutils.CancerRateHeader()
 	expected := getExpectedSpecies()
 	for ind, s := range getTestSpecies() {
+		s.denominator = s.total.total
 		act := s.ToSlice()
 		exp := expected[ind]
 		if len(act) != len(exp) {

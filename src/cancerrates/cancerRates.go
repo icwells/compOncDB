@@ -134,6 +134,7 @@ func (c *cancerRates) CountRecords() {
 	diagnosis := codbutils.ToMap(c.db.GetColumns("Diagnosis", []string{"ID", "Masspresent", "Necropsy"}))
 	tumor := search.TumorMap(c.db)
 	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,Infant,"+TID) {
+		var location string
 		s := c.Records[i[4]]
 		id := i[0]
 		appr, _ := c.approval.InSet(id)
@@ -150,13 +151,15 @@ func (c *cancerRates) CountRecords() {
 						}
 						if diag[0] == "1" {
 							if v, ex := tumor[id]; ex {
-								// Add tumor values
+								// Add tumor values and add tissue denominator
 								s.addCancer(i[2], i[1], diag[1], v[1], v[3], acc[0], acc[1])
+								location = v[3]
 							} else {
 								// Add values where masspresent is known, but further diagnosis data is missing
 								s.addCancer(i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
 							}
 						}
+						s.addDenominator(diag[0], location)
 					}
 				}
 			}
@@ -170,7 +173,7 @@ func (c *cancerRates) addDenominators() {
 		for k, v := range codbutils.ToMap(c.db.GetRows("Denominators", TID, strings.Join(c.tids, ","), "*")) {
 			if _, ex := c.Records[k]; ex {
 				if t, err := strconv.Atoi(v[0]); err == nil {
-					c.Records[k].addDenominator(t)
+					c.Records[k].total.addTotal(t)
 				}
 			}
 		}
