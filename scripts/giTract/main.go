@@ -105,7 +105,7 @@ func (g *gimerger) setTissues() {
 	for idx, list := range [][]string{g.gi, g.tissues} {
 		for _, i := range list {
 			fmt.Printf("\tCalculating rates for %s...\n", i)
-			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, i)
+			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, false, false, i)
 			c.GetTaxa("")
 			c.CountRecords()
 			for k, v := range c.Records {
