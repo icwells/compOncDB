@@ -68,7 +68,10 @@ func (r *record) format() [][]string {
 		ret = ret[:1]
 	}
 	if r.otherset {
-		ret = append(ret, r.other.ToSlice()[1])
+		other := r.other.ToSlice()
+		if len(other) >= 1 {
+			ret = append(ret, other[1])
+		}
 	}
 	return ret
 }
