@@ -42,19 +42,26 @@
       <input type="checkbox" name="Lifehistory">
       <label for="Lifehistory">Append life history information to results.</label>
     </div>
+    <br>
+    <!--Zoo Selection-->
     <div>
-      <input type="checkbox" name="Approved">
+      <input type="radio" name="Zoos" value="all" checked="checked">
+      <label for="Approved">Calculate neoplasia prevalence using records from all sources.</label>
+    </div>
+    <div>
+      <input type="radio" name="Zoos" value="approved">
       <label for="Approved">Calculate neoplasia prevalence using only records from zoos which have approved publication.</label>
     </div>
     <div>
-      <input type="checkbox" name="Aza">
+      <input type="radio" name="Zoos" value="aza">
       <label for="Aza">Calculate neoplasia prevalence using only records from AZA member zoos.</label>
     </div>
     <div>
-      <input type="checkbox" name="Zoo">
+      <input type="radio" name="Zoos" value="zoo">
       <label for="Zoo">Calculate neoplasia prevalence using only zoo records.</label>
     </div>
-    <p></p>
+    <br>
+    <!--Necropsy Selection-->
     <div>
       <input type="radio" name="Necropsy" value="all" checked="checked">
       <label for="Necropsy">Extract necropsy and non-necropsy records.</label>
