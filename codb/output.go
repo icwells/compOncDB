@@ -132,7 +132,6 @@ func (o *Output) neoplasiaPrevalence() {
 	case "zoo":
 		zoo = true
 	}
-	fmt.Println(approved, aza, zoo)
 	res := cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, approved, aza, zoo, eval, opt.Location)
 	if opt.Location == "" {
 		// Use location as file name stem
