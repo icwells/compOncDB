@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	eval     = kingpin.Flag("eval", "Evaluation argument for taxonic level such that level=taxon (i.e. genus=canis).").Short('e').Default("").String()
 	min      = kingpin.Flag("min", "Minimum number of records required for cancer rates.").Default("1").Int()
 	necropsy = kingpin.Flag("necropsy", "2: extract only necropsy records, 0: extract only non-necropsy records.").Short('n').Default("1").Int()
 	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Required().String()
@@ -63,12 +64,18 @@ func (r *record) addOther(s *cancerrates.Species) {
 
 func (r *record) format() [][]string {
 	// Returns records as string slice
-	ret := r.gi.ToSlice()
-	if !r.giset {
-		ret = ret[:1]
+	var ret [][]string
+	if gi := r.gi.ToSlice(); len(gi) > 0 {
+		ret = append(ret, gi[0])
+		if r.giset && len(gi) > 1 {
+			ret = append(ret, gi[1])
+		}
 	}
 	if r.otherset {
 		other := r.other.ToSlice()
+		if len(ret) == 0 && len(other) > 0 {
+			ret = append(ret, other[0])
+		}
 		if len(other) >= 1 {
 			ret = append(ret, other[1])
 		}
@@ -109,7 +116,7 @@ func (g *gimerger) setTissues() {
 		for _, i := range list {
 			fmt.Printf("\tCalculating rates for %s...\n", i)
 			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, false, false, i)
-			c.GetTaxa("")
+			c.GetTaxa(*eval)
 			c.CountRecords()
 			for k, v := range c.Records {
 				if v.Grandtotal > 0 {
@@ -156,7 +163,9 @@ func (g *gimerger) printRecords() {
 	fmt.Println("\tFormatting results...")
 	header := append(codbutils.CancerRateHeader(), strings.Split(g.db.Columns["Life_history"], ",")[1:]...)
 	for _, v := range g.records {
-		res = append(res, v.format()...)
+		if row := v.format(); len(row) > 0 {
+			res = append(res, row...)
+		}
 	}
 	iotools.WriteToCSV(*outfile, strings.Join(header, ","), res)
 }
