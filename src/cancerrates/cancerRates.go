@@ -18,15 +18,6 @@ var (
 	TID      = "taxa_id"
 )
 
-func checkService(service, masspresent string) bool {
-	// Returns true if record should be counted (skips non-cancer msu and national zoo records)
-	var ret bool
-	if masspresent == "1" || SERVICES.HasDenominators(service) {
-		ret = true
-	}
-	return ret
-}
-
 type cancerRates struct {
 	approval *simpleset.Set
 	db       *dbIO.DBIO
@@ -104,6 +95,22 @@ func (c *cancerRates) formatRates() {
 	}
 }
 
+func (c *cancerRates) checkService(service, masspresent string) bool {
+	// Returns true if record should be counted (skips non-cancer msu and national zoo records)
+	var ret bool
+	if masspresent == "1" {
+		ret = true
+	} else if c.nec != 0 || c.zoo != "all" {
+		// Additionally skip records without complete records (necropsy and account type cannot be determined)
+		if SERVICES.AllRecords(service) {
+			ret = true
+		}
+	} else if SERVICES.HasDenominators(service) {
+		ret = true
+	}
+	return ret
+}
+
 func (c *cancerRates) checkNecropsy(service, nec string) bool {
 	// Returns if records should be processed
 	var ret bool
@@ -117,7 +124,7 @@ func (c *cancerRates) checkNecropsy(service, nec string) bool {
 	return ret
 }
 
-func (c *cancerRates) checkSource(approved, aza, inst, zoo string) bool {
+func (c *cancerRates) checkSource(approved, aza, zoo, inst string) bool {
 	// Compares source information to filtering settings
 	var ret bool
 	switch c.zoo {
@@ -159,21 +166,22 @@ func (c *cancerRates) CountRecords() {
 				if diag, ex := diagnosis[id]; ex {
 					// Compare record against necropsy settings
 					if c.checkNecropsy(acc[0], diag[1]) {
-						if checkService(acc[0], diag[0]) {
+						allrecords := c.checkService(acc[0], "")
+						if c.checkService(acc[0], diag[0]) {
 							// Add non-cancer values (skips non-cancer msu records)
-							s.addNonCancer(i[2], i[1], diag[1], acc[0], acc[1])
+							s.addNonCancer(allrecords, i[2], i[1], diag[1], acc[0], acc[1])
 						}
 						if diag[0] == "1" {
 							if v, ex := tumor[id]; ex {
 								// Add tumor values and add tissue denominator
-								s.addCancer(i[2], i[1], diag[1], v[1], v[3], acc[0], acc[1])
+								s.addCancer(allrecords, i[2], i[1], diag[1], v[1], v[3], acc[0], acc[1])
 								location = v[3]
 							} else {
 								// Add values where masspresent is known, but further diagnosis data is missing
-								s.addCancer(i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
+								s.addCancer(allrecords, i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
 							}
 						}
-						if checkService(acc[0], "") {
+						if allrecords {
 							s.addDenominator(diag[0], location)
 						}
 					}
@@ -185,7 +193,7 @@ func (c *cancerRates) CountRecords() {
 
 func (c *cancerRates) addDenominators() {
 	// Adds fixed values from denominators table
-	if c.nec == 0 {
+	if c.nec == 0 && c.zoo == "all" {
 		for k, v := range codbutils.ToMap(c.db.GetRows("Denominators", TID, strings.Join(c.tids, ","), "*")) {
 			if _, ex := c.Records[k]; ex {
 				if t, err := strconv.Atoi(v[0]); err == nil {

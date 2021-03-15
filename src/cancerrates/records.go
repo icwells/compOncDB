@@ -97,7 +97,7 @@ func (r *Record) calculateRates(d, notissue int) []string {
 	return ret
 }
 
-func (r *Record) cancerMeasures(age, sex, mal, service string) {
+func (r *Record) cancerMeasures(allrecords bool, age, sex, mal, service string) {
 	// Adds cancer measures
 	r.allcancer++
 	if mal == "1" {
@@ -105,7 +105,7 @@ func (r *Record) cancerMeasures(age, sex, mal, service string) {
 	} else if mal == "0" {
 		r.bentotal++
 	}
-	if checkService(service, "") {
+	if allrecords {
 		r.cancer++
 		f, err := strconv.ParseFloat(age, 64)
 		if err == nil && f >= 0.0 {
@@ -125,10 +125,10 @@ func (r *Record) cancerMeasures(age, sex, mal, service string) {
 	}
 }
 
-func (r *Record) nonCancerMeasures(age, sex, nec, service, aid string) {
+func (r *Record) nonCancerMeasures(allrecords bool, age, sex, nec, service, aid string) {
 	// Adds non-cancer meaures
 	r.grandtotal++
-	if checkService(service, "") {
+	if allrecords {
 		// Add to total and grandtotal
 		r.total++
 		f, err := strconv.ParseFloat(age, 64)
