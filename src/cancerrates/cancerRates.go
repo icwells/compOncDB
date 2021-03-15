@@ -29,8 +29,6 @@ func checkService(service, masspresent string) bool {
 
 type cancerRates struct {
 	approval *simpleset.Set
-	approved bool
-	aza      bool
 	db       *dbIO.DBIO
 	header   []string
 	infant   bool
@@ -45,15 +43,13 @@ type cancerRates struct {
 	species  int
 	tids     []string
 	total    string
-	zoo      bool
+	zoo      string
 }
 
-func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, appr, aza, zoo bool, location string) *cancerRates {
+func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, location string) *cancerRates {
 	// Returns initialized cancerRates struct
 	idx := 0
 	c := new(cancerRates)
-	c.approved = appr
-	c.aza = aza
 	c.db = db
 	c.infant = inf
 	c.location = location
@@ -121,22 +117,35 @@ func (c *cancerRates) checkNecropsy(service, nec string) bool {
 	return ret
 }
 
-func (c *cancerRates) checkSource(approved, aza, zoo string) bool {
+func (c *cancerRates) checkSource(approved, aza, inst, zoo string) bool {
 	// Compares source information to filtering settings
-	ret := true
-	if c.approved && approved != "1" {
-		ret = false
-	} else if c.aza && aza != "1" {
-		ret = false
-	} else if c.zoo && zoo != "1" {
-		ret = false
+	var ret bool
+	switch c.zoo {
+	case "all":
+		ret = true
+	case "approved":
+		if approved == "1" {
+			ret = true
+		}
+	case "aza":
+		if aza == "1" {
+			ret = true
+		}
+	case "noprivate":
+		if zoo == "1" || inst == "1" {
+			ret = true
+		}
+	case "zoo":
+		if zoo == "1" {
+			ret = true
+		}
 	}
 	return ret
 }
 
 func (c *cancerRates) CountRecords() {
 	// Counts Patient records
-	source := codbutils.ToMap(c.db.GetColumns("Source", []string{"ID", "service_name", "account_id", "Approved", "Aza", "Zoo"}))
+	source := codbutils.ToMap(c.db.GetColumns("Source", []string{"ID", "service_name", "account_id", "Approved", "Aza", "Zoo", "Institute"}))
 	diagnosis := codbutils.ToMap(c.db.GetColumns("Diagnosis", []string{"ID", "Masspresent", "Necropsy"}))
 	tumor := search.TumorMap(c.db)
 	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,Infant,"+TID) {
@@ -144,7 +153,7 @@ func (c *cancerRates) CountRecords() {
 		s := c.Records[i[4]]
 		id := i[0]
 		acc := source[id]
-		if c.checkSource(acc[2], acc[3], acc[4]) {
+		if c.checkSource(acc[2], acc[3], acc[4], acc[5]) {
 			// Ignore infant records if infant flag not set
 			if c.infant || i[3] != "1" {
 				if diag, ex := diagnosis[id]; ex {
@@ -219,9 +228,9 @@ func (c *cancerRates) GetTaxa(eval string) {
 	c.addDenominators()
 }
 
-func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, appr, aza, zoo bool, eval, location string) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
-	c := NewCancerRates(db, min, nec, inf, lh, appr, aza, zoo, location)
+	c := NewCancerRates(db, min, nec, inf, lh, zoo, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.GetTaxa(eval)
 	c.CountRecords()
