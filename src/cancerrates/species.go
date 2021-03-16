@@ -127,24 +127,24 @@ func (s *Species) checkLocation(mal, loc string) (bool, string) {
 	return false, ""
 }
 
-func (s *Species) addCancer(age, sex, nec, mal, loc, service, aid string) {
+func (s *Species) addCancer(allrecords bool, age, sex, nec, mal, loc, service, aid string) {
 	// Adds cancer measures
-	s.total.cancerMeasures(age, sex, s.highestMalignancy(mal), service)
+	s.total.cancerMeasures(allrecords, age, sex, s.highestMalignancy(mal), service)
 	if eq, m := s.checkLocation(mal, loc); eq {
 		// Add all measures for target tissue
-		s.tissue.cancerMeasures(age, sex, m, service)
-		s.tissue.nonCancerMeasures(age, sex, nec, service, aid)
+		s.tissue.cancerMeasures(allrecords, age, sex, m, service)
+		s.tissue.nonCancerMeasures(allrecords, age, sex, nec, service, aid)
 		if _, ex := s.tissues[loc]; ex {
 			// Add to specific location
-			s.tissues[loc].cancerMeasures(age, sex, m, service)
-			s.tissues[loc].nonCancerMeasures(age, sex, nec, service, aid)
+			s.tissues[loc].cancerMeasures(allrecords, age, sex, m, service)
+			s.tissues[loc].nonCancerMeasures(allrecords, age, sex, nec, service, aid)
 		}
 	}
 }
 
-func (s *Species) addNonCancer(age, sex, nec, service, aid string) {
+func (s *Species) addNonCancer(allrecords bool, age, sex, nec, service, aid string) {
 	// Adds non-cancer measures
-	s.total.nonCancerMeasures(age, sex, nec, service, aid)
+	s.total.nonCancerMeasures(allrecords, age, sex, nec, service, aid)
 	s.Grandtotal = s.total.grandtotal
 }
 

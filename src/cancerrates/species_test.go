@@ -183,14 +183,18 @@ func TestAddMeasures(t *testing.T) {
 		{"5.0", "male", "0", "0", "liver", "MSU", "2"},
 	}
 	for _, i := range input {
+		var allrecords bool
+		if i.service != "MSU" {
+			allrecords = true
+		}
 		s := sp.total.Copy()
 		l := sp.tissue.Copy()
 		addRow(s, i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
 		if i.loc == "liver" {
 			addRow(l, i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
 		}
-		sp.addNonCancer(i.age, i.sex, i.nec, i.service, i.aid)
-		sp.addCancer(i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
+		sp.addNonCancer(allrecords, i.age, i.sex, i.nec, i.service, i.aid)
+		sp.addCancer(allrecords, i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
 		compareRecords(t, sp.total, s)
 		compareRecords(t, sp.tissue, l)
 	}
