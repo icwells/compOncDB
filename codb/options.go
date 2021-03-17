@@ -20,9 +20,9 @@ type Options struct {
 	Necropsy    string
 	Operation   string
 	Print       bool
+	Source      string
 	Taxa        string
 	Value       string
-	Zoos        string
 }
 
 func setOptions(r *http.Request) *Options {

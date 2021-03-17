@@ -144,7 +144,7 @@ func calculateCancerRates() time.Time {
 		n = 1
 	}
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-	writeDF(cancerrates.GetCancerRates(db, *min, n, *infant, *lifehist, *zoo, *eval, *location))
+	writeDF(cancerrates.GetCancerRates(db, *min, n, *infant, *lifehist, *source, *eval, *location))
 	return db.Starttime
 }
 

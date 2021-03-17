@@ -123,7 +123,7 @@ func (o *Output) neoplasiaPrevalence() {
 	case "nonnecropsy":
 		necropsy = -1
 	}
-	res := cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Zoos, eval, opt.Location)
+	res := cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
 	if opt.Location == "" {
 		// Use location as file name stem
 		opt.Location = "neoplasiaPrevalence"

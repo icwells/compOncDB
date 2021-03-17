@@ -61,7 +61,7 @@ var (
 	location    = cancerRates.Flag("location", "Include tumor location summary for each species.").Default("").String()
 	min         = cancerRates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
 	nec         = cancerRates.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("false").Bool()
-	zoo         = cancerRates.Flag("zoo", "Zoo/institute records to calculate prevalence with; all: use all records, approved: used zoos approved for publication, aza: use only AZA member zoos, noprivate: use all zoos and institutes, zoo: use only zoos.").Short('z').Default("noprivate").String()
+	source      = cancerRates.Flag("source", "Zoo/institute records to calculate prevalence with; all: use all records, approved: used zoos approved for publication, aza: use only AZA member zoos, noprivate: use all zoos and institutes, zoo: use only zoos.").Short('z').Default("all").String()
 )
 
 func version() {
