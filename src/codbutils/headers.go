@@ -9,7 +9,7 @@ import (
 
 type Services struct {
 	allrecords		*simpleset.Set
-	denominators	*simpleset.Set
+	//denominators	*simpleset.Set
 	nodenominators  *simpleset.Set	
 }
 
@@ -26,8 +26,8 @@ func NewServices() *Services {
 	// Returns new string
 	s := new(Services)
 	s.allrecords = s.setServices([]string{"DLC", "LZ", "NWZP", "SDZ", "WZ"})
-	s.denominators = s.setServices([]string{"ZEPS"})
-	s.nodenominators = s.setServices([]string{"MSU", "SNZ"})
+	//s.denominators = s.setServices([]string{"ZEPS"})
+	s.nodenominators = s.setServices([]string{"MSU", "SNZ", "ZEPS"})
 	return s
 }
 
@@ -37,14 +37,14 @@ func (s *Services) AllRecords(name string) bool {
 	return ret
 }
 
-func (s *Services) HasDenominators(name string) bool {
+/*func (s *Services) HasDenominators(name string) bool {
 	// Returns true is name is in allrecords or denominators
 	ret, _ := s.allrecords.InSet(name)
 	if !ret {
 		ret, _ = s.denominators.InSet(name)
 	}
 	return ret
-}
+}*/
 
 func (s *Services) NoDenominators(name string) bool {
 	// Returns true if name is in nodenominators

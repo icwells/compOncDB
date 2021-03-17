@@ -96,16 +96,11 @@ func (c *cancerRates) formatRates() {
 }
 
 func (c *cancerRates) checkService(service, masspresent string) bool {
-	// Returns true if record should be counted (skips non-cancer msu and national zoo records)
+	// Returns true if record should be counted (skips non-cancer msu, national zoo, and zeps records)
 	var ret bool
 	if masspresent == "1" {
 		ret = true
-	} else if c.nec != 0 || c.zoo != "all" {
-		// Additionally skip records without complete records (necropsy and account type cannot be determined)
-		if SERVICES.AllRecords(service) {
-			ret = true
-		}
-	} else if SERVICES.HasDenominators(service) {
+	} else if SERVICES.AllRecords(service) {
 		ret = true
 	}
 	return ret
@@ -233,7 +228,7 @@ func (c *cancerRates) GetTaxa(eval string) {
 	if c.lh {
 		c.addLifeHistory()
 	}
-	c.addDenominators()
+	//c.addDenominators()
 }
 
 func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) *dataframe.Dataframe {
