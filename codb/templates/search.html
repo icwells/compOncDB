@@ -53,21 +53,16 @@
         <option name="Source" value="zoo">Zoos</option>
       </select>
     </div>
-    <br>
     <!--Necropsy Selection-->
     <div>
-      <input type="radio" name="Necropsy" value="all" checked="checked">
-      <label for="Necropsy">Extract necropsy and non-necropsy records.</label>
+      <label for="Necropsy">Calculate neoplasia prevalence using:</label>
+      <select name="Necropsy">
+        <option name="Necropsy" value="necropsyonly" selected="selected">Necropsy records</option>
+        <option name="Necropsy" value="nonnecropsy">Non-necropsy records</option>
+        <option name="Necropsy" value="all">Necropsy and non-necropsy records</option>
+      </select>
     </div>
-    <div>
-      <input type="radio" name="Necropsy" value="necropsyonly">
-      <label for="Necropsy">Extract only necropsy records.</label>
-    </div>
-    <div>
-      <input type="radio" name="Necropsy" value="nonnecropsy">
-      <label for="Nonnecropsy">Extract only records which were not necropsied.</label>
-    </div>
-    <p></p>
+    <br>
     {{template "searchoptions"}}
     {{template "buttonbox"}}
   </form>
