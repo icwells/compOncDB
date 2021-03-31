@@ -12,7 +12,7 @@ import (
 )
 
 func TumorMap(db *dbIO.DBIO) map[string][]string {
-	// Returns map of all tumor entries per ID ni 2d slice
+	// Returns map of all tumor entries per ID in 2d slice
 	ret := make(map[string][]string)
 	for _, row := range db.GetTable("Tumor") {
 		id := row[0]

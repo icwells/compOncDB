@@ -3,8 +3,14 @@
 package diagnoses
 
 import (
+	"github.com/icwells/go-tools/strarray"
 	"strconv"
 	"strings"
+)
+
+var (
+	FEMALE = []string{"ovary", "vulva", "uterus", "oviduct"}
+	MALE = []string{"testis", "prostate"}
 )
 
 type tumorHit struct {
@@ -71,8 +77,8 @@ func (t *tumorHit) setLocation() {
 //----------------------------------------------------------------------------
 
 type tumorFinder struct {
-	types     map[string]*tumorHit
 	malignant string
+	types     map[string]*tumorHit
 }
 
 func newTumorFinder() *tumorFinder {
@@ -141,6 +147,7 @@ func (m *Matcher) setMalignant(t *tumorFinder, line string) {
 
 func (m *Matcher) searchLocation(t *tumorFinder, line, key, i, sex string) {
 	// Searches for a match to given location
+	pass := true
 	match := m.GetMatch(m.location[i], line)
 	if match != "NA" {
 		if match == "interstitial" {
@@ -149,8 +156,14 @@ func (m *Matcher) searchLocation(t *tumorFinder, line, key, i, sex string) {
 			} else if sex == "female" {
 				i = "ovary"
 			}
+		} else if strarray.InSliceStr(FEMALE, i) && sex == "male" {
+			pass = false
+		} else if strarray.InSliceStr(MALE, i) && sex == "female" {
+			pass = false
 		}
-		t.types[key].setDistance(i, match, line)
+		if pass {
+			t.types[key].setDistance(i, match, line)
+		}
 	}
 }
 
