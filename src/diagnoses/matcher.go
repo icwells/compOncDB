@@ -3,7 +3,9 @@
 package diagnoses
 
 import (
+	"github.com/icwells/compOncDB/src/codbutils"
 	"log"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -13,6 +15,7 @@ type Matcher struct {
 	location   map[string]*regexp.Regexp
 	types      map[string]*tumortype
 	infant     *regexp.Regexp
+	infile     string
 	digit      *regexp.Regexp
 	age        *regexp.Regexp
 	Sex        *regexp.Regexp
@@ -29,6 +32,7 @@ func NewMatcher(logger *log.Logger) Matcher {
 	// Compiles regular expressions
 	var m Matcher
 	digit := `([0-9]*[.])?[0-9]+`
+	m.infile = path.Join(codbutils.Getutils(), "diagnoses.csv")
 	m.infant = regexp.MustCompile(`(?i)infant|(peri|neo)nat(e|al)|fet(us|al)`)
 	m.digit = regexp.MustCompile(digit)
 	m.age = regexp.MustCompile(digit + `(-|\s)(day|week|month|year)s?(-|\s)?(old|of age)?`)

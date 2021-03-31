@@ -4,11 +4,9 @@ package diagnoses
 
 import (
 	"fmt"
-	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/simpleset"
 	"log"
-	"path"
 	"regexp"
 	"strings"
 )
@@ -100,8 +98,7 @@ func (m *Matcher) setTypes(logger *log.Logger) {
 	var loc string
 	m.location = make(map[string]*regexp.Regexp)
 	m.types = make(map[string]*tumortype)
-	infile := path.Join(codbutils.Getutils(), "diagnoses.csv")
-	df, err := dataframe.FromFile(infile, -1)
+	df, err := dataframe.FromFile(m.infile, -1)
 	if err != nil {
 		logger.Fatalf("Reading diagnoses file: %v\n", err)
 	}

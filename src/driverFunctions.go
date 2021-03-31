@@ -139,12 +139,8 @@ func updateDB() time.Time {
 
 func calculateCancerRates() time.Time {
 	// Extract cancer rates
-	var n int
-	if *nec {
-		n = 1
-	}
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-	writeDF(cancerrates.GetCancerRates(db, *min, n, *infant, *lifehist, *source, *eval, *location))
+	writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *source, *eval, *location))
 	return db.Starttime
 }
 

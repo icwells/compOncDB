@@ -63,6 +63,8 @@ func (t *tumorHit) setLocation() {
 	}
 	if t.location == "NA" && len(loc) > 0 {
 		t.location = loc
+	} else if strings.Contains(t.match, "sarcoma") && t.location == "NA" {
+		t.location = "sarcoma"
 	}
 }
 
