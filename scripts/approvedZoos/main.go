@@ -14,7 +14,7 @@ import (
 
 var (
 	infile = kingpin.Flag("infile", "Path to input file.").Short('i').Default("nil").String()
-	user   = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Required().String()
+	user   = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
 )
 
 type approval struct {
@@ -40,9 +40,10 @@ func (a *approval) setApproved() {
 	fmt.Println("\tReading input file...")
 	input, header := iotools.YieldFile(*infile, true)
 	for i := range input {
-		if strings.Contains(strings.ToLower(i[header["Approved"]]), "yes") {
+		approved := strings.ToLower(i[header["Approved"]])
+		if strings.Contains(approved, "yes") || approved == "1" {
 			a.approved = append(a.approved, i[header["Zoo"]])
-		} else if strings.ToLower(i[header["Approved"]]) == "no" {
+		} else if approved == "no" || approved == "0" {
 			a.rejected = append(a.rejected, i[header["Zoo"]])
 		}
 	}
