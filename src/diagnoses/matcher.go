@@ -45,10 +45,21 @@ func NewMatcher(logger *log.Logger) Matcher {
 	m.necropsy = regexp.MustCompile(`(?i)(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissect*|euthan.*)`)
 	m.biopsy = regexp.MustCompile(`(?i)biopsy`)
 	m.setTypes(logger)
+	m.addLocations()
 	return m
 }
 
 //----------------------------------------------------------------------------
+
+func (m *Matcher) addLocations() {
+	// Adds additional locations to locations map
+	for _, i := range []string{"head", "neck", "leg", "arm", "wing"} {
+		// Defer to entry from file if present
+		if _, ex := m.location[i]; !ex {
+			m.location[i] = m.formatExpression(i)
+		}
+	}
+}
 
 func (m *Matcher) GetMatch(re *regexp.Regexp, line string) string {
 	// Returns match/NA

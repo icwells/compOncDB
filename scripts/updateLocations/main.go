@@ -52,9 +52,16 @@ func (l *locations) setTumor() {
 	}
 }
 
-func (l *locations) update(id, typ, loc string) {
+func (l *locations) update(id, orig, typ, loc string) {
 	// Updates entry with new location
-	cmd, err := l.db.DB.Prepare(fmt.Sprintf("UPDATE Tumor SET Location = '%s' WHERE ID = '%s' and Type = %s limit 1;", loc, id, typ))
+	var s string
+	if orig == typ {
+		s = fmt.Sprintf("UPDATE Tumor SET Location = '%s' WHERE ID = '%s' and Type = '%s' limit 1;", loc, id, orig)
+	} else {
+		// Update type as well
+		s = fmt.Sprintf("UPDATE Tumor SET Location = '%s', Type = '%s' WHERE ID = '%s' and Type = '%s' limit 1;", loc, typ, id, orig)
+	}
+	cmd, err := l.db.DB.Prepare(s)
 	if err != nil {
 		panic(err)
 	} else {
@@ -66,25 +73,44 @@ func (l *locations) update(id, typ, loc string) {
 	}
 }
 
-func (l *locations) checkTypes(id, typ, loc string) bool {
+func (l *locations) removeRow(id string, idx int) {
+	// Removes row from tumor map entry
+	rows := l.tumor[id]
+	if len(rows) == 1 {
+		delete(l.tumor, id)
+	} else {
+		if idx == 0 {
+			rows = rows[1:]
+		} else if idx == len(rows)-1 {
+			rows = rows[:idx]
+		} else {
+			rows = append(rows[:idx], rows[idx+1:]...)
+		}
+	}
+}
+
+func (l *locations) checkTypes(id, typ, loc string) string {
 	// Returns true if a location should be updated
 	if rows, ex := l.tumor[id]; ex {
-		for _, i := range rows {
-			if i[0] == typ && i[1] == "NA" {
-				// Store new location to prevent multiple hits on one record
-				i[1] = loc
-				return true
+		for idx, i := range rows {
+			if i[1] == "NA" {
+				if i[0] == typ || i[0] == "NA" {
+					l.removeRow(id, idx)
+					return i[0]
+				}
 			}
 		}
 	}
-	return false
+	return ""
 }
 
 func (l *locations) checkLocations() {
 	// Determines if records are infant records
 	var count int
 	fmt.Println("\tIdentifying tumor locations...")
-	for _, row := range l.db.GetRows("Patient", "ID", strings.Join(l.ids, ","), "ID,Sex,Comments") {
+	rows := l.db.GetRows("Patient", "ID", strings.Join(l.ids, ","), "ID,Sex,Comments")
+	for rdx, row := range rows {
+		fmt.Printf("\r\tProcessed %d of %d lines.", rdx+1, len(rows))
 		id := row[0]
 		comment := strings.ToLower(row[2])
 		if typ, loc, _ := l.matcher.GetTumor(comment, row[1], true); loc != "NA" {
@@ -92,16 +118,15 @@ func (l *locations) checkLocations() {
 			for idx, i := range strings.Split(loc, ";") {
 				if i != "NA" {
 					t := types[idx]
-					if l.checkTypes(id, t, i) && i != "sarcoma"{
-						fmt.Println(row[1], t, i, comment)
-						//l.update(id, t, i)
+					if orig := l.checkTypes(id, t, i); orig != "" {
+						l.update(id, orig, t, i)
 						count++
 					}
 				}
 			}
 		}
 	}
-	fmt.Printf("\tUpdated %d locations.\n", count)
+	fmt.Printf("\n\tUpdated %d locations.\n", count)
 }
 
 func main() {
