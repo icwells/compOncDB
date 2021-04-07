@@ -3,6 +3,7 @@
 package cancerrates
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
@@ -22,6 +23,7 @@ type cancerRates struct {
 	approval *simpleset.Set
 	db       *dbIO.DBIO
 	header   []string
+	ids      *simpleset.Set
 	infant   bool
 	lh       bool
 	location string
@@ -42,6 +44,7 @@ func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, location str
 	idx := 0
 	c := new(cancerRates)
 	c.db = db
+	c.ids = simpleset.NewStringSet()
 	c.infant = inf
 	c.location = location
 	c.lh = lh
@@ -179,6 +182,7 @@ func (c *cancerRates) CountRecords() {
 						if allrecords {
 							s.addDenominator(diag[0], location)
 						}
+						c.ids.Add(c.ids)
 					}
 				}
 			}
@@ -231,6 +235,20 @@ func (c *cancerRates) GetTaxa(eval string) {
 	//c.addDenominators()
 }
 
+func (c *cancerRates) setEval() [][]codbutils.Evaluation {
+	// Formats ids set into evaluations
+	var ret [][]codbutils.Evaluation
+	for _, i := range c.ids.ToStringSlice() {
+		var eval []codbutils.Evaluation
+		var e codbutils.Evaluation
+		e.SetOperation(fmt.Sprintf("ID=%s", i))
+		e.SetTable(c.db.Columns, true)
+		eval = append(eval, e)
+		ret = append(ret, eval)
+	}
+	return ret
+}
+
 func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
 	c := NewCancerRates(db, min, nec, inf, lh, zoo, location)
@@ -240,4 +258,17 @@ func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, locati
 	c.formatRates()
 	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)
 	return c.rates
+}
+
+func GetRatesAndRecords(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) (*dataframe.Dataframe, *dataframe.Dataframe) {
+	// Returns dataframe of cancer rates and pathology reports used to caclulate them
+	c := NewCancerRates(db, min, nec,  inf, lh, zoo, location)
+	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
+	c.GetTaxa(eval)
+	c.CountRecords()
+	c.formatRates()
+	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)
+	res, msg := search.SearchColumns(db, c.logger, "", c.setEval(), inf)
+	fmt.Println(msg)
+	return c.rates, res
 }

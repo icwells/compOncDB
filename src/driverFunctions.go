@@ -97,10 +97,10 @@ func uploadToDB() time.Time {
 	return db.Starttime
 }
 
-func writeDF(table *dataframe.Dataframe) {
+func writeDF(table *dataframe.Dataframe, output string) {
 	// Writes dataframe to file/screen
 	if table.Length() >= 1 {
-		if *outfile != "nil" {
+		if output != "nil" && output != "" {
 			table.ToCSV(*outfile)
 		} else {
 			fmt.Println()
@@ -140,7 +140,13 @@ func updateDB() time.Time {
 func calculateCancerRates() time.Time {
 	// Extract cancer rates
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-	writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *source, *eval, *location))
+	if *pathology {
+		prevalence, reports := cancerrates.GetRatesAndRecords(db, *min, *nec, *infant, *lifehist, *source, *eval, *location)
+		writeDF(prevalence, *outfile)
+		writeDF(reports, strings.Replace(*outfile, ".csv", ".Pathology.csv", -1))
+	} else {
+		writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *source, *eval, *location), *outfile)
+	}
 	return db.Starttime
 }
 
@@ -149,16 +155,16 @@ func searchDB() time.Time {
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	if *taxonomies == true {
 		names := codbutils.ReadList(*infile, *col)
-		writeDF(search.SearchSpeciesNames(db, names))
+		writeDF(search.SearchSpeciesNames(db, names), *outfile)
 	} else if *eval != "nil" || *infile != "nil" {
 		// Search for column/value match
 		res, msg := search.SearchDatabase(db, *table, *eval, *infile, *infant)
 		if msg != "" {
 			fmt.Print(msg)
-			writeDF(res)
+			writeDF(res, *outfile)
 		}
 	} else if *top {
-		writeDF(search.LeaderBoard(db))
+		writeDF(search.LeaderBoard(db), *outfile)
 		codbutils.UpdateTimeStamp(db)
 	} else {
 		commandError()
@@ -176,9 +182,9 @@ func extractFromDB() time.Time {
 	} else if *dumpdb {
 		dbextract.DumpDatabase(db, *outfile)
 	} else if *lhsummary {
-		writeDF(dbextract.LifeHistorySummary(db, *alltaxa))
+		writeDF(dbextract.LifeHistorySummary(db, *alltaxa), *outfile)
 	} else if *reftaxa {
-		writeDF(dbextract.GetReferenceTaxonomy(db))
+		writeDF(dbextract.GetReferenceTaxonomy(db), *outfile)
 	} else if *sum {
 		summary := dbextract.GetSummary(db)
 		codbutils.WriteResults(*outfile, "Field,Total,%\n", summary)
