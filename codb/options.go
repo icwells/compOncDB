@@ -19,6 +19,7 @@ type Options struct {
 	Min         int
 	Necropsy    string
 	Operation   string
+	Pathology   bool
 	Print       bool
 	Source      string
 	Taxa        string

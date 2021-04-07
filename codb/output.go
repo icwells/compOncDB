@@ -38,6 +38,8 @@ type Output struct {
 	Flash   string
 	File    string
 	Outfile string
+	Pathfile string
+	Pathology string
 	Table   HTMLTable
 	Count   string
 	db      *dbIO.DBIO
@@ -74,14 +76,18 @@ func (o *Output) formatTable(header []string, table [][]string) {
 	}
 }
 
-func (o *Output) getTempFile(name string) {
-	// Stores path to named file in tmp directory
+func (o *Output) getTimeStamp() string {
+	// Returns time stamp
 	t := time.Now()
 	stamp := t.Format(time.RFC3339)
 	// Trim timestamp to minutes
 	stamp = stamp[:strings.LastIndex(stamp, "-")]
-	stamp = stamp[:strings.LastIndex(stamp, ":")]
-	o.File = fmt.Sprintf("%s.%s.csv", name, stamp)
+	return stamp[:strings.LastIndex(stamp, ":")]
+}
+
+func (o *Output) getTempFile(name string) {
+	// Stores path to named file in tmp directory
+	o.File = fmt.Sprintf("%s.%s.csv", name, o.getTimeStamp())
 	o.Outfile = fmt.Sprintf("/tmp/%s", o.File)
 }
 
@@ -113,6 +119,7 @@ func (o *Output) neoplasiaPrevalence() {
 	// Performs cancer rate calculations
 	var eval string
 	var necropsy int
+	var res, pathology *dataframe.Dataframe
 	opt := setOptions(o.r)
 	if opt.Taxa != "" && opt.Operation != "" && opt.Value != "" {
 		eval = opt.Taxa + opt.Operation + opt.Value
@@ -123,7 +130,14 @@ func (o *Output) neoplasiaPrevalence() {
 	case "nonnecropsy":
 		necropsy = -1
 	}
-	res := cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
+	if opt.Pathology {
+		res, pathology = cancerrates.GetRatesAndRecords(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
+		o.Pathfile = fmt.Sprintf("pathologyRecords.%d.%s.csv", opt.Min, o.getTimeStamp())
+		o.Pathology = fmt.Sprintf("/tmp/%s", o.Pathfile)
+		pathology.ToCSV(o.Pathology)
+	} else {
+		res = cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
+	}
 	if opt.Location == "" {
 		// Use location as file name stem
 		opt.Location = "neoplasiaPrevalence"
