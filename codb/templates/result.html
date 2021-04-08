@@ -21,6 +21,9 @@
   {{end}}
   {{if .File}}
     <p>Output csv file: <a href=/codb/get/{{.File}} download={{.File}}>{{.File}}</a></p>
+    {{if .Pathfile}}
+      <p>Pathology results file: <a href=/codb/get/{{.Pathfile}} download={{.Pathfile}}>{{.Pathfile}}</a></p>
+    {{end}}
   {{end}}
   {{if .Table}}
     <table>

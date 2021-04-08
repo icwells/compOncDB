@@ -101,7 +101,7 @@ func writeDF(table *dataframe.Dataframe, output string) {
 	// Writes dataframe to file/screen
 	if table.Length() >= 1 {
 		if output != "nil" && output != "" {
-			table.ToCSV(*outfile)
+			table.ToCSV(output)
 		} else {
 			fmt.Println()
 			table.Print()
@@ -143,7 +143,7 @@ func calculateCancerRates() time.Time {
 	if *pathology {
 		prevalence, reports := cancerrates.GetRatesAndRecords(db, *min, *nec, *infant, *lifehist, *source, *eval, *location)
 		writeDF(prevalence, *outfile)
-		writeDF(reports, strings.Replace(*outfile, ".csv", ".Pathology.csv", -1))
+		writeDF(reports, strings.Replace(*outfile, ".csv", ".Pathology.csv", 1))
 	} else {
 		writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *source, *eval, *location), *outfile)
 	}

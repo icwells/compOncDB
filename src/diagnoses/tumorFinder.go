@@ -10,7 +10,7 @@ import (
 
 var (
 	FEMALE = []string{"ovary", "vulva", "uterus", "oviduct"}
-	MALE = []string{"testis", "prostate"}
+	MALE   = []string{"testis", "prostate"}
 )
 
 type tumorHit struct {

@@ -33,19 +33,19 @@ func newFlash(w http.ResponseWriter, msg string) *Output {
 }
 
 type Output struct {
-	User    string
-	Update  string
-	Flash   string
-	File    string
-	Outfile string
-	Pathfile string
+	User      string
+	Update    string
+	Flash     string
+	File      string
+	Outfile   string
+	Pathfile  string
 	Pathology string
-	Table   HTMLTable
-	Count   string
-	db      *dbIO.DBIO
-	pw      string
-	w       http.ResponseWriter
-	r       *http.Request
+	Table     HTMLTable
+	Count     string
+	db        *dbIO.DBIO
+	pw        string
+	w         http.ResponseWriter
+	r         *http.Request
 }
 
 func newOutput(w http.ResponseWriter, r *http.Request, user, pw, ut string) (*Output, error) {
@@ -132,7 +132,7 @@ func (o *Output) neoplasiaPrevalence() {
 	}
 	if opt.Pathology {
 		res, pathology = cancerrates.GetRatesAndRecords(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
-		o.Pathfile = fmt.Sprintf("pathologyRecords.%d.%s.csv", opt.Min, o.getTimeStamp())
+		o.Pathfile = fmt.Sprintf("pathologyRecords.%d.min%s.csv", opt.Min, o.getTimeStamp())
 		o.Pathology = fmt.Sprintf("/tmp/%s", o.Pathfile)
 		pathology.ToCSV(o.Pathology)
 	} else {

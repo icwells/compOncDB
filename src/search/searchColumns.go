@@ -7,6 +7,7 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
+	"github.com/icwells/simpleset"
 	"log"
 )
 
@@ -104,6 +105,19 @@ func columnSearch(db *dbIO.DBIO, logger *log.Logger, table string, eval []codbut
 	return s
 }
 
+func PrevalencePathology(db *dbIO.DBIO, logger *log.Logger, ids *simpleset.Set) *dataframe.Dataframe {
+	// Returns records for neoplasia prevalence ids
+	s := newSearcher(db, logger)
+	s.ids = ids
+	s.setPatient()
+	s.appendDiagnosis()
+	s.appendTaxonomy()
+	s.appendSource()
+	ret := s.toDF()
+	s.logger.Printf("\tFound %d records matching search criteria.\n", ret.Length())
+	return ret
+}
+
 func SearchColumns(db *dbIO.DBIO, logger *log.Logger, table string, eval [][]codbutils.Evaluation, inf bool) (*dataframe.Dataframe, string) {
 	// Wraps calls to columnSearch
 	var ret *dataframe.Dataframe
@@ -114,7 +128,6 @@ func SearchColumns(db *dbIO.DBIO, logger *log.Logger, table string, eval [][]cod
 		if s.msg != "" {
 			logger.Print(s.msg)
 		} else {
-			//s.filter(res, i)
 			logger.Printf("Found %d records where %s.\n", res.Length(), i[0].String())
 		}
 		if idx == 0 {
