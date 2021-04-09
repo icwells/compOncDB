@@ -24,7 +24,7 @@ type zoos struct {
 	all		*simpleset.Set
 	db		*dbIO.DBIO
 	header  map[string]int
-	ids		map[string]string
+	ids		map[string][]string
 	records [][]string
 	sources map[string][]string
 	species map[string]*simpleset.Set
@@ -38,7 +38,7 @@ func newZoos() *zoos {
 	z.accounts = codbutils.EntryMap(z.db.GetColumns("Accounts", []string{"submitter_name", "account_id"}))
 	z.all = simpleset.NewStringSet()
 	z.records, z.header = iotools.ReadFile(*infile, true)
-	z.ids = codbutils.EntryMap(z.db.GetColumns("Patient", []string{"ID", "taxa_id"}))
+	z.ids = codbutils.ToMap(z.db.GetColumns("Patient", []string{"taxa_id", "ID"}))
 	z.sources = codbutils.ToMap(z.db.GetColumns("Source", []string{"ID", "Zoo", "Institute", "account_id"}))
 	z.species = make(map[string]*simpleset.Set)
 	z.taxa = make(map[string]*simpleset.Set)
@@ -55,8 +55,10 @@ func (z *zoos) setTaxa() {
 			z.taxa[sp] = simpleset.NewStringSet()
 		}
 		if tid, ex := taxa[sp]; ex {
-			if pid, ex := z.ids[tid]; ex {
-				z.taxa[sp].Add(pid)
+			if pids, ex := z.ids[tid]; ex {
+				for _, p := range pids {
+					z.taxa[sp].Add(p)
+				}
 			}
 		}
 	}
@@ -73,6 +75,7 @@ func (z *zoos) setNames() {
 					// Ignore private records
 					if name, ex := z.accounts[s[2]]; ex {
 						z.species[k].Add(name)
+						z.all.Add(name)
 					}
 				}
 			}
@@ -84,6 +87,8 @@ func (z *zoos) write() {
 	// Writes names to file
 	out := iotools.CreateFile(*outfile)
 	out.WriteString("Genus,Species,Necropsies,Zoos\n")
+	all := append([]string{"", "all", ""}, strings.Join(z.all.ToStringSlice(), ";"))
+	out.WriteString(strings.Join(all, ",") + "\n")
 	for _, i := range z.records {
 		sp := i[z.header["Species"]]
 		if v, ex := z.species[sp]; ex {
