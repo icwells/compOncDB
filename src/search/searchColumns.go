@@ -87,7 +87,7 @@ func columnSearch(db *dbIO.DBIO, logger *log.Logger, table string, eval []codbut
 	// Determines search procedure
 	s := newSearcher(db, logger)
 	if !inf {
-		// Add evaluation to remove
+		// Add evaluation to remove infant records
 		eval = append(eval, codbutils.Evaluation{"Patient", "ID", "Infant", "!=", "1"})
 	}
 	s.assignSearch(eval)

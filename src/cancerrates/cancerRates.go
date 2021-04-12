@@ -3,6 +3,7 @@
 package cancerrates
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
@@ -234,6 +235,26 @@ func (c *cancerRates) GetTaxa(eval string) {
 	//c.addDenominators()
 }
 
+func (c *cancerRates) setMetaData() {
+	// Stores search options as string
+	var m []string
+	var nec string
+	switch c.nec {
+	case 1:
+		nec = "Necropsy"
+	case 0:
+		nec = "All"
+	case -1:
+		nec = "NonNecropsy"
+	}
+	m = append(m, codbutils.GetTimeStamp())
+	m = append(m, fmt.Sprintf("min=%d", c.min))
+	m = append(m, fmt.Sprintf("necropsyStatus=%s", nec))
+	m = append(m, fmt.Sprintf("SourceType=%s", c.zoo))
+	m = append(m, fmt.Sprintf("KeepInfantRecords=%v", c.infant))
+	c.rates.SetMetaData(strings.Join(m, ","))
+}
+
 func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
 	c := NewCancerRates(db, min, nec, inf, lh, zoo, location)
@@ -242,16 +263,18 @@ func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, locati
 	c.CountRecords()
 	c.formatRates()
 	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)
+	c.setMetaData()
 	return c.rates
 }
 
 func GetRatesAndRecords(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) (*dataframe.Dataframe, *dataframe.Dataframe) {
 	// Returns dataframe of cancer rates and pathology reports used to caclulate them
-	c := NewCancerRates(db, min, nec,  inf, lh, zoo, location)
+	c := NewCancerRates(db, min, nec, inf, lh, zoo, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.GetTaxa(eval)
 	c.CountRecords()
 	c.formatRates()
 	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)
+	c.setMetaData()
 	return c.rates, search.PrevalencePathology(db, c.logger, c.ids)
 }

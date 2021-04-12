@@ -16,6 +16,15 @@ import (
 	"time"
 )
 
+func GetTimeStamp() string {
+	// Returns time stamp
+	t := time.Now()
+	stamp := t.Format(time.RFC3339)
+	// Trim timestamp to minutes
+	stamp = stamp[:strings.LastIndex(stamp, "-")]
+	return stamp[:strings.LastIndex(stamp, ":")]
+}
+
 func GetLogger() *log.Logger {
 	// Returns logger
 	return log.New(os.Stdout, "compOnDB: ", log.Ldate|log.Ltime)

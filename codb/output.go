@@ -12,7 +12,6 @@ import (
 	"github.com/icwells/go-tools/dataframe"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type TableRow struct {
@@ -76,18 +75,9 @@ func (o *Output) formatTable(header []string, table [][]string) {
 	}
 }
 
-func (o *Output) getTimeStamp() string {
-	// Returns time stamp
-	t := time.Now()
-	stamp := t.Format(time.RFC3339)
-	// Trim timestamp to minutes
-	stamp = stamp[:strings.LastIndex(stamp, "-")]
-	return stamp[:strings.LastIndex(stamp, ":")]
-}
-
 func (o *Output) getTempFile(name string) {
 	// Stores path to named file in tmp directory
-	o.File = fmt.Sprintf("%s.%s.csv", name, o.getTimeStamp())
+	o.File = fmt.Sprintf("%s.%s.csv", name, codbutils.GetTimeStamp())
 	o.Outfile = fmt.Sprintf("/tmp/%s", o.File)
 }
 
@@ -132,7 +122,7 @@ func (o *Output) neoplasiaPrevalence() {
 	}
 	if opt.Pathology {
 		res, pathology = cancerrates.GetRatesAndRecords(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
-		o.Pathfile = fmt.Sprintf("pathologyRecords.%d.min%s.csv", opt.Min, o.getTimeStamp())
+		o.Pathfile = fmt.Sprintf("pathologyRecords.%d.min%s.csv", opt.Min, codbutils.GetTimeStamp())
 		o.Pathology = fmt.Sprintf("/tmp/%s", o.Pathfile)
 		pathology.ToCSV(o.Pathology)
 	} else {
