@@ -68,7 +68,6 @@ func SearchSpeciesNames(db *dbIO.DBIO, names []string) *dataframe.Dataframe {
 	s.logger.Println("Searching for taxonomy matches...")
 	ret, _ := dataframe.NewDataFrame(-1)
 	ret.SetHeader(append([]string{"Term", "MatchedName"}, strings.Split(db.Columns["Taxonomy"], ",")[1:]...))
-	s.logger.Println(ret.GetHeader())
 	for idx, i := range names {
 		go s.getTaxonomy(ch, i)
 		row := <-ch
