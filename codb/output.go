@@ -132,7 +132,7 @@ func (o *Output) neoplasiaPrevalence() {
 		// Use location as file name stem
 		opt.Location = "neoplasiaPrevalence"
 	}
-	o.renderResults(opt, res, fmt.Sprintf("%s.min%d", opt.Location, opt.Min))
+	o.renderResults(opt, res, fmt.Sprintf("min%s.%d", opt.Location, opt.Min))
 }
 
 func (o *Output) referenceTaxonomy() {
