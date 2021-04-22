@@ -21,6 +21,7 @@ type Species struct {
 	denominator  int
 	Grandtotal   int
 	id           string
+	Ids			 []string
 	infancy      float64
 	lifehistory  []string
 	Location     string
@@ -46,6 +47,11 @@ func newSpecies(id, location string, taxonomy []string) *Species {
 	s.total = newRecord()
 	s.setLocations()
 	return s
+}
+
+func (s *Species) AddID(id string) {
+	// Appends to ids slice
+	s.Ids = append(s.Ids, id)
 }
 
 func (s *Species) setLocations() {

@@ -91,6 +91,9 @@ func (c *cancerRates) formatRates() {
 					}
 				}
 			}
+			for _, i := range v.Ids {
+				c.ids.Add(i)
+			}
 			if err == nil {
 				c.species++
 			}
@@ -165,6 +168,7 @@ func (c *cancerRates) CountRecords() {
 					// Compare record against necropsy settings
 					if c.checkNecropsy(acc[0], diag[1]) {
 						allrecords := c.checkService(acc[0], "")
+						s.AddID(id)
 						if c.checkService(acc[0], diag[0]) {
 							// Add non-cancer values (skips non-cancer msu records)
 							s.addNonCancer(allrecords, i[2], i[1], diag[1], acc[0], acc[1])
@@ -182,7 +186,6 @@ func (c *cancerRates) CountRecords() {
 						if allrecords {
 							s.addDenominator(diag[0], location)
 						}
-						c.ids.Add(id)
 					}
 				}
 			}
