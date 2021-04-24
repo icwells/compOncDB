@@ -48,7 +48,7 @@ func (r *Record) formatRate(n, d int) string {
 	// Divides n by d and returns formatted string
 	if d != 0 {
 		v := float64(n) / float64(d)
-		return strconv.FormatFloat(v, 'f', 2, 64)
+		return strconv.FormatFloat(v, 'f', -1, 64)
 	}
 	return "NA"
 }
