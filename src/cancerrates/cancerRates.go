@@ -156,7 +156,11 @@ func (c *cancerRates) checkSettings(infant, wild, service, approved, aza, zoo, i
 	var ret bool
 	if c.checkSource(approved, aza, zoo, inst) && c.checkNecropsy(service, nec) {
 		if c.infant || infant != "1" {
-			ret = true
+			if c.wild && wild == "1"{
+				ret = true
+			} else if !c.wild && wild != "1" {
+				ret = true
+			}
 		}
 	}
 	return ret
