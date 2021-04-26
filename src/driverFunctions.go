@@ -146,7 +146,7 @@ func calculateCancerRates() time.Time {
 		writeDF(prevalence, *outfile)
 		writeDF(reports, strings.Replace(*outfile, ".csv", ".Pathology.csv", 1))
 	} else {
-		writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *source, *eval, *location), *outfile)
+		writeDF(cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *wild, *source, *eval, *location), *outfile)
 	}
 	return db.Starttime
 }

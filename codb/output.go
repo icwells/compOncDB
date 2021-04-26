@@ -126,7 +126,7 @@ func (o *Output) neoplasiaPrevalence() {
 		o.Pathology = fmt.Sprintf("/tmp/%s", o.Pathfile)
 		pathology.ToCSV(o.Pathology)
 	} else {
-		res = cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
+		res = cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Wild, opt.Source, eval, opt.Location)
 	}
 	if opt.Location == "" {
 		// Use location as file name stem

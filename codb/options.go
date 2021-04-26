@@ -24,6 +24,7 @@ type Options struct {
 	Source      string
 	Taxa        string
 	Value       string
+	Wild        bool
 }
 
 func setOptions(r *http.Request) *Options {

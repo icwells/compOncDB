@@ -36,10 +36,11 @@ type cancerRates struct {
 	species  int
 	tids     []string
 	total    string
+	wild	 bool
 	zoo      string
 }
 
-func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, location string) *cancerRates {
+func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild bool, zoo, location string) *cancerRates {
 	// Returns initialized cancerRates struct
 	idx := 0
 	c := new(cancerRates)
@@ -60,6 +61,7 @@ func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, location str
 	c.rates.SetHeader(c.header)
 	c.Records = make(map[string]*Species)
 	c.total = "total"
+	c.wild = wild
 	c.zoo = zoo
 	return c
 }
@@ -111,7 +113,7 @@ func (c *cancerRates) checkService(service, masspresent string) bool {
 }
 
 func (c *cancerRates) checkNecropsy(service, nec string) bool {
-	// Returns if records should be processed
+	// Returns true if records should be processed
 	var ret bool
 	if c.nec == 0 {
 		ret = true
@@ -149,42 +151,46 @@ func (c *cancerRates) checkSource(approved, aza, zoo, inst string) bool {
 	return ret
 }
 
+func (c *cancerRates) checkSettings(infant, wild, service, approved, aza, zoo, inst, nec string) bool {
+	// Returns true if record should be analyzed
+	var ret bool
+	if c.checkSource(approved, aza, zoo, inst) && c.checkNecropsy(service, nec) {
+		if c.infant || infant != "1" {
+			ret = true
+		}
+	}
+	return ret
+}
+
 func (c *cancerRates) CountRecords() {
 	// Counts Patient records
 	source := codbutils.ToMap(c.db.GetColumns("Source", []string{"ID", "service_name", "account_id", "Approved", "Aza", "Zoo", "Institute"}))
 	diagnosis := codbutils.ToMap(c.db.GetColumns("Diagnosis", []string{"ID", "Masspresent", "Necropsy"}))
 	tumor := search.TumorMap(c.db)
-	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,Infant,"+TID) {
+	for _, i := range c.db.GetRows("Patient", TID, strings.Join(c.tids, ","), "ID,Sex,Age,Infant,Wild,"+TID) {
 		var location string
-		s := c.Records[i[4]]
+		s := c.Records[i[5]]
 		id := i[0]
 		acc := source[id]
-		if c.checkSource(acc[2], acc[3], acc[4], acc[5]) {
-			// Ignore infant records if infant flag not set
-			if c.infant || i[3] != "1" {
-				if diag, ex := diagnosis[id]; ex {
-					// Compare record against necropsy settings
-					if c.checkNecropsy(acc[0], diag[1]) {
-						allrecords := c.checkService(acc[0], "")
-						if c.checkService(acc[0], diag[0]) {
-							// Add non-cancer values (skips non-cancer msu records)
-							s.addNonCancer(allrecords, i[2], i[1], diag[1], acc[0], acc[1])
-						}
-						if diag[0] == "1" {
-							if v, ex := tumor[id]; ex {
-								// Add tumor values and add tissue denominator
-								s.addCancer(allrecords, i[2], i[1], diag[1], v[1], v[3], acc[0], acc[1])
-								location = v[3]
-							} else {
-								// Add values where masspresent is known, but further diagnosis data is missing
-								s.addCancer(allrecords, i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
-							}
-						}
-						if allrecords {
-							s.addDenominator(diag[0], location)
-						}
-					}
+		diag := diagnosis[id]
+		if c.checkSettings(i[3], i[4], acc[0], acc[2], acc[3], acc[4], acc[5], diag[1]) {
+			allrecords := c.checkService(acc[0], "")
+			if c.checkService(acc[0], diag[0]) {
+				// Add non-cancer values (skips non-cancer msu records)
+				s.addNonCancer(allrecords, i[2], i[1], diag[1], acc[0], acc[1])
+			}
+			if diag[0] == "1" {
+				if v, ex := tumor[id]; ex {
+					// Add tumor values and add tissue denominator
+					s.addCancer(allrecords, i[2], i[1], diag[1], v[1], v[3], acc[0], acc[1])
+					location = v[3]
+				} else {
+					// Add values where masspresent is known, but further diagnosis data is missing
+					s.addCancer(allrecords, i[2], i[1], diag[1], "-1", "", acc[0], acc[1])
 				}
+			}
+			if allrecords {
+				s.addDenominator(diag[0], location)
 			}
 		}
 	}
@@ -255,9 +261,9 @@ func (c *cancerRates) setMetaData() {
 	c.rates.SetMetaData(strings.Join(m, ","))
 }
 
-func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild bool, zoo, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
-	c := NewCancerRates(db, min, nec, inf, lh, zoo, location)
+	c := NewCancerRates(db, min, nec, inf, lh, wild, zoo, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.GetTaxa(eval)
 	c.CountRecords()
@@ -269,7 +275,7 @@ func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, locati
 
 func GetRatesAndRecords(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) (*dataframe.Dataframe, *dataframe.Dataframe) {
 	// Returns dataframe of cancer rates and pathology reports used to caclulate them
-	c := NewCancerRates(db, min, nec, inf, lh, zoo, location)
+	c := NewCancerRates(db, min, nec, inf, lh, false, zoo, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.GetTaxa(eval)
 	c.CountRecords()

@@ -60,8 +60,8 @@ func getCleaned() map[string]*dataframe.Dataframe {
 func getExpectedRates() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	var s [][]string
-	coyote := []string{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "all", "7", "7", "7", "1", "1", "0.14", "1", "1", "0.14", "1.00", "0", "0.00", "0.00", "24", "24", "2", "0", "1", "0", "2", "1", "0"}
-	wolf := []string{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "all", "10", "10", "10", "3", "3", "0.30", "3", "2", "0.20", "0.67", "1", "0.10", "0.33", "135", "144", "4", "3", "0", "2", "0", "1", "0"}
+	coyote := []string{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "all", "7", "7", "7", "1", "1", "0.14285714285714285", "1", "1", "0.14285714285714285", "1.00", "0", "0.00", "0.00", "24", "24", "2", "0", "1", "0", "2", "1", "0"}
+	wolf := []string{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "all", "10", "10", "10", "3", "3", "0.30", "3", "2", "0.20", "0.6666666666666666", "1", "0.10", "0.3333333333333333", "135", "144", "4", "3", "0", "2", "0", "1", "0"}
 	// Fox is in denominators table
 	//fox := []string{"3", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Urocyon", "Urocyon cinereoargenteus", "all", "1", "1", "1", "0", "0", "0.00", "0", "0", "0.00", "NA", "0", "0.00", "NA", "NA", "NA", "0", "0", "0", "0", "0", "0", "0"}
 	s = append(s, codbutils.CancerRateHeader())
