@@ -105,11 +105,12 @@ func columnSearch(db *dbIO.DBIO, logger *log.Logger, table string, eval []codbut
 	return s
 }
 
-func PrevalencePathology(db *dbIO.DBIO, logger *log.Logger, ids *simpleset.Set) *dataframe.Dataframe {
+func PrevalencePathology(db *dbIO.DBIO, logger *log.Logger, tids *simpleset.Set) *dataframe.Dataframe {
 	// Returns records for neoplasia prevalence ids
 	s := newSearcher(db, logger)
-	s.ids = ids
+	s.taxaids = tids
 	s.setPatient()
+	s.setIDs()
 	s.appendDiagnosis()
 	s.appendTaxonomy()
 	s.appendSource()

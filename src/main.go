@@ -60,7 +60,7 @@ var (
 	lifehist    = cancerRates.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
 	location    = cancerRates.Flag("location", "Include tumor location summary for each species.").Default("").String()
 	min         = cancerRates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
-	nec         = cancerRates.Flag("necropsy", "Extract only necropsy records (extracts all matches by default).").Default("1").Int()
+	nec         = cancerRates.Flag("necropsy", "2: Extract only necropsy records, 1: extract all records by default, 0: extract non-necropsy records.").Default("2").Int()
 	pathology   = cancerRates.Flag("pathology", "Additionally extract matching pathology records.").Default("false").Bool()
 	source      = cancerRates.Flag("source", "Zoo/institute records to calculate prevalence with; all: use all records, approved: used zoos approved for publication, aza: use only AZA member zoos, noprivate: use all zoos and institutes, zoo: use only zoos.").Short('z').Default("all").String()
 )

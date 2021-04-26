@@ -75,7 +75,7 @@ func (s *searcher) appendSource() {
 		if ex == true {
 			s.res[k] = append(v, row...)
 		} else {
-			s.res[k] = append(v, s.na[:3]...)
+			s.res[k] = append(v, s.na[:7]...)
 		}
 	}
 }

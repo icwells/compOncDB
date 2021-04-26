@@ -139,6 +139,7 @@ func updateDB() time.Time {
 
 func calculateCancerRates() time.Time {
 	// Extract cancer rates
+	*nec--
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	if *pathology {
 		prevalence, reports := cancerrates.GetRatesAndRecords(db, *min, *nec, *infant, *lifehist, *source, *eval, *location)

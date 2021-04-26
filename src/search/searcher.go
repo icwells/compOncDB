@@ -96,23 +96,3 @@ func (s *searcher) filterIDs(ids *simpleset.Set, e codbutils.Evaluation) *simple
 	}
 	return ret
 }
-
-/*func getMetaData(inf bool, eval [][]codbutils.Evaluation) string {
-	// Stores search options as string
-	var m []string
-	var nec string
-	switch c.nec {
-	case 1:
-		nec = "Necropsy"
-	case 0:
-		nec = "All"
-	case -1:
-		nec = "NonNecropsy"
-	}
-	m = append(m, codbutils.GetTimeStamp())
-	m = append(m, fmt.Sprintf("min=%d", c.min))
-	m = append(m, fmt.Sprintf("necropsyStatus=%s", nec))
-	m = append(m, fmt.Sprintf("SourceType=%s", c.zoo))
-	m = append(m, fmt.Sprintf("KeepInfantRecords=%v", c.inf))
-	return strings.Join(m, ","))
-}*/
