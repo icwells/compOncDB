@@ -13,7 +13,7 @@ import (
 type taxaMerger struct {
 	header []string
 	taxa   map[string][]string
-	common map[string][]string
+	common [][]string
 	com    *simpleset.Set
 }
 
@@ -23,7 +23,7 @@ func newTaxaMerger(db *dbIO.DBIO) *taxaMerger {
 	t.header = strings.Split(db.Columns["Taxonomy"], ",")
 	t.header[0] = "Common"
 	t.taxa = codbutils.ToMap(db.GetTable("Taxonomy"))
-	t.common = codbutils.ToMap(db.GetTable("Common"))
+	t.common = db.GetTable("Common")
 	t.com = simpleset.NewStringSet()
 	return t
 }
@@ -32,10 +32,12 @@ func (t *taxaMerger) merge() *dataframe.Dataframe {
 	// Merges common and taxonomy tables
 	ret, _ := dataframe.NewDataFrame(-1)
 	ret.SetHeader(t.header)
-	for k, v := range t.common {
-		t.com.Add(k)
-		if taxa, ex := t.taxa[k]; ex {
-			ret.AddRow(append([]string{v[0]}, taxa...))
+	for _, i := range t.common {
+		tid := i[0]
+		name := i[1]
+		if taxa, ex := t.taxa[tid]; ex {
+			ret.AddRow(append([]string{name}, taxa...))
+			t.com.Add(tid)
 		}
 	}
 	// Add any taxonomies without common names
