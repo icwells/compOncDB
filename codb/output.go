@@ -122,7 +122,7 @@ func (o *Output) neoplasiaPrevalence() {
 	}
 	if opt.Pathology {
 		res, pathology = cancerrates.GetRatesAndRecords(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
-		o.Pathfile = fmt.Sprintf("pathologyRecords.%d.min%s.csv", opt.Min, codbutils.GetTimeStamp())
+		o.Pathfile = fmt.Sprintf("pathologyRecords.min%d.%s.csv", opt.Min, codbutils.GetTimeStamp())
 		o.Pathology = fmt.Sprintf("/tmp/%s", o.Pathfile)
 		pathology.ToCSV(o.Pathology)
 	} else {
@@ -132,7 +132,7 @@ func (o *Output) neoplasiaPrevalence() {
 		// Use location as file name stem
 		opt.Location = "neoplasiaPrevalence"
 	}
-	o.renderResults(opt, res, fmt.Sprintf("min%s.%d", opt.Location, opt.Min))
+	o.renderResults(opt, res, fmt.Sprintf("%s.min%d", opt.Location, opt.Min))
 }
 
 func (o *Output) referenceTaxonomy() {
