@@ -19,6 +19,7 @@ var (
 	min      = kingpin.Flag("min", "Minimum number of records required for cancer rates.").Default("1").Int()
 	necropsy = kingpin.Flag("necropsy", "2: extract only necropsy records, 0: extract only non-necropsy records.").Short('n').Default("1").Int()
 	outfile  = kingpin.Flag("outfile", "Name of output file.").Short('o').Required().String()
+	password = kingpin.Flag("password", "Password (for testing of scripting).").Default("").String()
 	repro    = kingpin.Flag("repro", "Extract reproductive tissues instead of gi tract.").Default("false").Bool()
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Required().String()
 )
@@ -97,7 +98,7 @@ func newGImerger() *gimerger {
 	*necropsy--
 	g := new(gimerger)
 	g.approved = "approved"
-	g.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
+	g.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	g.gi = []string{"liver", "bile duct", "gall bladder", "stomach", "small intestine", "colon", "esophagus", "oral", "duodenum", "abdomen"}
 	g.repro = []string{"testis", "prostate", "ovary", "vulva", "uterus"}
 	g.taxa = make(map[string]*record)
@@ -117,7 +118,7 @@ func (g *gimerger) setTissues() {
 	for idx, list := range [][]string{g.gi, g.tissues} {
 		for _, i := range list {
 			fmt.Printf("\tCalculating rates for %s...\n", i)
-			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, g.approved, i)
+			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, g.approved, i)
 			c.GetTaxa(*eval)
 			c.CountRecords()
 			for k, v := range c.Records {
