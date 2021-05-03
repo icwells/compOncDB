@@ -31,7 +31,9 @@ func newCommand(com, dir string) command {
 	var c command
 	s := strings.Split(com, " ")
 	c.command = s[0]
-	c.directory = dir
+	if dir != "" {
+		c.directory = dir
+	}
 	c.options = strings.Join(s[1:], " ")
 	return c
 }
@@ -42,7 +44,7 @@ func (c *command) formatOptions(pw string) {
 	// Add outdir and time stamp to outfile
 	cmd := strings.Split(c.options, "-o ")
 	tail := strings.Split(cmd[1], " ")
-	tail[0] = "-o " + path.Join(*outdir, strings.Replace(tail[0], ".csv", stamp+".csv", 1))
+	tail[0] = "-o " + path.Join(*outdir, strings.Replace(tail[0], "csv", stamp+".csv", 1))
 	// Add username and password
 	cmd = append([]string{cmd[0]}, "-u "+*user)
 	cmd = append([]string{cmd[0]}, "--password "+pw)
@@ -55,10 +57,13 @@ func (c *command) runCommand(wg *sync.WaitGroup, pw string) {
 	defer wg.Done()
 	c.formatOptions(pw)
 	cmd := exec.Command(c.command, c.options)
-	cmd.Dir = c.directory
-	if err := cmd.Run(); err != nil {
-		fmt.Printf("\tCommand failed. %v\n", err)
+	if c.directory != "" {
+		cmd.Dir = c.directory
 	}
+	fmt.Println(cmd.String())
+	/*if err := cmd.Run(); err != nil {
+		fmt.Printf("\tCommand failed. %v\n", err)
+	}*/
 }
 
 func ping() string {
