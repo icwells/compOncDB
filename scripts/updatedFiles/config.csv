@@ -1,6 +1,6 @@
 Directory,Command
-,compOncDB cancerrates –min 20 --pathology -e “Orders=Primates” -o primates.Approved.min20.csv
-/home/shawn/go/src/github.com/icwells/compOncDB/scripts/giTract, go run main.go –repro -e “Class=Mammalia” -o mammalia.ReproductivePrevalence.csv
+,compOncDB cancerrates –min 20 --pathology -e Orders=Primates -o primates.Approved.min20.csv
+/home/shawn/go/src/github.com/icwells/compOncDB/scripts/giTract, go run main.go –repro -e Class=Mammalia -o mammalia.ReproductivePrevalence.csv
 /home/shawn/go/src/github.com/icwells/compOncDB/scripts/giTract, go run main.go -n 1 -o gitract.Approved.allrecords.csv
 /home/shawn/go/src/github.com/icwells/compOncDB/scripts/giTract, go run main.go -n 0 -o gitract.Approved.nonNecropsy.csv
 /home/shawn/go/src/github.com/icwells/compOncDB/scripts/giTract, go run main.go -n 2 -o gitract.Approved.necropsy.csv

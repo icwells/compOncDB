@@ -23,48 +23,94 @@ var (
 type command struct {
 	command   string
 	directory string
-	options   string
+	options   []string
+	outfile   string
+	password  string
+	program   string
+	user      string
 }
 
-func newCommand(com, dir string) command {
+func newCommand(com, dir, pw string) *command {
 	// Returns new command
-	var c command
+	idx := 2
+	c := new(command)
 	s := strings.Split(com, " ")
-	c.command = s[0]
+	if s[1] == "run" {
+		c.command = c.setOption(s[1], s[2])
+	} else {
+		idx++
+		c.command = s[1]
+	}
 	if dir != "" {
 		c.directory = dir
 	}
-	c.options = strings.Join(s[1:], " ")
+	c.password = "--password " + pw
+	c.program = s[0]
+	c.user =  "-u " + *user
+	c.setOptions(s[idx:])
 	return c
 }
 
-func (c *command) formatOptions(pw string) {
-	// Returns formatted output file name
-	stamp := codbutils.GetTimeStamp()
-	// Add outdir and time stamp to outfile
-	cmd := strings.Split(c.options, "-o ")
-	tail := strings.Split(cmd[1], " ")
-	tail[0] = "-o " + path.Join(*outdir, strings.Replace(tail[0], "csv", stamp+".csv", 1))
-	// Add username and password
-	cmd = append([]string{cmd[0]}, "-u "+*user)
-	cmd = append([]string{cmd[0]}, "--password "+pw)
-	cmd = append(cmd, tail...)
-	c.options = strings.Join(cmd, " ")
+func (c *command) setOption(x, y string) string {
+	// Formats individual command
+	return fmt.Sprintf("%s %s", x, y)
 }
 
-func (c *command) runCommand(wg *sync.WaitGroup, pw string) {
+func (c *command) setOutfile(v string) {
+	// Formats output file name with outdir and time stamp
+	stamp := codbutils.GetTimeStamp()
+	c.outfile = "-o " + path.Join(*outdir, strings.Replace(v, "csv", stamp+".csv", 1))
+}
+
+func (c *command) setOptions(s []string) {
+	// Stores options in struct
+	for idx, i := range s {
+		if i[0] == '-' && idx < len(s)-1 {
+			switch i[1] {
+			case 'o':
+				c.setOutfile(s[idx+1])
+			case '-':
+				c.options = append(c.options, i)
+			default:
+				c.options = append(c.options, c.setOption(i, s[idx+1]))
+			}
+			idx++
+		}
+	}
+}
+
+func (c *command) formatCommand() *exec.Cmd {
+	// Formats command with variable number of options
+	var ret *exec.Cmd
+	switch len(c.options) {
+	case 1:
+		ret = exec.Command(c.program, c.command, c.user, c.password, c.options[0], c.outfile)
+	case 2:
+		ret = exec.Command(c.program, c.command, c.user, c.password, c.options[0], c.options[1], c.outfile)
+	case 3:
+		ret = exec.Command(c.program, c.command, c.user, c.password, c.options[0], c.options[1], c.options[2], c.outfile)
+	case 4:
+		ret = exec.Command(c.program, c.command, c.user, c.password, c.options[0], c.options[1], c.options[2], c.options[3], c.outfile)
+	//case 5:
+	//	ret = exec.Command(c.program, c.command, c.user, c.password, c.options[0], c.options[1], c.options[2], c.options[3], c.options[4], c.outfile)
+	}
+	return ret
+}
+
+func (c *command) runCommand(wg *sync.WaitGroup) {
 	// Runs given command
 	defer wg.Done()
-	c.formatOptions(pw)
-	cmd := exec.Command(c.command, c.options)
+	cmd := c.formatCommand()
 	if c.directory != "" {
 		cmd.Dir = c.directory
 	}
 	fmt.Println(cmd.String())
-	/*if err := cmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		fmt.Printf("\tCommand failed. %v\n", err)
-	}*/
+	}
 }
+
+//----------------------------------------------------------------------------
 
 func ping() string {
 	// Returns connects to database and returns password
@@ -72,18 +118,13 @@ func ping() string {
 	return db.Password
 }
 
-func setConfig() []command {
+func setConfig(pw string) []*command {
 	// Returns input file values
-	var ret []command
-	first := true
+	var ret []*command
 	infile := path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/scripts/updatedFiles/config.csv")
 	reader, header := iotools.YieldFile(infile, true)
 	for i := range reader {
-		if !first {
-			ret = append(ret, newCommand(i[header["Command"]], i[header["Directory"]]))
-		} else {
-			first = false
-		}
+		ret = append(ret, newCommand(i[header["Command"]], i[header["Directory"]], pw))
 	}
 	return ret
 }
@@ -94,9 +135,9 @@ func main() {
 	password := ping()
 	fmt.Println("\n\tIssuing commands...")
 	var wg sync.WaitGroup
-	for _, i := range setConfig() {
+	for _, i := range setConfig(password) {
 		wg.Add(1)
-		go i.runCommand(&wg, password)
+		go i.runCommand(&wg)
 	}
 	fmt.Println("\tWaiting for results...")
 	wg.Wait()
