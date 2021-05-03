@@ -5,12 +5,11 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
-	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/iotools"
-	"github.com/Songmu/prompter"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os/exec"
 	"path"
+	"strings"
 	"sync"
 	"time"
 )
@@ -22,30 +21,44 @@ var (
 )
 
 type command struct {
-	command		string
-	directory	string
+	command   string
+	directory string
+	options   string
 }
 
 func newCommand(com, dir string) command {
 	// Returns new command
 	var c command
-	c.command = com
+	s := strings.Split(com, " ")
+	c.command = s[0]
 	c.directory = dir
+	c.options = strings.Join(s[1:], " ")
 	return c
 }
 
-func (c *command) setOutfile(s string) string {
+func (c *command) formatOptions(pw string) {
 	// Returns formatted output file name
 	stamp := codbutils.GetTimeStamp()
-
+	// Add outdir and time stamp to outfile
+	cmd := strings.Split(c.options, "-o ")
+	tail := strings.Split(cmd[1], " ")
+	tail[0] = "-o " + path.Join(*outdir, strings.Replace(tail[0], ".csv", stamp+".csv", 1))
+	// Add username and password
+	cmd = append([]string{cmd[0]}, "-u "+*user)
+	cmd = append([]string{cmd[0]}, "--password "+pw)
+	cmd = append(cmd, tail...)
+	c.options = strings.Join(cmd, " ")
 }
 
-func (c *command) runCommand(wg *sync.WaitGroup) {
+func (c *command) runCommand(wg *sync.WaitGroup, pw string) {
 	// Runs given command
 	defer wg.Done()
-	cmd := 
-
-
+	c.formatOptions(pw)
+	cmd := exec.Command(c.command, c.options)
+	cmd.Dir = c.directory
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("\tCommand failed. %v\n", err)
+	}
 }
 
 func ping() string {
@@ -78,7 +91,7 @@ func main() {
 	var wg sync.WaitGroup
 	for _, i := range setConfig() {
 		wg.Add(1)
-		go i.runCommand(&wg)
+		go i.runCommand(&wg, password)
 	}
 	fmt.Println("\tWaiting for results...")
 	wg.Wait()
