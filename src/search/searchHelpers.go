@@ -47,11 +47,14 @@ func (s *searcher) searchSingleTable(table string) {
 func (s *searcher) setErr(e codbutils.Evaluation) {
 	// Stores error message if no match is found for given evalutation
 	s.msg = fmt.Sprintf("Found 0 records where %s is %s.", e.Column, e.Value)
-	matches := fuzzy.RankFindFold(e.Value, s.db.GetColumnText(e.Table, e.Column))
-	if matches.Len() > 0 {
-		sort.Sort(matches)
-		if matches[0].Target != e.Value {
-			s.msg += fmt.Sprintf(" Did you mean %s?", matches[0].Target)
+	if e.Operator != "^" {
+		// Skip the 'in' command since results would be illogical
+		matches := fuzzy.RankFindFold(e.Value, s.db.GetColumnText(e.Table, e.Column))
+		if matches.Len() > 0 {
+			sort.Sort(matches)
+			if matches[0].Target != e.Value {
+				s.msg += fmt.Sprintf(" Did you mean %s?", matches[0].Target)
+			}
 		}
 	}
 	s.msg += "\n"
