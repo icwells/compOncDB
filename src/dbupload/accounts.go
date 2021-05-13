@@ -41,16 +41,11 @@ func (a *accounts) uploadAccounts() {
 
 func (a *accounts) extractAccounts(infile string) {
 	// Extracts accounts from input file
-	var col map[string]int
-	var l int
-	first := true
 	a.logger.Printf("Extracting accounts from %s\n", infile)
-	f := iotools.OpenFile(infile)
-	defer f.Close()
-	input := iotools.GetScanner(f)
-	for input.Scan() {
-		s := strings.Split(string(input.Text()), ",")
-		if first == false && len(s) == l {
+	reader, col := iotools.YieldFile(infile, true)
+	l := len(col)
+	for s := range reader {
+		if len(s) == l {
 			pass := false
 			account := strings.TrimSpace(s[col["Account"]])
 			client := strings.TrimSpace(s[col["Submitter"]])
@@ -68,10 +63,6 @@ func (a *accounts) extractAccounts(infile string) {
 				a.neu[account] = []string{strconv.Itoa(a.count), account, client}
 				a.count++
 			}
-		} else {
-			col = iotools.GetHeader(s)
-			l = len(s)
-			first = false
 		}
 	}
 }

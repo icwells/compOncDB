@@ -184,20 +184,12 @@ func (e *entries) evaluateRow(row []string) {
 
 func (e *entries) extractPatients(infile string) {
 	// Assigns patient data to appropriate slices with unique entry IDs
-	first := true
 	e.logger.Printf("Extracting patient data from %s\n", infile)
-	f := iotools.OpenFile(infile)
-	defer f.Close()
-	input := iotools.GetScanner(f)
-	for input.Scan() {
-		spl := strings.Split(string(input.Text()), ",")
-		if first == false {
-			e.evaluateRow(spl)
-		} else {
-			e.col = iotools.GetHeader(spl)
-			e.length = len(spl)
-			first = false
-		}
+	reader, header := iotools.YieldFile(infile, true)
+	e.col = header
+	e.length = len(header)
+	for i := range reader {
+		e.evaluateRow(i)
 	}
 	e.logger.Printf("Extracted %d records.\n", len(e.p))
 	e.logger.Printf("Found %d unmatched records.", len(e.unmatched))
