@@ -50,7 +50,7 @@ func (s *summary) toSlice() [][]string {
 	ret = append(ret, getRow("male", s.male, s.total))
 	ret = append(ret, getRow("female", s.female, s.total))
 	ret = append(ret, getRow("entries with ages", s.age, s.total))
-	ret = append(ret, getRow("cancer", s.mass, s.total))
+	ret = append(ret, getRow("neoplasia", s.mass, s.total))
 	ret = append(ret, getRow("hyperplasia", s.hyper, s.total))
 	ret = append(ret, getRow("malignant", s.mal, s.total))
 	ret = append(ret, getRow("benign", s.benign, s.total))
