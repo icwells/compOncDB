@@ -82,10 +82,10 @@ class Histograms():
 def main():
 	start = datetime.now()
 	parser = ArgumentParser("Plots historgams of record counts.")
-	parser.add_argument("-d", help = "Path to diagnosis table.")
-	parser.add_argument("-p", help = "Path to patient table.")
-	parser.add_argument("-o", help = "Path to output directory.")
-	parser.add_argument("-s", help = "Path to source table.")
+	parser.add_argument("d", help = "Path to diagnosis table.")
+	parser.add_argument("p", help = "Path to patient table.")
+	parser.add_argument("s", help = "Path to source table.")
+	parser.add_argument("o", help = "Path to output directory.")
 	Histograms(parser.parse_args())
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 

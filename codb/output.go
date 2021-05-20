@@ -10,7 +10,10 @@ import (
 	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
+	"github.com/icwells/go-tools/iotools"
 	"net/http"
+	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -39,6 +42,7 @@ type Output struct {
 	Outfile   string
 	Pathfile  string
 	Pathology string
+	Plot      string
 	Table     HTMLTable
 	Count     string
 	db        *dbIO.DBIO
@@ -176,10 +180,36 @@ func (o *Output) searchDB() {
 	}
 }
 
+func (o *Output) getTable(outdir, name string) string {
+	// Saves table and returns name
+	table := o.db.GetTable(name)
+	ret := filepath.Join(outdir, name+".csv")
+	codbutils.WriteResults(ret, o.db.Columns[name], table)
+	return ret
+}
+
+func (o *Output) barplot() {
+	// Calls barplot.py and returns result file
+	// Make outdir
+	outdir, _ := iotools.FormatPath(fmt.Sprintf("/tmp/barplots%s", codbutils.GetTimeStamp()), true)
+	d := o.getTable(outdir, "Diagnosis")
+	p := o.getTable(outdir, "Patient")
+	s := o.getTable(outdir, "Source")
+	cmd := exec.Command("python", "barplot.py", d, p, s, outdir)
+	err := cmd.Run()
+	if err != nil {
+		panic("")
+	}
+	if f, err := filepath.Glob(outdir + "*.svg"); err == nil {
+		o.Plot = f[0]
+	}
+}
+
 func (o *Output) summary() {
 	// Returns general database summary
 	header := []string{"Field", "Total", "%"}
 	o.formatTable(header, dbextract.GetSummary(o.db))
+	o.barplot()
 	C.renderTemplate(C.temp.result, o)
 }
 
