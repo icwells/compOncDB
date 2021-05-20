@@ -3,30 +3,33 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from matplotlib import pyplot
+import numpy as np
 import os
-from unixpath import *
+import unixpath
 
 class Histograms():
 
 	def __init__(self, args):
 		pyplot.style.use("seaborn-deep")
 		self.approved ="Approved"
-		self.axes = setAxes()
-		self.columns = [["Masspresent", "Necropsy"], ["Approved"]]
-		self.fileds = ["Necropsy", "Approved", "Masspresent"]
+		self.columns = [["Infant", "Castrated"], ["Masspresent", "Necropsy", "Metastasis"], ["Approved", "Zoo"]]
+		self.fields = ["Infant", "Castrated", "Masspresent", "Necropsy", "Metastasis", "Zoo"]
 		self.id = "ID"
-		self.label = ["True", "False", "NA"]
-		self.legend = "upper right"
+		self.label = [self.approved, "All"]
+		self.legend = "upper left"
 		self.outdir = unixpath.checkDir(args.o, True)
 		self.records = {}
 		print()
-		for idx, i in enumerate([args.p, args.n, args.s]):
+		for idx, i in enumerate([args.p, args.d, args.s]):
 			self.__setTable__(i, self.columns[idx])
-		self.__plotHistograms__()
+		self.__barPlot__()
 
 	def __newRecord__(self):
 		# Returns empty record dict
-		return {"Infant": None, "Masspresent": None, "Necropsy": None, "Approved": None}
+		ret = {}
+		for i in self.fields:
+			ret[i] = None
+		return ret
 
 	def __setTable__(self, infile, columns):
 		# Returns list of table columns
@@ -48,33 +51,39 @@ class Histograms():
 				head = line
 				first = False
 
-	def __plot__(self, name, l):
+	def __plot__(self, l):
 		# Adds histogram to figure pane
-		print(("\tPlotting {}...").format(name))
+		print("\tGenerating plot...")
 		fig, ax = pyplot.subplots(nrows = 1, ncols = 1)
+		width = 0.4
+		ax.bar(self.fields, l[0], width)
+		ax.bar(self.fields, l[1], width, bottom = l[0])
+		ax.set(title = "Zoo Approvals", ylabel = "Number of Records")
+		ax.legend(loc=self.legend, labels = self.label)
+		fig.savefig(("{}ZooApproval.{}.svg").format(self.outdir, datetime.now().strftime("%Y-%m-%d")))
 
-		ax.hist([ ], label = self.label)
-		ax.set(title = name, ylabel = "Frequency", xlabel = self.axes[k].label)
-		#ax.set_xlim(0)
-		ax.legend(loc=self.legend)
-		fig.savefig(("{}{}.{}.svg").format(self.outdir, name, datetime.now().strftime("%Y-%m-%d")))
-
-	def __plotHistograms__(self):
+	def __barPlot__(self):
 		# Plots histograms by related fields
-		for i in self.combinations:
-			l = []
-			for k in self.records:
-				r = self.records[k]
-				if r[i[0]] and r[i[1]]:
-					l.append([r[i[0]], r[i[1]]])
-			#self.__trimLists__(k)
-			self.__plot__("{} {}".format(r[i[0]], r[i[1]]), l)
+		l = []
+		for i in range(len(self.label)):
+			l.append([])
+			for j in range(len(self.fields)):
+				l[i].append(0)
+		for k in self.records:
+			r = self.records[k]
+			for idx, i in enumerate(self.fields):
+				if r[i] == 1:
+					if r[self.approved] == 1:
+						l[0][idx] += 1
+					else:
+						l[1][idx] += 1
+		self.__plot__(l)
 
 def main():
 	start = datetime.now()
 	parser = ArgumentParser("Plots historgams of record counts.")
 	parser.add_argument("-d", help = "Path to diagnosis table.")
-	#parser.add_argument("-p", help = "Path to patient table.")
+	parser.add_argument("-p", help = "Path to patient table.")
 	parser.add_argument("-o", help = "Path to output directory.")
 	parser.add_argument("-s", help = "Path to source table.")
 	Histograms(parser.parse_args())
