@@ -104,5 +104,8 @@ func main() {
 	kingpin.Parse()
 	z := newZoos()
 	z.setAccounts()
+	for _, i := range z.accounts {
+		fmt.Println(i.id, i.accounts.ToStringSlice())
+	}
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }

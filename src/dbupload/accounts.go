@@ -54,6 +54,8 @@ func (a *accounts) extractAccounts(infile string) {
 			if zoo := s[col["Zoo"]]; zoo == "1" {
 				// Check zoo names against submitter names only
 				if ex, _ := a.submitter.InSet(client); !ex {
+					a.submitter.Add(client)
+					account = "NA"
 					pass = true
 				}
 			} else {

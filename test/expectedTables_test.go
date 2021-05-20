@@ -24,7 +24,7 @@ func getAccounts() *dataframe.Dataframe {
 	s := [][]string{
 		H.Accounts,
 		{"1", "X520", "XYZ"},
-		{"2", "A16", "Kv Zoo"},
+		{"2", "NA", "Kv Zoo"},
 	}
 	return setDF(0, s)
 }
