@@ -32,6 +32,11 @@ func (a *account) addAccount(name string) {
 	a.accounts.Add(name)
 }
 
+func (a *account) length() int {
+	// Returns length of accounts set
+	return a.accounts.Length()
+}
+
 func (a *account) getAccounts() string {
 	// Returns sources as comma seperated string
 	a.accounts.Pop(a.id)
@@ -41,7 +46,6 @@ func (a *account) getAccounts() string {
 type zoos struct {
 	accounts map[string]*account
 	db       *dbIO.DBIO
-	names    *simpleset.Set
 	source   []string
 }
 
@@ -50,8 +54,7 @@ func newZoos() *zoos {
 	z := new(zoos)
 	z.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
 	z.accounts = make(map[string]*account)
-	z.names = simpleset.NewStringSet()
-	for _, i := range z.db.GetRows("Source", "Zoo", "1", "Zoo,account_id") {
+	for _, i := range z.db.GetRows("Source", "Zoo", "1", "account_id,Zoo") {
 		z.source = append(z.source, i[0])
 	}
 	return z
@@ -69,32 +72,39 @@ func (z *zoos) setAccounts() {
 			z.accounts[name].addAccount(id)
 		}
 	}
+	for k, v := range z.accounts {
+		// Remove records without multiple ids
+		if v.length() == 0 {
+			delete(z.accounts, k)
+		}
+	}
 }
+
+func (z *zoos) update(table, command string) {
+	// Executes command
+	cmd, err := z.db.DB.Prepare(command)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Preparing command for %s: %v\n", table, err)
+	} else {
+		_, err = cmd.Exec()
+		cmd.Close()
+		if err != nil {
+			fmt.Printf("\n\t[Error] Executing command on %s: %v\n", table, err)
+		}
+	}
+}
+
 
 func (z *zoos) updateAccounts() {
 	// Replaces redundant account ids in account table
-	fmt.Println("Updating Accounts table...")
+	fmt.Println("Updating Accounts IDs...")
 	count := 0
 	for _, i := range z.accounts {
 		count++
-		z.db.DeleteRows("Accounts", "account_id", i.accounts.ToStringSlice())
-		z.db.UpdateRow("Accounts", "Account", "NA", "account_id", "=", i.id)
+		z.update("Source", fmt.Sprintf("UPDATE Source SET account_id = %s WHERE account_id IN (%s);", i.id, i.getAccounts()))
+		z.update("Accounts", fmt.Sprintf("DELETE FROM Accounts WHERE account_id IN (%s);",i.getAccounts()))
+		z.update("Accounts", fmt.Sprintf("UPDATE Accounts SET Account = 'NA' WHERE account_id = %s;", i.id))
 		fmt.Printf("\r\tUpdated %d of %d account ids.", count, len(z.accounts))
-	}
-	fmt.Println()
-}
-
-func (z *zoos) updateSource() {
-	// Updates redundant account ids in source table
-	fmt.Println("Updating Source table...")
-	count := 0
-	for _, i := range z.accounts {
-		count++
-		if err := z.db.UpdateRow("Source", "account_id", i.id, "account_id", "IN", i.getAccounts()); !err {
-			fmt.Println("\t[Warning] Failed to update Source.")
-		} else {
-			fmt.Printf("\r\tUpdated %d of %d account ids.", count, len(z.accounts))
-		}
 	}
 	fmt.Println()
 }
@@ -104,8 +114,6 @@ func main() {
 	kingpin.Parse()
 	z := newZoos()
 	z.setAccounts()
-	for _, i := range z.accounts {
-		fmt.Println(i.id, i.accounts.ToStringSlice())
-	}
+	z.updateAccounts()
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }

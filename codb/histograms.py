@@ -10,9 +10,10 @@ class Histograms():
 
 	def __init__(self, args):
 		pyplot.style.use("seaborn-deep")
+		self.approved ="Approved"
 		self.axes = setAxes()
 		self.columns = [["Masspresent", "Necropsy"], ["Approved"]]
-		self.combinations = [["Approved", "Necropsy"], ["Approved", "Masspresent"]]
+		self.fileds = ["Necropsy", "Approved", "Masspresent"]
 		self.id = "ID"
 		self.label = ["True", "False", "NA"]
 		self.legend = "upper right"
