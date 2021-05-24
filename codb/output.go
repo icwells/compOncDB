@@ -190,18 +190,19 @@ func (o *Output) getTable(outdir, name string) string {
 
 func (o *Output) barplot() {
 	// Calls barplot.py and returns result file
+	tmp := "/tmp/"
 	// Make outdir
-	outdir, _ := iotools.FormatPath(fmt.Sprintf("/tmp/barplots%s", codbutils.GetTimeStamp()), true)
+	outdir, _ := iotools.FormatPath(fmt.Sprintf("%sbarplots%s", tmp, codbutils.GetTimeStamp()), true)
 	d := o.getTable(outdir, "Diagnosis")
 	p := o.getTable(outdir, "Patient")
 	s := o.getTable(outdir, "Source")
 	cmd := exec.Command("python", "barplot.py", d, p, s, outdir)
-	err := cmd.Run()
-	if err != nil {
-		panic("")
-	}
+	cmd.Run()
 	if f, err := filepath.Glob(outdir + "*.svg"); err == nil {
 		o.Plot = f[0]
+		fmt.Println(o.Plot)
+		fs := http.FileServer(http.Dir(outdir))
+		http.Handle(outdir, http.StripPrefix(outdir, fs))
 	}
 }
 
