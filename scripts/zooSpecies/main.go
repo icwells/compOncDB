@@ -95,7 +95,9 @@ func (z *zoos) write() {
 	for _, i := range z.records {
 		sp := i[z.header["Species"]]
 		if v, ex := z.species[sp]; ex {
-			row := append(i, strings.Join(v.ToStringSlice(), ";"))
+			genus := i[z.header["Genus"]]
+			nec := i[z.header["Necropsies"]]
+			row := append([]string{genus, sp, nec}, strings.Join(v.ToStringSlice(), ";"))
 			out.WriteString(strings.Join(row, ",") + "\n")
 		}
 	}
