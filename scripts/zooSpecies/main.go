@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	approved = kingpin.Flag("approved", "Extract only approved sources.").Default("false").Bool()
 	infile   = kingpin.Flag("infile", "Name of input csv.").Short('i').Required().String()
 	outfile  = kingpin.Flag("outfile", "Name of output file.").Short('o').Required().String()
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Required().String()
@@ -39,7 +40,7 @@ func newZoos() *zoos {
 	z.all = simpleset.NewStringSet()
 	z.records, z.header = iotools.ReadFile(*infile, true)
 	z.ids = codbutils.ToMap(z.db.GetColumns("Patient", []string{"taxa_id", "ID"}))
-	z.sources = codbutils.ToMap(z.db.GetColumns("Source", []string{"ID", "Zoo", "Institute", "account_id"}))
+	z.sources = codbutils.ToMap(z.db.GetColumns("Source", []string{"ID", "Zoo", "Institute", "Approved", "account_id"}))
 	z.species = make(map[string]*simpleset.Set)
 	z.taxa = make(map[string]*simpleset.Set)
 	return z
@@ -73,9 +74,11 @@ func (z *zoos) setNames() {
 			if s, ex := z.sources[i]; ex {
 				if s[0] == "1" || s[1] == "1" {
 					// Ignore private records
-					if name, ex := z.accounts[s[2]]; ex {
-						z.species[k].Add(name)
-						z.all.Add(name)
+					if !*approved || s[2] == "1" {
+						if name, ex := z.accounts[s[3]]; ex {
+							z.species[k].Add(name)
+							z.all.Add(name)
+						}
 					}
 				}
 			}
