@@ -25,9 +25,9 @@ func (s *Services) setServices(l []string) *simpleset.Set {
 func NewServices() *Services {
 	// Returns new string
 	s := new(Services)
-	s.allrecords = s.setServices([]string{"DLC", "LZ", "NWZP", "SDZ", "WZ"})
+	s.allrecords = s.setServices([]string{"DLC", "LZ", "NWZP", "SDZ"})
 	//s.denominators = s.setServices([]string{"ZEPS"})
-	s.nodenominators = s.setServices([]string{"MSU", "SNZ", "ZEPS"})
+	s.nodenominators = s.setServices([]string{"MSU", "SNZ", "WZ", "ZEPS"})
 	return s
 }
 

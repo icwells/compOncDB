@@ -20,15 +20,15 @@
   <h1 id="subheader">Service Names</h1>
   <hr>
   <table>
-    <tr><th>Service Code</th><th>Service Name</th></tr>
-    <tr><td>DLC</td><td>Duke Lemur Center</td></tr>
-    <tr><td>LZ</td><td>London Zoo</td></tr>
-    <tr><td>MSU</td><td>Michigan State University</td></tr>
-    <tr><td>NWZP</td><td>Northwest ZooPath</td></tr>
-    <tr><td>SDZ</td><td>San Diego Zoo</td></tr>
-    <tr><td>SNZ</td><td>Smithsonian National Zoo</td></tr>
-    <tr><td>WZ</td><td>Whipsnade Zoo</td></tr>
-    <tr><td>ZEPS</td><td>Zoo/Exotic Pathology Service (Drury)</td></tr>
+    <tr><th>Service Code</th><th>Service Name</th><th>Has Denominators</th></tr>
+    <tr><td>DLC</td><td>Duke Lemur Center</td><td>Yes</td></tr>
+    <tr><td>LZ</td><td>London Zoo</td><td>Yes</td></tr>
+    <tr><td>MSU</td><td>Michigan State University</td><td>No</td></tr>
+    <tr><td>NWZP</td><td>Northwest ZooPath</td><td>Yes</td></tr>
+    <tr><td>SDZ</td><td>San Diego Zoo</td><td>Yes</td></tr>
+    <tr><td>SNZ</td><td>Smithsonian National Zoo</td><td>No</td></tr>
+    <tr><td>WZ</td><td>Whipsnade Zoo</td><td>No</td></tr>
+    <tr><td>ZEPS</td><td>Zoo/Exotic Pathology Service (Drury)</td><td>Yes (necropsy status unknown)</td></tr>
   </table>
 </div>
 
@@ -40,12 +40,12 @@
   <hr>
   <table>
     <tr><th>Column Name</th><th>Explanation</th></tr>
-    <tr><td>Location</td><td>User specified tissue . "all" includes all tissues for that species.</td></tr>
+    <tr><td>Location</td><td>User specified tissue. "all" includes all tissues for that species.</td></tr>
     <tr><td>TotalRecords</td><td>Total number of records for that species (and optionally species records for the given tissue). This will vary if the necropsy or infant records options are checked.</td></tr>
     <tr><td>RecordsWithDenominators</td><td>Same as above but excludes records from databases which do not include non-neoplasia records.</td></tr>
     <tr><td>TotalNeoplasia</td><td>Total number of neoplasia records for that species (and optionally species records for the given tissue). This will vary if the necropsy or infant records options are checked.</td></tr>
     <tr><td>NeoplasiaWithDenominators</td><td>Same as above but excludes records from databases which do not include non-neoplasia records.</td></tr>
-    <tr><td>NeoplasiaPrevalence</td><td>NeoplasiaWithDenominators divded by RecordsWithDenominators.</td></tr>
+    <tr><td>NeoplasiaPrevalence</td><td>NeoplasiaWithDenominators divded by RecordsWithDenominators (tissue level results are divided by RecordsWithDenominators for all tissues).</td></tr>
     <tr><td>MalignancyKnown</td><td>Total number of records for a malignant or benign determination could be made.</td></tr>
     <tr><td>Malignant</td><td>Total number of malignant records from databases which include non-neoplasia records.</td></tr>
     <tr><td>MalignancyPrevalence</td><td>Malignant divided by RecordsWithDenominators (tissue level results are divided by the species level total).</td></tr>
