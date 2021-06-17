@@ -75,10 +75,10 @@ func (s *Species) tissueSlice(name string, r *Record) []string {
 	return ret
 }
 
-func (s *Species) ToSlice() [][]string {
+func (s *Species) ToSlice(keepall bool) [][]string {
 	// Formats cancer rates and returns row for tissue and total
 	var ret [][]string
-	if s.Location == "" || s.tissue.total > 0 {
+	if keepall || s.Location == "" || s.tissue.total > 0 {
 		// Keep records with target tissue or at least 5% of records have locations
 		s.denominator = s.total.total - s.notissue
 		total := append([]string{s.id}, s.taxonomy...)

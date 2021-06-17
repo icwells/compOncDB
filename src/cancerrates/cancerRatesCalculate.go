@@ -16,7 +16,7 @@ func (c *cancerRates) formatRates() {
 		if v.total.total >= c.min {
 			var err error
 			c.ids.Add(k)
-			for _, i := range v.ToSlice() {
+			for _, i := range v.ToSlice(c.keep) {
 				if len(i) > 0 {
 					// Add to dataframe
 					err = c.rates.AddRow(i)
@@ -87,9 +87,9 @@ func (c *cancerRates) GetTaxa(eval string) {
 	//c.addDenominators()
 }
 
-func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild bool, zoo, eval, location string) *dataframe.Dataframe {
+func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zoo, eval, location string) *dataframe.Dataframe {
 	// Returns dataframe of cancer rates
-	c := NewCancerRates(db, min, nec, inf, lh, wild, zoo, location)
+	c := NewCancerRates(db, min, nec, inf, lh, wild, keepall, zoo, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.GetTaxa(eval)
 	c.CountRecords()
@@ -99,9 +99,9 @@ func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild bool, zoo, eval, 
 	return c.rates
 }
 
-func GetRatesAndRecords(db *dbIO.DBIO, min, nec int, inf, lh bool, zoo, eval, location string) (*dataframe.Dataframe, *dataframe.Dataframe) {
+func GetRatesAndRecords(db *dbIO.DBIO, min, nec int, inf, lh, keepall bool, zoo, eval, location string) (*dataframe.Dataframe, *dataframe.Dataframe) {
 	// Returns dataframe of cancer rates and pathology reports used to caclulate them
-	c := NewCancerRates(db, min, nec, inf, lh, false, zoo, location)
+	c := NewCancerRates(db, min, nec, inf, lh, false, keepall, zoo, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.GetTaxa(eval)
 	c.CountRecords()

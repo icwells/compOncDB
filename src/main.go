@@ -57,6 +57,7 @@ var (
 	top        = searchdb.Flag("topcancer", "Returns top 5 cancer locations with most common type and species for each.").Default("false").Bool()
 
 	cancerRates = kingpin.Command("cancerrates", "Calculate neoplasia prevalence for species.")
+	keepall     = cancerRates.Flag("keepall", "Keep records without specified tissue when calculating by tissue.").Default("false").Bool()
 	lifehist    = cancerRates.Flag("lifehistory", "Append life history values to cancer rate data.").Default("false").Bool()
 	location    = cancerRates.Flag("location", "Include tumor location summary for each species.").Default("").String()
 	min         = cancerRates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()

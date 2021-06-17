@@ -260,7 +260,7 @@ func TestToSlice(t *testing.T) {
 	expected := getExpectedSpecies()
 	for ind, s := range getTestSpecies() {
 		s.denominator = s.total.total
-		act := s.ToSlice()
+		act := s.ToSlice(false)
 		exp := expected[ind]
 		if len(act) != len(exp) {
 			t.Errorf("%d: Actual number of rows %d does not equal expected: %d", ind, len(act), len(exp))

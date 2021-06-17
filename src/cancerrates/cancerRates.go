@@ -23,6 +23,7 @@ type cancerRates struct {
 	header   []string
 	ids      *simpleset.Set
 	infant   bool
+	keep     bool
 	lh       bool
 	location string
 	logger   *log.Logger
@@ -38,13 +39,14 @@ type cancerRates struct {
 	zoo      string
 }
 
-func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild bool, zoo, location string) *cancerRates {
+func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zoo, location string) *cancerRates {
 	// Returns initialized cancerRates struct
 	idx := 0
 	c := new(cancerRates)
 	c.db = db
 	c.ids = simpleset.NewStringSet()
 	c.infant = inf
+	c.keep = keepall
 	c.location = location
 	c.lh = lh
 	c.logger = codbutils.GetLogger()
