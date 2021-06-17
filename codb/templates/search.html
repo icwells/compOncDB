@@ -8,6 +8,31 @@
     </p>
   </div>
   <form method="POST" action="/codb/prevalence/">
+    <!--Zoo Selection-->
+    <div>
+      <label for="Source">Calculate neoplasia prevalence using records from:</label>
+      <select name="Source">
+        <option name="Source" value="approved" selected="selected">Zoos which have approved publication</option>
+        <option name="Source" value="all">All sources</option>
+        <option name="Source" value="aza">AZA member zoos</option>
+        <option name="Source" value="noprivate">Zoos and institutes</option>
+        <option name="Source" value="zoo">Zoos</option>
+      </select>
+    </div>
+    <!--Necropsy Selection-->
+    <div>
+      <label for="Necropsy">Calculate neoplasia prevalence using:</label>
+      <select name="Necropsy">
+        <option name="Necropsy" value="necropsyonly" selected="selected">Necropsy records</option>
+        <option name="Necropsy" value="nonnecropsy">Non-necropsy records</option>
+        <option name="Necropsy" value="all">Necropsy and non-necropsy records</option>
+      </select>
+    </div>
+    <div>
+      <label for="Min">The minimum number of entries required to examine a species:</label>
+      <input type="number" name="Min" min="0" value="1">
+    </div>
+    <br>
     <label for="Taxa">Taxonomic level to subset neoplasia prevalence by:</label>
 	<div>
       <select id="Taxa" name="Taxa">
@@ -34,31 +59,11 @@
         <option name="Location" value="" selected="selected"></option>
       </select>
 	</div>
-    <div>
-      <label for="Min">The minimum number of entries required to examine a species:</label>
-      <input type="number" name="Min" min="0" value="1">
+    <div class="tab">
+      <input type="checkbox" name="Keepall">
+      <label for="Keepall">Keep species without records for specified tissue.</label>
     </div>
-    <!--Zoo Selection-->
-    <div>
-      <label for="Source">Calculate neoplasia prevalence using records from:</label>
-      <select name="Source">
-        <option name="Source" value="approved" selected="selected">Zoos which have approved publication</option>
-        <option name="Source" value="all">All sources</option>
-        <option name="Source" value="aza">AZA member zoos</option>
-        <option name="Source" value="noprivate">Zoos and institutes</option>
-        <option name="Source" value="zoo">Zoos</option>
-      </select>
-    </div>
-    <!--Necropsy Selection-->
-    <div>
-      <label for="Necropsy">Calculate neoplasia prevalence using:</label>
-      <select name="Necropsy">
-        <option name="Necropsy" value="necropsyonly" selected="selected">Necropsy records</option>
-        <option name="Necropsy" value="nonnecropsy">Non-necropsy records</option>
-        <option name="Necropsy" value="all">Necropsy and non-necropsy records</option>
-      </select>
-    </div>
-    <br>
+	<hr>
     <div>
       <input type="checkbox" name="Lifehistory">
       <label for="Lifehistory">Append life history information to results.</label>

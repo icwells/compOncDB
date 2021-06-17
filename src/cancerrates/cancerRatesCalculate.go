@@ -14,20 +14,18 @@ func (c *cancerRates) formatRates() {
 	// Calculates rates, and formats for printing
 	for k, v := range c.Records {
 		if v.total.total >= c.min {
-			var err error
 			c.ids.Add(k)
 			for _, i := range v.ToSlice(c.keep) {
 				if len(i) > 0 {
 					// Add to dataframe
-					err = c.rates.AddRow(i)
+					err := c.rates.AddRow(i)
 					if err != nil {
 						c.logger.Printf("Adding row to dataframe: %v\n", err)
 						break
+					} else {
+						c.species++
 					}
 				}
-			}
-			if err == nil {
-				c.species++
 			}
 		}
 	}

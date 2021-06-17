@@ -125,12 +125,12 @@ func (o *Output) neoplasiaPrevalence() {
 		necropsy = -1
 	}
 	if opt.Pathology {
-		res, pathology = cancerrates.GetRatesAndRecords(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Source, eval, opt.Location)
+		res, pathology = cancerrates.GetRatesAndRecords(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Keepall, opt.Source, eval, opt.Location)
 		o.Pathfile = fmt.Sprintf("pathologyRecords.min%d.%s.csv", opt.Min, codbutils.GetTimeStamp())
 		o.Pathology = fmt.Sprintf("/tmp/%s", o.Pathfile)
 		pathology.ToCSV(o.Pathology)
 	} else {
-		res = cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Wild, opt.Source, eval, opt.Location)
+		res = cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Wild, opt.Keepall, opt.Source, eval, opt.Location)
 	}
 	if opt.Location == "" {
 		// Use location as file name stem

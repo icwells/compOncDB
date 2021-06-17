@@ -14,6 +14,7 @@ type Options struct {
 	AllTaxa     bool
 	Cancerrate  bool
 	Infant      bool
+	Keepall     bool
 	Lifehistory bool
 	Location    string
 	Min         int
