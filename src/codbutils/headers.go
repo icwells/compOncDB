@@ -78,8 +78,8 @@ func NewHeaders() *Headers {
 "interbirth_interval", "birth_weight(g)", "weaning_weight(g)", "adult_weight(g)", "growth_rate(1/days)", "max_longevity(months)", "metabolic_rate(mLO2/hr)"}
 	h.Patient = []string{"ID", "Sex", "Age", "Infant", "Castrated", "Wild", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments"}
 	h.Rates = []string{"Location", "TotalRecords", "RecordsWithDenominators", "NeoplasiaDenominators", "TotalNeoplasia", "NeoplasiaWithDenominators", "NeoplasiaPrevalence", 
-"MalignancyKnown", "Malignant", "MalignancyPrevalence", "PropMalignant", "Benign", "BenignPrevalence", "PropBenign", 
-"AverageAge(months)", "AvgAgeNeoplasia(months)", "Male", "Female", "MaleNeoplasia", "FemaleNeoplasia", "Necropsies", "#Sources", "NoTissueInfo"}
+"MalignancyKnown", "Malignant", "MalignancyPrevalence", "PropMalignant", "Benign", "BenignPrevalence", "PropBenign", "AverageAge(months)", "AvgAgeNeoplasia(months)", 
+"Male", "MaleNeoplasia", "MaleMalignant", "Female", "FemaleNeoplasia", "FemaleMalignant", "Necropsies", "#Sources", "NoTissueInfo"}
 	h.Source = []string{"ID", "service_name", "Zoo", "Aza", "Institute", "Approved", "account_id"}
 	h.Taxonomy = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "Source"}
 	h.Tumor = []string{"ID", "primary_tumor", "Malignant", "Type", "Location"}

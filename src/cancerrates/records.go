@@ -27,9 +27,11 @@ type Record struct {
 	catotal      int
 	female       int
 	femalecancer int
+	femalemal    int
 	grandtotal   int
 	male         int
 	malecancer   int
+	malemal      int
 	malignant    int
 	maltotal     int
 	necropsy     int
@@ -88,9 +90,11 @@ func (r *Record) calculateRates(d, notissue int) []string {
 	ret = append(ret, avgAge(r.age, r.agetotal))          //AverageAge(months)
 	ret = append(ret, avgAge(r.cancerage, r.catotal))     //AvgAgeNeoplasia(months)
 	ret = append(ret, strconv.Itoa(r.male))               //Male
-	ret = append(ret, strconv.Itoa(r.female))             //Female
 	ret = append(ret, strconv.Itoa(r.malecancer))         //MaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.malemal))            //MaleMalignant
+	ret = append(ret, strconv.Itoa(r.female))             //Female
 	ret = append(ret, strconv.Itoa(r.femalecancer))       //FemaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.femalemal))          //FemaleMalignant
 	ret = append(ret, strconv.Itoa(r.necropsy))           //Necropsies
 	ret = append(ret, r.setsources())                     //Sources
 	ret = append(ret, nt)                                 //NoTissueInfo
@@ -119,6 +123,11 @@ func (r *Record) cancerMeasures(allrecords bool, age, sex, mal, service string) 
 		}
 		if mal == "1" {
 			r.malignant++
+			if sex == "male" {
+				r.malemal++
+			} else if sex == "female" {
+				r.femalemal++
+			}
 		} else if mal == "0" {
 			r.benign++
 		}
