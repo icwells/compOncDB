@@ -1,32 +1,30 @@
-CREATE TABLE Accounts (
-	account_id INT PRIMARY KEY,
-	Account TEXT,
-	submitter_name TEXT
+CREATE TABLE IF NOT EXISTS Taxonomy (
+	taxa_id INT PRIMARY KEY,
+	Kingdom TEXT,
+	Phylum TEXT,
+	Class TEXT,
+	Orders TEXT,
+	Family TEXT,
+	Genus TEXT,
+	Species TEXT,
+	Source TEXT,
+	INDEX IX_taxonomy_species (taxa_id)
 );
 
-CREATE TABLE Common (
+CREATE TABLE IF NOT EXISTS Common (
 	taxa_id INT,
 	Name TEXT,
 	Curator TEXT,
-	CONSTRAINT fk_taxonomy_common FOREIGN KEY (taxa_id) REFERENCES Taxonomy (taxa_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_taxonomy_common FOREIGN KEY (taxa_id) REFERENCES Taxonomy(taxa_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE Denominators (
+CREATE TABLE IF NOT EXISTS Denominators (
 	taxa_id INT PRIMARY KEY,
 	Noncancer INT,
-	CONSTRAINT fk_taxonomy_denominators FOREIGN KEY (taxa_id) REFERENCES Taxonomy (taxa_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_taxonomy_denominators FOREIGN KEY (taxa_id) REFERENCES Taxonomy(taxa_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE Diagnosis (
-	ID INT,
-	Masspresent TINYINT,
-	Hyperplasia TINYINT,
-	Necropsy TINYINT,
-	Metastasis TINYINT,
-	CONSTRAINT fk_patient_diagnosis FOREIGN KEY (ID) REFERENCES Patient (ID) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE TABLE Life_history (
+CREATE TABLE IF NOT EXISTS Life_history (
 	taxa_id INT PRIMARY KEY,
 	female_maturity DOUBLE,
 	male_maturity DOUBLE,
@@ -42,10 +40,16 @@ CREATE TABLE Life_history (
 	growth_rate DOUBLE,
 	max_longevity DOUBLE,
 	metabolic_rate DOUBLE,
-	CONSTRAINT fk_taxonomy_lifehistory FOREIGN KEY (taxa_id) REFERENCES Taxonomy (taxa_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_taxonomy_lifehistory FOREIGN KEY (taxa_id) REFERENCES Taxonomy(taxa_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE Patient (
+CREATE TABLE IF NOT EXISTS Accounts (
+	account_id INT PRIMARY KEY,
+	Account TEXT,
+	submitter_name TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Patient (
 	ID INT PRIMARY KEY,
 	Sex TEXT,
 	Age DECIMAL(6,2),
@@ -58,10 +62,19 @@ CREATE TABLE Patient (
 	Date TEXT,
 	Year INT,
 	Comments TEXT,
-	CONSTRAINT fk_taxonomy_patient FOREIGN KEY (taxa_id) REFERENCES Taxonomy (taxa_id) ON UPDATE CASCADE,
+	CONSTRAINT fk_taxonomy_patient FOREIGN KEY (taxa_id) REFERENCES Taxonomy(taxa_id) ON UPDATE CASCADE
 );
 
-CREATE TABLE Source (
+CREATE TABLE IF NOT EXISTS Diagnosis (
+	ID INT,
+	Masspresent TINYINT,
+	Hyperplasia TINYINT,
+	Necropsy TINYINT,
+	Metastasis TINYINT,
+	CONSTRAINT fk_patient_diagnosis FOREIGN KEY (ID) REFERENCES Patient(ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Source (
 	ID INT,
 	service_name TEXT,
 	Zoo TINYINT,
@@ -69,34 +82,20 @@ CREATE TABLE Source (
 	Institute TINYINT,
 	Approved TINYINT,
 	account_id INT,
-	CONSTRAINT fk_patient_source FOREIGN KEY (ID) REFERENCES Patient (ID) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT fk_accounts_source FOREIGN KEY (account_id) REFERENCES Accounts (account_id) ON DELETE CASCADE ON UPDATE CASCADE
+	CONSTRAINT fk_patient_source FOREIGN KEY (ID) REFERENCES Patient(ID) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_accounts_source FOREIGN KEY (account_id) REFERENCES Accounts(account_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE Taxonomy (
-	taxa_id INT PRIMARY KEY,
-	Kingdom TEXT,
-	Phylum TEXT,
-	Class TEXT,
-	Orders TEXT,
-	Family TEXT,
-	Genus TEXT,
-	Species TEXT,
-	Source TEXT,
-	INDEX IX_taxonomy_species (taxa_id)
-
-);
-
-CREATE TABLE Tumor (
+CREATE TABLE IF NOT EXISTS Tumor (
 	ID INT,
 	primary_tumor TINYINT,
 	Malignant TINYINT,
 	Type TEXT,
 	Location TEXT,
-	CONSTRAINT fk_patient_tumor FOREIGN KEY (ID) REFERENCES Patient (ID) ON DELETE CASCADE ON UPDATE CASCADE
+	CONSTRAINT fk_patient_tumor FOREIGN KEY (ID) REFERENCES Patient(ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE Unmatched (
+CREATE TABLE IF NOT EXISTS Unmatched (
 	sourceID TEXT,
 	name TEXT,
 	sex TEXT,
@@ -108,7 +107,7 @@ CREATE TABLE Unmatched (
 	Service TEXT
 );
 
-CREATE TABLE Update_time (
+CREATE TABLE IF NOT EXISTS Update_time (
 	update_number INT PRIMARY KEY AUTO_INCREMENT,
 	Time TEXT
 );
