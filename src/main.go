@@ -22,7 +22,7 @@ var (
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 
 	ver = kingpin.Command("version", "Prints version info and exits.")
-	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; Specify output directory with '-o' flag).")
+	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; Specify output directory with '-o' flag or in config file).")
 	New = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
 
 	parse    = kingpin.Command("parse", "Parse and organize records for upload to the database.")
@@ -81,8 +81,13 @@ func main() {
 	case ver.FullCommand():
 		version()
 	case bu.FullCommand():
-		db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-		db.BackupDB(*outfile)
+		outfile := *outfile
+		config := codbutils.SetConfiguration(*user, false)
+		db := codbutils.ConnectToDatabase(config, *password)
+		if len(config.Backup) > 0 {
+			outfile = config.Backup
+		}
+		db.BackupDB(outfile)
 		start = db.Starttime
 	case New.FullCommand():
 		start = newDatabase()

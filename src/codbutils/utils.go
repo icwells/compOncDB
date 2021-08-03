@@ -48,12 +48,13 @@ func getAbsPath(f string) string {
 }
 
 type Configuration struct {
-	Host     string
+	Backup   string
 	Database string
-	User     string
-	Testdb   string
+	Host     string
 	Tables   string
 	Test     bool
+	Testdb   string
+	User     string
 }
 
 func SetConfiguration(user string, test bool) Configuration {
@@ -78,6 +79,8 @@ func SetConfiguration(user string, test bool) Configuration {
 			c.Testdb = s[1]
 		case "table_columns":
 			c.Tables = getAbsPath(s[1])
+		case "backup":
+			c.Backup = s[1]
 		}
 	}
 	return c
