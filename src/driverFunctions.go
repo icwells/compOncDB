@@ -14,28 +14,9 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 )
-
-func backup(pw string) {
-	// Backup database to local machine
-	c := codbutils.SetConfiguration(*user, false)
-	fmt.Printf("\n\tBacking up %s database to local machine...\n", c.Database)
-	datestamp := time.Now().Format("2006-01-02")
-	user := fmt.Sprintf("-u%s", *user)
-	password := fmt.Sprintf("-p%s", pw)
-	host := fmt.Sprintf("-h%s", c.Host)
-	res := fmt.Sprintf("--result-file=%s.%s.sql", c.Database, datestamp)
-	bu := exec.Command("mysqldump", user, host, password, res, c.Database, "--column-statistics=0")
-	err := bu.Run()
-	if err == nil {
-		fmt.Println("\tBackup complete.")
-	} else {
-		fmt.Printf("\tBackup failed. %v\n", err)
-	}
-}
 
 func newDatabase() time.Time {
 	// Creates new database and tables
