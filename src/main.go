@@ -22,7 +22,7 @@ var (
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 
 	ver = kingpin.Command("version", "Prints version info and exits.")
-	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; Specify output directory with '-o' flag or in config file).")
+	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; Specify output directory with '-o' flag).")
 	New = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
 
 	parse    = kingpin.Command("parse", "Parse and organize records for upload to the database.")
@@ -30,14 +30,14 @@ var (
 	taxaFile = parse.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
 	debug    = parse.Flag("debug", "Adds cancer and code column (if present) for hand checking.").Short('d').Default("false").Bool()
 
-	upload  = kingpin.Command("upload", "Upload data to the database.")
+	upload  = kingpin.Command("upload", "Upload data to the database. Backs up database if output directory is given with '-o'.")
 	taxa    = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
 	common  = upload.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
 	lh      = upload.Flag("lh", "Upload life history info from merged life history table to the database.").Default("false").Bool()
 	den     = upload.Flag("den", "Uploads file to denominator table for databases where only cancer records were extracted.").Default("false").Bool()
 	patient = upload.Flag("patient", "Upload patient, account, and diagnosis info from input table to database.").Default("false").Bool()
 
-	update = kingpin.Command("update", "Update or delete existing records from the database (see README for upload file template).")
+	update = kingpin.Command("update", "Update or delete existing records from the database (see README for upload file template). Backs up database if output directory is given with '-o'.")
 	column = update.Flag("column", "Column to be updated with given value if --eval column == value.").Short('c').Default("nil").String()
 	value  = update.Flag("value", "Value to write to column if --eval column == value (only supply one statement).").Short('v').Default("nil").String()
 	clean  = update.Flag("clean", "Remove extraneous records from the database.").Default("false").Bool()
@@ -81,13 +81,8 @@ func main() {
 	case ver.FullCommand():
 		version()
 	case bu.FullCommand():
-		outfile := *outfile
-		config := codbutils.SetConfiguration(*user, false)
-		db := codbutils.ConnectToDatabase(config, *password)
-		if len(config.Backup) > 0 {
-			outfile = config.Backup
-		}
-		db.BackupDB(outfile)
+		db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
+		db.BackupDB(*outfile)
 		start = db.Starttime
 	case New.FullCommand():
 		start = newDatabase()

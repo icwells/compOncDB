@@ -55,6 +55,9 @@ func uploadToDB() time.Time {
 		os.Exit(1)
 	}
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
+	if len(*outfile) > 0 {
+		db.BackupDB(*outfile)
+	}
 	if *taxa == true {
 		// Upload taxonomy
 		dbupload.LoadTaxa(db, *infile, *common)
@@ -93,6 +96,9 @@ func writeDF(table *dataframe.Dataframe, output string) {
 func updateDB() time.Time {
 	// Updates database with given flags (all input variables are global)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
+	if len(*outfile) > 0 {
+		db.BackupDB(*outfile)
+	}
 	if *clean {
 		dbextract.AutoCleanDatabase(db)
 		codbutils.UpdateTimeStamp(db)
