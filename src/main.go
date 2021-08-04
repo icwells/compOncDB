@@ -16,8 +16,8 @@ var (
 	eval     = kingpin.Flag("eval", "Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value). ").Short('e').Default("nil").String()
 	infant   = kingpin.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
 	infile   = kingpin.Flag("infile", "Path to input file (if using).").Short('i').Default("nil").String()
-	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("nil").String()
-	password = kingpin.Flag("password", "Password (for testing of scripting).").Default("").String()
+	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("").String()
+	password = kingpin.Flag("password", "Password (for testing or scripting).").Default("").String()
 	table    = kingpin.Flag("table", "Perform operations on this table only.").Default("nil").String()
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
 
