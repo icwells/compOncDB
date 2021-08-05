@@ -143,7 +143,7 @@ func printArray(header string, table [][]string) {
 func WriteResults(outfile, header string, table [][]string) {
 	// Wraps calls to writeCSV/printArray
 	if len(table) > 0 {
-		if outfile != "nil" {
+		if len(outfile) > 0 && outfile != "nil" {
 			iotools.WriteToCSV(outfile, header, table)
 		} else {
 			printArray(header, table)
