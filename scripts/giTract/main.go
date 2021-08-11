@@ -66,14 +66,14 @@ func (r *record) addOther(s *cancerrates.Species) {
 func (r *record) format() [][]string {
 	// Returns records as string slice
 	var ret [][]string
-	if gi := r.gi.ToSlice(); len(gi) > 0 {
+	if gi := r.gi.ToSlice(false); len(gi) > 0 {
 		ret = append(ret, gi[0])
 		if r.giset && len(gi) > 1 {
 			ret = append(ret, gi[1])
 		}
 	}
 	if r.otherset {
-		other := r.other.ToSlice()
+		other := r.other.ToSlice(false)
 		if len(ret) == 0 && len(other) > 0 {
 			ret = append(ret, other[0])
 		}
@@ -118,7 +118,7 @@ func (g *gimerger) setTissues() {
 	for idx, list := range [][]string{g.gi, g.tissues} {
 		for _, i := range list {
 			fmt.Printf("\tCalculating rates for %s...\n", i)
-			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, g.approved, i)
+			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, false, g.approved, i)
 			c.GetTaxa(*eval)
 			c.CountRecords()
 			for k, v := range c.Records {
