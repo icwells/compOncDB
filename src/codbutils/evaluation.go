@@ -87,6 +87,26 @@ func SetOperations(columns map[string]string, eval string) [][]Evaluation {
 	return [][]Evaluation{ret}
 }
 
+func RecordsEvaluations(columns map[string]string, eval string) []Evaluation {
+	// Returns slice of evaluations for Records view
+	var ret []Evaluation
+	records := "Records"
+	col := columns[records]
+	var ret []Evaluation
+	for _, i := range strings.Split(eval, ",") {
+		var e Evaluation
+		e.SetOperation(i)
+		e.Table = records
+		e.ID = "ID"
+		ret = append(ret, e)
+	}
+	if len(ret) == 0 {
+		GetLogger().Fatalf("Please supply an evaluation argument. Exiting.\n")
+	}
+	return ret
+}
+
+
 func OperationsFromFile(columns map[string]string, infile string) [][]Evaluation {
 	// Reads evaluations from input file
 	var ret [][]Evaluation
