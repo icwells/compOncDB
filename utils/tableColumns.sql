@@ -168,10 +168,10 @@ CREATE OR REPLACE VIEW Records AS
 		Life_history.max_longevity,
 		Life_history.metabolic_rate
 	FROM Patient
-		LEFT JOIN Diagnosis on Diagnosis.ID = Patient.ID
+		INNER JOIN Diagnosis on Diagnosis.ID = Patient.ID
 		LEFT JOIN Tumor on Tumor.ID = Patient.ID
-		LEFT JOIN Taxonomy on Taxonomy.taxa_id = Patient.taxa_id
-		LEFT JOIN Source on Source.ID = Patient.ID
+		INNER JOIN Taxonomy on Taxonomy.taxa_id = Patient.taxa_id
+		INNER JOIN Source on Source.ID = Patient.ID
 		LEFT JOIN Life_history on Life_history.taxa_id = Patient.taxa_id
 	ORDER BY taxa_id
 ;
