@@ -102,7 +102,7 @@ func getLitterResults() *dataframe.Dataframe {
 
 type searchCase struct {
 	name     string
-	eval     [][]codbutils.Evaluation
+	eval     string
 	expected *dataframe.Dataframe
 	table    string
 }
@@ -111,7 +111,8 @@ func setCase(columns map[string]string, name, eval, table string, exp *dataframe
 	// Returns initilized struct
 	var s searchCase
 	s.name = name
-	s.eval = codbutils.SetOperations(columns, eval)
+	//s.eval = codbutils.SetOperations(columns, eval)
+	s.eval = eval
 	s.table = table
 	s.expected = exp
 	return s

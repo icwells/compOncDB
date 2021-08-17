@@ -3,6 +3,7 @@
 package cancerrates
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
@@ -106,5 +107,8 @@ func GetRatesAndRecords(db *dbIO.DBIO, min, nec int, inf, lh, keepall bool, zoo,
 	c.formatRates()
 	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)
 	c.setMetaData(eval)
-	return c.rates, search.PrevalencePathology(db, c.logger, c.ids)
+	ids := fmt.Sprintf("taxa_id ^ (%s)", strings.Join(c.ids.ToStringSlice(), ";"))
+	res, msg := search.SearchRecords(db, c.logger, ids, false, true)
+	c.logger.Println(msg)
+	return c.rates, res
 }

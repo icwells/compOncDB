@@ -32,7 +32,7 @@ func TestLocations(t *testing.T) {
 	for _, i := range input {
 		var count int
 		eval := codbutils.SetOperations(db.Columns, i)
-		act, _ := SearchColumns(db, codbutils.GetLogger(), "", eval, false)
+		act, _ := SearchRecords(db, codbutils.GetLogger(), i, false)
 		for key := range act.Rows {
 			e := eval[0] 
 			if a, _ := act.GetCell(key, e[0].Column); strings.Contains(a, e[0].Value) {

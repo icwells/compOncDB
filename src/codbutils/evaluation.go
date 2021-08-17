@@ -92,16 +92,23 @@ func RecordsEvaluations(columns map[string]string, eval string) []Evaluation {
 	var ret []Evaluation
 	records := "Records"
 	col := columns[records]
-	var ret []Evaluation
 	for _, i := range strings.Split(eval, ",") {
 		var e Evaluation
 		e.SetOperation(i)
-		e.Table = records
-		e.ID = "ID"
-		ret = append(ret, e)
+		if e.Column == "Age" {
+			// Update age column name
+			e.Column = "age_months"
+		}
+		if strings.Contains(col, e.Column) {
+			e.Table = records
+			e.ID = "ID"
+			ret = append(ret, e)
+		} else {
+			GetLogger().Fatalf("Target column %s not in Records table. Exiting.\n", e.Column)
+		}
 	}
 	if len(ret) == 0 {
-		GetLogger().Fatalf("Please supply an evaluation argument. Exiting.\n")
+		GetLogger().Fatal("Please supply an evaluation argument. Exiting.")
 	}
 	return ret
 }

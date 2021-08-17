@@ -83,9 +83,7 @@ func newLeaderBoard(db *dbIO.DBIO) *leaderboard {
 	l.df.SetHeader([]string{"Location", "LocationTotal", "TopType", "TypeTotal", "TopSpecies", "SpeciesTotal"})
 	l.locations = make(map[string]*location)
 	l.logger = codbutils.GetLogger()
-	eval := codbutils.SetOperations(db.Columns, "Masspresent=1")
-	s := columnSearch(db, l.logger, "", eval[0], false)
-	l.table = s.toDF()
+	l.table, _ = SearchRecords(db, l.logger, "Masspresent=1", false, false)
 	l.top = make([]string, 5)
 	return l
 }
