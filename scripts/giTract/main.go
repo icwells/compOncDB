@@ -19,7 +19,7 @@ var (
 	min      = kingpin.Flag("min", "Minimum number of records required for cancer rates.").Default("1").Int()
 	necropsy = kingpin.Flag("necropsy", "2: extract only necropsy records, 0: extract only non-necropsy records.").Short('n').Default("1").Int()
 	outfile  = kingpin.Flag("outfile", "Name of output file.").Short('o').Required().String()
-	password = kingpin.Flag("password", "Password (for testing of scripting).").Default("").String()
+	password = kingpin.Flag("password", "Password (for testing or scripting).").Default("").String()
 	repro    = kingpin.Flag("repro", "Extract reproductive tissues instead of gi tract.").Default("false").Bool()
 	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Required().String()
 )

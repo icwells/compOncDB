@@ -55,7 +55,7 @@ class Updater():
 		# Stores input file values
 		first = True
 		for i in unixpath.readFile(self.config, True, "\t"):
-			if not first and len(i) > 0:
+			if not first and len(i) > 0 and i[0] != "#":
 				self.commands.append(Command(i[header["Command"]], i[header["Directory"]], self.user, self.password, self.outdir))
 			elif first:
 				header = deepcopy(i)
