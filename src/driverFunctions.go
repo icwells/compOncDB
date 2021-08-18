@@ -146,7 +146,7 @@ func searchDB() time.Time {
 		writeDF(search.SearchSpeciesNames(db, names), *outfile)
 	} else if *eval != "nil" || *infile != "nil" {
 		// Search for column/value match
-		res, msg := search.SearchDatabase(db, *table, *eval, *infile, *infant)
+		res, msg := search.SearchRecords(db, codbutils.GetLogger(), *eval, *infant, false)
 		if msg != "" {
 			fmt.Print(msg)
 			writeDF(res, *outfile)

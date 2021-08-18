@@ -7,8 +7,7 @@ CREATE TABLE IF NOT EXISTS Taxonomy (
 	Family TEXT,
 	Genus TEXT,
 	Species TEXT,
-	Source TEXT,
-	INDEX IX_taxonomy_taxaid (taxa_id)
+	Source TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Common (
@@ -41,7 +40,6 @@ CREATE TABLE IF NOT EXISTS Life_history (
 	max_longevity DOUBLE,
 	metabolic_rate DOUBLE,
 	CONSTRAINT fk_taxonomy_lifehistory FOREIGN KEY (taxa_id) REFERENCES Taxonomy(taxa_id) ON DELETE CASCADE ON UPDATE CASCADE
-	INDEX IX_lifehistory_taxaid (taxa_id)
 );
 
 CREATE TABLE IF NOT EXISTS Accounts (
@@ -64,8 +62,6 @@ CREATE TABLE IF NOT EXISTS Patient (
 	Year INT,
 	Comments TEXT,
 	CONSTRAINT fk_taxonomy_patient FOREIGN KEY (taxa_id) REFERENCES Taxonomy(taxa_id) ON UPDATE CASCADE
-	INDEX IX_patient_taxaid (taxa_id)
-	INDEX IX_patient_id (ID)
 );
 
 CREATE TABLE IF NOT EXISTS Diagnosis (
@@ -75,7 +71,6 @@ CREATE TABLE IF NOT EXISTS Diagnosis (
 	Necropsy TINYINT,
 	Metastasis TINYINT,
 	CONSTRAINT fk_patient_diagnosis FOREIGN KEY (ID) REFERENCES Patient(ID) ON DELETE CASCADE ON UPDATE CASCADE
-	INDEX IX_diagnosis_id (ID)
 );
 
 CREATE TABLE IF NOT EXISTS Source (
@@ -88,7 +83,6 @@ CREATE TABLE IF NOT EXISTS Source (
 	account_id INT,
 	CONSTRAINT fk_patient_source FOREIGN KEY (ID) REFERENCES Patient(ID) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT fk_accounts_source FOREIGN KEY (account_id) REFERENCES Accounts(account_id) ON DELETE CASCADE ON UPDATE CASCADE
-	INDEX IX_source_id (ID)
 );
 
 CREATE TABLE IF NOT EXISTS Tumor (
@@ -98,7 +92,6 @@ CREATE TABLE IF NOT EXISTS Tumor (
 	Type TEXT,
 	Location TEXT,
 	CONSTRAINT fk_patient_tumor FOREIGN KEY (ID) REFERENCES Patient(ID) ON DELETE CASCADE ON UPDATE CASCADE
-	INDEX IX_tumor_id (ID)
 );
 
 CREATE TABLE IF NOT EXISTS Unmatched (
@@ -117,6 +110,14 @@ CREATE TABLE IF NOT EXISTS Update_time (
 	update_number INT PRIMARY KEY AUTO_INCREMENT,
 	Time TEXT
 );
+
+CREATE INDEX IX_taxonomy_taxaid ON Taxonomy (taxa_id);
+CREATE INDEX IX_lifehistory_taxaid ON Life_history (taxa_id);
+CREATE INDEX IX_patient_taxaid ON Patient (taxa_id);
+CREATE INDEX IX_patient_id ON Patient (ID);
+CREATE INDEX IX_diagnosis_id ON Diagnosis (ID);
+CREATE INDEX IX_source_id ON Source (ID);
+CREATE INDEX IX_tumor_id ON Tumor (ID);
 
 CREATE OR REPLACE VIEW Records AS
 	SELECT
@@ -147,7 +148,6 @@ CREATE OR REPLACE VIEW Records AS
 		Taxonomy.Family,
 		Taxonomy.Genus,
 		Taxonomy.Species,
-		Taxonomy.Source,
 		Source.service_name,
 		Source.Zoo,
 		Source.Aza,

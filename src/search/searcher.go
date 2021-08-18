@@ -59,7 +59,9 @@ func (s *searcher) toDF() *dataframe.Dataframe {
 	ret.SetHeader(s.header)
 	for k, v := range s.res {
 		row := append([]string{k}, v...)
-		ret.AddRow(row)
+		if err := ret.AddRow(row); err != nil {
+			panic(strings.Join(s.header, " "))
+		}
 	}
 	if s.metadata != "" {
 		ret.SetMetaData(s.metadata)
@@ -114,35 +116,46 @@ func (s *searcher) replaceNull(row []string) []string {
 	return row
 }
 
-func (s *searcher) getRecords(eval string, inf, lh bool) {
-	// Gets matching records from view
+func (s *searcher) formatCommand(eval string, inf bool) (string, []codbutils.Evaluation) {
+	// Formats sql command
 	cmd := strings.Builder{}
-	idx := strarray.SliceIndex(s.header, "female_maturity")
-	pid := strarray.SliceIndex(s.header, "primary_tumor")
-	tid := strarray.SliceIndex(s.header, "Type")
-	lid := strarray.SliceIndex(s.header, "Location")
-	if !inf {
+	if inf {
 		// Add evaluation to remove infant records
+		if len(eval) > 0 {
+			eval += ","
+		}
 		eval += "Infant != 1"
 	}
 	e := codbutils.RecordsEvaluations(s.db.Columns, eval)
 	cmd.WriteString("SELECT * FROM Records")
 	for idx, i := range e {
-		if idx != 0 {
-			cmd.WriteString("AND ")
+		if idx == 0 {
+			cmd.WriteString(" WHERE ")
+		} else {
+			cmd.WriteString(" AND ")
 		}
 		cmd.WriteByte(' ')
 		cmd.WriteString(i.String())
 	}
 	cmd.WriteByte(';')
-	rows := s.db.Execute(cmd.String())
+	return cmd.String(), e
+}
+
+func (s *searcher) getRecords(eval string, inf, lh bool) {
+	// Gets matching records from view
+	idx := strarray.SliceIndex(s.header, "female_maturity")
+	pid := strarray.SliceIndex(s.header, "primary_tumor")
+	tid := strarray.SliceIndex(s.header, "Type")
+	lid := strarray.SliceIndex(s.header, "Location")
+	cmd, e := s.formatCommand(eval, inf)
+	rows := s.db.Execute(cmd)
 	if len(rows) == 0 {
 		s.setErr(e[0])
 	} else {
 		for _, i := range rows {
 			id := i[0]
 			if _, ex := s.res[id]; !ex {
-				if lh {
+				if !lh {
 					// Drop life history data
 					s.res[id] = s.replaceNull(i[:idx])
 				} else {
@@ -158,7 +171,7 @@ func (s *searcher) getRecords(eval string, inf, lh bool) {
 				s.res[id][lid] += ";" + i[lid]
 			}
 		}
-		if lh {
+		if !lh {
 			// Remove life history from header
 			s.header = s.header[:idx]
 		}

@@ -6,7 +6,7 @@ import (
 	"flag"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/dbIO"
-	"github.com/icwells/simpleset"
+	//"github.com/icwells/simpleset"
 	"strings"
 	"testing"
 )
@@ -32,7 +32,7 @@ func TestLocations(t *testing.T) {
 	for _, i := range input {
 		var count int
 		eval := codbutils.SetOperations(db.Columns, i)
-		act, _ := SearchRecords(db, codbutils.GetLogger(), i, false)
+		act, _ := SearchRecords(db, codbutils.GetLogger(), i, false, false)
 		for key := range act.Rows {
 			e := eval[0] 
 			if a, _ := act.GetCell(key, e[0].Column); strings.Contains(a, e[0].Value) {
@@ -49,7 +49,7 @@ func TestLocations(t *testing.T) {
 	}	
 }
 
-func setIDs(ids [][]string) *simpleset.Set {
+/*func setIDs(ids [][]string) *simpleset.Set {
 	ret := simpleset.NewStringSet()
 	ids = append(ids, []string{"16", "17", "18"})
 	for _, row := range ids {
@@ -96,4 +96,4 @@ func TestFilterIDs(t *testing.T) {
 		}
 		s.ids = act
 	}
-}
+}*/

@@ -5,6 +5,7 @@ package codbutils
 import (
 	"fmt"
 	"github.com/icwells/go-tools/dataframe"
+	"strconv"
 	"strings"
 )
 
@@ -18,7 +19,12 @@ type Evaluation struct {
 
 func (e *Evaluation) String() string {
 	// Returns fromatted string
-	return fmt.Sprintf("%s %s %s", e.Column, e.Operator, e.Value)
+	val := e.Value
+	// Wrap strings in quotes
+	if _, err := strconv.ParseFloat(val, 64); err != nil {
+		val = fmt.Sprintf("'%s'", val)
+	}
+	return fmt.Sprintf("%s %s %s", e.Column, e.Operator, val)
 }
 
 func (e *Evaluation) SetIDType(columns map[string]string) {
@@ -170,11 +176,13 @@ func FindTable(tables map[string]string, col string) (string, string) {
 		}
 		// Iterate through available column names
 		for k, val := range tables {
-			for _, i := range strings.Split(val, ",") {
-				i = strings.TrimSpace(i)
-				if col == i {
-					ret = k
-					break
+			if k != "Records" {
+				for _, i := range strings.Split(val, ",") {
+					i = strings.TrimSpace(i)
+					if col == i {
+						ret = k
+						break
+					}
 				}
 			}
 		}

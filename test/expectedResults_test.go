@@ -121,10 +121,10 @@ func setCase(columns map[string]string, name, eval, table string, exp *dataframe
 func newSearchCases(columns map[string]string) []searchCase {
 	// Returns search cases with expected results
 	var ret []searchCase
-	df, _ := dataframe.NewDataFrame(-1)
-	ret = append(ret, setCase(columns, "fox", "Name = Gray fox", "", df))
+	//df, _ := dataframe.NewDataFrame(-1)
+	//ret = append(ret, setCase(columns, "fox", "Name = Gray fox", "", df))
 	ret = append(ret, setCase(columns, "canis", "Genus = Canis, Sex==male , Infant = 0", "", getCanisResults()))
-	ret = append(ret, setCase(columns, "coyote", " Name == coyote, Infant = 0", "", getCoyoteResults()))
-	ret = append(ret, setCase(columns, "litter size", " litter_size>=5", "Life_history", getLitterResults()))
+	ret = append(ret, setCase(columns, "coyote", " Species == Canis latrans, Infant = 0", "", getCoyoteResults()))
+	//ret = append(ret, setCase(columns, "litter size", " litter_size>=5", "Life_history", getLitterResults()))
 	return ret
 }

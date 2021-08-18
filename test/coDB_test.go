@@ -93,7 +93,7 @@ func TestUpload(t *testing.T) {
 	// Attempt again to test filtering of existing records
 	dbupload.LoadPatients(db, uploadfile, false, true)
 	for k := range db.Columns {
-		if k != "Unmatched" && k != "Update_time" {
+		if k != "Unmatched" && k != "Update_time" && k != "Records" {
 			compareTables(t, k, exp[k], tableToDF(db, k))
 		}
 	}

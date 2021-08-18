@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/dataframe"
 )
@@ -179,6 +180,38 @@ func getTumor() *dataframe.Dataframe {
 	return setDF(0, s)
 }
 
+func getRecords(m map[string]*dataframe.Dataframe) *dataframe.Dataframe {
+	// Returns records view
+	ret, _ := dataframe.NewDataFrame(0)
+	header := H.Patient
+	header[2] = "age_months"
+	header = append(header, H.Diagnosis[1:]...)
+	header = append(header, H.Tumor[1:]...)
+	header = append(header, H.Taxonomy[1:len(H.Taxonomy) - 1]...)
+	header = append(header, H.Source[1:]...)
+	header = append(header, codbutils.LifeHistoryTestHeader()[1:]...)
+	ret.SetHeader(header)
+	for idx := range m["Patient"].Index {
+		tid, _ := m["Patient"].GetCell(idx, "taxa_id")
+		row, _ := m["Patient"].GetRow(idx)
+		row = append([]string{idx}, row...)
+		diag, _ := m["Diagnosis"].GetRow(idx)
+		tum, _ := m["Tumor"].GetRow(idx)
+		taxa, _ := m["Taxonomy"].GetRow(tid)
+		src, _ := m["Source"].GetRow(idx)
+		lh, _ := m["Life_history"].GetRow(tid)
+		row = append(row, diag...)
+		row = append(row, tum...)
+		row = append(row, taxa[:len(taxa) - 1]...)
+		row = append(row, src...)
+		row = append(row, lh...)
+		if err := ret.AddRow(row); err != nil {
+			panic(fmt.Sprintf("%s\n%s\n%v", header, row, err))
+		}
+	}
+	return ret
+}
+
 func getExpectedTables() map[string]*dataframe.Dataframe {
 	// Returns dataframe of expected content after upload
 	ret := make(map[string]*dataframe.Dataframe)
@@ -191,5 +224,6 @@ func getExpectedTables() map[string]*dataframe.Dataframe {
 	ret["Source"] = getSource()
 	ret["Taxonomy"] = getTaxonomy()
 	ret["Tumor"] = getTumor()
+	ret["Records"] = getRecords(ret)
 	return ret
 }
