@@ -115,6 +115,7 @@ func RecordsHeader() []string {
 	var ret []string
 	h := NewHeaders()
 	ret = append(ret, h.Patient...)
+	ret[2] = "age_months"
 	ret = append(ret, h.Diagnosis[1:]...)
 	ret = append(ret, h.Tumor[1:]...)
 	ret = append(ret, h.Taxonomy[1:len(h.Taxonomy) - 1]...)

@@ -57,10 +57,9 @@ func (s *searcher) toDF() *dataframe.Dataframe {
 	// Converts res map to dataframe
 	ret, _ := dataframe.NewDataFrame(0)
 	ret.SetHeader(s.header)
-	for k, v := range s.res {
-		row := append([]string{k}, v...)
-		if err := ret.AddRow(row); err != nil {
-			panic(strings.Join(s.header, " "))
+	for _, v := range s.res {
+		if err := ret.AddRow(v); err != nil {
+			panic(err)
 		}
 	}
 	if s.metadata != "" {
@@ -72,9 +71,8 @@ func (s *searcher) toDF() *dataframe.Dataframe {
 func (s *searcher) toSlice() [][]string {
 	// Converts res map to slice
 	var ret [][]string
-	for k, v := range s.res {
-		row := append([]string{k}, v...)
-		ret = append(ret, row)
+	for _, v := range s.res {
+		ret = append(ret, v)
 	}
 	return ret
 }
