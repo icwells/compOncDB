@@ -53,6 +53,13 @@ func newSearcher(db *dbIO.DBIO, logger *log.Logger) *searcher {
 	return s
 }
 
+func (s *searcher) clearSearcher() {
+	// Removes records from previous search
+	for k := range s.res {
+		delete(s.res, k)
+	}
+}
+
 func (s *searcher) toDF() *dataframe.Dataframe {
 	// Converts res map to dataframe
 	ret, _ := dataframe.NewDataFrame(0)
@@ -93,14 +100,20 @@ func (s *searcher) setErr(e codbutils.Evaluation) {
 	s.msg += "\n"
 }
 
-func (s *searcher) setMetaData(eval string, inf bool) {
+func (s *searcher) setMetaData(eval []codbutils.Evaluation) {
 	// Stores search options as string
 	var m []string
-	m = append(m, codbutils.GetTimeStamp())
-	if eval != "" && eval != "nil" {
-		m = append(m, eval)
+	if len(s.metadata) == 0 {
+		m = append(m, codbutils.GetTimeStamp())
+	} else {
+		// Store metadata for multiple searches
+		m = append(m, s.metadata + ", ,")
 	}
-	m = append(m, fmt.Sprintf("KeepInfantRecords=%v", inf))
+	if len(eval) > 0 {
+		for _, i := range eval {
+			m = append(m, i.String())
+		}
+	}
 	s.metadata = strings.Join(m, ",")
 }
 
@@ -114,17 +127,9 @@ func (s *searcher) replaceNull(row []string) []string {
 	return row
 }
 
-func (s *searcher) formatCommand(eval string, inf bool) (string, []codbutils.Evaluation) {
+func (s *searcher) formatCommand(e []codbutils.Evaluation) (string, []codbutils.Evaluation) {
 	// Formats sql command
 	cmd := strings.Builder{}
-	if inf {
-		// Add evaluation to remove infant records
-		if len(eval) > 0 {
-			eval += ","
-		}
-		eval += "Infant != 1"
-	}
-	e := codbutils.RecordsEvaluations(s.db.Columns, eval)
 	cmd.WriteString("SELECT * FROM Records")
 	for idx, i := range e {
 		if idx == 0 {
@@ -139,13 +144,13 @@ func (s *searcher) formatCommand(eval string, inf bool) (string, []codbutils.Eva
 	return cmd.String(), e
 }
 
-func (s *searcher) getRecords(eval string, inf, lh bool) {
+func (s *searcher) getRecords(eval []codbutils.Evaluation, lh bool) {
 	// Gets matching records from view
 	idx := strarray.SliceIndex(s.header, "female_maturity")
 	pid := strarray.SliceIndex(s.header, "primary_tumor")
 	tid := strarray.SliceIndex(s.header, "Type")
 	lid := strarray.SliceIndex(s.header, "Location")
-	cmd, e := s.formatCommand(eval, inf)
+	cmd, e := s.formatCommand(eval)
 	rows := s.db.Execute(cmd)
 	if len(rows) == 0 {
 		s.setErr(e[0])
@@ -173,17 +178,53 @@ func (s *searcher) getRecords(eval string, inf, lh bool) {
 			// Remove life history from header
 			s.header = s.header[:idx]
 		}
+		s.setMetaData(eval)
 	}
 }
 
+func (s *searcher) setEvaluations(eval string, inf bool) []codbutils.Evaluation {
+	// Formats evaluations
+	if inf {
+		// Add evaluation to remove infant records
+		if len(eval) > 0 {
+			eval += ","
+		}
+		eval += "Infant != 1"
+	}
+	return codbutils.RecordsEvaluations(s.db.Columns, eval)
+}
+
 func SearchRecords(db *dbIO.DBIO, logger *log.Logger, eval string, inf, lh bool) (*dataframe.Dataframe, string) {
-	// Wraps calls to columnSearch
-	logger.Println("Searching for matching records...")
+	// Searches for matching records
 	s := newSearcher(db, logger)
-	s.getRecords(eval, inf, lh)
+	s.logger.Println("Searching for matching records...")
+	s.getRecords(s.setEvaluations(eval, inf), lh)
 	ret := s.toDF()
 	if s.msg == "" {
 		s.msg = fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 	}
 	return ret, s.msg
+}
+
+func SearchColumns(db *dbIO.DBIO, logger *log.Logger, eval [][]codbutils.Evaluation, inf, lh bool) (*dataframe.Dataframe, string) {
+	// Wraps calls from server to getRecords
+	var ret *dataframe.Dataframe
+	s := newSearcher(db, logger)
+	s.logger.Println("Searching for matching records...")
+	for idx, i := range eval {
+		s.getRecords(i, lh)
+		res := s.toDF()
+		if s.msg != "" {
+			logger.Print(s.msg)
+		} else {
+			logger.Printf("Found %d records where %s.\n", res.Length(), i[0].String())
+		}
+		if idx == 0 {
+			ret = res
+		} else if res.Length() > 0 {
+			ret.Extend(res)
+		}
+		s.clearSearcher()
+	}
+	return ret, fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
 }
