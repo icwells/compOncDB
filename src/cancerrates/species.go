@@ -21,6 +21,7 @@ type Species struct {
 	denominator  int
 	Grandtotal   int
 	id           string
+	ids          *simpleset.Set
 	infancy      float64
 	lifehistory  []string
 	Location     string
@@ -37,6 +38,7 @@ func newSpecies(id, location string, taxonomy []string) *Species {
 	// Return new species struct
 	s := new(Species)
 	s.id = id
+	s.ids = simpleset.NewStringSet()
 	s.Location = location
 	s.locationprop = 0.05
 	s.locations = simpleset.NewStringSet()
@@ -142,10 +144,11 @@ func (s *Species) addCancer(allrecords bool, age, sex, nec, mal, loc, service, a
 	}
 }
 
-func (s *Species) addNonCancer(allrecords bool, age, sex, nec, service, aid string) {
+func (s *Species) addNonCancer(allrecords bool, age, sex, nec, service, aid, id string) {
 	// Adds non-cancer measures
 	s.total.nonCancerMeasures(allrecords, age, sex, nec, service, aid)
 	s.Grandtotal = s.total.grandtotal
+	s.ids.Add(id)
 }
 
 func (s *Species) addDenominator(masspresent, loc string) {

@@ -193,7 +193,7 @@ func TestAddMeasures(t *testing.T) {
 		if i.loc == "liver" {
 			addRow(l, i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
 		}
-		sp.addNonCancer(allrecords, i.age, i.sex, i.nec, i.service, i.aid)
+		sp.addNonCancer(allrecords, i.age, i.sex, i.nec, i.service, i.aid, "1")
 		sp.addCancer(allrecords, i.age, i.sex, i.nec, i.mal, i.loc, i.service, i.aid)
 		compareRecords(t, sp.total, s)
 		compareRecords(t, sp.tissue, l)

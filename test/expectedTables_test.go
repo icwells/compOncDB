@@ -187,7 +187,7 @@ func getRecords(m map[string]*dataframe.Dataframe) *dataframe.Dataframe {
 	header[2] = "age_months"
 	header = append(header, H.Diagnosis[1:]...)
 	header = append(header, H.Tumor[1:]...)
-	header = append(header, H.Taxonomy[1:len(H.Taxonomy) - 1]...)
+	header = append(header, H.Taxonomy[1:len(H.Taxonomy)-1]...)
 	header = append(header, H.Source[1:]...)
 	header = append(header, codbutils.LifeHistoryTestHeader()[1:]...)
 	ret.SetHeader(header)
@@ -202,7 +202,7 @@ func getRecords(m map[string]*dataframe.Dataframe) *dataframe.Dataframe {
 		lh, _ := m["Life_history"].GetRow(tid)
 		row = append(row, diag...)
 		row = append(row, tum...)
-		row = append(row, taxa[:len(taxa) - 1]...)
+		row = append(row, taxa[:len(taxa)-1]...)
 		row = append(row, src...)
 		row = append(row, lh...)
 		if err := ret.AddRow(row); err != nil {

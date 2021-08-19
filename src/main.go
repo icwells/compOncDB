@@ -63,7 +63,7 @@ var (
 	min         = cancerRates.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
 	nec         = cancerRates.Flag("necropsy", "2: Extract only necropsy records, 1: extract all records by default, 0: extract non-necropsy records.").Default("2").Int()
 	pathology   = cancerRates.Flag("pathology", "Additionally extract pathology records for target species.").Default("false").Bool()
-	source      = cancerRates.Flag("source", "Zoo/institute records to calculate prevalence with; all: use all records, approved: used zoos approved for publication, aza: use only AZA member zoos, noprivate: use all zoos and institutes, zoo: use only zoos.").Short('z').Default("approved").String()
+	source      = cancerRates.Flag("source", "Zoo/institute records to calculate prevalence with; all: use all records, approved: used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.").Short('z').Default("approved").String()
 	wild        = cancerRates.Flag("wild", "Return results for wild records only (returns non-wild only by default).").Default("false").Bool()
 )
 

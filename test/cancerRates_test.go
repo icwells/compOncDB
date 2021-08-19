@@ -12,7 +12,7 @@ import (
 func TestCancerRates(t *testing.T) {
 	// Tests taxonomy search output
 	db := connectToDatabase()
-	rates := cancerrates.GetCancerRates(db, 1, 0, false, false, false, false, "all", "", "")
+	rates, _ := cancerrates.GetCancerRates(db, 1, 0, false, false, false, false, "all", "", "")
 	compareTables(t, "Cancer Rates", getExpectedRates(), rates)
 }
 
@@ -21,7 +21,7 @@ func TestPrevlenceTotals(t *testing.T) {
 	var count int
 	flag.Parse()
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-	rates := cancerrates.GetCancerRates(db, 1, 0, false, false, false, false, "all", "", "")
+	rates, _ := cancerrates.GetCancerRates(db, 1, 0, false, false, false, false, "all", "", "")
 	for idx := range rates.Rows {
 		total, _ := rates.GetCellInt(idx, "TotalRecords")
 		den, _ := rates.GetCellInt(idx, "RecordsWithDenominators")
@@ -44,7 +44,7 @@ func TestNecropsies(t *testing.T) {
 		if val == -1 {
 			name = "non-" + name
 		}
-		rates := cancerrates.GetCancerRates(db, 1, val, false, false, false, false, "all", "", "")
+		rates, _ := cancerrates.GetCancerRates(db, 1, val, false, false, false, false, "all", "", "")
 		if rates.Length() == 0 {
 			t.Error("Necropsy dataframe length is 0.")
 			break
