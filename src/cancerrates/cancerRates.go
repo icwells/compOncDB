@@ -133,7 +133,7 @@ func (c *cancerRates) setSearch(eval string) {
 	if c.wild {
 		eval += ",Wild=1"
 	} else {
-		eval += ",Necropsy!=1"
+		eval += ",Wild!=1"
 	}
 	switch c.zoo {
 	case "approved":
