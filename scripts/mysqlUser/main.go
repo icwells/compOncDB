@@ -24,8 +24,9 @@ type mysqluser struct {
 	host       string
 	name       string
 	permission string
+	records    string
 	root       string
-	tables     []string
+	//tables     []string
 }
 
 func newUser() *mysqluser {
@@ -35,12 +36,13 @@ func newUser() *mysqluser {
 	m.database = "comparativeOncology"
 	m.host = "localhost"
 	m.name = *user
-	m.permission = "SELECT, INSERT, UPDATE"
+	m.permission = "SELECT"
 	if m.all {
 		m.permission = "ALL PRIVILEGES"
 	}
+	m.records = "Records"
 	m.root = "root"
-	m.tables = []string{"Patient", "Unmatched", "Taxonomy", "Common", "Totals", "Denominators", "Source", "Diagnosis", "Tumor", "Life_history", "Update_time"}
+	//m.tables = []string{"Patient", "Unmatched", "Taxonomy", "Common", "Totals", "Denominators", "Source", "Diagnosis", "Tumor", "Life_history", "Update_time"}
 	m.connect()
 	return m
 }
@@ -72,9 +74,7 @@ func (m *mysqluser) setPrivileges() {
 		m.execute(cmd)
 		m.execute(strings.Replace(cmd, "%", m.host, 1))
 	} else {
-		for _, i := range m.tables {
-			m.execute(strings.Replace(cmd, "*", i, 1))
-		}
+		m.execute(strings.Replace(cmd, "*", m.records, 1))
 	}
 }
 
