@@ -79,6 +79,12 @@ func (c *cancerRates) setHeader() {
 	}
 }
 
+func (c *cancerRates) ChangeLocation(loc string) {
+	// Prepares struct to analyze a new location
+	c.location = loc
+	c.Records = make(map[string]*Species)
+}
+
 func (c *cancerRates) setMetaData(eval string) {
 	// Stores search options as string
 	var m []string
@@ -187,7 +193,13 @@ func (c *cancerRates) getSpecies(k, tid string) *Species {
 		if c.lh {
 			// Store life history
 			for _, i := range H.Life_history[1:] {
+				if strings.Contains(i, "(") {
+					i = i[:strings.Index(i, "(")]
+				}
 				v, _ := c.search.GetCell(k, i)
+				if v[0] == '%' {
+					v = "-1"
+				}
 				c.Records[tid].lifehistory = append(c.Records[tid].lifehistory, v)
 			}
 		}
