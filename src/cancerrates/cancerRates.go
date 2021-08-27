@@ -92,9 +92,6 @@ func (c *cancerRates) setMetaData(eval string) {
 		nec = "NonNecropsy"
 	}
 	m = append(m, codbutils.GetTimeStamp())
-	if c.location != "" {
-		m = append(m, fmt.Sprintf("tissue=%s", c.location))
-	}
 	if eval != "" && eval != "nil" {
 		m = append(m, eval)
 	}
@@ -116,7 +113,7 @@ func (c *cancerRates) checkService(service, masspresent string) bool {
 	return ret
 }
 
-func (c *cancerRates) setSearch(eval string) {
+func (c *cancerRates) SetSearch(eval string) {
 	// Sets dataframe using filtering options
 	var msg string
 	// Store metadata before adding to string
@@ -230,7 +227,7 @@ func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zo
 	// Returns dataframe of cancer rates
 	c := NewCancerRates(db, min, nec, inf, lh, wild, keepall, zoo, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
-	c.setSearch(eval)
+	c.SetSearch(eval)
 	c.CountRecords()
 	c.formatRates()
 	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)

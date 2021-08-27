@@ -82,10 +82,12 @@ func SetOperations(columns map[string]string, eval string) [][]Evaluation {
 	// Returns slice of evaluation targets
 	var ret []Evaluation
 	for _, i := range strings.Split(eval, ",") {
-		var e Evaluation
-		e.SetOperation(i)
-		e.SetTable(columns, true)
-		ret = append(ret, e)
+		if i != "nil" {
+			var e Evaluation
+			e.SetOperation(i)
+			e.SetTable(columns, true)
+			ret = append(ret, e)
+		}
 	}
 	if len(ret) == 0 {
 		GetLogger().Fatalf("Please supply an evaluation argument. Exiting.\n")
@@ -99,18 +101,20 @@ func RecordsEvaluations(columns map[string]string, eval string) []Evaluation {
 	records := "Records"
 	col := columns[records]
 	for _, i := range strings.Split(eval, ",") {
-		var e Evaluation
-		e.SetOperation(i)
-		if e.Column == "Age" {
-			// Update age column name
-			e.Column = "age_months"
-		}
-		if strings.Contains(col, e.Column) {
-			e.Table = records
-			e.ID = "ID"
-			ret = append(ret, e)
-		} else {
-			GetLogger().Fatalf("Target column %s not in Records table. Exiting.\n", e.Column)
+		if i != "nil" {
+			var e Evaluation
+			e.SetOperation(i)
+			if e.Column == "Age" {
+				// Update age column name
+				e.Column = "age_months"
+			}
+			if strings.Contains(col, e.Column) {
+				e.Table = records
+				e.ID = "ID"
+				ret = append(ret, e)
+			} else {
+				GetLogger().Fatalf("Target column %s not in Records table. Exiting.\n", e.Column)
+			}
 		}
 	}
 	if len(ret) == 0 {

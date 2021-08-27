@@ -119,7 +119,7 @@ func (g *gimerger) setTissues() {
 		for _, i := range list {
 			fmt.Printf("\tCalculating rates for %s...\n", i)
 			c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, false, g.approved, i)
-			c.GetTaxa(*eval)
+			c.SetSearch(*eval)
 			c.CountRecords()
 			for k, v := range c.Records {
 				if v.Grandtotal > 0 {

@@ -119,7 +119,9 @@ func (s *Species) checkLocation(mal, loc string) (bool, string) {
 			m := strings.Split(mal, ";")
 			for idx, i := range strings.Split(loc, ";") {
 				if ex, _ := s.locations.InSet(i); ex {
-					return true, m[idx]
+					if idx < len(m) {
+						return true, m[idx]
+					}
 				}
 			}
 		} else if ex, _ := s.locations.InSet(loc); ex {
