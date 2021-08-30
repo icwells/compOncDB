@@ -68,6 +68,7 @@ func AutoCleanDatabase(db *dbIO.DBIO) {
 	}
 	c := newCleaner(db)
 	c.cleanTables("ID", []string{"Diagnosis", "Tumor", "Source"}, c.pids, c.pchild)
+	c.db.OptimizeTables()
 	c.cleanTables("taxa_id", []string{"Common"}, c.tids, c.tchild)
 	c.cleanTables("account_id", []string{"Source"}, c.tids, c.tchild)
 }
