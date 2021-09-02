@@ -19,7 +19,7 @@ var (
 	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("").String()
 	password = kingpin.Flag("password", "Password (for testing or scripting).").Default("").String()
 	table    = kingpin.Flag("table", "Perform operations on this table only.").Default("nil").String()
-	user     = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
+	user     = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
 
 	ver = kingpin.Command("version", "Prints version info and exits.")
 	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; Specify output directory with '-o' flag).")
