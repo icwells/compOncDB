@@ -179,3 +179,16 @@ func extractFromDB() time.Time {
 	}
 	return db.Starttime
 }
+
+func addNewUser() time.Time {
+	// Adds new user to database
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
+	if *user != "root" {
+		fmt.Print("\n\tMust be root to add new user.\n\n")
+	} else if *username == "" {
+		fmt.Print("\n\tPlease enter a new username.\n\n")
+	} else {
+		codbutils.NewUser(db, *username, *admin)
+	}
+	return db.Starttime
+}

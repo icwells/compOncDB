@@ -65,6 +65,10 @@ var (
 	pathology   = cancerRates.Flag("pathology", "Additionally extract pathology records for target species.").Default("false").Bool()
 	source      = cancerRates.Flag("source", "Zoo/institute records to calculate prevalence with; all: use all records, approved: used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.").Short('z').Default("approved").String()
 	wild        = cancerRates.Flag("wild", "Return results for wild records only (returns non-wild only by default).").Default("false").Bool()
+
+	newuser  = kingpin.Command("newuser", "Adds new user to database. Must performed on the server using root password.")
+	admin    = newuser.Flag("admin", "Grant all privileges to user. Also allows remote MySQL access.").Default("false").Bool()
+	username = newuser.Flag("username", "MySQL username for new user. Password will be be set to this name until it is updated.").Default("").String()
 )
 
 func version() {
@@ -98,6 +102,8 @@ func main() {
 		start = searchDB()
 	case cancerRates.FullCommand():
 		start = calculateCancerRates()
+	case newuser.FullCommand():
+		start = addNewUser()
 	}
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }
