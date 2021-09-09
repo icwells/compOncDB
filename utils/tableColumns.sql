@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS Taxonomy (
 	Family TEXT,
 	Genus TEXT,
 	Species TEXT,
+	common_name TEXT,
 	Source TEXT
 );
 
@@ -148,6 +149,7 @@ CREATE OR REPLACE VIEW Records AS
 		Taxonomy.Family,
 		Taxonomy.Genus,
 		Taxonomy.Species,
+		Taxonomy.common_name,
 		Source.service_name,
 		Source.Zoo,
 		Source.Aza,
