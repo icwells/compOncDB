@@ -33,10 +33,6 @@ func newCommonNames() *commonNames {
 	c.infile = *infile
 	c.taxa = make(map[string]string)
 	c.taxonomy = codbutils.EntryMap(c.db.GetColumns("Taxonomy", []string{"taxa_id", "Species"}))
-	for _, v := range c.taxonomy {
-		// Zero fill taxa map
-		c.taxa[v] = "NA"
-	}
 	return c
 }
 
@@ -54,22 +50,24 @@ func (c *commonNames) update() {
 
 func (c *commonNames) readInfile() {
 	// Reads common names from input file
-	var count int
 	fmt.Println("\n\tReading common names from input file...")
 	reader, header := iotools.YieldFile(c.infile, true)
 	for i := range reader {
 		species := i[header["Species"]]
 		common := i[header["Common"]]
-		if id, ex := c.taxonomy[species]; ex {
-			c.taxa[id] = common
-			count++
-			if _, e := c.common[common]; !e {
-				// Add missing common names
-				c.names = append(c.names, []string{id, common, "NA"})
+		if species != "" && species != "NA" && common != "" && common != "NA" {
+			if id, ex := c.taxonomy[species]; ex {
+				if _, exists := c.taxa[id]; !exists {
+					c.taxa[id] = common
+					if _, e := c.common[common]; !e {
+						// Add missing common names
+						c.names = append(c.names, []string{id, common, "NA"})
+					}
+				}
 			}
 		}
 	}
-	fmt.Printf("\tFound %d verified common names.\n", count)
+	fmt.Printf("\tFound %d verified common names.\n", len(c.taxa))
 	fmt.Printf("\tFound %d novel common names.\n", len(c.names))
 }
 
