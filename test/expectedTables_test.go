@@ -146,9 +146,9 @@ func getTaxonomy() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	s := [][]string{
 		H.Taxonomy,
-		{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52440711`},
-		{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52624675`},
-		{"3", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Urocyon", "Urocyon cinereoargenteus", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52578011`},
+		{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "Coyote", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52440711`},
+		{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "Wolf", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52624675`},
+		{"3", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Urocyon", "Urocyon cinereoargenteus", "Gray fox", `http://eol.org/api/hierarchy\_entries/1.0.xml?id=52578011`},
 	}
 	return setDF(0, s)
 }

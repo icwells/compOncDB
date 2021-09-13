@@ -60,8 +60,8 @@ func getCleaned() map[string]*dataframe.Dataframe {
 func getExpectedRates() *dataframe.Dataframe {
 	// Returns dataframe of account data
 	var s [][]string
-	coyote := []string{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "all", "7", "7", "7", "1", "1", "0.14285714285714285", "1", "1", "0.14285714285714285", "1.00", "0", "0.00", "0.00", "24", "24", "2", "1", "1", "0", "0", "0", "2", "1", "0"}
-	wolf := []string{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "all", "10", "10", "10", "3", "3", "0.30", "3", "2", "0.20", "0.6666666666666666", "1", "0.10", "0.3333333333333333", "135", "144", "4", "0", "0", "3", "2", "2", "0", "1", "0"}
+	coyote := []string{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "Coyote", "all", "7", "7", "7", "1", "1", "0.14285714285714285", "1", "1", "0.14285714285714285", "1.00", "0", "0.00", "0.00", "24", "24", "2", "1", "1", "0", "0", "0", "2", "1", "0"}
+	wolf := []string{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "Wolf", "all", "10", "10", "10", "3", "3", "0.30", "3", "2", "0.20", "0.6666666666666666", "1", "0.10", "0.3333333333333333", "135", "144", "4", "0", "0", "3", "2", "2", "0", "1", "0"}
 	s = append(s, codbutils.CancerRateHeader())
 	s = append(s, wolf)
 	s = append(s, coyote)
@@ -75,9 +75,9 @@ func getCanisResults() *dataframe.Dataframe {
 	// Returns map of results for male canis records
 	s := [][]string{
 		codbutils.RecordsHeader(),
-		{"3", "male", "24", "0", "-1", "0", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "-1", "1"},
-		{"12", "male", "60", "0", "-1", "0", "2", "12", "wolf", "NA", "1990", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "-1", "2"},
-		{"17", "male", "144", "0", "1", "0", "2", "17", "GRAY WOLF", "NA", "2016", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "NWZP", "1", "0", "0", "-1", "2"},
+		{"3", "male", "24", "0", "-1", "0", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "Coyote", "NWZP", "0", "0", "0", "-1", "1"},
+		{"12", "male", "60", "0", "-1", "0", "2", "12", "wolf", "NA", "1990", "NA", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "Wolf", "NWZP", "1", "0", "0", "-1", "2"},
+		{"17", "male", "144", "0", "1", "0", "2", "17", "GRAY WOLF", "NA", "2016", "neutered", "0", "0", "-1", "-1", "0", "-1", "NA", "NA", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "Wolf", "NWZP", "1", "0", "0", "-1", "2"},
 	}
 	return setDF(0, s)
 }
@@ -86,7 +86,7 @@ func getCoyoteResults() *dataframe.Dataframe {
 	// Returns map of coyote records
 	s := [][]string{
 		codbutils.RecordsHeader(),
-		{"3", "male", "24", "0", "-1", "0", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "NWZP", "0", "0", "0", "-1", "1"},
+		{"3", "male", "24", "0", "-1", "0", "1", "3", "Coyote", "1-Dec", "2011", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "1", "1", "lymphoma", "lymph nodes", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "Coyote", "NWZP", "0", "0", "0", "-1", "1"},
 	}
 	return setDF(0, s)
 }

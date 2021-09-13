@@ -172,6 +172,7 @@ func (t *taxa) setTaxon(spl []string, s string, l int, cur bool) {
 			// Add unique taxonomies
 			id := strconv.Itoa(t.count)
 			taxonomy := append([]string{id}, checkCaps(spl[t.col["Kingdom"]:t.col["Species"]+1])...)
+			taxonomy = append(taxonomy, spl[t.col["SearchTerm"]])
 			if cur == true {
 				taxonomy = append(taxonomy, getSource(spl[t.col["Species"]+1:t.col["Name"]]))
 			} else {
