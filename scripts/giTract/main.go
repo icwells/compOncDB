@@ -99,10 +99,10 @@ func newGImerger() *gimerger {
 	g := new(gimerger)
 	g.approved = "approved"
 	g.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-	g.gi = []string{"liver", "bile duct", "gall bladder", "stomach", "small intestine", "colon", "esophagus", "oral", "duodenum", "abdomen"}
+	g.gi = []string{"liver", "bile duct", "gall bladder", "stomach", "small intestine", "colon", "esophagus", "oral", "duodenum"}
 	g.repro = []string{"testis", "prostate", "ovary", "vulva", "uterus"}
 	g.taxa = make(map[string]*record)
-	g.tissues = []string{"fibrous", "myxomatous tissue", "fat", "notochord", "smooth muscle", "striated muscle", "peripheral nerve sheath", "blood", "cartilage", "synovium", "bone", "bone marrow", "lymph nodes", "spleen", "mast cell", "dendritic cell", "pigment cell", "skin", "hair follicle", "gland", "mammary", "glial cell", "meninges", "nerve cell", "pnet", "neuroepithelial", "spinal cord", "brain", "pituitary gland", "parathyroid gland", "thyroid", "adrenal medulla ", "adrenal cortex", "pancreas", "carotid body", "neuroendocrine", "kidney", "bladder", "oviduct", "iris", "pupil", "larynx", "trachea", "lung", "nose", "transitional epithelium", "mesothelium", "heart", "widespread"}
+	g.tissues = []string{"abdomen", "fibrous", "myxomatous tissue", "fat", "notochord", "smooth muscle", "striated muscle", "peripheral nerve sheath", "blood", "cartilage", "synovium", "bone", "bone marrow", "lymph nodes", "spleen", "mast cell", "dendritic cell", "pigment cell", "skin", "hair follicle", "gland", "mammary", "glial cell", "meninges", "nerve cell", "pnet", "neuroepithelial", "spinal cord", "brain", "pituitary gland", "parathyroid gland", "thyroid", "adrenal medulla ", "adrenal cortex", "pancreas", "carotid body", "neuroendocrine", "kidney", "bladder", "oviduct", "iris", "pupil", "larynx", "trachea", "lung", "nose", "transitional epithelium", "mesothelium", "heart", "widespread"}
 	if *repro {
 		g.tissues = append(g.tissues, g.gi...)
 		g.gi = g.repro
