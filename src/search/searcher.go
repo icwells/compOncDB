@@ -184,11 +184,13 @@ func (s *searcher) getRecords(eval []codbutils.Evaluation, lh bool) {
 
 func (s *searcher) setEvaluations(eval string, inf bool) []codbutils.Evaluation {
 	// Formats evaluations
+	if len(eval) > 0 {
+		eval += ","
+	}
+	// Add evaluation to remove infant records
 	if inf {
-		// Add evaluation to remove infant records
-		if len(eval) > 0 {
-			eval += ","
-		}
+		eval += "Infant = 1"
+	} else {
 		eval += "Infant != 1"
 	}
 	return codbutils.RecordsEvaluations(s.db.Columns, eval)

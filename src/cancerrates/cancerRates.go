@@ -105,6 +105,7 @@ func (c *cancerRates) setMetaData(eval string) {
 	m = append(m, fmt.Sprintf("necropsyStatus=%s", nec))
 	m = append(m, fmt.Sprintf("SourceType=%s", c.zoo))
 	m = append(m, fmt.Sprintf("KeepInfantRecords=%v", c.infant))
+	m = append(m, fmt.Sprintf("KeepWildRecords=%v", c.wild))
 	c.rates.SetMetaData(strings.Join(m, ","))
 }
 
@@ -132,6 +133,8 @@ func (c *cancerRates) SetSearch(eval string) {
 	}
 	if !c.infant {
 		eval += ",Infant!=1"
+	} else {
+		eval += ",Infant=1"
 	}
 	if c.wild {
 		eval += ",Wild=1"
