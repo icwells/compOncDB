@@ -7,18 +7,18 @@ import (
 )
 
 func TestTumorPairs(t *testing.T) {
-	input := []string{"carcinoma;sarcoma", "liver;lymph nodes; teeth"}
+	input := []string{"carcinoma;sarcoma", "Gastrointestinal;Round Cell", "liver;lymph nodes; teeth"}
 	expected := [][]string{
-		[]string{"carcinoma", "liver"},
-		[]string{"sarcoma", "lymph nodes"},
+		[]string{"carcinoma", "Gastrointestinal", "liver"},
+		[]string{"sarcoma", "Round Cell", "lymph nodes"},
 	}
-	actual := tumorPairs(input[0], input[1])
+	actual := tumorPairs(input[0], input[1], input[2])
 	if len(actual) != len(expected) {
 		t.Errorf("Actual length %d does not equal expected: %d", len(actual), len(expected))
 	} else {
 		for idx, i := range actual {
-			if i[0] != expected[idx][0] || i[1] != expected[idx][1] {
-				t.Errorf("Actual pair %s:%s does not equal expected: %s:%s", i[0], i[1], expected[idx][0], expected[idx][1])
+			if i[0] != expected[idx][0] || i[1] != expected[idx][1] || i[2] != expected[idx][2] {
+				t.Errorf("Actual pair %s:%s:%s does not equal expected: %s:%s:%s", i[0], i[1], i[2], expected[idx][0], expected[idx][1], expected[idx][2])
 			}
 		}
 	}
@@ -29,7 +29,7 @@ func setEntries() *entries {
 	e := newEntries(nil, false)
 	e.count = 0
 	e.col = make(map[string]int)
-	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Year", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "AZA", "Institute"}
+	s := []string{"Sex", "Age", "Castrated", "ID", "Genus", "Species", "Name", "Date", "Year", "Comments", "MassPresent", "Hyperplasia", "Necropsy", "Metastasis", "TumorType", "Tissue", "Location", "Primary", "Malignant", "Service", "Account", "Submitter", "Zoo", "AZA", "Institute"}
 	for idx, i := range s {
 		e.col[i] = idx
 	}
@@ -60,11 +60,11 @@ func getExpected() *entries {
 		[]string{"4", "0", "0", "1", "-1"},
 	}
 	e.t = [][]string{
-		[]string{"1", "0", "-1", "carcinoma", "liver"},
-		[]string{"1", "0", "-1", "sarcoma", "skin"},
-		[]string{"2", "0", "-1", "NA", "NA"},
-		[]string{"3", "0", "1", "lymphoma", "lymph nodes"},
-		[]string{"4", "0", "-1", "NA", "NA"},
+		[]string{"1", "0", "-1", "carcinoma", "Gastrointestinal", "liver"},
+		[]string{"1", "0", "-1", "sarcoma", "Epithelial", "skin"},
+		[]string{"2", "0", "-1", "NA", "NA", "NA"},
+		[]string{"3", "0", "1", "lymphoma", "Round Cell", "lymph nodes"},
+		[]string{"4", "0", "-1", "NA", "NA", "NA"},
 	}
 	e.s = [][]string{
 		[]string{"1", "NWZP", "-1", "0", "-1", "-1", "1"},
@@ -78,10 +78,10 @@ func getExpected() *entries {
 func getInput() [][]string {
 	// Returns input slice for testing
 	return [][]string{
-		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "2001", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
-		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "2001", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
-		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "2001", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
-		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "2001", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"male", "-1", "-1", "1", "Canis", "Canis latrans", "coyote", "12-Dec", "2001", "Biopsy: NORMAL BLOOD SMEAR", "0", "0", "0", "-1", "carcinoma;sarcoma", "Gastrointestinal;Epithelial", "liver;skin", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"NA", "-1", "-1", "2", "Canis", "Canis latrans", "coyote", "13-Jan", "2001", "ERYTHROPHAGOCYTOSIS", "0", "0", "-1", "-1", "NA", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"male", "24", "-1", "3", "Canis", "Canis latrans", "coyote", "1-Dec", "2001", "Lymphoma lymph nodes 2 year old male", "1", "0", "-1", "-1", "lymphoma", "Round Cell", "lymph nodes", "0", "1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
+		[]string{"NA", "-1", "-1", "4", "Canis", "Canis latrans", "coyote", "1-Dec", "2001", "HIPOTOMAS TOXIC HIPOTOPATHY autopsy", "0", "0", "1", "-1", "NA", "NA", "NA", "0", "-1", "NWZP", "X520", "XYZ", "-1", "0", "-1"},
 	}
 }
 

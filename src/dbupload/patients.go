@@ -14,14 +14,15 @@ import (
 	"strings"
 )
 
-func tumorPairs(typ, loc string) [][]string {
+func tumorPairs(typ, tissue, loc string) [][]string {
 	// Returns slice of pairs of type, location
 	var ret [][]string
 	types := strings.Split(typ, ";")
+	tissues := strings.Split(tissue, ";")
 	locations := strings.Split(loc, ";")
 	for idx, i := range types {
 		if idx < len(locations) {
-			ret = append(ret, []string{strings.TrimSpace(i), strings.TrimSpace(locations[idx])})
+			ret = append(ret, []string{strings.TrimSpace(i), strings.TrimSpace(tissues[idx]), strings.TrimSpace(locations[idx])})
 		}
 	}
 	return ret
@@ -95,7 +96,7 @@ func (e *entries) addUnmatched(row []string) {
 func (e *entries) addTumors(id string, row []string) {
 	// Assign ID to all tumor, location pairs tumorPairs
 	t := []string{id, row[e.col["Primary"]], row[e.col["Malignant"]]}
-	pairs := tumorPairs(row[e.col["TumorType"]], row[e.col["Location"]])
+	pairs := tumorPairs(row[e.col["TumorType"]], row[e.col["Tissue"]], row[e.col["Location"]])
 	for _, i := range pairs {
 		tumor := append(t, i...)
 		e.t = append(e.t, tumor)

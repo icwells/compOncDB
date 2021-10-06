@@ -31,20 +31,24 @@ func TestParseRecords(t *testing.T) {
 	ent.SortRecords(false, infile, parseout)
 	// Compare actual output with expected
 	expected, _ := dataframe.FromFile(uploadfile, 3)
-	actual, _ := dataframe.FromFile(parseout, 3)
-	ac, ar := actual.Dimensions()
-	ec, er := expected.Dimensions()
-	if ac != ec && ar != er {
-		t.Errorf("Actual dimensions [%d, %d] does not equal expected: [%d, %d]", ac, ar, ec, er)
-	}
-	for key := range actual.Index {
-		for k := range actual.Header {
-			a, _ := actual.GetCell(key, k)
-			e, _ := expected.GetCell(key, k)
-			if a != e {
-				t.Errorf("%s: Actual %s value %s does not equal expected: %s", key, k, a, e)
+	actual, err := dataframe.FromFile(parseout, 3)
+	if err != nil {
+		t.Error(err)
+	} else {
+		ac, ar := actual.Dimensions()
+		ec, er := expected.Dimensions()
+		if ac != ec && ar != er {
+			t.Errorf("Actual dimensions [%d, %d] does not equal expected: [%d, %d]", ac, ar, ec, er)
+		}
+		for key := range actual.Index {
+			for k := range actual.Header {
+				a, _ := actual.GetCell(key, k)
+				e, _ := expected.GetCell(key, k)
+				if a != e {
+					t.Errorf("%s: Actual %s value %s does not equal expected: %s", key, k, a, e)
+				}
 			}
 		}
+		os.Remove(parseout)
 	}
-	os.Remove(parseout)
 }

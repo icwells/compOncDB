@@ -131,7 +131,7 @@ func CancerRateHeader() []string {
 func ParseHeader(debug bool) string {
 	// Returns header for parse output
 	ret := "Sex,Age,Castrated,ID,Genus,Species,Name,Date,Year,Comments,"
-	ret += "MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Location,Primary,Malignant"
+	ret += "MassPresent,Hyperplasia,Necropsy,Metastasis,TumorType,Tissue,Location,Primary,Malignant"
 	ret += ",Service,Account,Submitter,Zoo,AZA,Institute"
 	if debug == true {
 		ret += ",Cancer,Code"
