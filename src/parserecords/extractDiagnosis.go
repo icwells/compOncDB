@@ -43,7 +43,7 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 	}
 	rec.sex = e.match.GetMatch(e.match.Sex, line)
 	rec.castrated = e.match.GetCastrated(line)
-	rec.tumorType, rec.location, rec.malignant = e.match.GetTumor(line, rec.sex, cancer)
+	rec.tumorType, rec.tissue, rec.location, rec.malignant = e.match.GetTumor(line, rec.sex, cancer)
 	rec.metastasis = e.match.BinaryMatch(e.match.Metastasis, line)
 	if rec.metastasis == "1" {
 		// Assume malignancy if metastasis is detected

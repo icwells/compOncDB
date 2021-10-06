@@ -65,9 +65,11 @@ func TestTumor(t *testing.T) {
 	m := NewMatcher(codbutils.GetLogger())
 	matches := NewMatches()
 	for _, i := range matches {
-		typ, loc, mal := m.GetTumor(i.Line, i.Sex, true)
+		typ, tissue, loc, mal := m.GetTumor(i.Line, i.Sex, true)
 		if typ != i.Typ {
 			t.Errorf("Actual type %s does not equal expected: %s.", typ, i.Typ)
+		} else if tissue != i.Tissue {
+			t.Errorf("Actual tissue %s does not equal expected: %s.", tissue, i.Tissue)
 		} else if loc != i.Location {
 			t.Errorf("Actual location %s does not equal expected: %s.", loc, i.Location)
 		} else if mal != i.Malignant {

@@ -49,6 +49,7 @@ type record struct {
 	necropsy    string
 	metastasis  string
 	tumorType   string
+	tissue      string
 	location    string
 	primary     string
 	malignant   string
@@ -80,6 +81,7 @@ func newRecord() record {
 	r.necropsy = "-1"
 	r.metastasis = "-1"
 	r.tumorType = "NA"
+	r.tissue = "NA"
 	r.location = "NA"
 	r.primary = "0"
 	r.malignant = "-1"
@@ -98,7 +100,7 @@ func newRecord() record {
 func (r *record) String(debug bool) string {
 	// Returns formatted string
 	columns := []string{r.sex, r.age, r.castrated, r.id, r.genus, r.species, r.name, r.date, r.year, r.comments}
-	columns = append(columns, []string{r.massPresent, r.hyperplasia, r.necropsy, r.metastasis, r.tumorType, r.location, r.primary, r.malignant}...)
+	columns = append(columns, []string{r.massPresent, r.hyperplasia, r.necropsy, r.metastasis, r.tumorType, r.tissue, r.location, r.primary, r.malignant}...)
 	columns = append(columns, []string{r.service, r.account, r.submitter, r.zoo, r.aza, r.institute}...)
 	if debug {
 		columns = append(columns, []string{r.cancer, r.code}...)

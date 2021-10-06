@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS Tumor (
 	primary_tumor TINYINT,
 	Malignant TINYINT,
 	Type TEXT,
+	Tissue ENUM ('Mesenchymal', 'Bone', 'Round Cell', 'Epithelial', 'Mammary', 'Nervous', 'Endocrine', 'Urinary', 'Reproductive', 'Gastrointestinal', 'Eye', 'Respiratory', 'Mesothelium', 'Cardiac', 'Other'),
 	Location ENUM ('abdomen','adrenal cortex','adrenal medulla','bile duct','bladder','blood','bone','bone marrow','brain','carotid body','cartilage','colon','dendritic cell','duodenum','esophagus','fat','fibrous','gall bladder','gland','glial cell','hair follicle','heart','iris','kidney','larynx','liver','lung','lymph nodes','mammary','mast cell','meninges','mesothelium','myxomatous tissue','NA','nerve cell','neuroendocrine','neuroepithelial','nose','notochord','oral','ovary','oviduct','pancreas','parathyroid gland','peripheral nerve sheath','pigment cell','pituitary gland','pnet','prostate','pupil','skin','small intestine','smooth muscle','spinal cord','spleen','stomach','striated muscle','synovium','testis','thyroid','trachea','transitional epithelium','uterus','vulva','widespread'),
 	CONSTRAINT fk_patient_tumor FOREIGN KEY (ID) REFERENCES Patient(ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -141,6 +142,7 @@ CREATE OR REPLACE VIEW Records AS
 		Tumor.primary_tumor,
 		Tumor.Malignant,
 		Tumor.Type,
+		Tumor.Tissue,
 		Tumor.Location,
 		Taxonomy.Kingdom,
 		Taxonomy.Phylum,

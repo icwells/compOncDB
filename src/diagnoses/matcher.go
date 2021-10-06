@@ -12,20 +12,21 @@ import (
 )
 
 type Matcher struct {
-	location   map[string]*regexp.Regexp
-	types      map[string]*tumortype
+	age        *regexp.Regexp
+	benign     *regexp.Regexp
+	biopsy     *regexp.Regexp
+	castrated  *regexp.Regexp
+	digit      *regexp.Regexp
 	infant     *regexp.Regexp
 	infile     string
-	digit      *regexp.Regexp
-	age        *regexp.Regexp
-	Sex        *regexp.Regexp
-	castrated  *regexp.Regexp
+	location   map[string]*regexp.Regexp
 	malignant  *regexp.Regexp
-	benign     *regexp.Regexp
 	Metastasis *regexp.Regexp
-	Primary    *regexp.Regexp
 	necropsy   *regexp.Regexp
-	biopsy     *regexp.Regexp
+	Primary    *regexp.Regexp
+	Sex        *regexp.Regexp
+	tissues    map[string]string
+	types      map[string]*tumortype
 }
 
 func NewMatcher(logger *log.Logger) Matcher {

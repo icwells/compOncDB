@@ -103,17 +103,22 @@ func (t *tumorFinder) checkKeys(name string, idx int) bool {
 	return ret
 }
 
-func (t *tumorFinder) toStrings() (string, string, string) {
+func (t *tumorFinder) toStrings(tissues map[string]string) (string, string, string, string) {
 	// Returns values as strings
 	if len(t.types) == 0 {
-		return "NA", "NA", t.malignant
+		return "NA", "NA", "NA", t.malignant
 	} else {
-		var types, locations []string
+		var types, tissue, locations []string
 		for k, v := range t.types {
 			types = append(types, k)
 			locations = append(locations, v.location)
+			if val, ex := tissues[v.location]; ex {
+				tissue = append(tissue, val)
+			} else {
+				tissue = append(tissue, "NA")
+			}
 		}
-		return strings.Join(types, ";"), strings.Join(locations, ";"), t.malignant
+		return strings.Join(types, ";"), strings.Join(tissue, ";"), strings.Join(locations, ";"), t.malignant
 	}
 }
 
@@ -195,7 +200,7 @@ func (m *Matcher) getTypes(t *tumorFinder, line string) {
 	}
 }
 
-func (m *Matcher) GetTumor(line, sex string, cancer bool) (string, string, string) {
+func (m *Matcher) GetTumor(line, sex string, cancer bool) (string, string, string, string) {
 	// Returns type, location, and malignancy
 	t := newTumorFinder()
 	if cancer == true {
@@ -205,5 +210,5 @@ func (m *Matcher) GetTumor(line, sex string, cancer bool) (string, string, strin
 			m.setMalignant(t, line)
 		}
 	}
-	return t.toStrings()
+	return t.toStrings(m.tissues)
 }

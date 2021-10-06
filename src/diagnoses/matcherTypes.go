@@ -83,33 +83,46 @@ func (m *Matcher) setTumorType(df *dataframe.Dataframe, loc string, idx int) {
 	}
 }
 
-func (m *Matcher) setLocation(l, exp string) string {
+func (m *Matcher) GetTissues() map[string]string {
+	// Returns tissues map
+	return m.tissues
+}
+
+func (m *Matcher) setLocation(l, exp, tissue string) string {
 	// Adds new location to map
 	l = strings.ToLower(l)
 	if exp == "" {
 		exp = l
 	}
 	m.location[l] = m.formatExpression(exp)
+	m.tissues[l] = tissue
 	return l
 }
 
 func (m *Matcher) setTypes(logger *log.Logger) {
 	// Sets type and location maps from file
-	var loc string
+	var loc, tissue string
 	m.location = make(map[string]*regexp.Regexp)
+	m.tissues = make(map[string]string)
 	m.types = make(map[string]*tumortype)
 	df, err := dataframe.FromFile(m.infile, -1)
 	if err != nil {
 		logger.Fatalf("Reading diagnoses file: %v\n", err)
 	}
 	for idx := range df.Rows {
+		// Get tissue type
+		t, err := df.GetCell(idx, "Classification")
+		if err == nil && t != "" {
+			tissue = t
+		}
+		// Get location name and search term
 		l, err := df.GetCell(idx, "Location")
 		if err == nil && l != "" {
 			exp, err := df.GetCell(idx, "LocationExpression")
 			if err != nil {
 				exp = ""
 			}
-			loc = m.setLocation(l, exp)
+			loc = m.setLocation(l, exp, tissue)
 		}
 		m.setTumorType(df, loc, idx)
 	}
