@@ -25,7 +25,7 @@ func newTissueColumn() *tissueColumn {
 	t := new(tissueColumn)
 	t.logger = codbutils.GetLogger()
 	t.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
-	t.logger.Println("\n\tInitializing struct...")
+	t.logger.Println("Initializing struct...")
 	m := diagnoses.NewMatcher(t.logger)
 	t.tissues = m.GetTissues()
 	return t
@@ -34,7 +34,7 @@ func newTissueColumn() *tissueColumn {
 func (t *tissueColumn) update() {
 	// Updates life history table with converted values
 	var count int
-	fmt.Println("\tUpdating Tumor table...")
+	fmt.Println("Updating Tumor table...")
 	for k, v := range t.tissues {
 		count++
 		t.db.UpdateRow("Tumor", "Tissue", v, "Location", "=", k)
