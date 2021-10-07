@@ -21,7 +21,7 @@ func newDistCases() []distcases {
 	line4 := "spayed female gray fox cutaneous malignant melanoma, "
 	return []distcases{
 		{line1, "neoplasia", "spinal cord", "spinal", 1},
-		{line2, "carcinoma", "liver", "liver", 1},
+		{line2, "carcinoma", "Gastrointestinal", "liver", 1},
 		{line3, "lymphoma", "lymph nodes", "lymphoma", 0},
 		{line4, "melanoma", "skin", "cutaneous", 11},
 	}
