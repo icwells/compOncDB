@@ -216,7 +216,8 @@ func (o *Output) summary() {
 
 func (o *Output) tissueLeaderBoard() {
 	// Returns database tissue leaderboard
-	res := search.LeaderBoard(o.db)
+	opt := setOptions(o.r)
+	res := search.LeaderBoard(o.db, opt.Min)
 	o.formatTable(res.GetHeader(), res.ToSlice())
 	C.renderTemplate(C.temp.result, o)
 }

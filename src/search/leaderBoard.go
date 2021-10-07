@@ -72,18 +72,22 @@ type leaderboard struct {
 	df			*dataframe.Dataframe
 	locations	map[string]*location
 	logger  	*log.Logger
+	min         int
 	table		*dataframe.Dataframe
+	taxa        *simpleset.Set
 	top			[]string
 }
 
-func newLeaderBoard(db *dbIO.DBIO) *leaderboard {
+func newLeaderBoard(db *dbIO.DBIO, min int) *leaderboard {
 	// Initializes new struct
 	l := new(leaderboard)
 	l.df, _ = dataframe.NewDataFrame(-1)
 	l.df.SetHeader([]string{"Location", "LocationTotal", "TopType", "TypeTotal", "TopSpecies", "SpeciesTotal"})
 	l.locations = make(map[string]*location)
 	l.logger = codbutils.GetLogger()
-	l.table, _ = SearchRecords(db, l.logger, "Masspresent=1", false, false)
+	l.min = min
+	l.table, _ = SearchRecords(db, l.logger, "Approved=1", false, false)
+	l.taxa = simpleset.NewStringSet()
 	l.top = make([]string, 5)
 	return l
 }
@@ -106,18 +110,39 @@ func (l *leaderboard) getUnique(loc, typ string) [][]string {
 	return ret
 }
 
+func (l *leaderboard) minTaxa() {
+	// Identifies species with more than min records
+	count := make(map[string]int)
+	for idx := range l.table.Rows {
+		sp, _ := l.table.GetCell(idx, "Species")
+		if _, ex := count[sp]; !ex {
+			count[sp] = 0
+		}
+		count[sp]++
+	}
+	for k, v := range count {
+		if v >= l.min {
+			l.taxa.Add(k)
+		}
+	}
+}
+
 func (l *leaderboard) countRecords() {
 	// Counts tissue types
 	l.logger.Print("Counting neoplasia records...")
 	for idx := range l.table.Rows {
-		loc, _ := l.table.GetCell(idx, "Location")
-		typ, _ := l.table.GetCell(idx, "Type")
-		sp, _ := l.table.GetCell(idx, "Species")
-		for _, i := range l.getUnique(loc, typ) {
-			if _, ex := l.locations[i[0]]; !ex {
-				l.locations[i[0]] = newLocation(i[0])
+		if mp, _ := l.table.GetCell(idx, "Masspresent"); mp == "1" {
+			sp, _ := l.table.GetCell(idx, "Species")
+			if ex, _ := l.taxa.InSet(sp); ex {
+				loc, _ := l.table.GetCell(idx, "Location")
+				typ, _ := l.table.GetCell(idx, "Type")
+				for _, i := range l.getUnique(loc, typ) {
+					if _, ex := l.locations[i[0]]; !ex {
+						l.locations[i[0]] = newLocation(i[0])
+					}
+					l.locations[i[0]].add(sp, i[1])
+				}
 			}
-			l.locations[i[0]].add(sp, i[1])
 		}
 	}
 }
@@ -152,9 +177,10 @@ func (l *leaderboard) sortRecords() {
 	}
 }
 
-func LeaderBoard(db *dbIO.DBIO) *dataframe.Dataframe {
+func LeaderBoard(db *dbIO.DBIO, min int) *dataframe.Dataframe {
 	// Returns top cancer locations and the top species and types associated with them.
-	l := newLeaderBoard(db)
+	l := newLeaderBoard(db, min)
+	l.minTaxa()
 	l.countRecords()
 	l.sortRecords()
 	return l.df

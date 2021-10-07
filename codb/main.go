@@ -140,6 +140,7 @@ func tableDumpHandler(w http.ResponseWriter, r *http.Request) {
 
 func tissueHandler(w http.ResponseWriter, r *http.Request) {
 	// Performs and renders tissue leaderboard summary
+	fmt.Println(C.u.tissue)
 	handlePost(w, r, C.u.tissue)
 }
 
@@ -174,7 +175,7 @@ func main() {
 	r.HandleFunc(C.u.source, indexHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.summary, summaryHandler).Methods(http.MethodGet)
 	r.HandleFunc(C.u.table, tableDumpHandler).Methods(http.MethodPost)
-	r.HandleFunc(C.u.tissue, tissueHandler).Methods(http.MethodGet)
+	r.HandleFunc(C.u.tissue, tissueHandler).Methods(http.MethodPost)
 	r.HandleFunc(C.u.tutorial, tutorialHandler).Methods(http.MethodGet)
 	// Serve and log errors to terminal
 	http.Handle("/", r)

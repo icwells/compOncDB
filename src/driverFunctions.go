@@ -150,7 +150,7 @@ func searchDB() time.Time {
 			writeDF(res, *outfile)
 		}
 	} else if *top {
-		writeDF(search.LeaderBoard(db), *outfile)
+		writeDF(search.LeaderBoard(db, *min), *outfile)
 		codbutils.UpdateTimeStamp(db)
 	} else {
 		commandError()
