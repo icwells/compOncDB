@@ -17,6 +17,7 @@ type mysqluser struct {
 	name       string
 	permission string
 	records    string
+	updatetime string
 }
 
 func (m *mysqluser) execute(command string) {
@@ -40,6 +41,7 @@ func (m *mysqluser) setPrivileges() {
 		m.execute(strings.Replace(cmd, "%", m.host, 1))
 	} else {
 		m.execute(strings.Replace(cmd, "*", m.records, 1))
+		m.execute(strings.Replace(cmd, "*", m.updatetime, 1))
 	}
 }
 
@@ -66,6 +68,7 @@ func NewUser(db *dbIO.DBIO, username string, admin bool) {
 		m.permission = "ALL PRIVILEGES"
 	}
 	m.records = "Records"
+	m.updatetime = "Update_time"
 	m.logger.Println("Adding new user...")
 	m.createUser()
 	m.setPrivileges()
