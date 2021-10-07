@@ -197,10 +197,12 @@ func (o *Output) barplot() {
 	cmd := exec.Command("python", "barplot.py", d, p, s, outdir)
 	cmd.Run()
 	if f, err := filepath.Glob(outdir + "*.svg"); err == nil {
-		o.Plot = f[0]
-		fmt.Println(o.Plot)
-		fs := http.FileServer(http.Dir(outdir))
-		http.Handle(outdir, http.StripPrefix(outdir, fs))
+		if len(f) > 0 {
+			o.Plot = f[0]
+			fmt.Println(o.Plot)
+			fs := http.FileServer(http.Dir(outdir))
+			http.Handle(outdir, http.StripPrefix(outdir, fs))
+		}
 	}
 }
 
