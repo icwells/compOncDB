@@ -25,6 +25,7 @@ type cancerRates struct {
 	header   []string
 	infant   bool
 	keep     bool
+	lcol     string
 	lh       bool
 	location string
 	logger   *log.Logger
@@ -41,20 +42,26 @@ type cancerRates struct {
 	zoo      string
 }
 
-func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zoo, location string) *cancerRates {
+func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zoo, tissue, location string) *cancerRates {
 	// Returns initialized cancerRates struct
 	idx := 0
 	c := new(cancerRates)
 	c.db = db
 	c.infant = inf
 	c.keep = keepall
-	c.location = location
+	if tissue != "" {
+		c.lcol = "Tissue"
+		c.location = tissue
+	} else {
+		c.lcol = "Location"
+		c.location = location
+	}
 	c.lh = lh
 	c.logger = codbutils.GetLogger()
 	c.min = min
 	c.nec = nec
 	c.setHeader()
-	if location != "" {
+	if c.location != "" {
 		// Don't store by index when repeated taxa_ids are present
 		idx = -1
 	}
@@ -101,6 +108,7 @@ func (c *cancerRates) setMetaData(eval string) {
 	if eval != "" && eval != "nil" {
 		m = append(m, eval)
 	}
+	m = append(m, fmt.Sprintf("%s=%s", c.lcol, c.location))
 	m = append(m, fmt.Sprintf("min=%d", c.min))
 	m = append(m, fmt.Sprintf("necropsyStatus=%s", nec))
 	m = append(m, fmt.Sprintf("SourceType=%s", c.zoo))
@@ -221,7 +229,7 @@ func (c *cancerRates) CountRecords() {
 		mass, _ := c.search.GetCell(k, "Masspresent")
 		nec, _ := c.search.GetCell(k, "Necropsy")
 		mal, _ := c.search.GetCell(k, "Malignant")
-		loc, _ := c.search.GetCell(k, "Location")
+		loc, _ := c.search.GetCell(k, c.lcol)
 		s := c.getSpecies(k, tid)
 		allrecords := c.checkService(service, "")
 		if c.checkService(service, mass) {
@@ -238,9 +246,9 @@ func (c *cancerRates) CountRecords() {
 	}
 }
 
-func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zoo, eval, location string) (*dataframe.Dataframe, *dataframe.Dataframe) {
+func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zoo, eval, tissue, location string) (*dataframe.Dataframe, *dataframe.Dataframe) {
 	// Returns dataframe of cancer rates
-	c := NewCancerRates(db, min, nec, inf, lh, wild, keepall, zoo, location)
+	c := NewCancerRates(db, min, nec, inf, lh, wild, keepall, zoo, tissue, location)
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.SetSearch(eval)
 	c.CountRecords()

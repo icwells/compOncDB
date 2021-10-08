@@ -46,7 +46,6 @@ func newSearcher(db *dbIO.DBIO, logger *log.Logger) *searcher {
 	s := new(searcher)
 	// Add default header
 	s.db = db
-	//s.header = strings.Join(codbutils.RecordsHeader(), ",")
 	s.header = strings.Split(s.db.Columns["Records"], ",")
 	s.logger = logger
 	s.res = make(map[string][]string)

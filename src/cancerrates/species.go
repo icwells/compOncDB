@@ -26,11 +26,10 @@ type Species struct {
 	lifehistory  []string
 	Location     string
 	locationprop float64
-	locations    *simpleset.Set
 	notissue     int
+	other        *Record
 	taxonomy     []string
 	tissue       *Record
-	tissues      map[string]*Record
 	total        *Record
 }
 
@@ -41,28 +40,11 @@ func newSpecies(id, location string, taxonomy []string) *Species {
 	s.ids = simpleset.NewStringSet()
 	s.Location = location
 	s.locationprop = 0.05
-	s.locations = simpleset.NewStringSet()
+	s.other = newRecord()
 	s.taxonomy = taxonomy
 	s.tissue = newRecord()
-	s.tissues = make(map[string]*Record)
 	s.total = newRecord()
-	s.setLocations()
 	return s
-}
-
-func (s *Species) setLocations() {
-	// Initializes location set
-	if strings.Contains(s.Location, ",") {
-		s.Location = strings.Replace(s.Location, ",", ";", -1)
-	}
-	if strings.Contains(s.Location, ";") {
-		for _, i := range strings.Split(s.Location, ";") {
-			s.locations.Add(i)
-			s.tissues[i] = newRecord()
-		}
-	} else {
-		s.locations.Add(s.Location)
-	}
 }
 
 func (s *Species) tissueSlice(name string, r *Record) []string {
@@ -92,11 +74,7 @@ func (s *Species) ToSlice(keepall bool) [][]string {
 		ret = append(ret, total)
 		if s.Location != "" {
 			ret = append(ret, s.tissueSlice(s.Location, s.tissue))
-			for k, v := range s.tissues {
-				if v.grandtotal > 0 {
-					ret = append(ret, s.tissueSlice(k, v))
-				}
-			}
+			ret = append(ret, s.tissueSlice("Other", s.other))
 		}
 	}
 	return ret
@@ -118,13 +96,13 @@ func (s *Species) checkLocation(mal, loc string) (bool, string) {
 		if strings.Contains(loc, ";") {
 			m := strings.Split(mal, ";")
 			for idx, i := range strings.Split(loc, ";") {
-				if ex, _ := s.locations.InSet(i); ex {
+				if s.Location == i {
 					if idx < len(m) {
 						return true, m[idx]
 					}
 				}
 			}
-		} else if ex, _ := s.locations.InSet(loc); ex {
+		} else if s.Location == loc {
 			return true, mal
 		}
 	}
@@ -134,15 +112,14 @@ func (s *Species) checkLocation(mal, loc string) (bool, string) {
 func (s *Species) addCancer(allrecords bool, age, sex, nec, mal, loc, service, aid string) {
 	// Adds cancer measures
 	s.total.cancerMeasures(allrecords, age, sex, s.highestMalignancy(mal), service)
-	if eq, m := s.checkLocation(mal, loc); eq {
+	eq, m := s.checkLocation(mal, loc)
+	if eq {
 		// Add all measures for target tissue
 		s.tissue.cancerMeasures(allrecords, age, sex, m, service)
 		s.tissue.nonCancerMeasures(allrecords, age, sex, nec, service, aid)
-		if _, ex := s.tissues[loc]; ex {
-			// Add to specific location
-			s.tissues[loc].cancerMeasures(allrecords, age, sex, m, service)
-			s.tissues[loc].nonCancerMeasures(allrecords, age, sex, nec, service, aid)
-		}
+	} else {
+		s.other.cancerMeasures(allrecords, age, sex, m, service)
+		s.other.nonCancerMeasures(allrecords, age, sex, nec, service, aid)
 	}
 }
 
@@ -185,9 +162,6 @@ func (s *Species) Copy() *Species {
 	ret.infancy = s.infancy
 	ret.lifehistory = s.lifehistory
 	ret.tissue = s.tissue.Copy()
-	for k, v := range s.tissues {
-		ret.tissues[k] = v.Copy()
-	}
 	ret.total = s.total.Copy()
 	return ret
 }
