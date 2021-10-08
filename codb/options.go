@@ -24,6 +24,7 @@ type Options struct {
 	Print       bool
 	Source      string
 	Taxa        string
+	Tissue      string
 	Value       string
 	Wild        bool
 }
