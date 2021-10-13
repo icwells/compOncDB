@@ -9,7 +9,8 @@ Copyright 2019 by Shawn Rupp
 2. [Installation](#Installation)  
 3. [Usage](#Usage)  
 4. [Commands](#Commands)  
-5. [Extracting Data](#Extract)
+5. [Search](#Search)
+5. [Cancer Rates](#Cancer Rates)
 
 ## Description  
 compOncDB is a program written to manage veterinary pathology data and identify cancer records using a MySQL database. 
@@ -65,6 +66,13 @@ Run the following in a terminal:
 
 You will be prompted the enter your MySQL user name and password at the beginning. All of the output from the test scripts should begin with "ok".  
 
+### Run Server Process  
+Run the following in a terminal to launch the server program:
+
+	./run.sh start/stop
+
+The start command will kill an existing process and start a new one. The stop command will kill an existing process.  
+
 ## Usage  
 Once compiled, the compOncDB program can be used by giving it a base command and the appropriate flags.  
 The program will prompt for a mysql password for the given username.  
@@ -89,14 +97,17 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 ### Commands  
 
 #### Backup  
-	compOncDB backup
+	compOncDB backup -u username -o outfile  
+
+	-o, --outfile	Path to output directory (Prints to current directory by default).  
+	-u, --user		MySQL username.  
 
 Backs up database to local machine. Must use root password. Output is written to current directory.  
 
 #### New  
-	compOncDB new {-u username}  
+	compOncDB new -u username  
 
-	-u, --user="root"	MySQL username (default is root).  
+	-u, --user	MySQL username.  
 
 Initializes new tables in new database. The database itself must be initialized manually.  
 Make sure tableColumns.txt is in the bin/ directory.  
@@ -108,12 +119,11 @@ to make a csv file ready to upload to the MySQL database.
 
 	compOncDB parse -s service_name -t taxa_file -i infile -o outfile
 
-	--help					Show help.  
-	-i, --infile=INFILE			Path to input file (required).  
-	-o, --outfile=OUTFILE			Path to output file (required).  
-	-s, --service=SERVICE			Database/service name (required).  
-	-t, --taxa="nil"			Path to kestrel output (used with the merge command).  
 	-d, --debug				Adds cancer and code column (if present) for hand checking.  
+	-i, --infile			Path to input file (required).  
+	-o, --outfile			Path to output file (required).  
+	-s, --service			Database/service name (required).  
+	-t, --taxa			Path to kestrel output (used with the merge command).  
 
 Input files for parsing should have columns with the following names (in no particular order):
 
@@ -136,17 +146,15 @@ Input files for parsing should have columns with the following names (in no part
 	Client			Name of record submitter.
 
 #### Upload  
-	compOncDB upload {-u username} --{type_from_list_below} -i infile
+	compOncDB upload -u username --{type_from_list_below} -i infile
 
-	-u, --user="root"		MySQL username (default is root).  
-	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.  
 	--common			Additionally extract common names from Kestrel output to update common name tables.  
-	--lh				Upload life history info from merged life history table to the database.   
 	--den				Uploads file to denominator table for databases where only cancer records were extracted.  
-	--patient			Upload patient info from input table to database.  
-
-
 	-i infile			Path to appropriate input file (Required).  
+	--lh				Upload life history info from merged life history table to the database.   
+	--patient			Upload patient info from input table to database.
+	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.    
+	-u, --user		MySQL username.  
 
 Uploads data from input files to appropriate tables. Only one flag may be given to indicate the type of 
 input data, and therefore which tables must be updated. The only exception is for the --common flag which 
@@ -155,17 +163,16 @@ names and should be uploaded to the common names table. The input for --accounts
 are all the same file which must in the format of uploadTemplate.csv.  
 
 #### Update  
-	compOncDB update {-u username} {infile}
+	compOncDB update -u username {--flags...} {infile}
 
-	-u, --user="root"	MySQL username (default is root).  
-	--count			Recount species totals and update the Totals table.  
+	-c, --column	Column to be updated with given value if --eval column == value.
+	--clean		Remove extraneous records from the database.  
 	--delete		Delete records from given table if column = value. 
-	--table="nil"		Perform operations on this table only.   
-	-c, --column="nil"	Column to be updated with given value if --eval column == value.
-	-v, --value="nil"	Value to write to column if --eval column == value (only supply one evaluation statement).
-	-e, --eval="nil"	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks).  
-
+	-e, --eval	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks).
 	-i infile		Path to input file (see below for formatting).  
+	--table		Perform operations on this table only.   
+	-u, --user	MySQL username.  
+	-v, --value		Value to write to column if --eval column == value (only supply one evaluation statement).
 
 Update or delete existing records from the database. Command line updates (given with the -c, -v, and -e flags) will only perform a single 
 update operation; however, multiple updates can be run at once using an input file.  
@@ -185,63 +192,52 @@ changed to "0". Since ID is a unique identifier this will only change one record
 a matching taxonomic level would be updated.  
 
 #### Extract  
-	compOncDB extract {-u username} {--flags...} {-o outfile}
+	compOncDB extract -u username {--flags...} {-o outfile}
 
-	-u, --user="root"	MySQL username (default is root).  
-	--table="nil"		Perform operations on this table only.  
-	-d, --dump="nil"	Name of table to dump (writes all data from table to output file).  
+	--alltaxa	Summarizes life history table for all species (performs summary for species with records in patient table by default).  
+	-d, --dump	Name of table to dump (writes all data from table to output file).  
+	--dump_db	Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).  
+	-i infile		Path to input file (see below for formatting).  
 	--lhsummary			Summarizes life history table.  
+	-o outfile		Name of output file (writes to stdout if not given).  
 	-r, --reference_taxonomy	Returns merged common and taxonomy tables.  
 	--summarize		Compiles basic summary statistics of the database.  
-
-	-i infile		Path to input file (see below for formatting).  
-	-o outfile		Name of output file (writes to stdout if not given).  
+	-u, --user	MySQL username.  
 
 Extract data from the database.  
 
 
 #### Search
-	compOncDB search {-u username} {--flags...} {-o outfile}
+	compOncDB search -u username {--flags...} {-o outfile}
 
-	-u, --user="root"	MySQL username (default is root).  
-	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
+	-e, --eval	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
 	--infant		Include infant records in results (excluded by default).  
-  	-n, --names=0		Column of input file containing scientific/common species names to search.    
-	--table="nil"		Perform operations on this table only.  
-	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
-
-	-i infile		Path to input file (see below for formatting).  
 	-o outfile		Name of output file (writes to stdout if not given).  
+	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
+	--topcancer		Returns top 5 cancer locations with most common type and species for each.  
+	-u, --user	MySQL username.  
 
-For searching most tables, the only valid operators for the eval flag are = (or ==), !=, or ^. For searching the Totals or Life_history tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.  
-
-If an input file is specified, it should follow a similar format to the update file, with the exception that every column will be used as a search criterion. Each line of the file represents a seperate search, while each column of the row will be added the same search and will be cumulative. The program will search for matches where the value in the file equals the value in the given column (empty cells will be skipped). Therefore:
-
-	taxa_id	Age	Masspresent
-		20	
-	2		0
-	3	10	1
-
-will search for any match where Age == 20, records where taxa_id == 2 and Masspresent == 0, and records where taxa_id == 3, Age == 10, and Masspresent == 1.  
+For searching most tables, the only valid operators for the eval flag are = (or ==), !=, or ^. For searching the Totals or Life_history tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.   
 
 Taxonomy information can be extracted for target species in a given input file by specifying the "--taxonomies" flag. 
 This will search for matches in the "-n" column of an input file (the first column by default). The species names can be either common or scientific names.  
 
 #### Cancer Rates
-	compOncDB cancerrates {-u username} {--flags...} {-o outfile}
+	compOncDB cancerrates -u username {--flags...} {-o outfile}
 
-	-u, --user="root"	MySQL username (default is root).  
-	-e, --eval="nil"	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
 	--approved		Calculate neoplasia prevalence using only records from approved zoos.  
+	-e, --eval	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
 	--infant		Include infant records in results (excluded by default).  
+	--keepall		Keep records without specified tissue when calculating by tissue.  
 	--lifehistory	Append life history values to cancer rate data.  
-	--location=""		Include tumor location summary for each species for given location.  
-	-m, --min=50		Minimum number of entries required for calculations (default = 50).  
-	--necropsy		Extract only necropsy records (extracts all matches by default).  
-
-	-i infile		Path to input file (see below for formatting).  
+	--location		Include tumor location summary for each species for given location.  
+	-m, --min		Minimum number of entries required for calculations (default = 1).  
+	--necropsy		2: Extract only necropsy records, 1: extract all records by default, 0: extract non-necropsy records.  
 	-o outfile		Name of output file (writes to stdout if not given).  
+	--pathology		Additionally extract pathology records for target species.  
+	--tissue		Include tumor tissue type summary for each species (supercedes location analysis).  
+	-u, --user	MySQL username.  
+	--wild		Return results for wild records only (returns non-wild only by default).  
+	-z, --source	Zoo/institute records to calculate prevalence with; all: use all records, approved (default): used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.  
 
 Returns the cancer rates by species for records matching given search criteria. The "--min" flag specifies the minimum number of species required to report cancer rates.  
-
-

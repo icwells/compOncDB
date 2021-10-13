@@ -19,11 +19,10 @@ var (
 	min      = kingpin.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
 	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("").String()
 	password = kingpin.Flag("password", "Password (for testing or scripting).").Default("").String()
-	table    = kingpin.Flag("table", "Perform operations on this table only.").Default("nil").String()
 	user     = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
 
 	ver = kingpin.Command("version", "Prints version info and exits.")
-	bu  = kingpin.Command("backup", "Backs up database to local machine (Must use root password; Specify output directory with '-o' flag).")
+	bu  = kingpin.Command("backup", "Backs up database to local machine (Specify output directory with '-o' flag).")
 	New = kingpin.Command("new", "Initializes new tables in new database (database must be initialized manually).")
 
 	parse    = kingpin.Command("parse", "Parse and organize records for upload to the database.")
@@ -39,10 +38,11 @@ var (
 	patient = upload.Flag("patient", "Upload patient, account, and diagnosis info from input table to database.").Default("false").Bool()
 
 	update = kingpin.Command("update", "Update or delete existing records from the database (see README for upload file template). Backs up database if output directory is given with '-o'.")
-	column = update.Flag("column", "Column to be updated with given value if --eval column == value.").Short('c').Default("nil").String()
-	value  = update.Flag("value", "Value to write to column if --eval column == value (only supply one statement).").Short('v').Default("nil").String()
 	clean  = update.Flag("clean", "Remove extraneous records from the database.").Default("false").Bool()
+	column = update.Flag("column", "Column to be updated with given value if --eval column == value.").Short('c').Default("nil").String()
 	del    = update.Flag("delete", "Delete records if column = value.").Default("false").Bool()
+	table  = update.Flag("table", "Perform operations on this table only.").Default("nil").String()
+	value  = update.Flag("value", "Value to write to column if --eval column == value (only supply one statement).").Short('v').Default("nil").String()
 
 	extract   = kingpin.Command("extract", "Extract data from the database.")
 	alltaxa   = extract.Flag("alltaxa", "Summarizes life history table for all species (performs summary for species with records in patient table by default).").Default("false").Bool()
@@ -73,7 +73,7 @@ var (
 )
 
 func version() {
-	fmt.Println("\n\tCompOncDB is a package for managing the ASU comparative oncology database.")
+	fmt.Println("\n\tCompOncDB v0.9.1 is a package for managing the ASU comparative oncology database.")
 	fmt.Println("\n\tCopyright 2021 by Shawn Rupp, Maley Lab, Biodesign Institute, Arizona State University.")
 	fmt.Println("\tThis program comes with ABSOLUTELY NO WARRANTY.")
 	fmt.Print("\n\tThis is free software, and you are welcome to redistribute it under certain conditions.\n\n")

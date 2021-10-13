@@ -50,7 +50,7 @@ func (m *mysqluser) createUser() {
 	cmd := fmt.Sprintf("CREATE USER '%s'@'%s' IDENTIFIED BY '%s';", m.name, "%", m.name)
 	m.execute(cmd)
 	if m.all {
-		// Grant remote access
+		// Grant local access
 		m.execute(strings.Replace(cmd, "%", m.host, 1))
 	}
 }
