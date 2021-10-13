@@ -187,9 +187,7 @@ func (s *searcher) setEvaluations(eval string, inf bool) []codbutils.Evaluation 
 		eval += ","
 	}
 	// Add evaluation to remove infant records
-	if inf {
-		eval += "Infant = 1"
-	} else {
+	if !inf {
 		eval += "Infant != 1"
 	}
 	return codbutils.RecordsEvaluations(s.db.Columns, eval)
@@ -210,9 +208,17 @@ func SearchRecords(db *dbIO.DBIO, logger *log.Logger, eval string, inf, lh bool)
 func SearchColumns(db *dbIO.DBIO, logger *log.Logger, eval [][]codbutils.Evaluation, inf, lh bool) (*dataframe.Dataframe, string) {
 	// Wraps calls from server to getRecords
 	var ret *dataframe.Dataframe
+	var infant codbutils.Evaluation
+	if !inf {
+		infant.SetOperation("Infant != 1")
+		infant.SetTable(db.Columns, true)
+	}
 	s := newSearcher(db, logger)
 	s.logger.Println("Searching for matching records...")
 	for idx, i := range eval {
+		if !inf {
+			i = append(i, infant)
+		}
 		s.getRecords(i, lh)
 		res := s.toDF()
 		if s.msg != "" {
