@@ -11,6 +11,9 @@ import (
 	"strings"
 )
 
+// Average proportion of weaning/max_longevity (determined in ageOfInfancy script)
+var PROP = 0.032964
+
 func uploadTraits(db *dbIO.DBIO, traits [][]string) {
 	// Uploads table to database
 	if len(traits) > 0 {
@@ -30,13 +33,13 @@ func getAvgMaturity(male, female string) string {
 		ret = f
 	} else if err != nil {
 		ret = m
-	} else {
-		ret = (((f + m) / 2) * 0.1)
+	//} else {
+		//ret = (((f + m) / 2) * 0.1)
 	}
 	return strconv.FormatFloat(ret, 'f', -1, 64)
 }
 
-func calculateInfancy(weaning, male, female string) string {
+func calculateInfancy(weaning, male, female, longevity string) string {
 	// Returns age for infancy column
 	var ret string
 	w, err := strconv.ParseFloat(weaning, 64)
@@ -45,6 +48,10 @@ func calculateInfancy(weaning, male, female string) string {
 		ret = weaning
 	} else {
 		ret = getAvgMaturity(male, female)
+	}
+	if ret == "-1" && longevity != "NA" {
+		l, _ := strconv.ParseFloat(longevity, 64)
+		ret = strconv.FormatFloat(PROP * longevity, 'f', -1, 64)
 	}
 	return ret
 }
@@ -63,7 +70,7 @@ func fmtEntry(col map[string]int, l int, tid string, row []string) []string {
 	for _, i := range row[col["FemaleMaturity"] : col["Weaning"]+1] {
 		entry = append(entry, fmtNA(i))
 	}
-	entry = append(entry, calculateInfancy(row[col["Weaning"]], row[col["MaleMaturity"]], row[col["FemaleMaturity"]]))
+	entry = append(entry, calculateInfancy(row[col["Weaning"]], row[col["MaleMaturity"]], row[col["FemaleMaturity"]], row[col["MaximumLongevity"]]))
 	for _, i := range row[col["Litter"]:col["Source"]] {
 		entry = append(entry, fmtNA(i))
 	}

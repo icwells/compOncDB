@@ -13,13 +13,12 @@ import (
 	"time"
 )
 
-var user = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Default("root").String()
+var user = kingpin.Flag("user", "MySQL username (default is root).").Short('u').Required().String()
 
 type infancy struct {
-	db       *dbIO.DBIO
-	infant   map[string]float64
-	lifehist map[string][]string
-	prop     float64
+	db     *dbIO.DBIO
+	infant map[string]float64
+	prop   float64
 }
 
 func newInfancy() *infancy {
@@ -28,7 +27,6 @@ func newInfancy() *infancy {
 	i.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
 	fmt.Println("\n\tInitializing struct...")
 	i.infant = make(map[string]float64)
-	i.lifehist = codbutils.ToMap(i.db.GetColumns("Life_history", []string{"taxa_id", "female_maturity", "male_maturity", "Weaning", "Infancy", "max_longevity"}))
 	return i
 }
 
@@ -49,7 +47,7 @@ func (i *infancy) getTaxaIds() string {
 	return strings.Join(ret, ",")
 }
 
-func (i *infancy) updateInfant() {
+func (i *infancy) updatePatient() {
 	// Updates infant flag if species infancy value has changed
 	var add, remove int
 	fmt.Println("\tUpdating Patient table...")
@@ -82,10 +80,10 @@ func (i *infancy) setInfancy() {
 	// Sets new infancy value for approriate taxa
 	var count int
 	fmt.Println("\tCalculating infancy for species missing maturity info...")
-	for k, v := range i.lifehist {
-		if v[0] == "-1.0" && v[1] == "-1.0" && v[2] == "-1.0" {
-			if l := i.getAge(v[4]); l > 0.0 {
-				i.infant[k] = l * i.prop
+	for _, v := range i.db.EvaluateRows("Life_history", "Weaning", "<=", "0.0", "taxa_id,female_maturity,male_maturity,max_longevity") {
+		if v[1] == "-1" && v[2] == "-1" {
+			if l := i.getAge(v[3]); l > 0.0 {
+				i.infant[v[0]] = l * i.prop
 				count++
 			}
 		}
@@ -98,9 +96,9 @@ func (i *infancy) setProportion() {
 	var count int
 	var val float64
 	fmt.Println("\tCalculating average proportion...")
-	for _, v := range i.lifehist {
-		w := i.getAge(v[2])
-		l := i.getAge(v[4])
+	for _, v := range i.db.EvaluateRows("Life_history", "Weaning", ">", "0.0", "Weaning,max_longevity") {
+		w := i.getAge(v[0])
+		l := i.getAge(v[1])
 		if w > 0.0 && l > 0.0 {
 			val += w / l
 			count++
@@ -112,9 +110,11 @@ func (i *infancy) setProportion() {
 
 func main() {
 	start := time.Now()
+	kingpin.Parse()
 	i := newInfancy()
 	i.setProportion()
 	i.setInfancy()
-
+	i.uploadInfancy()
+	i.updatePatient()
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
 }
