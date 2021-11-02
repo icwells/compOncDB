@@ -84,10 +84,10 @@ func TestCheckLocation(t *testing.T) {
 		m   string
 	}{
 		{"0", "liver", true, "0"},
-		{"0;-1", "ovary;mammary", false, ""},
+		{"0;-1", "ovary;mammary", false, "0"},
 		{"0;1;-1", "testis;liver;kidney", true, "1"},
-		{"1", "livr", false, ""},
-		{"-1", "oral", false, ""},
+		{"1", "livr", false, "1"},
+		{"-1", "oral", false, "-1"},
 	}
 	for _, i := range input {
 		act, m := sp.checkLocation(i.mal, i.loc)

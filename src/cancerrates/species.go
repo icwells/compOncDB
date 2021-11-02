@@ -106,7 +106,18 @@ func (s *Species) checkLocation(mal, loc string) (bool, string) {
 			return true, mal
 		}
 	}
-	return false, ""
+	if strings.Contains(mal, ";") {
+		ret := "-1"
+		for _, i := range strings.Split(mal, ";") {
+			if i == "1" {
+				return false, "1"
+			} else if i == "0" {
+				ret = "0"
+			}
+		}
+		return false, ret
+	}
+	return false, mal
 }
 
 func (s *Species) addCancer(allrecords bool, age, sex, nec, mal, loc, service, aid string) {

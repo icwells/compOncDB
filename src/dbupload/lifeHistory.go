@@ -51,7 +51,7 @@ func calculateInfancy(weaning, male, female, longevity string) string {
 	}
 	if ret == "-1" && longevity != "NA" {
 		l, _ := strconv.ParseFloat(longevity, 64)
-		ret = strconv.FormatFloat(PROP * longevity, 'f', -1, 64)
+		ret = strconv.FormatFloat(PROP * l, 'f', -1, 64)
 	}
 	return ret
 }
