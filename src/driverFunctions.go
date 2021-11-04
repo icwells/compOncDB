@@ -124,8 +124,17 @@ func updateDB() time.Time {
 	return db.Starttime
 }
 
+func leaderBoards() time.Time {
+	// Calculate cancer type leaderboards
+	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
+	if *species {
+		writeDF(search.SpeciesLeaderBoard(db, *min), *outfile)
+	}
+	return db.Starttime
+}
+
 func calculateCancerRates() time.Time {
-	// Extract cancer rates
+	// Calculate cancer rates
 	*nec--
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
 	prevalence, reports := cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *wild, *keepall, *source, *eval, *tissue, *location)
@@ -149,9 +158,9 @@ func searchDB() time.Time {
 			fmt.Print(msg)
 			writeDF(res, *outfile)
 		}
-	} else if *top {
+		/*} else if *top {
 		writeDF(search.LeaderBoard(db, *min), *outfile)
-		codbutils.UpdateTimeStamp(db)
+		codbutils.UpdateTimeStamp(db)*/
 	} else {
 		commandError()
 	}
