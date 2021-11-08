@@ -61,14 +61,15 @@ func (t *taxaTypes) toSlice(types []string) []string {
 //----------------------------------------------------------------------------
 
 type speciesBoard struct {
-	header []string
-	list   []*taxaTypes
-	logger *log.Logger
-	min    int
-	sorted []string
-	table  *dataframe.Dataframe
-	taxa   map[string]*taxaTypes
-	types  map[string]int
+	header   []string
+	list     []*taxaTypes
+	logger   *log.Logger
+	min      int
+	services *codbutils.Services
+	sorted   []string
+	table    *dataframe.Dataframe
+	taxa     map[string]*taxaTypes
+	types    map[string]int
 }
 
 func newSpeciesBoard(db *dbIO.DBIO, min int) *speciesBoard {
@@ -78,6 +79,7 @@ func newSpeciesBoard(db *dbIO.DBIO, min int) *speciesBoard {
 	s.logger = codbutils.GetLogger()
 	s.min = min
 	s.logger.Printf("Calculating tumor type frequency for species with at least %d entries...\n", s.min)
+	s.services = codbutils.NewServices()
 	// Infant and life history = false
 	s.table, msg = SearchRecords(db, s.logger, "Approved=1,Necropsy=1", false, false)
 	s.logger.Println(msg)
@@ -125,12 +127,14 @@ func (s *speciesBoard) countSpeciesTypes() {
 	// Counts tumor types per species
 	s.logger.Println("Determining neoplasia type frequencies...")
 	for idx := range s.table.Rows {
-		tid, _ := s.table.GetCell(idx, "taxa_id")
-		mp, _ := s.table.GetCell(idx, "Masspresent")
-		if v, ex := s.taxa[tid]; ex {
-			if mp == "1" {
-				i, _ := s.table.GetCell(idx, "Type")
-				v.incrementType(i)
+		if service, _ := s.table.GetCell(idx, "service_name"); s.services.AllRecords(service) {
+			tid, _ := s.table.GetCell(idx, "taxa_id")
+			mp, _ := s.table.GetCell(idx, "Masspresent")
+			if v, ex := s.taxa[tid]; ex {
+				if mp == "1" {
+					i, _ := s.table.GetCell(idx, "Type")
+					v.incrementType(i)
+				}
 			}
 		}
 	}
@@ -198,7 +202,7 @@ func (s *speciesBoard) setTaxa() {
 	s.logger.Printf("Found %d species with at least %d entries.\n", len(s.taxa), s.min)
 }
 
-func SpeciesLeaderBoard(db *dbIO.DBIO, min int) *dataframe.Dataframe {
+func TypesPerSpecies(db *dbIO.DBIO, min int) *dataframe.Dataframe {
 	// Returns caancer type frequency by species
 	s := newSpeciesBoard(db, min)
 	s.countSpeciesTypes()

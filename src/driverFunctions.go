@@ -127,8 +127,10 @@ func updateDB() time.Time {
 func leaderBoards() time.Time {
 	// Calculate cancer type leaderboards
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-	if *species {
-		writeDF(search.SpeciesLeaderBoard(db, *min), *outfile)
+	if *typ != "" {
+		writeDF(search.LeaderBoard(db, *typ), *outfile)
+	} else {
+		writeDF(search.TypesPerSpecies(db, *min), *outfile)
 	}
 	return db.Starttime
 }
