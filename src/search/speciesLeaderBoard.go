@@ -9,6 +9,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type taxaTypes struct {
@@ -16,6 +17,7 @@ type taxaTypes struct {
 	id       string
 	taxonomy []string
 	total    int
+	tumors   int
 	types    map[string]int
 }
 
@@ -35,8 +37,11 @@ func newTaxaTypes(tid string, total int, taxonomy []string, types map[string]int
 func (t *taxaTypes) incrementType(typ string) {
 	// Increments matching type counter
 	t.cancer++
-	if _, ex := t.types[typ]; ex {
-		t.types[typ]++
+	for _, i := range strings.Split(typ, ";") {
+		if _, ex := t.types[i]; ex {
+			t.tumors++
+			t.types[i]++
+		}
 	}
 }
 
@@ -46,9 +51,9 @@ func (t *taxaTypes) toSlice(types []string) []string {
 	ret = append(ret, t.taxonomy...)
 	ret = append(ret, strconv.Itoa(t.total))
 	ret = append(ret, strconv.Itoa(t.cancer))
-	ret = append(ret, strconv.FormatFloat(float64(t.cancer) / float64(t.total), 'f', -1, 64))
+	ret = append(ret, strconv.FormatFloat(float64(t.cancer) / float64(t.total), 'f', 3, 64))
 	for _, i := range types {
-		ret = append(ret, strconv.FormatFloat(float64(t.types[i]) / float64(t.cancer), 'f', -1, 64))
+		ret = append(ret, strconv.FormatFloat(float64(t.types[i]) / float64(t.tumors), 'f', 3, 64))
 	}
 	return ret
 }
@@ -121,9 +126,12 @@ func (s *speciesBoard) countSpeciesTypes() {
 	s.logger.Println("Determining neoplasia type frequencies...")
 	for idx := range s.table.Rows {
 		tid, _ := s.table.GetCell(idx, "taxa_id")
+		mp, _ := s.table.GetCell(idx, "Masspresent")
 		if v, ex := s.taxa[tid]; ex {
-			i, _ := s.table.GetCell(idx, "Type")
-			v.incrementType(i)
+			if mp == "1" {
+				i, _ := s.table.GetCell(idx, "Type")
+				v.incrementType(i)
+			}
 		}
 	}
 }
@@ -154,12 +162,14 @@ func (s *speciesBoard) getTumorTypes() {
 	// Returns initialized struct
 	s.types = make(map[string]int)
 	for idx := range s.table.Rows {
-		i, _ := s.table.GetCell(idx, "Type")
-		if i != "NA" {
-			if _, ex := s.types[i]; !ex {
-				s.types[i] = 0
+		typ, _ := s.table.GetCell(idx, "Type")
+		for _, i := range strings.Split(typ, ";") {
+			if i != "NA" {
+				if _, ex := s.types[i]; !ex {
+					s.types[i] = 0
+				}
+				s.types[i]++
 			}
-			s.types[i]++
 		}
 	}
 }
