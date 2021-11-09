@@ -216,10 +216,15 @@ func (o *Output) summary() {
 
 func (o *Output) tissueLeaderBoard() {
 	// Returns database tissue leaderboard
+	var res *dataframe.Dataframe
 	opt := setOptions(o.r)
-	res := search.LeaderBoard(o.db, opt.Min)
-	o.formatTable(res.GetHeader(), res.ToSlice())
-	C.renderTemplate(C.temp.result, o)
+	if opt.TumorType != "" {
+		opt.Print = true
+		res = search.LeaderBoard(o.db, opt.TumorType)
+	} else {
+		res = search.TypesPerSpecies(o.db, opt.Min)
+	}
+	o.renderResults(opt, res, o.User)
 }
 
 func (o *Output) routePost(source string) {

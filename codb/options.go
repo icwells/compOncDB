@@ -25,6 +25,7 @@ type Options struct {
 	Source      string
 	Taxa        string
 	Tissue      string
+	TumorType   string
 	Value       string
 	Wild        bool
 }

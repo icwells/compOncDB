@@ -47,16 +47,18 @@ func (l *leaderboard) countRecords() {
 	l.logger.Print("Counting neoplasia records...")
 	for idx := range l.table.Rows {
 		sp, _ := l.table.GetCell(idx, "Species")
-		typ, _ := l.table.GetCell(idx, "Type")
-		if _, ex := l.taxa[sp]; !ex {
-			l.taxa[sp] = new(species)
-			l.taxa[sp].common, _ = l.table.GetCell(idx, "common_name")
-			l.taxa[sp].name = sp
-		}
-		l.taxa[sp].cancer++
-		for _, i := range strings.Split(typ, ";") {
-			if i == l.typ {
-				l.taxa[sp].typ++
+		if sp != "NA" {
+			typ, _ := l.table.GetCell(idx, "Type")
+			if _, ex := l.taxa[sp]; !ex {
+				l.taxa[sp] = new(species)
+				l.taxa[sp].common, _ = l.table.GetCell(idx, "common_name")
+				l.taxa[sp].name = sp
+			}
+			l.taxa[sp].cancer++
+			for _, i := range strings.Split(typ, ";") {
+				if i == l.typ {
+					l.taxa[sp].typ++
+				}
 			}
 		}
 	}

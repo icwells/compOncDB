@@ -6,7 +6,7 @@
 # Required programs:	Go 1.11+
 ##############################################################################
 
-MAIN="compOncDB"
+MAIN="componcdb"
 
 installPackages () {
 	echo "Installing dependencies..."

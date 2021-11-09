@@ -47,11 +47,17 @@
     </form>
   </div>
   <!--Cancer leaderboards-->
-  <p class="blanklink" id="topNeoplasia">Extract top neoplasia tissues.</p>
+  <p class="blanklink" id="topNeoplasia">Extract neoplasia prevalence by tissues</p>
   <div class="tab hide" id="LeaderBoards">
     <form method="POST" action="/codb/tissue/">
       <div>
-        <label for="Min">The minimum number of entries required to include a species:</label>
+        <label for="TumorType">Either calculate neoplasia leader boards by tumor type:</label>
+        <select id="TumorType" name="TumorType">
+          <option name="TumorType" value="" selected="selected"></option>
+        </select>
+      </div>
+      <div>
+        <label for="Min">Or calculate tumor type frequency for species with at least this many entries:</label>
         <input type="number" name="Min" min="0" value="1">
       </div>
       {{template "buttonbox"}}
