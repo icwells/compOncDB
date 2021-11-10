@@ -5,8 +5,11 @@ package main
 import (
 	"fmt"
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/search"
+	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"log"
 	"strconv"
 	"time"
 )
@@ -18,11 +21,12 @@ var (
 )
 
 type colSummary struct {
-	columns [][]string
 	header  string
+	logger  *log.Logger
 	min     map[int]int
 	species map[string][]int
 	steps   []int
+	table   *dataframe.Dataframe
 	total   map[int]int
 }
 
@@ -30,11 +34,12 @@ func newColSummary() *colSummary {
 	// Returns initialized struct
 	c := new(colSummary)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
-	c.columns = db.GetColumns("Records", []string{"Species", *column})
 	c.header = "Min,TotalSpecies,SpeciesWithValues"
+	c.logger = codbutils.GetLogger()
 	c.min = make(map[int]int)
 	c.species = make(map[string][]int)
 	c.steps = []int{10, 15, 20, 25, 30, 40, 45, 50}
+	c.table, _ = search.SearchRecords(db, c.logger, "Approved=1", false, false)
 	c.total = make(map[int]int)
 	for _, i := range c.steps {
 		c.min[i] = 0
@@ -45,7 +50,7 @@ func newColSummary() *colSummary {
 
 func (c *colSummary) write() {
 	// Writes results to file
-	fmt.Println("\tWriting results to file...")
+	c.logger.Println("Writing results to file...")
 	var res [][]string
 	for k, v := range c.min {
 		res = append(res, []string{strconv.Itoa(k), strconv.Itoa(c.total[k]), strconv.Itoa(v)})
@@ -55,7 +60,7 @@ func (c *colSummary) write() {
 
 func (c *colSummary) getTotals() {
 	// Counts number of species at each step
-	fmt.Println("\tCalculating species minimums...")
+	c.logger.Println("Calculating species minimums...")
 	for _, v := range c.species {
 		for _, i := range c.steps {
 			if v[0] >= i {
@@ -70,13 +75,16 @@ func (c *colSummary) getTotals() {
 
 func (c *colSummary) setSpecies() {
 	// Creates entries for species
-	fmt.Println("\n\tSetting species slice...")
-	for _, i := range c.columns {
-		sp := i[0]
+	c.logger.Println("Setting species slice...")
+	for _, i := range c.table.Index {
+		sp, _ := c.table.GetCell(i, "Species")
 		if _, ex := c.species[sp]; !ex {
 			c.species[sp] = []int{0, 0}
 		}
-		val := i[1]
+		val, err := c.table.GetCell(i, *column)
+		if err != nil {
+			panic(err)
+		}
 		c.species[sp][0]++
 		if val != "NA" && val != "-1" && val != "-1.00" && val != "" {
 			c.species[sp][1]++

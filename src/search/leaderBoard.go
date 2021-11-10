@@ -35,7 +35,7 @@ func newLeaderBoard(db *dbIO.DBIO, typ string) *leaderboard {
 	l.df, _ = dataframe.NewDataFrame(-1)
 	l.df.SetHeader([]string{"Species", "Commmon Name", "NeoplasiaRecords", "TypeRecords"})
 	l.logger = codbutils.GetLogger()
-	l.table, _ = SearchRecords(db, l.logger, "Infant!=1,Masspresent=1,Type!=NA", false, false)
+	l.table, _ = SearchRecords(db, l.logger, "Masspresent=1,Type!=NA", false, false)
 	l.taxa = make(map[string]*species)
 	l.top = make([]string, 5)
 	l.typ = typ
