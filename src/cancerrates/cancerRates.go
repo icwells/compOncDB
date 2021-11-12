@@ -162,7 +162,7 @@ func (c *cancerRates) SetSearch(eval string) {
 		eval = eval[1:]
 	}
 	c.search, msg = search.SearchRecords(c.db, c.logger, eval, c.infant, c.lh)
-	c.logger.Print(msg)
+	c.logger.Println(strings.TrimSpace(msg))
 }
 
 func (c *cancerRates) formatRates() {
