@@ -24,6 +24,7 @@ type colSummary struct {
 	header  string
 	logger  *log.Logger
 	min     map[int]int
+	records map[int]int
 	species map[string][]int
 	steps   []int
 	table   *dataframe.Dataframe
@@ -34,15 +35,17 @@ func newColSummary() *colSummary {
 	// Returns initialized struct
 	c := new(colSummary)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
-	c.header = "Min,TotalSpecies,SpeciesWithValues"
+	c.header = "Min,TotalSpecies,SpeciesWithValues,RecordsWithValues"
 	c.logger = codbutils.GetLogger()
 	c.min = make(map[int]int)
+	c.records = make(map[int]int)
 	c.species = make(map[string][]int)
 	c.steps = []int{10, 15, 20, 25, 30, 40, 45, 50}
 	c.table, _ = search.SearchRecords(db, c.logger, "Approved=1", false, false)
 	c.total = make(map[int]int)
 	for _, i := range c.steps {
 		c.min[i] = 0
+		c.records[i] = 0
 		c.total[i] = 0
 	}
 	return c
@@ -53,7 +56,7 @@ func (c *colSummary) write() {
 	c.logger.Println("Writing results to file...")
 	var res [][]string
 	for k, v := range c.min {
-		res = append(res, []string{strconv.Itoa(k), strconv.Itoa(c.total[k]), strconv.Itoa(v)})
+		res = append(res, []string{strconv.Itoa(k), strconv.Itoa(c.total[k]), strconv.Itoa(v), strconv.Itoa(c.records[k])})
 	}
 	iotools.WriteToCSV(*outfile, c.header, res)
 }
@@ -67,6 +70,7 @@ func (c *colSummary) getTotals() {
 				c.total[i]++
 				if v[1] >= 1 {
 					c.min[i]++
+					c.records[i] += v[1]
 				}
 			}
 		}
