@@ -12,8 +12,10 @@ import (
 )
 
 var (
-	outfile = kingpin.Flag("outfile", "Name of output file.").Short('o').Required().String()
-	user    = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
+	ages     = kingpin.Flag("ages", "Require non-zero age values.").Default("false").Bool()
+	approved = kingpin.Flag("approved", "Only counts approved necropsies.").Default("false").Bool()
+	outfile  = kingpin.Flag("outfile", "Name of output file.").Short('o').Required().String()
+	user     = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
 )
 
 type sexTotals struct {
@@ -23,19 +25,23 @@ type sexTotals struct {
 }
 
 type sexSummary struct {
-	columns [][]string
-	header  string
-	min     map[int]int
-	species map[string]*sexTotals
-	steps   []int
-	total   map[int]int
+	ages     bool
+	approved bool
+	columns  [][]string
+	header   string
+	min      map[int]int
+	species  map[string]*sexTotals
+	steps    []int
+	total    map[int]int
 }
 
 func newSexSummary() *sexSummary {
 	// Returns initialized struct
 	s := new(sexSummary)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
-	s.columns = db.GetColumns("Records", []string{"Species", "Sex"})
+	s.ages = *ages
+	s.approved = *approved
+	s.columns = db.GetColumns("Records", []string{"Species", "Sex", "age_months", "Approved", "Necropsy"})
 	s.header = "Min,TotalSpecies,SpeciesWithMaleAndFemale"
 	s.min = make(map[int]int)
 	s.species = make(map[string]*sexTotals)
@@ -73,6 +79,18 @@ func (s *sexSummary) getTotals() {
 	}
 }
 
+func (s *sexSummary) pass(age, app, nec string) bool {
+	// Returns true if approved is false or app and nec are true
+	if !s.ages || age != "-1.00" {
+		if !s.approved {
+			return true
+		} else if app == "-1" && nec == "-1" {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *sexSummary) setSpecies() {
 	// Creates entries for species
 	fmt.Println("\n\tSetting species slice...")
@@ -81,12 +99,14 @@ func (s *sexSummary) setSpecies() {
 		if _, ex := s.species[sp]; !ex {
 			s.species[sp] = new(sexTotals)
 		}
-		sex := i[1]
-		s.species[sp].total++
-		if sex == "male" {
-			s.species[sp].male++
-		} else if sex == "female" {
-			s.species[sp].female++
+		if s.pass(i[2], i[3], i[4]) {
+			sex := i[1]
+			s.species[sp].total++
+			if sex == "male" {
+				s.species[sp].male++
+			} else if sex == "female" {
+				s.species[sp].female++
+			}
 		}
 	}
 }
