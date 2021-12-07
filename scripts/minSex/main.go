@@ -41,7 +41,7 @@ func newSexSummary() *sexSummary {
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
 	s.ages = *ages
 	s.approved = *approved
-	s.columns = db.GetColumns("Records", []string{"Species", "Sex", "age_months", "Approved", "Necropsy"})
+	s.columns = db.GetColumns("Records", []string{"Species", "Sex", "age_months", "Approved", "Necropsy", "Infant"})
 	s.header = "Min,TotalSpecies,SpeciesWithMaleAndFemale"
 	s.min = make(map[int]int)
 	s.species = make(map[string]*sexTotals)
@@ -71,7 +71,7 @@ func (s *sexSummary) getTotals() {
 		for _, i := range s.steps {
 			if v.total >= i {
 				s.total[i]++
-				if v.male >= i && v.female >= 1 {
+				if v.male >= i && v.female >= i {
 					s.min[i]++
 				}
 			}
@@ -79,13 +79,15 @@ func (s *sexSummary) getTotals() {
 	}
 }
 
-func (s *sexSummary) pass(age, app, nec string) bool {
+func (s *sexSummary) pass(age, app, nec, inf string) bool {
 	// Returns true if approved is false or app and nec are true
-	if !s.ages || age != "-1.00" {
-		if !s.approved {
-			return true
-		} else if app == "-1" && nec == "-1" {
-			return true
+	if inf != "1" {
+		if !s.ages || age != "-1.00" {
+			if !s.approved {
+				return true
+			} else if app == "-1" && nec == "-1" {
+				return true
+			}
 		}
 	}
 	return false
@@ -99,7 +101,7 @@ func (s *sexSummary) setSpecies() {
 		if _, ex := s.species[sp]; !ex {
 			s.species[sp] = new(sexTotals)
 		}
-		if s.pass(i[2], i[3], i[4]) {
+		if s.pass(i[2], i[3], i[4], i[5]) {
 			sex := i[1]
 			s.species[sp].total++
 			if sex == "male" {
