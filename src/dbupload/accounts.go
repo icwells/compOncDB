@@ -49,29 +49,27 @@ func (a *accounts) extractAccounts(infile string) {
 	for s := range reader {
 		if len(s) == l {
 			pass := false
-			account := s[col["Account"]]
 			client := s[col["Submitter"]]
 			if zoo := s[col["Zoo"]]; zoo == "1" {
 				// Check zoo names against submitter names only
 				if ex, _ := a.submitter.InSet(client); !ex {
 					a.submitter.Add(client)
-					account = "NA"
 					pass = true
 				}
 			} else {
 				// Determine if entry is unique
-				row, ex := a.neu[account]
+				row, ex := a.neu[client]
 				if !ex {
 					pass = true
 				} else if strarray.InSliceStr(row, client) == false {
 					pass = true
-				} else if _, e := a.acc[account]; e == true && strarray.InSliceStr(a.acc[account], client) == false {
+				} else if _, e := a.acc[client]; e == true && strarray.InSliceStr(a.acc[client], client) == false {
 					pass = true
 				}
 			}
 			if pass == true {
 				// Add unique occurances
-				a.neu[account] = []string{strconv.Itoa(a.count), account, client}
+				a.neu[client] = []string{strconv.Itoa(a.count), client}
 				a.count++
 			}
 		}

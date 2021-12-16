@@ -70,7 +70,7 @@ type Headers struct {
 func NewHeaders() *Headers {
 	// Returns initialized struct
 	h := new(Headers)
-	h.Accounts = []string{"account_id", "Account", "submitter_name"}
+	h.Accounts = []string{"account_id", "submitter_name"}
 	h.Common = []string{"taxa_id", "Name", "Curator"}
 	h.Denominators = []string{"taxa_id", "Noncancer"}
 	h.Diagnosis = []string{"ID", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis"}
