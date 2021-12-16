@@ -38,8 +38,8 @@ func setEntries() *entries {
 		"Canis latrans": "1",
 		"Canis lupus":   "2",
 	}
-	e.accounts["X520"] = make(map[string]string)
-	e.accounts["X520"]["XYZ"] = "1"
+	e.submitter = make(map[string]string)
+	e.submitter["XYZ"] = "1"
 	return e
 }
 

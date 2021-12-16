@@ -57,8 +57,8 @@ var (
 	taxonomies = searchdb.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
 	//top        = searchdb.Flag("topcancer", "Returns top 5 cancer locations with most common type and species for each.").Default("false").Bool()
 
-	leader  = kingpin.Command("leader", "Calculate neoplasia prevalence leaderboards.")
-	typ     = leader.Flag("type", "Returns top 10 species with this tumor type.").Default("").String()
+	leader = kingpin.Command("leader", "Calculate neoplasia prevalence leaderboards.")
+	typ    = leader.Flag("type", "Returns top 10 species with this tumor type.").Default("").String()
 
 	cancerRates = kingpin.Command("cancerrates", "Calculate neoplasia prevalence for species.")
 	keepall     = cancerRates.Flag("keepall", "Keep records without specified tissue when calculating by tissue.").Default("false").Bool()

@@ -29,7 +29,6 @@ func tumorPairs(typ, tissue, loc string) [][]string {
 }
 
 type entries struct {
-	accounts  map[string]map[string]string
 	col       map[string]int
 	count     int
 	d         [][]string
@@ -54,13 +53,11 @@ func newEntries(db *dbIO.DBIO, test bool) *entries {
 	e.wild = []string{"wild caught", "free rang"}
 	if db != nil {
 		e.count = db.GetMax("Patient", "ID")
-		e.accounts = codbutils.MapOfMaps(db.GetTable("Accounts"))
 		e.infant = NewInfancy(db)
-		e.submitter = codbutils.EntryMap(db.GetColumns("Accounts", []string{"account_id", "submitter_name"}))
+		e.submitter = codbutils.EntryMap(db.GetTable("Accounts"))
 		e.taxa = GetTaxaIDs(db, false)
 		e.dbset = true
 	} else {
-		e.accounts = make(map[string]map[string]string)
 		e.taxa = make(map[string]string)
 	}
 	if test {
@@ -157,34 +154,13 @@ func (e *entries) addPatient(id, taxaid, age string, row []string) {
 	e.p = append(e.p, p)
 }
 
-func (e *entries) getAccountID(row []string) string {
-	// Returns account_id if found
-	ret := "-1"
-	if row[e.col["Zoo"]] == "1" {
-		// Get id for zoo name only
-		if id, ex := e.submitter[row[e.col["Submitter"]]]; ex {
-			ret = id
-		}
-	} else {
-		// Compare other records to client numbers and names
-		ac, ex := e.accounts[row[e.col["Account"]]]
-		if ex == true {
-			id, inmap := ac[row[e.col["Submitter"]]]
-			if inmap == true {
-				ret = id
-			}
-		}
-	}
-	return ret
-}
-
 func (e *entries) evaluateRow(row []string) {
 	// Appends data to relevent slice
 	t := getTaxon(row[e.col["Genus"]], row[e.col["Species"]])
 	taxaid, exists := e.taxa[t]
 	if len(row) == e.length && exists == true {
 		// Skip entries without valid species/genus data
-		aid := e.getAccountID(row)
+		aid, _ := e.submitter[row[e.col["Submitter"]]]
 		age := formatAge(row[e.col["Age"]])
 		if !e.ex.Exists(aid, row[e.col["ID"]], age, taxaid, row[e.col["Date"]]) {
 			e.count++

@@ -45,7 +45,6 @@ CREATE TABLE IF NOT EXISTS Life_history (
 
 CREATE TABLE IF NOT EXISTS Accounts (
 	account_id INT PRIMARY KEY,
-	Account TEXT,
 	submitter_name TEXT
 );
 
