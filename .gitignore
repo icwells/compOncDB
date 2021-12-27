@@ -13,5 +13,7 @@ serverLog.txt
 test/diagnoses.csv
 test/merged.csv
 
+# NLP Model
+scripts/nlpModel/diagnosisModel/*
 # File locks
 *.~lock.*

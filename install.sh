@@ -27,6 +27,9 @@ installPackages () {
 	for I in $ETREE $DATAFRAME $FRACTION $IOTOOLS $STRARRAY $KINGPIN $MUX $SCHEMA $COOKIE $SEESSIONS $DBIO $SIMPLESET $FUZZY $ASPELL; do
 		go get $I
 	done
+	for I in scikit-learn tensorflow tensorflow_hub; do
+		pip install $I
+	done
 }
 
 installMain () {
