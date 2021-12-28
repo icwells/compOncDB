@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from datetime import datetime
+from formatInput import Formatter
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -9,20 +10,24 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-#import tensorflow_hub as hub
-#from tensorflow.keras.preprocessing.text import Tokenizer
-#from tensorflow.keras.preprocessing.sequence import pad_sequences
+import tensorflow_hub as hub
+from unixpath import readFile
+
+INFILE = "diagnoses.csv"
+ENCODING = "typeEncodings.csv"
 
 class Classifier():
 
-	def __init__(self, args):
+	def __init__(self):
+		self.columns = []
 		self.db = None
 		self.df = None
 		self.embedding = 32
-		self.encoding = {}
 		self.epochs = 20
+		self.hub = "https://tfhub.dev/google/nnlm-en-dim50/2"
 		self.labels_test = []
 		self.labels_train = []
+		self.locations = {}
 		self.maxlen = 150
 		self.model = None
 		self.oov = "<OOV>"
@@ -31,16 +36,25 @@ class Classifier():
 		self.test = []
 		self.train = []
 		self.training_size = 10000
+		self.types = {}
 		self.vocab_size = 10000
-		self.__getDataFrame__(args.i)
+		self.__loadDicts__()
+		self.__getDataFrame__()
+
+	def __loadDicts__(self):
+		# Loads locations and types dict
+		for i in readFile(ENCODING, header = False, d = ","):
+			if i[0] == "Location":
+				self.locations[int(i[2])] = i[1]
+			else:
+				self.types[int(i[2])] = i[1]
 
 	def __getTokenizer__(self):
 		# Tokenizes training and testing data
 		print("\tTokenizing input data...")
 		values = self.df.pop("Comments").apply(str)
+		self.columns = list(self.df.columns)
 		for i in self.df.columns:
-			if i == "Type":
-				print(self.df[[i]])
 			self.df[[i]] = self.df[[i]].astype(np.int32)
 		train, self.labels_train = values[:self.training_size], self.df[:self.training_size]
 		test, self.labels_test = values[self.training_size:], self.df[self.training_size:]
@@ -49,25 +63,10 @@ class Classifier():
 		self.train = np.array(pad_sequences(tokenizer.texts_to_sequences(train), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
 		self.test = np.array(pad_sequences(tokenizer.texts_to_sequences(test), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
 
-	def __encodeTypes__(self):
-		# Assigns numberical codes for type and location columns
-		for	c in ["Type", "Location"]:
-			count = 0
-			self.encoding[c] = {}
-			for i in self.df[c]:
-				if i not in self.encoding[c].keys():
-					self.encoding[c][i] = count
-					count += 1
-			for k in self.encoding[c].keys():
-				self.df.replace(i, self.encoding[c][i], inplace = True)
-
-	def __getDataFrame__(self, infile):
+	def __getDataFrame__(self):
 		# Reads dataframe and splits into training and testing datasets
 		print("\n\tReading input file...")
-		self.df = pd.read_csv(infile, delimiter = ",")
-		self.df.pop("Tissue")
-		self.df.pop("Malignant")
-		#self.__encodeTypes__()
+		self.df = pd.read_csv(INFILE, delimiter = ",")
 		# Randomly shuffle dataframe
 		self.df = self.df.sample(frac = 1).reset_index(drop = True)
 		'''values = self.df.pop("Comments").apply(str)
@@ -77,11 +76,13 @@ class Classifier():
 
 	def __plot__(self, history, metric):
 		# Plots results
-		plt.plot(history.history[metric])
-		plt.plot(history.history['val_'+metric])
-		plt.xlabel("Epochs")
-		plt.ylabel(metric)
-		plt.legend([metric, 'val_'+metric])
+		for i in self.columns:
+			name = "{}_{}".format(name, metric)
+			plt.plot(history.history[name])
+			plt.plot(history.history["val_" + name])
+			plt.xlabel("Epochs")
+			plt.ylabel(name)
+			plt.legend([name, "val_" + name])
 		plt.savefig("{}/{}.svg".format(self.outdir, metric), format="svg")
 		# Clear plot
 		plt.clf()
@@ -112,20 +113,26 @@ class Classifier():
 			tf.keras.layers.Dense(1, activation="sigmoid")
 		])'''
 
+	def __outputLayer__(self, name, input_layer):
+		# Returns new output node
+		return tf.keras.layers.Dense(units = "1", name = name)(input_layer)
+
 	def __multiOutputModel__(self):
 		# Defines multiple-output model
-		input_layer = tf.keras.layers.Input(shape = (self.training_size, ), dtype = tf.string)
-		first_dense = tf.keras.layers.Dense(units='128', activation='relu')(input_layer)
-
-		mp = tf.keras.layers.Dense(units = "1", name = "Masspresent")(first_dense)
-		hp = tf.keras.layers.Dense(units = "1", name = "Hyperplasia")(first_dense)
-		nec = tf.keras.layers.Dense(units = "1", name = "Necropsy")(first_dense)
-		met = tf.keras.layers.Dense(units = "1", name = "Metastasis")(first_dense)
-		primary = tf.keras.layers.Dense(units = "1", name = "primary_tumor")(first_dense)
-		location = tf.keras.layers.Dense(units = "1", name = "Location")(first_dense)
-		types = tf.keras.layers.Dense(units = "1", name = "Type")(first_dense)
+		outputs = []
+		#input_layer = hub.KerasLayer(self.hub, input_shape=[], dtype=tf.string, trainable=True)
+		input_layer = tf.keras.layers.Input(shape = (self.maxlen, ))
+		#embed = tf.keras.layers.Embedding(self.vocab_size, self.embedding, input_length = self.maxlen),
+		# Add 2 bidirectional LSTMs
+		bidirectional = tf.keras.layers.Bidirectional(
+			tf.keras.layers.LSTM(64, return_sequences=True)
+		)(input_layer)
+		first_dense = tf.keras.layers.Dense(units='128', activation='relu')(bidirectional)
+		second_dense = tf.keras.layers.Dense(units='32', activation='sigmoid')(first_dense)
+		for i in self.columns:
+			outputs.append(self.__outputLayer__(i, second_dense))
 		# Define the model with the input layer and a list of output layers
-		return tf.keras.Model(inputs = input_layer, outputs = [mp, hp, nec, met, primary, location, types])
+		return tf.keras.Model(inputs = input_layer, outputs = outputs)
   
 	def trainModel(self):
 		# Trains species name classifier
@@ -135,10 +142,10 @@ class Classifier():
 		self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 		print(self.model.summary())
 		history = self.model.fit(self.train, self.labels_train,
-				epochs = self.epochs, 
-				batch_size = 512, 
-				validation_data = (self.test, self.labels_test), 
-				verbose = 2
+			epochs = self.epochs, 
+			batch_size = 512, 
+			validation_data = (self.test, self.labels_test), 
+			verbose = 2
 		)
 		self.__plot__(history, "accuracy")
 		self.__plot__(history, "loss")
@@ -152,9 +159,13 @@ def main():
 	start = datetime.now()
 	parser = ArgumentParser("")
 	parser.add_argument("-i", help = "Path to unformatted training data. Pre-formats the data only. Run again without infile argument to train the model.")
-	c = Classifier(parser.parse_args())
-	c.trainModel()
-	c.save()
+	args = parser.parse_args()
+	if args.i:
+		Formatter(args.i, INFILE, ENCODING)
+	else:
+		c = Classifier()
+		c.trainModel()
+		c.save()
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":

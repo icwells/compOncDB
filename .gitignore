@@ -15,5 +15,9 @@ test/merged.csv
 
 # NLP Model
 scripts/nlpModel/diagnosisModel/*
+__pycache__/
+diagnoses.csv
+typeEncodings.csv
+
 # File locks
 *.~lock.*
