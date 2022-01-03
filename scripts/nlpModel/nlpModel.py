@@ -21,12 +21,11 @@ class Classifier():
 	def __init__(self):
 		self.columns = []
 		self.db = None
-		self.df = None
 		self.embedding = 32
 		self.epochs = 20
 		self.hub = "https://tfhub.dev/google/nnlm-en-dim50/2"
-		self.labels_test = []
-		self.labels_train = []
+		self.labels_test = {}
+		self.labels_train = {}
 		self.locations = {}
 		self.maxlen = 150
 		self.model = None
@@ -49,15 +48,18 @@ class Classifier():
 			else:
 				self.types[int(i[2])] = i[1]
 
-	def __getTokenizer__(self):
+	def __getTokenizer__(self, df):
 		# Tokenizes training and testing data
 		print("\tTokenizing input data...")
-		values = self.df.pop("Comments").apply(str)
-		self.columns = list(self.df.columns)
-		for i in self.df.columns:
-			self.df[[i]] = self.df[[i]].astype(np.int32)
-		train, self.labels_train = values[:self.training_size], self.df[:self.training_size]
-		test, self.labels_test = values[self.training_size:], self.df[self.training_size:]
+		values = df.pop("Comments").apply(str)
+		train, test = values[:self.training_size], values[self.training_size:]
+		self.columns = list(df.columns)
+		for i in self.columns:
+			#df[[i]] = df[[i]].astype(np.int32)
+			col = np.asarray(df.pop(i)).astype(np.int32)
+			self.labels_train[i] = col[:self.training_size].reshape((-1,1))
+			self.labels_test[i] = col[self.training_size:].reshape((-1,1))
+		#self.labels_train, self.labels_test = df[:self.training_size], df[self.training_size:]
 		tokenizer = Tokenizer(num_words = self.vocab_size, oov_token = self.oov)
 		tokenizer.fit_on_texts(values)
 		self.train = np.array(pad_sequences(tokenizer.texts_to_sequences(train), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
@@ -66,13 +68,12 @@ class Classifier():
 	def __getDataFrame__(self):
 		# Reads dataframe and splits into training and testing datasets
 		print("\n\tReading input file...")
-		self.df = pd.read_csv(INFILE, delimiter = ",")
+		df = pd.read_csv(INFILE, delimiter = ",")
 		# Randomly shuffle dataframe
-		self.df = self.df.sample(frac = 1).reset_index(drop = True)
-		'''values = self.df.pop("Comments").apply(str)
-		self.train, self.test = train_test_split(values, test_size = 1 - self.training_size/len(values), random_state = 1)
-		self.labels_train, self.labels_test = train_test_split(self.df, test_size = 1 - self.training_size/len(self.df), random_state = 1)'''
-		self.__getTokenizer__()
+		df = df.sample(frac = 1).reset_index(drop = True)
+		self.__getTokenizer__(df)
+
+#-----------------------------------------------------------------------------
 
 	def __plot__(self, history, metric):
 		# Plots results
@@ -87,59 +88,46 @@ class Classifier():
 		# Clear plot
 		plt.clf()
 
-	'''def __getFeatureColumns__(self):
-		# Returns feature columns
-		types = tf.feature_column.categorical_column_with_vocabulary_list(key = "Type", vocabulary_list = self.df["Type"].unique()),
-		locations = tf.feature_column.categorical_column_with_vocabulary_list(key = "Location", vocabulary_list = self.df["Location"].unique())
-		return [
-			tf.feature_column.categorical_column_with_vocabulary_list(key = "Comments", vocabulary_list = self.df["Comments"].unique()),
-			tf.feature_column.numeric_column(key = "Masspresent", dtype = tf.int32),
-			tf.feature_column.numeric_column(key = "Hyperplasia", dtype = tf.int32),
-			tf.feature_column.numeric_column(key = "Necropsy", dtype = tf.int32),
-			tf.feature_column.numeric_column(key = "Metastasis", dtype = tf.int32),
-			tf.feature_column.numeric_column(key = "primary_tumor", dtype = tf.int32),
-			# Cross types and locations to weigh combinations of each
-			tf.feature_column.crossed_column(keys=[types, locations], hash_bucket_size = 100)
-		]
-
-	def __lstmModel__(self):
-		# Defines bidirectional lstm model
-		print("\tBuilding bidirectional LSTM model...")
-		return tf.keras.Sequential([
-			tf.keras.layers.Embedding(self.vocab_size, self.embedding, input_length = self.maxlen),
-			tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),
-			tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
-			tf.keras.layers.Dense(16, activation='relu'),
-			tf.keras.layers.Dense(1, activation="sigmoid")
-		])'''
-
 	def __outputLayer__(self, name, input_layer):
 		# Returns new output node
-		return tf.keras.layers.Dense(units = "1", name = name)(input_layer)
+		activation = "sigmoid"
+		units = 1
+		if name == "Type" or name == "Location":
+			activation = "softmax"
+			if name == "Type":
+				units = len(self.types.keys())
+			else:
+				units = len(self.locations.keys())
+		return tf.keras.layers.Dense(units = units, activation = activation, name = name)(input_layer)
 
 	def __multiOutputModel__(self):
 		# Defines multiple-output model
 		outputs = []
-		#input_layer = hub.KerasLayer(self.hub, input_shape=[], dtype=tf.string, trainable=True)
-		input_layer = tf.keras.layers.Input(shape = (self.maxlen, ))
-		#embed = tf.keras.layers.Embedding(self.vocab_size, self.embedding, input_length = self.maxlen),
+		input_layer = tf.keras.layers.Input(shape = (self.maxlen, 1, ))
 		# Add 2 bidirectional LSTMs
-		bidirectional = tf.keras.layers.Bidirectional(
-			tf.keras.layers.LSTM(64, return_sequences=True)
-		)(input_layer)
-		first_dense = tf.keras.layers.Dense(units='128', activation='relu')(bidirectional)
-		second_dense = tf.keras.layers.Dense(units='32', activation='sigmoid')(first_dense)
+		bidirectional = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True))(input_layer)
+		dense = tf.keras.layers.Dense(units = 32, activation = "relu")(bidirectional)
 		for i in self.columns:
-			outputs.append(self.__outputLayer__(i, second_dense))
+			outputs.append(self.__outputLayer__(i, dense))
 		# Define the model with the input layer and a list of output layers
-		return tf.keras.Model(inputs = input_layer, outputs = outputs)
+		return tf.keras.Model(inputs = input_layer, outputs = outputs, name = self.outdir)
+
+	def __getLoss__(self):
+		# Returns loss estimation for each output column
+		ret = {}
+		for i in self.columns:
+			if i != "Type" and i != "Location":
+				ret[i] = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+			else:
+				ret[i] = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+		return ret
   
 	def trainModel(self):
 		# Trains species name classifier
 		print("\tTraining model...")
 		self.model = self.__multiOutputModel__()
 		tf.keras.utils.plot_model(self.model, "{}/model_plot.png".format(self.outdir), show_shapes=True)
-		self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+		self.model.compile(loss=self.__getLoss__(), optimizer='adam', metrics=['accuracy'])
 		print(self.model.summary())
 		history = self.model.fit(self.train, self.labels_train,
 			epochs = self.epochs, 
