@@ -19,14 +19,14 @@ ENCODING = "typeEncodings.csv"
 class Classifier():
 
 	def __init__(self):
+		plt.style.use("seaborn-deep")
 		self.columns = []
 		self.db = None
 		self.embedding = 32
-		self.epochs = 20
+		self.epochs = 10
 		self.hub = "https://tfhub.dev/google/nnlm-en-dim50/2"
 		self.labels_test = {}
 		self.labels_train = {}
-		self.locations = {}
 		self.maxlen = 150
 		self.model = None
 		self.oov = "<OOV>"
@@ -41,12 +41,9 @@ class Classifier():
 		self.__getDataFrame__()
 
 	def __loadDicts__(self):
-		# Loads locations and types dict
+		# Loads types dict
 		for i in readFile(ENCODING, header = False, d = ","):
-			if i[0] == "Location":
-				self.locations[int(i[2])] = i[1]
-			else:
-				self.types[int(i[2])] = i[1]
+			self.types[int(i[1])] = i[0]
 
 	def __getTokenizer__(self, df):
 		# Tokenizes training and testing data
@@ -77,13 +74,18 @@ class Classifier():
 
 	def __plot__(self, history, metric):
 		# Plots results
+		labels = []
+		plt.xlabel("Epochs")
+		plt.ylabel(metric)
 		for i in self.columns:
-			name = "{}_{}".format(name, metric)
-			plt.plot(history.history[name])
-			plt.plot(history.history["val_" + name])
-			plt.xlabel("Epochs")
-			plt.ylabel(name)
-			plt.legend([name, "val_" + name])
+			name = "{}_{}".format(i, metric)
+			val = "val_" + name
+			plt.plot(history.history[name], label = name)
+			plt.plot(history.history[val], label = val)
+			labels.extend([name, val])
+		# Reduce plot size so legend is not covering it
+		plt.tight_layout(rect=[0,0,0.65,0.65])
+		plt.legend(labels, loc='center left', bbox_to_anchor=(1, 0.5))
 		plt.savefig("{}/{}.svg".format(self.outdir, metric), format="svg")
 		# Clear plot
 		plt.clf()
@@ -92,12 +94,9 @@ class Classifier():
 		# Returns new output node
 		activation = "sigmoid"
 		units = 1
-		if name == "Type" or name == "Location":
+		if name == "Type":
 			activation = "softmax"
-			if name == "Type":
-				units = len(self.types.keys())
-			else:
-				units = len(self.locations.keys())
+			units = len(self.types.keys())
 		return tf.keras.layers.Dense(units = units, activation = activation, name = name)(input_layer)
 
 	def __multiOutputModel__(self):
@@ -105,10 +104,14 @@ class Classifier():
 		outputs = []
 		input_layer = tf.keras.layers.Input(shape = (self.maxlen, 1, ))
 		# Add 2 bidirectional LSTMs
-		bidirectional = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True))(input_layer)
+		bidirectional = tf.keras.layers.Bidirectional(
+					tf.keras.layers.LSTM(64, return_sequences=True, name = "LSTM_input"),
+					name = "BidirectionalLSTM"
+		)(input_layer)
 		dense = tf.keras.layers.Dense(units = 32, activation = "relu")(bidirectional)
+		flattened = tf.keras.layers.Flatten()(dense)
 		for i in self.columns:
-			outputs.append(self.__outputLayer__(i, dense))
+			outputs.append(self.__outputLayer__(i, flattened))
 		# Define the model with the input layer and a list of output layers
 		return tf.keras.Model(inputs = input_layer, outputs = outputs, name = self.outdir)
 
@@ -116,10 +119,10 @@ class Classifier():
 		# Returns loss estimation for each output column
 		ret = {}
 		for i in self.columns:
-			if i != "Type" and i != "Location":
-				ret[i] = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+			if i == "Type":
+				ret[i] = tf.keras.losses.SparseCategoricalCrossentropy()
 			else:
-				ret[i] = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+				ret[i] = tf.keras.losses.BinaryCrossentropy()
 		return ret
   
 	def trainModel(self):
@@ -127,7 +130,7 @@ class Classifier():
 		print("\tTraining model...")
 		self.model = self.__multiOutputModel__()
 		tf.keras.utils.plot_model(self.model, "{}/model_plot.png".format(self.outdir), show_shapes=True)
-		self.model.compile(loss=self.__getLoss__(), optimizer='adam', metrics=['accuracy'])
+		self.model.compile(loss = self.__getLoss__(), optimizer = 'adam', metrics = ['accuracy'])
 		print(self.model.summary())
 		history = self.model.fit(self.train, self.labels_train,
 			epochs = self.epochs, 

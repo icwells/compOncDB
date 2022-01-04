@@ -6,42 +6,39 @@ from unixpath import readFile
 class Formatter():
 
 	def __init__(self, infile, outfile, encodingfile):
+		self.count = 1
 		self.encodingfile = encodingfile
 		self.header = {}
 		self.infile = infile
-		self.lcount = 1
-		self.locations = {"NA": 0}
 		self.outfile = outfile
-		self.tcount = 1
-		self.types = {"NA": 0}
+		self.types = {"NA-NA": 0}
 		self.__formatFile__()
 		self.__writeDicts__()
 
 	def __writeDicts__(self):
 		# Writes locations and types to file
 		with open(self.encodingfile, "w") as out:
-			for k in self.locations.keys():
-				out.write("Location,{},{}\n".format(k, self.locations[k]))
 			for k in self.types.keys():
-				out.write("Type,{},{}\n".format(k, self.types[k]))
+				out.write("{},{}\n".format(k, self.types[k]))
 
 	def __formatLine__(self, line):
-		# Replaces punctuation, splits compound locations and types, and encodes locations and types with integers
+		# Replaces punctuation, splits compound locations and types, and encodes paired locations and types as integers
 		rows = []
+		if line[self.header["Comments"]] == "NA" or line[self.header["Comments"]] == "n/a. n/a.":
+			if line[self.header["Masspresent"]] == "1":
+				# Skip records where diagnosis info is not in comments
+				return rows
 		line[self.header["Comments"]] = re.sub(r"[^\w\s]", "", line[self.header["Comments"]])
 		# Split compound locations and types
 		loc = line[self.header["Location"]].split(";")
 		for idx, i in enumerate(line[self.header["Type"]].split(";")):
-			l = loc[idx]
-			if l not in self.locations.keys():
-				self.locations[l] = self.lcount
-				self.lcount += 1
-			if i not in self.types.keys():
-				self.types[i] = self.tcount
-				self.tcount += 1
+			# Combine location and type as one key
+			t = "-".join([loc[idx], i])
+			if t not in self.types.keys():
+				self.types[t] = self.count
+				self.count += 1
 			row = line[:self.header["Type"]]
-			row.append(str(self.types[i]))
-			row.append(str(self.locations[l]))
+			row.append(str(self.types[t]))
 			rows.append(row)
 		return rows
 
@@ -61,5 +58,6 @@ class Formatter():
 						row.append(-1)
 					for k in self.header.keys():
 						row[self.header[k]] = k
-					out.write(",".join(row) + "\n")
+					# Omit Location column
+					out.write(",".join(row[:-1]) + "\n")
 					first = False
