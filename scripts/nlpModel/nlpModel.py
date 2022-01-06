@@ -19,11 +19,11 @@ ENCODING = "typeEncodings.csv"
 class Classifier():
 
 	def __init__(self):
-		plt.style.use("seaborn-deep")
+		#plt.style.use("seaborn-deep")
 		self.columns = []
 		self.db = None
 		self.embedding = 32
-		self.epochs = 10
+		self.epochs = 5
 		self.hub = "https://tfhub.dev/google/nnlm-en-dim50/2"
 		self.labels_test = {}
 		self.labels_train = {}
@@ -50,6 +50,8 @@ class Classifier():
 		print("\tTokenizing input data...")
 		values = df.pop("Comments").apply(str)
 		train, test = values[:self.training_size], values[self.training_size:]
+		df.pop("Metastasis")
+		df.pop("Necropsy")
 		self.columns = list(df.columns)
 		for i in self.columns:
 			#df[[i]] = df[[i]].astype(np.int32)
@@ -92,12 +94,14 @@ class Classifier():
 
 	def __outputLayer__(self, name, input_layer):
 		# Returns new output node
-		activation = "sigmoid"
-		units = 1
-		if name == "Type":
-			activation = "softmax"
-			units = len(self.types.keys())
-		return tf.keras.layers.Dense(units = units, activation = activation, name = name)(input_layer)
+		return tf.keras.layers.Dense(units = 1, activation = "sigmoid", name = name)(input_layer)
+
+	def __typeLayer__(self, input_layer):
+		# Returns output layer for types
+		dense1 = tf.keras.layers.Dense(units = 128, activation = "relu")(input_layer)
+		dense2 = tf.keras.layers.Dense(units = 256, activation = "relu")(dense1)
+		flattened = tf.keras.layers.Flatten()(dense2)
+		return tf.keras.layers.Dense(units = len(self.types.keys()), activation = "softmax", name = "Type")(flattened)
 
 	def __multiOutputModel__(self):
 		# Defines multiple-output model
@@ -105,13 +109,17 @@ class Classifier():
 		input_layer = tf.keras.layers.Input(shape = (self.maxlen, 1, ))
 		# Add 2 bidirectional LSTMs
 		bidirectional = tf.keras.layers.Bidirectional(
-					tf.keras.layers.LSTM(64, return_sequences=True, name = "LSTM_input"),
-					name = "BidirectionalLSTM"
+			tf.keras.layers.LSTM(256, return_sequences=True, name = "forwardLSTM"),
+			backward_layer = tf.keras.layers.LSTM(128, return_sequences=True, go_backwards = True, name = "backwardLSTM"),
+			name = "BidirectionalLSTM"
 		)(input_layer)
-		dense = tf.keras.layers.Dense(units = 32, activation = "relu")(bidirectional)
-		flattened = tf.keras.layers.Flatten()(dense)
-		for i in self.columns:
+		dense1 = tf.keras.layers.Dense(units = 64, activation = "relu")(bidirectional)
+		dense2 = tf.keras.layers.Dense(units = 32, activation = "relu")(dense1)
+		dense3 = tf.keras.layers.Dense(units = 16, activation = "relu")(dense2)
+		flattened = tf.keras.layers.Flatten()(dense3)
+		for i in self.columns[:-1]:
 			outputs.append(self.__outputLayer__(i, flattened))
+		outputs.append(self.__typeLayer__(bidirectional))
 		# Define the model with the input layer and a list of output layers
 		return tf.keras.Model(inputs = input_layer, outputs = outputs, name = self.outdir)
 
@@ -136,11 +144,11 @@ class Classifier():
 			epochs = self.epochs, 
 			batch_size = 512, 
 			validation_data = (self.test, self.labels_test), 
-			verbose = 2
+			verbose = 1
 		)
 		self.__plot__(history, "accuracy")
 		self.__plot__(history, "loss")
-		print(self.model.evaluate(self.test, self.labels_test))
+		#print(self.model.evaluate(self.test, self.labels_test))
 
 	def save(self):
 		# Stores model in outdir
