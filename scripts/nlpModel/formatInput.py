@@ -36,7 +36,7 @@ class Formatter():
 		shuffle(self.nas)
 		ret = self.cancer
 		ret.extend(self.noncancer)
-		#Sret.extend(self.nas[:int(len(ret) * 0.05)])
+		ret.extend(self.nas[:int(len(ret) * 0.05)])
 		shuffle(ret)
 		print("\tFormatted {} of {} records.".format(len(ret), self.total))
 		return ret

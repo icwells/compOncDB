@@ -15,9 +15,11 @@ test/merged.csv
 
 # NLP Model
 scripts/nlpModel/diagnosisModel/*
-__pycache__/
-diagnoses.csv
-typeEncodings.csv
+scripts/nlpModel/neoplasiaModel/*
+scripts/nlpModel/tokenizer.pickle
+scripts/nlpModel/__pycache__/
+scripts/nlpModel/diagnoses.csv
+scripts/nlpModel/typeEncodings.csv
 
 # File locks
 *.~lock.*
