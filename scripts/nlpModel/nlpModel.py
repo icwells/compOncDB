@@ -18,23 +18,9 @@ from unixpath import checkDir, readFile
 INFILE = "diagnoses.csv"
 ENCODING = "typeEncodings.csv"
 
-def inferSentences(val):
-	# Inserts periods at changes in capitalizations
-	val = val.split()
-	if len(val) > 1:
-		for idx in range(len(val[:-1])):
-			v = val[idx + 1]
-			if len(v) > 1:
-				if v[0].isupper() and not v[1].isupper():
-					val[idx] += "."
-	return " ".join(val)
-
 def shuffleText(val):
 	# Returns string with shuffled sentence order
 	try:
-		val = inferSentences(val)
-		# Semicolons are used as delimeters in concatenated comments
-		val = val.replace(";", ".")
 		val = val.split(".")
 		shuffle(val)
 		return ".".join(val)
