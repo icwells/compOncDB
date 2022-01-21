@@ -93,29 +93,32 @@ class Classifier():
 
 	def __augmentText__(self, df):
 		# Randomly shuffles sentences in comments
+		mp = df.copy()
+		mp.drop(mp[mp["Masspresent"] != 1].index, inplace = True)
 		for i in range(3):
-			cp = df.copy()
+			cp = mp.copy()
 			cp["Comments"] = cp["Comments"].apply(shuffleText)
-			df.append(cp)
+			df = df.append(cp)
+		df = df.sample(frac = 1).reset_index(drop = True)
 		return df
 
 	def __getDataFrame__(self):
 		# Reads dataframe and splits into training and testing datasets
 		print("\n\tReading input file...")
 		df = pd.read_csv(INFILE, delimiter = ",")
-		#self.training_size = int(len(df) / 2)
+		df.pop("Necropsy")
+		#df.pop("Hyperplasia")
 		if self.diag:
 			# Remove non-cancer records and previously modeled fields
-			df.drop(df[df["Masspresent"] != 1].index, inplace = True)
+			#df.drop(df[df["Masspresent"] != 1].index, inplace = True)
+			df.drop(df[df["Type"] != "NA"].index, inplace = True)
 			df.pop("Masspresent")
-			df.pop("Hyperplasia")
 		else:
 			# Remove cancer specific values
 			df.pop("Metastasis")
 			df.pop("primary_tumor")
 			df.pop("Type")
 			df.pop("Location")
-		df.pop("Necropsy")
 		df = self.__augmentText__(df)
 		values = df.pop("Comments").apply(str)
 		self.__setTokenizer__(values)

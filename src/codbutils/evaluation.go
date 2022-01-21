@@ -101,7 +101,7 @@ func RecordsEvaluations(columns map[string]string, eval string) []Evaluation {
 	records := "Records"
 	col := columns[records]
 	for _, i := range strings.Split(eval, ",") {
-		if i != "nil" {
+		if i != "nil" && i != "" {
 			var e Evaluation
 			e.SetOperation(i)
 			if e.Column == "Age" {

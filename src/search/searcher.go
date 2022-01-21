@@ -200,7 +200,7 @@ func SearchRecords(db *dbIO.DBIO, logger *log.Logger, eval string, inf, lh bool)
 	s.getRecords(s.setEvaluations(eval, inf), lh)
 	ret := s.toDF()
 	if s.msg == "" {
-		s.msg = fmt.Sprintf("\tFound %d records matching search criteria.\n", ret.Length())
+		s.msg = fmt.Sprintf("Found %d records matching search criteria.\n", ret.Length())
 	}
 	return ret, s.msg
 }

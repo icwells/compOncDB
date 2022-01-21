@@ -36,7 +36,7 @@ class Formatter():
 		shuffle(self.nas)
 		ret = self.cancer
 		ret.extend(self.noncancer)
-		ret.extend(self.nas[:int(len(ret) * 0.05)])
+		#ret.extend(self.nas[:int(len(ret) * 0.05)])
 		shuffle(ret)
 		print("\tFormatted {} of {} records.".format(len(ret), self.total))
 		return ret
@@ -50,7 +50,7 @@ class Formatter():
 			for k in self.header.keys():
 				header[self.header[k]] = k
 			# Omit Location column
-			out.write(",".join(header) + "\n")
+			out.write(",".join(header[1:]) + "\n")
 			for i in self.__formatOutput__():
 				out.write(",".join(i) + "\n")
 
@@ -60,28 +60,29 @@ class Formatter():
 		go = True
 		if line[self.header["Comments"]] == "NA" or line[self.header["Comments"]] == "n/a. n/a.":
 			go = False
-			if line[self.header["Masspresent"]] != "1":
+			'''if line[self.header["Masspresent"]] != "1":
 				# Skip records where diagnosis info is not in comments
 				line[-1] = "0"
 				line[-2] = "0"
-				self.nas.append(line)
+				self.nas.append(line)'''
 		if go:
 			line[self.header["Comments"]] = re.sub(r"[^\w\s]", "", line[self.header["Comments"]])
+			if line[self.header["Masspresent"]] == "NA":
+				line[self.header["Masspresent"]] = "0"
 			# Split compound locations and types; store only one for now
-			loc = line[self.header["Location"]].split(";")
-			for idx, i in enumerate(line[self.header["Type"]].split(";")):
-				# Combine location and type as one key
-				l = loc[idx]
-				if l not in self.locations.keys():
-					self.locations[l] = self.lcount
-					self.lcount += 1
-				if i not in self.types.keys():
-					self.types[i] = self.tcount
-					self.tcount += 1
-				row = line[:self.header["Type"]]
-				row.append(str(self.types[i]))
-				row.append(str(self.locations[l]))
-				rows.append(row)
+			loc = line[self.header["Location"]]
+			typ = line[self.header["Type"]]
+			if loc not in self.locations.keys():
+				self.locations[loc] = self.lcount
+				self.lcount += 1
+			if typ not in self.types.keys():
+				self.types[typ] = self.tcount
+				self.tcount += 1
+			# Remove ID column
+			row = line[1:self.header["Type"]]
+			row.append(str(self.types[typ]))
+			row.append(str(self.locations[loc]))
+			rows.append(row)
 			if line[self.header["Masspresent"]] == "1":
 				self.cancer.append(row)
 			else:
