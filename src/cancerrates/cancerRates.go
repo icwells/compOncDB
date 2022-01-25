@@ -86,8 +86,11 @@ func (c *cancerRates) setHeader() {
 	}
 }
 
-func (c *cancerRates) ChangeLocation(loc string) {
+func (c *cancerRates) ChangeLocation(loc string, typ bool) {
 	// Prepares struct to analyze a new location
+	if typ {
+		c.lcol = "Type"
+	}
 	c.location = loc
 	c.Records = make(map[string]*Species)
 }

@@ -156,6 +156,7 @@ CREATE OR REPLACE VIEW Records AS
 		Source.Aza,
 		Source.Institute,
 		Source.Approved,
+		Source.account_id,
 		Life_history.female_maturity,
 		Life_history.male_maturity,
 		Life_history.Gestation,
