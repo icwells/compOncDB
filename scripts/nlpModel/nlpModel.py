@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+import tensorflow_hub as hub
 from unixpath import checkDir, readFile
 
 INFILE = "diagnoses.csv"
@@ -33,7 +34,8 @@ class Classifier():
 		self.batch_size = 256
 		self.columns = []
 		self.diag = diag
-		self.epochs = 5
+		self.epochs = 10
+		self.hub = "https://tfhub.dev/google/nnlm-en-dim50/2"
 		self.labels_test = {}
 		self.labels_train = {}
 		self.locations = {}
@@ -69,14 +71,14 @@ class Classifier():
 	def __formatData__(self, df, values):
 		# Tokenizes training and testing data
 		print("\tFormatting labels and tokenizing input data...")
-		train, test = values[:self.training_size], values[self.training_size:]
+		self.train, self.test = values[:self.training_size], values[self.training_size:]
 		self.columns = list(df.columns)
 		for i in self.columns:
 			col = np.asarray(df.pop(i)).astype(np.int32)
 			self.labels_train[i] = col[:self.training_size].reshape((-1,1))
 			self.labels_test[i] = col[self.training_size:].reshape((-1,1))
-		self.train = np.array(pad_sequences(self.tokenizer.texts_to_sequences(train), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
-		self.test = np.array(pad_sequences(self.tokenizer.texts_to_sequences(test), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
+		#self.train = np.array(pad_sequences(self.tokenizer.texts_to_sequences(train), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
+		#self.test = np.array(pad_sequences(self.tokenizer.texts_to_sequences(test), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
 
 	def __setTokenizer__(self, values):
 		# Loads existing tokenizer or generates new one
@@ -94,12 +96,11 @@ class Classifier():
 	def __augmentText__(self, df):
 		# Randomly shuffles sentences in comments
 		mp = df.copy()
-		mp.drop(mp[mp["Masspresent"] != 1].index, inplace = True)
+		#mp.drop(mp[mp["Masspresent"] != 1].index, inplace = True)
 		for i in range(3):
 			cp = mp.copy()
 			cp["Comments"] = cp["Comments"].apply(shuffleText)
 			df = df.append(cp)
-		df = df.sample(frac = 1).reset_index(drop = True)
 		return df
 
 	def __getDataFrame__(self):
@@ -107,21 +108,22 @@ class Classifier():
 		print("\n\tReading input file...")
 		df = pd.read_csv(INFILE, delimiter = ",")
 		df.pop("Necropsy")
-		#df.pop("Hyperplasia")
+		df.pop("Hyperplasia")
+		df.pop("Metastasis")
 		if self.diag:
 			# Remove non-cancer records and previously modeled fields
-			#df.drop(df[df["Masspresent"] != 1].index, inplace = True)
-			df.drop(df[df["Type"] != "NA"].index, inplace = True)
+			df.drop(df[df["Masspresent"] != 1].index, inplace = True)
 			df.pop("Masspresent")
+			df = self.__augmentText__(df)
 		else:
 			# Remove cancer specific values
-			df.pop("Metastasis")
 			df.pop("primary_tumor")
 			df.pop("Type")
 			df.pop("Location")
-		df = self.__augmentText__(df)
+		#df = self.__augmentText__(df)
+		df = df.sample(frac = 1).reset_index(drop = True)
 		values = df.pop("Comments").apply(str)
-		self.__setTokenizer__(values)
+		#self.__setTokenizer__(values)
 		self.__formatData__(df, values)
 
 #-----------------------------------------------------------------------------
@@ -133,8 +135,8 @@ class Classifier():
 	def __typeLayers__(self, parent_layer):
 		# Returns output layer for diagnosis identification model
 		ret = []
-		conv = tf.keras.layers.Conv1D(32, 3, activation = "relu")(parent_layer)
-		dense1 = tf.keras.layers.Dense(units = 32, activation = "relu")(conv)
+		#conv = tf.keras.layers.Conv1D(32, 3, activation = "relu")(parent_layer)
+		dense1 = tf.keras.layers.Dense(units = 32, activation = "relu")(parent_layer)
 		dense2 = tf.keras.layers.Dense(units = 16, activation = "relu")(dense1)
 		flattened = tf.keras.layers.Flatten()(dense2)
 		for i in self.columns[:-2]:
@@ -156,14 +158,16 @@ class Classifier():
 
 	def __multiOutputModel__(self):
 		# Defines multiple-output model
-		input_layer = tf.keras.layers.Input(shape = (self.maxlen, 1, ))
+		#input_layer = tf.keras.layers.Input(shape = (self.maxlen, 1, ))
+		input_layer = tf.keras.layers.Input(shape=[], dtype=tf.string)
 		# Add 2 bidirectional LSTMs
-		bidirectional = tf.keras.layers.Bidirectional(
+		'''bidirectional = tf.keras.layers.Bidirectional(
 			tf.keras.layers.LSTM(128, return_sequences = True, name = "forwardLSTM"),
 			backward_layer = tf.keras.layers.LSTM(64, return_sequences = True, go_backwards = True, name = "backwardLSTM"),
 			name = "BidirectionalLSTM"
-		)(input_layer)
-		dense = tf.keras.layers.Dense(units = 64, activation = "elu")(bidirectional)
+		)(input_layer)'''
+		hub_layer = hub.KerasLayer(self.hub, input_shape=[], dtype=tf.string, trainable=True)(input_layer)
+		dense = tf.keras.layers.Dense(units = 64, activation = "elu")(hub_layer)
 		if self.diag:
 			outputs = self.__typeLayers__(dense)
 		else:
@@ -178,15 +182,20 @@ class Classifier():
 		labels = []
 		plt.xlabel("Epochs")
 		plt.ylabel(metric)
-		for i in self.columns:
-			name = "{}_{}".format(i, metric)
-			val = "val_" + name
-			plt.plot(history.history[name], label = name)
-			plt.plot(history.history[val], label = val)
-			labels.extend([name, val])
-		# Reduce plot size so legend is not covering it
-		plt.tight_layout(rect=[0, 0, 0.65, 0.65])
-		plt.legend(labels, loc = "center left", bbox_to_anchor = (1, 0.5))
+		if self.diag:
+			for i in self.columns:
+				name = "{}_{}".format(i, metric)
+				val = "val_" + name
+				plt.plot(history.history[name], label = name)
+				plt.plot(history.history[val], label = val)
+				labels.extend([name, val])
+			# Reduce plot size so legend is not covering it
+			plt.tight_layout(rect=[0, 0, 0.65, 0.65])
+			plt.legend(labels, loc = "center left", bbox_to_anchor = (1, 0.5))
+		else:
+			plt.plot(history.history[metric])
+			plt.plot(history.history['val_'+metric])
+			plt.legend([metric, 'val_'+metric])
 		plt.savefig("{}/{}.svg".format(self.outdir, metric), format = "svg")
 		# Clear plot
 		plt.clf()
