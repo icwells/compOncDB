@@ -93,13 +93,13 @@ class Classifier():
 		# Reads dataframe and splits into training and testing datasets
 		print("\n\tReading input file...")
 		df = pd.read_csv(INFILE, delimiter = ",")
+		df.pop("Metastasis")
 		if self.diag:
 			# Remove non-cancer records and previously modeled fields
 			df.drop(df[df["Masspresent"] != 1].index, inplace = True)
 			df.pop("Masspresent")
 		else:
 			# Remove cancer specific values
-			df.pop("Metastasis")
 			df.pop("primary_tumor")
 			df.pop("Type")
 			df.pop("Location")
