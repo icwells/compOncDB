@@ -9,10 +9,7 @@ from os.path import isfile
 import pandas as pd
 import pickle
 from random import shuffle
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 import tensorflow_hub as hub
 from unixpath import checkDir, readFile
 
@@ -77,27 +74,16 @@ class Classifier():
 			col = np.asarray(df.pop(i)).astype(np.int32)
 			self.labels_train[i] = col[:self.training_size].reshape((-1,1))
 			self.labels_test[i] = col[self.training_size:].reshape((-1,1))
-		#self.train = np.array(pad_sequences(self.tokenizer.texts_to_sequences(train), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
-		#self.test = np.array(pad_sequences(self.tokenizer.texts_to_sequences(test), maxlen = self.maxlen, padding = self.padding, truncating = self.padding))
-
-	def __setTokenizer__(self, values):
-		# Loads existing tokenizer or generates new one
-		if isfile(self.token_file):
-			print("\tLoading existing tokenizer...")
-			with open(self.token_file, "rb") as p:
-				self.tokenizer = pickle.load(p)
-		else:
-			print("\tGenerating new tokenizer...")
-			self.tokenizer = Tokenizer(num_words = self.vocab_size, oov_token = self.oov)
-			self.tokenizer.fit_on_texts(values)
-			with open(self.token_file, "wb") as out:
-				pickle.dump(self.tokenizer, out, protocol = pickle.HIGHEST_PROTOCOL)
 
 	def __augmentText__(self, df):
 		# Randomly shuffles sentences in comments
+		print("\tAugmenting data...")
+		l = 1
 		mp = df.copy()
-		#mp.drop(mp[mp["Masspresent"] != 1].index, inplace = True)
-		for i in range(3):
+		if not self.diag:
+			mp.drop(mp[mp["Masspresent"] != 1].index, inplace = True)
+			l = 3
+		for i in range(l):
 			cp = mp.copy()
 			cp["Comments"] = cp["Comments"].apply(shuffleText)
 			df = df.append(cp)
@@ -107,23 +93,19 @@ class Classifier():
 		# Reads dataframe and splits into training and testing datasets
 		print("\n\tReading input file...")
 		df = pd.read_csv(INFILE, delimiter = ",")
-		df.pop("Necropsy")
-		df.pop("Hyperplasia")
-		df.pop("Metastasis")
 		if self.diag:
 			# Remove non-cancer records and previously modeled fields
 			df.drop(df[df["Masspresent"] != 1].index, inplace = True)
 			df.pop("Masspresent")
-			df = self.__augmentText__(df)
 		else:
 			# Remove cancer specific values
+			df.pop("Metastasis")
 			df.pop("primary_tumor")
 			df.pop("Type")
 			df.pop("Location")
-		#df = self.__augmentText__(df)
+		df = self.__augmentText__(df)
 		df = df.sample(frac = 1).reset_index(drop = True)
 		values = df.pop("Comments").apply(str)
-		#self.__setTokenizer__(values)
 		self.__formatData__(df, values)
 
 #-----------------------------------------------------------------------------
@@ -132,46 +114,23 @@ class Classifier():
 		# Returns new output node
 		return tf.keras.layers.Dense(units = units, activation = activation, name = name)(parent_layer)
 
-	def __typeLayers__(self, parent_layer):
-		# Returns output layer for diagnosis identification model
-		ret = []
-		#conv = tf.keras.layers.Conv1D(32, 3, activation = "relu")(parent_layer)
-		dense1 = tf.keras.layers.Dense(units = 32, activation = "relu")(parent_layer)
-		dense2 = tf.keras.layers.Dense(units = 16, activation = "relu")(dense1)
-		flattened = tf.keras.layers.Flatten()(dense2)
-		for i in self.columns[:-2]:
-			ret.append(self.__outputLayer__(i, flattened))
-		ret.append(self.__outputLayer__("Location", flattened, len(self.locations.keys()), "softmax"))
-		ret.append(self.__outputLayer__("Type", flattened, len(self.types.keys()), "softmax"))
-		return ret
-
-	def __neoplasiaLayers__(self, parent_layer):
-		# Returns output layers for neoplasia identification model
-		ret = []
-		#dropout = tf.keras.layers.Dropout(0.5)(parent_layer)
-		dense1 = tf.keras.layers.Dense(units = 16, activation = "relu", kernel_regularizer = "l1")(parent_layer)
-		dense2 = tf.keras.layers.Dense(units = 8, activation = "relu")(dense1)
-		flattened = tf.keras.layers.Flatten()(dense2)
-		for i in self.columns:
-			ret.append(self.__outputLayer__(i, flattened))
-		return ret
-
 	def __multiOutputModel__(self):
 		# Defines multiple-output model
-		#input_layer = tf.keras.layers.Input(shape = (self.maxlen, 1, ))
-		input_layer = tf.keras.layers.Input(shape=[], dtype=tf.string)
-		# Add 2 bidirectional LSTMs
-		'''bidirectional = tf.keras.layers.Bidirectional(
-			tf.keras.layers.LSTM(128, return_sequences = True, name = "forwardLSTM"),
-			backward_layer = tf.keras.layers.LSTM(64, return_sequences = True, go_backwards = True, name = "backwardLSTM"),
-			name = "BidirectionalLSTM"
-		)(input_layer)'''
-		hub_layer = hub.KerasLayer(self.hub, input_shape=[], dtype=tf.string, trainable=True)(input_layer)
+		outputs = []
+		input_layer = tf.keras.layers.Input(shape = [], dtype = tf.string)
+		hub_layer = hub.KerasLayer(self.hub, input_shape = [], dtype = tf.string, trainable = True)(input_layer)
 		dense = tf.keras.layers.Dense(units = 64, activation = "elu")(hub_layer)
+		dense1 = tf.keras.layers.Dense(units = 32, activation = "relu", kernel_regularizer = "l1")(dense)
+		dense2 = tf.keras.layers.Dense(units = 16, activation = "relu")(dense1)
+		flattened = tf.keras.layers.Flatten()(dense2)
 		if self.diag:
-			outputs = self.__typeLayers__(dense)
+			for i in self.columns[:-2]:
+				outputs.append(self.__outputLayer__(i, flattened))
+			outputs.append(self.__outputLayer__("Location", flattened, len(self.locations.keys()), "softmax"))
+			outputs.append(self.__outputLayer__("Type", flattened, len(self.types.keys()), "softmax"))
 		else:
-			outputs = self.__neoplasiaLayers__(dense)
+			# Get single masspresent output layer
+			outputs.append(self.__outputLayer__("Masspresent", flattened))
 		# Define the model with the input layer and a list of output layers
 		return tf.keras.Model(inputs = input_layer, outputs = outputs, name = self.outdir)
 
@@ -225,7 +184,7 @@ class Classifier():
 		)
 		self.__plot__(history, "accuracy")
 		self.__plot__(history, "loss")
-		#print(self.model.evaluate(self.test, self.labels_test))
+		print(self.model.evaluate(self.test, self.labels_test))
 
 	def save(self):
 		# Stores model in outdir

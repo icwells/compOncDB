@@ -57,15 +57,7 @@ class Formatter():
 	def __formatLine__(self, line):
 		# Replaces punctuation, splits compound locations and types, and encodes paired locations and types as integers
 		rows = []
-		go = True
-		if line[self.header["Comments"]] == "NA" or line[self.header["Comments"]] == "n/a. n/a.":
-			go = False
-			'''if line[self.header["Masspresent"]] != "1":
-				# Skip records where diagnosis info is not in comments
-				line[-1] = "0"
-				line[-2] = "0"
-				self.nas.append(line)'''
-		if go:
+		if line[self.header["Comments"]] != "NA" and line[self.header["Comments"]] != "n/a. n/a.":
 			line[self.header["Comments"]] = re.sub(r"[^\w\s]", "", line[self.header["Comments"]])
 			if line[self.header["Masspresent"]] == "NA":
 				line[self.header["Masspresent"]] = "0"
