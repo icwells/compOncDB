@@ -57,28 +57,27 @@ class Formatter():
 	def __formatLine__(self, line):
 		# Replaces punctuation, splits compound locations and types, and encodes paired locations and types as integers
 		rows = []
-		if line[self.header["Comments"]] != "NA" and line[self.header["Comments"]] != "n/a. n/a.":
-			line[self.header["Comments"]] = re.sub(r"[^\w\s]", "", line[self.header["Comments"]])
-			if line[self.header["Masspresent"]] == "NA":
-				line[self.header["Masspresent"]] = "0"
-			# Split compound locations and types; store only one for now
-			loc = line[self.header["Location"]]
-			typ = line[self.header["Type"]]
-			if loc not in self.locations.keys():
-				self.locations[loc] = self.lcount
-				self.lcount += 1
-			if typ not in self.types.keys():
-				self.types[typ] = self.tcount
-				self.tcount += 1
-			# Remove ID column
-			row = line[1:self.header["Type"]]
-			row.append(str(self.types[typ]))
-			row.append(str(self.locations[loc]))
-			rows.append(row)
-			if line[self.header["Masspresent"]] == "1":
-				self.cancer.append(row)
-			else:
-				self.noncancer.append(row)
+		line[self.header["Comments"]] = re.sub(r"[^\w\s]", "", line[self.header["Comments"]])
+		if line[self.header["Masspresent"]] == "NA":
+			line[self.header["Masspresent"]] = "0"
+		# Split compound locations and types; store only one for now
+		loc = line[self.header["Location"]]
+		typ = line[self.header["Type"]]
+		if loc not in self.locations.keys():
+			self.locations[loc] = self.lcount
+			self.lcount += 1
+		if typ not in self.types.keys():
+			self.types[typ] = self.tcount
+			self.tcount += 1
+		# Remove ID column
+		row = line[1:self.header["Type"]]
+		row.append(str(self.types[typ]))
+		row.append(str(self.locations[loc]))
+		rows.append(row)
+		if line[self.header["Masspresent"]] == "1":
+			self.cancer.append(row)
+		else:
+			self.noncancer.append(row)
 
 	def __formatFile__(self):
 		# Reads input file, formats values, and writes to output

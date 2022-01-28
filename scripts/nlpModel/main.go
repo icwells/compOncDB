@@ -8,6 +8,7 @@ import (
 	"github.com/icwells/compOncDB/src/diagnoses"
 	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/go-tools/dataframe"
+	"github.com/icwells/go-tools/iotools"
 	"github.com/icwells/go-tools/strarray"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
@@ -26,6 +27,7 @@ type formatter struct {
 	logger  *log.Logger
 	match   diagnoses.Matcher
 	records *dataframe.Dataframe
+	results [][]string
 }
 
 func newFormatter() *formatter {
@@ -33,7 +35,7 @@ func newFormatter() *formatter {
 	var msg string
 	f := new(formatter)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
-	f.columns = []string{"Sex", "Comments", "Masspresent", "Metastasis", "primary_tumor", "Type", "Location"}
+	f.columns = []string{"Sex", "Comments", "Masspresent", "primary_tumor", "Type", "Location"}
 	f.logger = codbutils.GetLogger()
 	f.match = diagnoses.NewMatcher(f.logger)
 	f.logger.Println("Extracting records from database...")
@@ -50,9 +52,7 @@ func newFormatter() *formatter {
 func (f *formatter) write() {
 	// Writes records to outfile
 	f.logger.Println("Writing to file...")
-	f.records.SetMetaData("")
-	f.records.DeleteColumn("Sex")
-	f.records.ToCSV(*outfile)
+	iotools.WriteToCSV(*outfile, strings.Join(f.columns[1:], ","), f.results)
 }
 
 func (f *formatter) inferSentences(val string) string {
@@ -73,11 +73,17 @@ func (f *formatter) inferSentences(val string) string {
 
 func (f *formatter) formatRows() {
 	// Preformats data for nlp modeling
+	var count int
 	f.logger.Println("Formatting comments...")
 	for idx := range f.records.Index {
 		comments, _ := f.records.GetCell(idx, "Comments")
 		sex, _ := f.records.GetCell(idx, "Sex")
-		mp, _ := f.records.GetCell(idx, "Masspresent")
+		comments = f.inferSentences(comments)
+		for _, i := range f.match.SplitOnTumors(comments, sex) {
+			f.results = append(f.results, i)
+		}
+		count++
+		/*mp, _ := f.records.GetCell(idx, "Masspresent")
 		//service, _ := f.records.GetCell(idx, "service_name")
 		typ, _ := f.records.GetCell(idx, "Type")
 		loc, _ := f.records.GetCell(idx, "Location")
@@ -90,8 +96,9 @@ func (f *formatter) formatRows() {
 				f.records.UpdateCell(idx, "Masspresent", tumor)
 			}
 			f.records.UpdateCell(idx, "Comments", f.inferSentences(comments))
-		}
+		}*/
 	}
+	f.logger.Printf("Formatted %d of %d records.", len(f.results), count)
 }
 
 func main() {

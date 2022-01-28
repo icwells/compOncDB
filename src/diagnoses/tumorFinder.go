@@ -4,6 +4,7 @@ package diagnoses
 
 import (
 	"github.com/icwells/go-tools/strarray"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -14,11 +15,13 @@ var (
 )
 
 type tumorHit struct {
-	match     string
+	end       int
 	index     int
+	indeces   map[string]int
 	length    int
 	locations map[string]int
 	location  string
+	match     string
 }
 
 func newTumorHit(m string, i, l int) *tumorHit {
@@ -26,6 +29,7 @@ func newTumorHit(m string, i, l int) *tumorHit {
 	var t tumorHit
 	t.match = m
 	t.index = i
+	t.indeces = make(map[string]int)
 	t.length = l
 	t.locations = make(map[string]int)
 	t.location = "NA"
@@ -46,6 +50,7 @@ func (t *tumorHit) setDistance(k, m, line string) {
 		dist = t.index - (idx + len(m))
 	}
 	t.locations[k] = dist
+	t.indeces[k] = idx
 }
 
 func (t *tumorHit) setLocation() {
@@ -69,14 +74,19 @@ func (t *tumorHit) setLocation() {
 	}
 	if t.location == "NA" && len(loc) > 0 {
 		t.location = loc
+		if t.indeces[loc] > t.index {
+			t.end = t.indeces[loc] + len(loc)
+		}
 	} else if strings.Contains(t.match, "sarcoma") && t.location == "NA" {
 		t.location = "sarcoma"
+		t.end = t.index + len(t.match)
 	}
 }
 
 //----------------------------------------------------------------------------
 
 type tumorFinder struct {
+	hits      []*tumorHit
 	malignant string
 	types     map[string]*tumorHit
 }
@@ -98,6 +108,62 @@ func (t *tumorFinder) checkKeys(name string, idx int) bool {
 		} else if strings.Contains(key, name) {
 			ret = false
 			break
+		}
+	}
+	return ret
+}
+
+func (t *tumorFinder) Len() int {
+	return len(t.hits)
+}
+
+func (t *tumorFinder) Less(i, j int) bool {
+	return t.hits[i].end < t.hits[j].end
+}
+
+func (t *tumorFinder) Swap(i, j int) {
+	t.hits[i], t.hits[j] = t.hits[j], t.hits[i]
+}
+
+func (t *tumorFinder) sortHits() {
+	// Returns slice if hits ordered by end index
+	for _, v := range t.types {
+		t.hits = append(t.hits, v)
+	}
+	sort.Sort(t)
+}
+
+func (t *tumorFinder) subsetLine(line string, start, end int) string {
+	// Slices line between start and end
+	var ret string
+	if start < end && end < len(line) {
+		ret = line[start:end + 1]
+	}
+	return ret
+}
+
+func (t *tumorFinder) SplitStrings(line string) [][]string {
+	// Splits line so that each piece contains one tumor diagnosis
+	var ret [][]string
+	if len(t.types) == 0 {
+		ret = append(ret, []string{line, "0", "0", "NA", "NA"})
+	} else {
+		var start int
+		primary := "0"
+		t.sortHits()
+		if len(t.hits) == 1 {
+			primary = "1"
+		}
+		for _, i := range t.hits[:len(t.hits) - 1] {
+			if s := t.subsetLine(line, start, i.end); s != "" {
+				row := []string{s, "1", primary, i.match, i.location}
+				ret = append(ret, row)
+				start = i.end
+			}
+		}
+		i := t.hits[len(t.hits) - 1]
+		if s := t.subsetLine(line, start, len(line) - 1); s != "" {
+			ret = append(ret, []string{s, "1", primary, i.match, i.location})
 		}
 	}
 	return ret
@@ -198,6 +264,17 @@ func (m *Matcher) getTypes(t *tumorFinder, line string) {
 			}
 		}
 	}
+}
+
+func (m *Matcher) SplitOnTumors(line, sex string) [][]string {
+	// Splits input so that each piece contains only one tumor type and location
+	t := newTumorFinder()
+	m.getTypes(t, line)
+	if len(t.types) > 0 {
+		m.getLocations(t, line, sex)
+		m.setMalignant(t, line)
+	}
+	return t.SplitStrings(line)
 }
 
 func (m *Matcher) GetTumor(line, sex string, cancer bool) (string, string, string, string) {
