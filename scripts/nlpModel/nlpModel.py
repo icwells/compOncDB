@@ -75,11 +75,11 @@ class Classifier():
 	def __augmentText__(self, df):
 		# Randomly shuffles sentences in comments
 		print("\tAugmenting data...")
-		l = 1
+		l = 2
 		mp = df.copy()
 		if not self.diag:
 			mp.drop(mp[mp["Masspresent"] != 1].index, inplace = True)
-			l = 3
+			l = 4
 		for i in range(l):
 			cp = mp.copy()
 			cp["Comments"] = cp["Comments"].apply(shuffleText)
