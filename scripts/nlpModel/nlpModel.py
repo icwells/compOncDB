@@ -28,7 +28,7 @@ def shuffleText(val):
 class Classifier():
 
 	def __init__(self, diag):
-		self.batch_size = 256
+		self.batch_size = 128
 		self.columns = []
 		self.diag = diag
 		self.labels_test = {}
@@ -40,13 +40,13 @@ class Classifier():
 		self.training_size = 20000
 		self.types = {}
 		if self.diag:
-			self.epochs = 30
+			self.epochs = 15
 			self.hub = "https://tfhub.dev/google/nnlm-en-dim50-with-normalization/2"
 			#self.hub = "https://tfhub.dev/google/experts/bert/pubmed/2"
 			self.outdir = "diagnosisModel"
 			self.__loadDicts__()
 		else:
-			self.epochs = 10
+			self.epochs = 5
 			self.hub = "https://tfhub.dev/google/nnlm-en-dim50/2"
 			self.outdir = "neoplasiaModel"
 		# Make sure outdir exsits before saving model so plots can be saved there
@@ -113,13 +113,11 @@ class Classifier():
 	def __multiOutputModel__(self):
 		# Defines multiple-output model
 		outputs = []
+		leaky_relu = tf.keras.layers.LeakyReLU(alpha=0.01)
 		input_layer = tf.keras.layers.Input(shape = [], dtype = tf.string)
-		#preprocess = hub.load('https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3')(input_layer)
 		hub_layer = hub.KerasLayer(self.hub, input_shape = [], dtype = tf.string, trainable = True)(input_layer)
-		dense = tf.keras.layers.Dense(units = 64, activation = "elu")(hub_layer)
-		dense1 = tf.keras.layers.Dense(units = 32, activation = "relu", kernel_regularizer = "l1")(dense)
-		dense2 = tf.keras.layers.Dense(units = 16, activation = "relu")(dense1)
-		flattened = tf.keras.layers.Flatten()(dense2)
+		dense = tf.keras.layers.Dense(16, activation = leaky_relu)(hub_layer)
+		flattened = tf.keras.layers.Flatten()(dense)
 		if self.diag:
 			for i in self.columns[:-2]:
 				outputs.append(self.__outputLayer__(i, flattened))
@@ -181,7 +179,7 @@ class Classifier():
 		)
 		self.__plot__(history, "accuracy")
 		self.__plot__(history, "loss")
-		print(self.model.evaluate(self.test, self.labels_test))
+		#print(self.model.evaluate(self.test, self.labels_test))
 
 	def save(self):
 		# Stores model in outdir
