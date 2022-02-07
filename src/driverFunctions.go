@@ -10,6 +10,7 @@ import (
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/compOncDB/src/parserecords"
+	"github.com/icwells/compOncDB/src/predict"
 	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
@@ -17,6 +18,23 @@ import (
 	"strings"
 	"time"
 )
+
+func commandError() {
+	// Prints message for invalid input
+	fmt.Print("\n\tPlease enter a valid command.\n\n")
+}
+
+func writeDF(table *dataframe.Dataframe, output string) {
+	// Writes dataframe to file/screen
+	if table.Length() >= 1 {
+		if output != "nil" && output != "" {
+			table.ToCSV(output)
+		} else {
+			fmt.Println()
+			table.Print()
+		}
+	}
+}
 
 func newDatabase() time.Time {
 	// Creates new database and tables
@@ -43,9 +61,15 @@ func parseRecords() time.Time {
 	return start
 }
 
-func commandError() {
-	// Prints message for invalid input
-	fmt.Print("\n\tPlease enter a valid command.\n\n")
+func predictDiagnoses() time.Time {
+	// Compares parse output with NLP model predictions
+	start := time.Now()
+	if *infile != "" && *outfile != "" {
+		writeDF(predict.ComparePredictions(*infile), *outfile)
+	} else {
+		commandError()
+	}
+	return start
 }
 
 func uploadToDB() time.Time {
@@ -79,18 +103,6 @@ func uploadToDB() time.Time {
 		commandError()
 	}
 	return db.Starttime
-}
-
-func writeDF(table *dataframe.Dataframe, output string) {
-	// Writes dataframe to file/screen
-	if table.Length() >= 1 {
-		if output != "nil" && output != "" {
-			table.ToCSV(output)
-		} else {
-			fmt.Println()
-			table.Print()
-		}
-	}
 }
 
 func updateDB() time.Time {

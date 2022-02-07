@@ -30,6 +30,8 @@ var (
 	taxaFile = parse.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
 	debug    = parse.Flag("debug", "Adds cancer and code column (if present) for hand checking.").Short('d').Default("false").Bool()
 
+	predict = kingpin.Command("predict", "Compares parse output with NLP model predictions. Provide parse records output and new output file with -i and -o.")
+
 	upload  = kingpin.Command("upload", "Upload data to the database. Backs up database if output directory is given with '-o'.")
 	taxa    = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
 	common  = upload.Flag("common", "Additionally extract common names from Kestrel output to update common name tables.").Default("false").Bool()
@@ -96,6 +98,8 @@ func main() {
 		start = newDatabase()
 	case parse.FullCommand():
 		start = parseRecords()
+	case predict.FullCommand():
+		start = predictDiagnoses()
 	case upload.FullCommand():
 		start = uploadToDB()
 	case update.FullCommand():
