@@ -13,7 +13,6 @@ class Formatter():
 		self.infile = infile
 		self.lcount = 1
 		self.locations = {"NA": 0}
-		self.nas = []
 		self.noncancer = []
 		self.outfile = outfile
 		self.tcount = 1
@@ -33,10 +32,8 @@ class Formatter():
 
 	def __formatOutput__(self):
 		# Returns randomly sorted list, truncates records with na for comments
-		shuffle(self.nas)
 		ret = self.cancer
 		ret.extend(self.noncancer)
-		#ret.extend(self.nas[:int(len(ret) * 0.05)])
 		shuffle(ret)
 		print("\tFormatted {} of {} records.".format(len(ret), self.total))
 		return ret
@@ -60,8 +57,8 @@ class Formatter():
 		if line[self.header["Masspresent"]] == "NA":
 			line[self.header["Masspresent"]] = "0"
 		# Split compound locations and types; store only one for now
-		loc = line[self.header["Location"]]
-		typ = line[self.header["Type"]]
+		loc = line[self.header["Location"]].lower()
+		typ = line[self.header["Type"]].lower()
 		if loc not in self.locations.keys():
 			self.locations[loc] = self.lcount
 			self.lcount += 1

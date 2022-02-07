@@ -35,7 +35,7 @@ func newFormatter() *formatter {
 	var msg string
 	f := new(formatter)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
-	f.columns = []string{"Sex", "Comments", "Masspresent", "primary_tumor", "Type", "Location"}
+	f.columns = []string{"Sex", "Comments", "Masspresent", "Type", "Location"}
 	f.logger = codbutils.GetLogger()
 	f.match = diagnoses.NewMatcher(f.logger)
 	f.logger.Println("Extracting records from database...")
@@ -83,20 +83,6 @@ func (f *formatter) formatRows() {
 			f.results = append(f.results, i)
 		}
 		count++
-		/*mp, _ := f.records.GetCell(idx, "Masspresent")
-		//service, _ := f.records.GetCell(idx, "service_name")
-		typ, _ := f.records.GetCell(idx, "Type")
-		loc, _ := f.records.GetCell(idx, "Location")
-		if strings.Contains(typ, ";") || strings.Contains(loc, ";") {
-			f.records.DeleteRow(idx)
-		} else {
-			tumor, _, _, _ := f.match.GetTumor(comments, sex, true)
-			if tumor == "NA" && mp == "1" {
-				// Masspresent only equals 1 if it is identifiable from the comments
-				f.records.UpdateCell(idx, "Masspresent", tumor)
-			}
-			f.records.UpdateCell(idx, "Comments", f.inferSentences(comments))
-		}*/
 	}
 	f.logger.Printf("Formatted %d of %d records.", len(f.results), count)
 }

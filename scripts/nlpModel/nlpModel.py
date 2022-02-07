@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from datetime import datetime
+from diagnosisPrediction import loadDiagnoses, Predictor
 from formatInput import Formatter
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,10 +12,12 @@ import pickle
 from random import shuffle
 import tensorflow as tf
 import tensorflow_hub as hub
-from unixpath import checkDir, readFile
+from unixpath import checkDir
 
-INFILE = "diagnoses.csv"
+DIAGNOSIS = "diagnosisModel"
 ENCODING = "typeEncodings.csv"
+INFILE = "diagnoses.csv"
+NEOPLASIA = "neoplasiaModel"
 
 def shuffleText(val):
 	# Returns string with shuffled sentence order
@@ -31,36 +34,24 @@ class Classifier():
 		self.batch_size = 128
 		self.columns = []
 		self.diag = diag
+		self.hub = "https://tfhub.dev/google/nnlm-en-dim50-with-normalization/2"
 		self.labels_test = {}
 		self.labels_train = {}
-		self.locations = {}
 		self.model = None
 		self.test = []
 		self.train = []
 		self.training_size = 20000
-		self.types = {}
 		if self.diag:
 			self.epochs = 15
-			self.hub = "https://tfhub.dev/google/nnlm-en-dim50-with-normalization/2"
-			#self.hub = "https://tfhub.dev/google/experts/bert/pubmed/2"
-			self.outdir = "diagnosisModel"
-			self.__loadDicts__()
+			self.outdir = DIAGNOSIS
+			self.types, self.locations = loadDiagnoses(ENCODING)
 		else:
 			self.epochs = 5
-			self.hub = "https://tfhub.dev/google/nnlm-en-dim50/2"
-			self.outdir = "neoplasiaModel"
+			self.outdir = NEOPLASIA
 		# Make sure outdir exsits before saving model so plots can be saved there
 		checkDir(self.outdir, True)
 		self.plot = "{}/modelPlot.png".format(self.outdir)
 		self.__getDataFrame__()
-
-	def __loadDicts__(self):
-		# Loads types dict
-		for i in readFile(ENCODING, header = False, d = ","):
-			if i[0] == "Type":
-				self.types[int(i[2])] = i[1]
-			else:
-				self.locations[int(i[2])] = i[1]
 
 	def __formatData__(self, df, values):
 		# Tokenizes training and testing data
@@ -96,7 +87,6 @@ class Classifier():
 			df.pop("Masspresent")
 		else:
 			# Remove cancer specific values
-			df.pop("primary_tumor")
 			df.pop("Type")
 			df.pop("Location")
 		df = self.__augmentText__(df)
@@ -119,10 +109,8 @@ class Classifier():
 		dense = tf.keras.layers.Dense(16, activation = leaky_relu)(hub_layer)
 		flattened = tf.keras.layers.Flatten()(dense)
 		if self.diag:
-			for i in self.columns[:-2]:
-				outputs.append(self.__outputLayer__(i, flattened))
-			outputs.append(self.__outputLayer__("Location", flattened, len(self.locations.keys()), "softmax"))
-			outputs.append(self.__outputLayer__("Type", flattened, len(self.types.keys()), "softmax"))
+			outputs.append(self.__outputLayer__("Location", flattened, len(self.locations), "softmax"))
+			outputs.append(self.__outputLayer__("Type", flattened, len(self.types), "softmax"))
 		else:
 			# Get single masspresent output layer
 			outputs.append(self.__outputLayer__("Masspresent", flattened))
@@ -156,12 +144,12 @@ class Classifier():
 
 	def __getLoss__(self):
 		# Returns loss estimation for each output column
-		ret = {}
-		for i in self.columns:
-			if i == "Type" or i == "Location":
+		if self.diag:
+			ret = {}
+			for i in self.columns:
 				ret[i] = tf.keras.losses.SparseCategoricalCrossentropy()
-			else:
-				ret[i] = tf.keras.losses.BinaryCrossentropy()
+		else:
+			ret = tf.keras.losses.BinaryCrossentropy()
 		return ret
   
 	def trainModel(self):
@@ -190,10 +178,16 @@ def main():
 	parser = ArgumentParser("Defines TensorFlow model for comparative oncology record diagnosis.")
 	parser.add_argument("--diagnosis", action = "store_true", default = False, help = "Trains diagnosis identification model. Trains cancer record identification model by default.")
 	parser.add_argument("-i", help = "Path to unformatted training data. Pre-formats the data only. Run again without infile argument to train the model.")
+	parser.add_argument("-o", help = "Path to output file (for predictions only).")
 	args = parser.parse_args()
-	if args.i:
+	if args.o:
+		# Predict diagnosis values
+		Predictor(args.i, args.o, args.diagnosis, ENCODING, DIAGNOSIS, NEOPLASIA)
+	elif args.i:
+		# Format input
 		Formatter(args.i, INFILE, ENCODING)
 	else:
+		# Train model
 		c = Classifier(args.diagnosis)
 		c.trainModel()
 		c.save()

@@ -146,24 +146,20 @@ func (t *tumorFinder) SplitStrings(line string) [][]string {
 	// Splits line so that each piece contains one tumor diagnosis
 	var ret [][]string
 	if len(t.types) == 0 {
-		ret = append(ret, []string{line, "0", "0", "NA", "NA"})
+		ret = append(ret, []string{line, "0", "NA", "NA"})
 	} else {
 		var start int
-		primary := "0"
 		t.sortHits()
-		if len(t.hits) == 1 {
-			primary = "1"
-		}
 		for _, i := range t.hits[:len(t.hits) - 1] {
 			if s := t.subsetLine(line, start, i.end); s != "" {
-				row := []string{s, "1", primary, i.match, i.location}
+				row := []string{s, "1", i.match, i.location}
 				ret = append(ret, row)
 				start = i.end
 			}
 		}
 		i := t.hits[len(t.hits) - 1]
 		if s := t.subsetLine(line, start, len(line) - 1); s != "" {
-			ret = append(ret, []string{s, "1", primary, i.match, i.location})
+			ret = append(ret, []string{s, "1", i.match, i.location})
 		}
 	}
 	return ret
@@ -272,7 +268,6 @@ func (m *Matcher) SplitOnTumors(line, sex string) [][]string {
 	m.getTypes(t, line)
 	if len(t.types) > 0 {
 		m.getLocations(t, line, sex)
-		m.setMalignant(t, line)
 	}
 	return t.SplitStrings(line)
 }
