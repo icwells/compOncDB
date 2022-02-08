@@ -29,6 +29,7 @@ class Predictor():
 	def __init__(self, infile, outfile, diag, encoding, diagnosis, neoplasia):
 		print("\n\tLoading NLP model...")
 		self.comments = []
+		self.header = None
 		self.ids = []
 		self.infile = infile
 		if diag:
@@ -50,7 +51,8 @@ class Predictor():
 		# Writes to output file
 		print("\tWriting to file...")
 		with open(self.outfile, "w") as out:
-			out.write(self.header + "\n")
+			if self.header:
+				out.write(self.header + "\n")
 			for k in self.res:
 				row = ",".join(self.res[k])
 				out.write("{}\n".format(row))
@@ -87,4 +89,5 @@ class Predictor():
 		# Predicts whether name is common/scientific
 		print("\tClassifying neoplasia records...")
 		for idx, i in enumerate(self.model.predict(np.array(self.comments))):
-			self.res.append(self.ids[idx], self.comments[idx], str(i[0]))
+			pid = self.ids[idx]
+			self.res[pid] = [pid, self.comments[idx], str(i[0])]

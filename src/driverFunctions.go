@@ -10,7 +10,7 @@ import (
 	"github.com/icwells/compOncDB/src/dbextract"
 	"github.com/icwells/compOncDB/src/dbupload"
 	"github.com/icwells/compOncDB/src/parserecords"
-	"github.com/icwells/compOncDB/src/predict"
+	"github.com/icwells/compOncDB/src/predictor"
 	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
@@ -61,11 +61,11 @@ func parseRecords() time.Time {
 	return start
 }
 
-func predictDiagnoses() time.Time {
+func verifyDiagnoses() time.Time {
 	// Compares parse output with NLP model predictions
 	start := time.Now()
 	if *infile != "" && *outfile != "" {
-		writeDF(predict.ComparePredictions(*infile), *outfile)
+		writeDF(predictor.ComparePredictions(*infile), *outfile)
 	} else {
 		commandError()
 	}

@@ -137,7 +137,7 @@ func (t *tumorFinder) subsetLine(line string, start, end int) string {
 	// Slices line between start and end
 	var ret string
 	if start < end && end < len(line) {
-		ret = line[start:end + 1]
+		ret = line[start : end+1]
 	}
 	return ret
 }
@@ -150,15 +150,15 @@ func (t *tumorFinder) SplitStrings(line string) [][]string {
 	} else {
 		var start int
 		t.sortHits()
-		for _, i := range t.hits[:len(t.hits) - 1] {
+		for _, i := range t.hits[:len(t.hits)-1] {
 			if s := t.subsetLine(line, start, i.end); s != "" {
 				row := []string{s, "1", i.match, i.location}
 				ret = append(ret, row)
 				start = i.end
 			}
 		}
-		i := t.hits[len(t.hits) - 1]
-		if s := t.subsetLine(line, start, len(line) - 1); s != "" {
+		i := t.hits[len(t.hits)-1]
+		if s := t.subsetLine(line, start, len(line)-1); s != "" {
 			ret = append(ret, []string{s, "1", i.match, i.location})
 		}
 	}
