@@ -17,6 +17,7 @@ import (
 type predictor struct {
 	col		string
 	columns []string
+	dir		string
 	infile	string
 	logger	*log.Logger
 	mass	string
@@ -30,15 +31,16 @@ func newPredictor(infile string) *predictor {
 	var err error
 	p := new(predictor)
 	p.col = "Comments"
-	p.columns = []string{"MassVerified"}//, "TypeVerified", "LocationVerified"}
-	p.infile = "/tmp/nlpInput.csv"
+	p.columns = []string{"MassVerified", "TypeVerified", "LocationVerified"}
+	p.dir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/scripts/nlpModel/")
+	p.infile = "nlpInput.csv"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
-	p.outfile = "/tmp/nlpOutput.csv"
+	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
 	}
-	p.script = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/scripts/nlpModel/nlpModel.py")
+	p.script = "nlpModel.py"
 	for _, i := range p.columns {
 		p.records.AddColumn(i, "")
 	}
@@ -49,6 +51,8 @@ func (p *predictor) callScript(diagnosis bool) {
 	// Configures command for python script and calls
 	var cmd *exec.Cmd
 	p.logger.Println("Calling prediction script...")
+	dir, _ := os.Getwd()
+	os.Chdir(p.dir)
 	infile := fmt.Sprintf("-i%s", p.infile)
 	outfile := fmt.Sprintf("-o%s", p.outfile)
 	if diagnosis {
@@ -56,18 +60,19 @@ func (p *predictor) callScript(diagnosis bool) {
 	} else {
 		cmd = exec.Command("python", p.script, infile, outfile)
 	}
-	err := cmd.Run()
-	if err == nil {
-		p.logger.Println("Prediction script complete.")
-	} else {
+	//cmd.Stdout = os.Stdout
+	//cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
 		p.logger.Fatalf("Prediction script failed. %v\n", err)
 	}
+	p.logger.Println("Prediction script complete.")
+	os.Chdir(dir)
 }
 
 func (p *predictor) writeInfile(diagnosis bool) {
 	// Writes records to input file for script
 	p.logger.Println("Writing input file for prediction script...")
-	out := iotools.CreateFile(p.infile)
+	out := iotools.CreateFile(path.Join(p.dir, p.infile))
 	defer out.Close()
 	for i := range p.records.Iterate() {
 		mp, err := i.GetCellInt(p.mass)
@@ -89,12 +94,12 @@ func (p *predictor) writeInfile(diagnosis bool) {
 func (p *predictor) compareNeopasia() {
 	// Compares neoplasia results to parse output
 	p.logger.Println("Comparing neoplasia results...")
-	reader, _ := iotools.YieldFile(p.outfile, false)
+	reader, _ := iotools.YieldFile(path.Join(p.dir, p.outfile), false)
 	for i := range reader {
 		verified := "0"
 		id := i[0]
-		if score, err := strconv.ParseFloat(i[1], 64); err == nil {
-			mp, _ := p.records.GetCellInt(id, p.columns[0])
+		if score, err := strconv.ParseFloat(i[2], 64); err == nil {
+			mp, _ := p.records.GetCellInt(id, p.mass)
 			if score >= 0.8 && mp == 1 {
 				verified = "1"
 			} else if score <= 0.2 && mp == 1 {
@@ -113,13 +118,17 @@ func (p *predictor) predictMass() {
 	p.compareNeopasia()
 }
 
-/*func (p *predictor) compareDiagnoses() {
+func (p *predictor) compareDiagnoses() {
 	// Compares type and location results to parse output
 	p.logger.Println("Comparing type and location results...")
 	reader, header := iotools.YieldFile(p.outfile, true)
 	for i := range reader {
-		id := i[0]
-		
+		id := i[header["ID"]]
+		typ := strings.ToLower(i[header["Type"]])
+		loc := strings.ToLower(i[header["Location"]])
+		if lscore, err := strconv.ParseFloat(i[header["Lscore"]], 64); err == nil {
+			
+		}
 	}
 }
 
@@ -129,19 +138,19 @@ func (p *predictor) predictDiagnoses() {
 	p.writeInfile(true)
 	p.callScript(true)
 	p.compareDiagnoses()
-}*/
+}
 
 func (p *predictor) cleanup() {
 	// Removes infiile and outfile after use
-	os.Remove(p.infile)
-	os.Remove(p.outfile)
+	os.Remove(path.Join(p.dir, p.infile))
+	os.Remove(path.Join(p.dir, p.outfile))
 }
 
 func ComparePredictions(infile string) *dataframe.Dataframe {
 	// Compares parse output with nlp predictions
 	p := newPredictor(infile)
 	defer p.cleanup()
-	p.predictMass()
-	//p.predictDiagnoses()
+	//p.predictMass()
+	p.predictDiagnoses()
 	return p.records
 }

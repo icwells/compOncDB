@@ -3,7 +3,6 @@
 from argparse import ArgumentParser
 from datetime import datetime
 import numpy as np
-import os
 import tensorflow as tf
 from unixpath import readFile
 
@@ -32,18 +31,16 @@ class Predictor():
 		self.header = None
 		self.ids = []
 		self.infile = infile
-		if diag:
-			self.model = tf.keras.models.load_model(diagnosis)
-		else:
-			self.model = tf.keras.models.load_model(neoplasia)
 		self.outfile = outfile
 		self.res = {}
 		self.__getComments__()
 		if diag:
 			self.header = "ID,Comments,Location,Lscore,Type,Tscore"
+			self.model = tf.keras.models.load_model(diagnosis)
 			self.types, self.locations = loadDiagnoses(encoding)
 			self.__predictDiagnoses__()
 		else:
+			self.model = tf.keras.models.load_model(neoplasia)
 			self.__predictNeoplasia__()
 		self.__write__()
 
@@ -88,6 +85,6 @@ class Predictor():
 	def __predictNeoplasia__(self):
 		# Predicts whether name is common/scientific
 		print("\tClassifying neoplasia records...")
-		for idx, i in enumerate(self.model.predict(np.array(self.comments))):
+		for idx, i in enumerate(self.model.predict(self.comments)):
 			pid = self.ids[idx]
 			self.res[pid] = [pid, self.comments[idx], str(i[0])]
