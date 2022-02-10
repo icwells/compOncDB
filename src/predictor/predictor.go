@@ -7,11 +7,13 @@ import (
 	"github.com/icwells/compOncDB/src/codbutils"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/iotools"
+	"github.com/icwells/go-tools/strarray"
 	"log"
 	"os"
 	"os/exec"
 	"path"
 	"strconv"
+	"strings"
 )
 
 type predictor struct {
@@ -21,6 +23,7 @@ type predictor struct {
 	infile	string
 	logger	*log.Logger
 	mass	string
+	min		float64
 	outfile	string
 	records	*dataframe.Dataframe
 	script	string
@@ -36,11 +39,17 @@ func newPredictor(infile string) *predictor {
 	p.infile = "nlpInput.csv"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
+	p.min = 0.8
 	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
 	}
 	p.script = "nlpModel.py"
+	for k := range p.records.Header {
+		if !strarray.InSliceStr([]string{"ID", "Comments", "Masspresent", "Type", "Location"}, k) {
+			p.records.DeleteColumn(k)
+		}
+	}
 	for _, i := range p.columns {
 		p.records.AddColumn(i, "")
 	}
@@ -60,8 +69,6 @@ func (p *predictor) callScript(diagnosis bool) {
 	} else {
 		cmd = exec.Command("python", p.script, infile, outfile)
 	}
-	//cmd.Stdout = os.Stdout
-	//cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		p.logger.Fatalf("Prediction script failed. %v\n", err)
 	}
@@ -100,9 +107,9 @@ func (p *predictor) compareNeopasia() {
 		id := i[0]
 		if score, err := strconv.ParseFloat(i[2], 64); err == nil {
 			mp, _ := p.records.GetCellInt(id, p.mass)
-			if score >= 0.8 && mp == 1 {
+			if score >= p.min && mp == 1 {
 				verified = "1"
-			} else if score <= 0.2 && mp == 1 {
+			} else if score <= 1 - p.min && mp == 1 {
 				verified = "1"
 			}
 		}
@@ -121,13 +128,20 @@ func (p *predictor) predictMass() {
 func (p *predictor) compareDiagnoses() {
 	// Compares type and location results to parse output
 	p.logger.Println("Comparing type and location results...")
-	reader, header := iotools.YieldFile(p.outfile, true)
+	reader, header := iotools.YieldFile(path.Join(p.dir, p.outfile), true)
 	for i := range reader {
 		id := i[header["ID"]]
-		typ := strings.ToLower(i[header["Type"]])
-		loc := strings.ToLower(i[header["Location"]])
-		if lscore, err := strconv.ParseFloat(i[header["Lscore"]], 64); err == nil {
-			
+		typ, _ := p.records.GetCell(id, "Type")
+		loc, _ := p.records.GetCell(id, "Location")
+		if score, err := strconv.ParseFloat(i[header["Lscore"]], 64); err == nil {
+			if score >= p.min && strings.ToLower(loc) != i[header["Location"]] {
+				p.records.UpdateCell(id, p.columns[2], i[header["Location"]])
+			}
+		}
+		if score, err := strconv.ParseFloat(i[header["Tscore"]], 64); err == nil {
+			if score >= p.min && strings.ToLower(typ) != i[header["Type"]] {
+				p.records.UpdateCell(id, p.columns[1], i[header["Type"]])
+			}
 		}
 	}
 }
@@ -150,7 +164,7 @@ func ComparePredictions(infile string) *dataframe.Dataframe {
 	// Compares parse output with nlp predictions
 	p := newPredictor(infile)
 	defer p.cleanup()
-	//p.predictMass()
+	p.predictMass()
 	p.predictDiagnoses()
 	return p.records
 }

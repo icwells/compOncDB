@@ -65,7 +65,11 @@ func verifyDiagnoses() time.Time {
 	// Compares parse output with NLP model predictions
 	start := time.Now()
 	if *infile != "" && *outfile != "" {
-		writeDF(predictor.ComparePredictions(*infile), *outfile)
+		if *merge {
+			writeDF(predictor.MergePredictions(*infile, *outfile), *outfile)
+		} else {
+			writeDF(predictor.ComparePredictions(*infile), *outfile)
+		}
 	} else {
 		commandError()
 	}
