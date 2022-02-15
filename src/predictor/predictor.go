@@ -109,7 +109,7 @@ func (p *predictor) compareNeopasia() {
 			mp, _ := p.records.GetCellInt(id, p.mass)
 			if score >= p.min && mp == 1 {
 				verified = "1"
-			} else if score <= 1 - p.min && mp == 1 {
+			} else if score <= 1 - p.min && mp == 0 {
 				verified = "1"
 			}
 		}
@@ -154,6 +154,30 @@ func (p *predictor) predictDiagnoses() {
 	p.compareDiagnoses()
 }
 
+func (p *predictor) removePasses() {
+	// Removes rows which don't need to be  updated
+	p.logger.Println("Removing approved records...")
+	var rm []string
+	var count int
+	for i := range p.records.Iterate() {
+		mp, _ := i.GetCellInt("MassVerified")
+		t, _ := i.GetCell("TypeVerified")
+		l, _ := i.GetCell("LocationVerified")
+		if mp == 1 && t == "" && l == "" {
+			rm = append(rm, i.Name)
+		}
+	}
+	//p.logger.Printf("Removing %d records...", len(rm))
+	for _, i := range rm {
+		if err := p.records.DeleteRow(i); err != nil {
+			panic(err)
+		}
+		fmt.Printf("\tRemoved %d of %d verified records.\r", count, len(rm))
+	}
+	fmt.Println()
+	p.logger.Printf("Identified %d records to review...", p.records.Length())
+}
+
 func (p *predictor) cleanup() {
 	// Removes infiile and outfile after use
 	os.Remove(path.Join(p.dir, p.infile))
@@ -166,5 +190,6 @@ func ComparePredictions(infile string) *dataframe.Dataframe {
 	defer p.cleanup()
 	p.predictMass()
 	p.predictDiagnoses()
+	p.removePasses()
 	return p.records
 }
