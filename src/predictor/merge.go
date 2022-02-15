@@ -23,10 +23,10 @@ func newMerger(infile, parsefile string) *merger {
 	m.logger = codbutils.GetLogger()
 	m.logger.Println("Reading input files...")
 	if m.records, err = dataframe.FromFile(parsefile, 0); err != nil {
-		p.logger.Fatal(err)
+		m.logger.Fatal(err)
 	}
 	if m.verified, err = dataframe.FromFile(infile, 0); err != nil {
-		p.logger.Fatal(err)
+		m.logger.Fatal(err)
 	}
 	return m
 }
