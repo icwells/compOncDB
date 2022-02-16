@@ -39,7 +39,7 @@ func newPredictor(infile string) *predictor {
 	p.infile = "nlpInput.csv"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
-	p.min = 0.8
+	p.min = 0.9
 	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
@@ -173,6 +173,7 @@ func (p *predictor) removePasses() {
 			panic(err)
 		}
 		fmt.Printf("\tRemoved %d of %d verified records.\r", count, len(rm))
+		count++
 	}
 	fmt.Println()
 	p.logger.Printf("Identified %d records to review...", p.records.Length())

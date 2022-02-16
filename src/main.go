@@ -19,7 +19,7 @@ var (
 	min      = kingpin.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
 	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Default("").String()
 	password = kingpin.Flag("password", "Password (for testing or scripting).").Default("").String()
-	user     = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
+	user     = kingpin.Flag("user", "MySQL username.").Short('u').Default("").String()
 
 	ver = kingpin.Command("version", "Prints version info and exits.")
 	bu  = kingpin.Command("backup", "Backs up database to local machine (Specify output directory with '-o' flag).")
