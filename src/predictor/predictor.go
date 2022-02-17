@@ -23,7 +23,8 @@ type predictor struct {
 	infile	string
 	logger	*log.Logger
 	mass	string
-	min		float64
+	mindiag	float64
+	minmass float64
 	outfile	string
 	records	*dataframe.Dataframe
 	script	string
@@ -39,12 +40,34 @@ func newPredictor(infile string) *predictor {
 	p.infile = "nlpInput.csv"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
-	p.min = 0.9
+	p.mindiag = 0.9
+	p.minmass = 0.8
 	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
 	}
 	p.script = "nlpModel.py"
+	p.removeNA()
+	p.alterColumns()
+	return p
+}
+
+func (p *predictor) removeNA() {
+	// Removes rows where comments == NA since no prediction can be made
+	var rm []string
+	p.logger.Println("Removing NA comments...")
+	for i := range p.records.Iterate() {
+		if comments, _ := i.GetCell("Comments"); comments == "NA" {
+			rm = append(rm, i.Name)
+		}
+	}
+	for _, i := range rm {
+		p.records.DeleteRow(i)
+	}
+}
+
+func (p *predictor) alterColumns() {
+	// Removes extra columns and adds columns for verifications
 	for k := range p.records.Header {
 		if !strarray.InSliceStr([]string{"ID", "Comments", "Masspresent", "Type", "Location"}, k) {
 			p.records.DeleteColumn(k)
@@ -53,7 +76,6 @@ func newPredictor(infile string) *predictor {
 	for _, i := range p.columns {
 		p.records.AddColumn(i, "")
 	}
-	return p
 }
 
 func (p *predictor) callScript(diagnosis bool) {
@@ -107,9 +129,9 @@ func (p *predictor) compareNeopasia() {
 		id := i[0]
 		if score, err := strconv.ParseFloat(i[2], 64); err == nil {
 			mp, _ := p.records.GetCellInt(id, p.mass)
-			if score >= p.min && mp == 1 {
+			if score >= p.minmass && mp == 1 {
 				verified = "1"
-			} else if score <= 1 - p.min && mp == 0 {
+			} else if score <= 1 - p.minmass && mp == 0 {
 				verified = "1"
 			}
 		}
@@ -134,12 +156,12 @@ func (p *predictor) compareDiagnoses() {
 		typ, _ := p.records.GetCell(id, "Type")
 		loc, _ := p.records.GetCell(id, "Location")
 		if score, err := strconv.ParseFloat(i[header["Lscore"]], 64); err == nil {
-			if score >= p.min && strings.ToLower(loc) != i[header["Location"]] {
+			if score >= p.mindiag && strings.ToLower(loc) != i[header["Location"]] {
 				p.records.UpdateCell(id, p.columns[2], i[header["Location"]])
 			}
 		}
 		if score, err := strconv.ParseFloat(i[header["Tscore"]], 64); err == nil {
-			if score >= p.min && strings.ToLower(typ) != i[header["Type"]] {
+			if score >= p.mindiag && strings.ToLower(typ) != i[header["Type"]] {
 				p.records.UpdateCell(id, p.columns[1], i[header["Type"]])
 			}
 		}
@@ -167,11 +189,8 @@ func (p *predictor) removePasses() {
 			rm = append(rm, i.Name)
 		}
 	}
-	//p.logger.Printf("Removing %d records...", len(rm))
 	for _, i := range rm {
-		if err := p.records.DeleteRow(i); err != nil {
-			panic(err)
-		}
+		p.records.DeleteRow(i)
 		fmt.Printf("\tRemoved %d of %d verified records.\r", count, len(rm))
 		count++
 	}
