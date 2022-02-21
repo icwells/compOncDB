@@ -22,14 +22,17 @@ type predictor struct {
 	diagnosis bool
 	dir		  string
 	infile	  string
+	lcol      string
 	logger	  *log.Logger
 	mass	  string
+	mcol      string
 	mindiag	  float64
 	minmass   float64
 	neoplasia bool
 	outfile	  string
 	records	  *dataframe.Dataframe
 	script	  string
+	tcol      string
 }
 
 func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
@@ -40,15 +43,18 @@ func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 	p.col = "Comments"
 	p.dir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/scripts/nlpModel/")
 	p.infile = "nlpInput.csv"
+	p.lcol = "LocationVerified"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
-	p.mindiag = 0.995
-	p.minmass = 0.5
+	p.mcol = "MassVerified"
+	p.mindiag = 0.99
+	p.minmass = 0.7
 	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
 	}
 	p.script = "nlpModel.py"
+	p.tcol = "TypeVerified"
 	p.removeNA()
 	p.alterColumns()
 	return p
@@ -56,7 +62,7 @@ func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 
 func (p *predictor) setMode(neoplasia, diagnosis bool) {
 	// Determines whether to run neoplasia comparison, diagnosis comparison, or both
-	p.columns = []string{"MassVerified", "TypeVerified", "LocationVerified"}
+	p.columns = []string{p.mcol, p.tcol, p.lcol}
 	p.neoplasia = neoplasia
 	p.diagnosis = diagnosis
 	if !p.neoplasia && !p.diagnosis {
@@ -150,12 +156,11 @@ func (p *predictor) compareNeopasia() {
 		if score, err := strconv.ParseFloat(i[2], 64); err == nil {
 			mp, _ := p.records.GetCellInt(id, p.mass)
 			if score >= p.minmass && mp != 1 {
-				p.records.UpdateCell(id, p.columns[0], "1")
+				p.records.UpdateCell(id, p.mcol, "1")
 			} else if score <= 1 - p.minmass && mp != 0 {
-				p.records.UpdateCell(id, p.columns[0], "0")
+				p.records.UpdateCell(id, p.mcol, "0")
 			}
 		}
-
 	}
 }
 
@@ -177,12 +182,12 @@ func (p *predictor) compareDiagnoses() {
 		loc, _ := p.records.GetCell(id, "Location")
 		if score, err := strconv.ParseFloat(i[header["Lscore"]], 64); err == nil {
 			if score >= p.mindiag && strings.ToLower(loc) != i[header["Location"]] {
-				p.records.UpdateCell(id, p.columns[2], i[header["Location"]])
+				p.records.UpdateCell(id, p.lcol, i[header["Location"]])
 			}
 		}
 		if score, err := strconv.ParseFloat(i[header["Tscore"]], 64); err == nil {
 			if score >= p.mindiag && strings.ToLower(typ) != i[header["Type"]] {
-				p.records.UpdateCell(id, p.columns[1], i[header["Type"]])
+				p.records.UpdateCell(id, p.tcol, i[header["Type"]])
 			}
 		}
 	}
@@ -218,10 +223,14 @@ func (p *predictor) removePasses() {
 			rm = append(rm, i.Name)
 		}
 	}
-	for _, i := range rm {
-		p.records.DeleteRow(i)
-		fmt.Printf("\tRemoved %d of %d verified records.\r", count, len(rm))
-		count++
+	if len(rm) == p.records.Length() {
+		p.records, _ = dataframe.NewDataFrame(0)
+	} else {
+		for _, i := range rm {
+			p.records.DeleteRow(i)
+			fmt.Printf("\tRemoved %d of %d verified records.\r", count, len(rm))
+			count++
+		}
 	}
 	fmt.Println()
 	p.logger.Printf("Identified %d records to review...", p.records.Length())
@@ -239,6 +248,7 @@ func (p *predictor) cleanup() {
 
 func ComparePredictions(infile string, neoplasia, diagnosis bool) *dataframe.Dataframe {
 	// Compares parse output with nlp predictions
+	fmt.Println()
 	p := newPredictor(infile, neoplasia, diagnosis)
 	defer p.cleanup()
 	if p.neoplasia {
