@@ -64,7 +64,7 @@ class Predictor():
 				self.comments.append(line[1].strip())
 
 	def __predictDiagnoses__(self):
-		# Predicts whether name is common/scientific
+		# Predicts location and tumor types
 		print("\tClassifying neoplasia records...")
 		for ldx, label in enumerate(self.model.predict(self.comments)):
 			for idx, i in enumerate(label):

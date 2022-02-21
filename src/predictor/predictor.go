@@ -17,31 +17,33 @@ import (
 )
 
 type predictor struct {
-	col		string
-	columns []string
-	dir		string
-	infile	string
-	logger	*log.Logger
-	mass	string
-	mindiag	float64
-	minmass float64
-	outfile	string
-	records	*dataframe.Dataframe
-	script	string
+	col		  string
+	columns   []string
+	diagnosis bool
+	dir		  string
+	infile	  string
+	logger	  *log.Logger
+	mass	  string
+	mindiag	  float64
+	minmass   float64
+	neoplasia bool
+	outfile	  string
+	records	  *dataframe.Dataframe
+	script	  string
 }
 
-func newPredictor(infile string) *predictor {
+func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 	// Return initialized struct
 	var err error
 	p := new(predictor)
+	p.setMode(neoplasia, diagnosis)
 	p.col = "Comments"
-	p.columns = []string{"MassVerified", "TypeVerified", "LocationVerified"}
 	p.dir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/scripts/nlpModel/")
 	p.infile = "nlpInput.csv"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
-	p.mindiag = 0.9
-	p.minmass = 0.8
+	p.mindiag = 0.995
+	p.minmass = 0.5
 	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
@@ -50,6 +52,21 @@ func newPredictor(infile string) *predictor {
 	p.removeNA()
 	p.alterColumns()
 	return p
+}
+
+func (p *predictor) setMode(neoplasia, diagnosis bool) {
+	// Determines whether to run neoplasia comparison, diagnosis comparison, or both
+	p.columns = []string{"MassVerified", "TypeVerified", "LocationVerified"}
+	p.neoplasia = neoplasia
+	p.diagnosis = diagnosis
+	if !p.neoplasia && !p.diagnosis {
+		p.neoplasia = true
+		p.diagnosis = true
+	} else if p.neoplasia && !p.diagnosis {
+		p.columns = p.columns[:1]
+	} else if !p.neoplasia && p.diagnosis {
+		p.columns = p.columns[1:]
+	}
 }
 
 func (p *predictor) removeNA() {
@@ -68,8 +85,12 @@ func (p *predictor) removeNA() {
 
 func (p *predictor) alterColumns() {
 	// Removes extra columns and adds columns for verifications
+	columns := []string{"ID", "Comments", "Masspresent", "Type", "Location"}
+	if !p.diagnosis {
+		columns = columns[:3]
+	}
 	for k := range p.records.Header {
-		if !strarray.InSliceStr([]string{"ID", "Comments", "Masspresent", "Type", "Location"}, k) {
+		if !strarray.InSliceStr(columns, k) {
 			p.records.DeleteColumn(k)
 		}
 	}
@@ -125,17 +146,16 @@ func (p *predictor) compareNeopasia() {
 	p.logger.Println("Comparing neoplasia results...")
 	reader, _ := iotools.YieldFile(path.Join(p.dir, p.outfile), false)
 	for i := range reader {
-		verified := "0"
 		id := i[0]
 		if score, err := strconv.ParseFloat(i[2], 64); err == nil {
 			mp, _ := p.records.GetCellInt(id, p.mass)
-			if score >= p.minmass && mp == 1 {
-				verified = "1"
-			} else if score <= 1 - p.minmass && mp == 0 {
-				verified = "1"
+			if score >= p.minmass && mp != 1 {
+				p.records.UpdateCell(id, p.columns[0], "1")
+			} else if score <= 1 - p.minmass && mp != 0 {
+				p.records.UpdateCell(id, p.columns[0], "0")
 			}
 		}
-		p.records.UpdateCell(id, p.columns[0], verified)
+
 	}
 }
 
@@ -182,10 +202,19 @@ func (p *predictor) removePasses() {
 	var rm []string
 	var count int
 	for i := range p.records.Iterate() {
-		mp, _ := i.GetCellInt("MassVerified")
-		t, _ := i.GetCell("TypeVerified")
-		l, _ := i.GetCell("LocationVerified")
-		if mp == 1 && t == "" && l == "" {
+		var mp, t, l string
+		if p.neoplasia {
+			mp, _ = i.GetCell("MassVerified")
+		}
+		if p.diagnosis {
+			t, _ = i.GetCell("TypeVerified")
+			l, _ = i.GetCell("LocationVerified")
+		}
+		if p.neoplasia && !p.diagnosis && mp == "" {
+			rm = append(rm, i.Name)
+		} else if !p.neoplasia && t == "" && l == "" {
+			rm = append(rm, i.Name)
+		} else if mp == "" && t == "" && l == "" {
 			rm = append(rm, i.Name)
 		}
 	}
@@ -200,16 +229,24 @@ func (p *predictor) removePasses() {
 
 func (p *predictor) cleanup() {
 	// Removes infiile and outfile after use
-	os.Remove(path.Join(p.dir, p.infile))
-	os.Remove(path.Join(p.dir, p.outfile))
+	for _, i := range []string{p.infile, p.outfile} {
+		f := path.Join(p.dir, i)
+		if iotools.Exists(f) {
+			os.Remove(f)
+		}
+	}
 }
 
-func ComparePredictions(infile string) *dataframe.Dataframe {
+func ComparePredictions(infile string, neoplasia, diagnosis bool) *dataframe.Dataframe {
 	// Compares parse output with nlp predictions
-	p := newPredictor(infile)
+	p := newPredictor(infile, neoplasia, diagnosis)
 	defer p.cleanup()
-	p.predictMass()
-	p.predictDiagnoses()
+	if p.neoplasia {
+		p.predictMass()
+	}
+	if p.diagnosis {
+		p.predictDiagnoses()
+	}
 	p.removePasses()
 	return p.records
 }

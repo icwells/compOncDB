@@ -19,7 +19,6 @@ func newMerger(infile, parsefile string) *merger {
 	// Returns initialized struct
 	var err error
 	m := new(merger)
-	m.col = []string{"Masspresent", "Type", "Location"}
 	m.logger = codbutils.GetLogger()
 	m.logger.Println("Reading input files...")
 	if m.records, err = dataframe.FromFile(parsefile, 0); err != nil {
@@ -27,6 +26,12 @@ func newMerger(infile, parsefile string) *merger {
 	}
 	if m.verified, err = dataframe.FromFile(infile, 0); err != nil {
 		m.logger.Fatal(err)
+	}
+	for _, i := range []string{"Masspresent", "Type", "Location"} {
+		// Only add columns present in verification file
+		if _, ex := m.verified.Header[i]; ex {
+			m.col = append(m.col, i)
+		}
 	}
 	return m
 }

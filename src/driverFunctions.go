@@ -68,7 +68,7 @@ func verifyDiagnoses() time.Time {
 		if *merge {
 			writeDF(predictor.MergePredictions(*infile, *outfile), *outfile)
 		} else {
-			writeDF(predictor.ComparePredictions(*infile), *outfile)
+			writeDF(predictor.ComparePredictions(*infile, *neoplasia, *diagnosis), *outfile)
 		}
 	} else {
 		commandError()

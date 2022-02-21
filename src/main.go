@@ -30,8 +30,10 @@ var (
 	taxaFile = parse.Flag("taxa", "Path to kestrel output.").Short('t').Required().String()
 	debug    = parse.Flag("debug", "Adds cancer and code column (if present) for hand checking.").Short('d').Default("false").Bool()
 
-	verify = kingpin.Command("verify", "Compares parse output with NLP model predictions. Provide parse records output and new output file with -i and -o.")
-	merge  = verify.Flag("merge", "Merges currated verification results with parse output. Give path to nlp output with -i and path to parse output with -o (it will be overwritten).").Default("false").Bool()
+	verify    = kingpin.Command("verify", "Compares parse output with NLP model predictions. Provide parse records output and new output file with -i and -o.")
+	diagnosis = verify.Flag("diagnosis", "Verifies type and location diagnoses only.").Default("false").Bool()
+	merge     = verify.Flag("merge", "Merges currated verification results with parse output. Give path to nlp output with -i and path to parse output with -o (it will be overwritten).").Default("false").Bool()
+	neoplasia = verify.Flag("neoplasia", "Verifies masspresent diagnosis only.").Default("false").Bool()
 
 	upload  = kingpin.Command("upload", "Upload data to the database. Backs up database if output directory is given with '-o'.")
 	taxa    = upload.Flag("taxa", "Load taxonomy tables from Kestrel output to update taxonomy table.").Default("false").Bool()
