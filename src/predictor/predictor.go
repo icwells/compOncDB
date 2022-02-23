@@ -1,4 +1,4 @@
-// Compares parse output with nlp predictions
+// Defines predictor struct and common methods
 
 package predictor
 
@@ -12,8 +12,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strconv"
-	"strings"
 )
 
 type predictor struct {
@@ -31,6 +29,7 @@ type predictor struct {
 	neoplasia bool
 	outfile	  string
 	records	  *dataframe.Dataframe
+	results   *dataframe.Dataframe
 	script	  string
 	tcol      string
 }
@@ -43,18 +42,15 @@ func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 	p.col = "Comments"
 	p.dir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/scripts/nlpModel/")
 	p.infile = "nlpInput.csv"
-	p.lcol = "LocationVerified"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
-	p.mcol = "MassVerified"
 	p.mindiag = 0.99
-	p.minmass = 0.7
+	p.minmass = 0.95
 	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
 	}
 	p.script = "nlpModel.py"
-	p.tcol = "TypeVerified"
 	p.removeNA()
 	p.alterColumns()
 	return p
@@ -62,6 +58,9 @@ func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 
 func (p *predictor) setMode(neoplasia, diagnosis bool) {
 	// Determines whether to run neoplasia comparison, diagnosis comparison, or both
+	p.lcol = "LocationVerified"
+	p.mcol = "MassVerified"
+	p.tcol = "TypeVerified"
 	p.columns = []string{p.mcol, p.tcol, p.lcol}
 	p.neoplasia = neoplasia
 	p.diagnosis = diagnosis
@@ -147,116 +146,12 @@ func (p *predictor) writeInfile(diagnosis bool) {
 	}
 }
 
-func (p *predictor) compareNeopasia() {
-	// Compares neoplasia results to parse output
-	p.logger.Println("Comparing neoplasia results...")
-	reader, _ := iotools.YieldFile(path.Join(p.dir, p.outfile), false)
-	for i := range reader {
-		id := i[0]
-		if score, err := strconv.ParseFloat(i[2], 64); err == nil {
-			mp, _ := p.records.GetCellInt(id, p.mass)
-			if score >= p.minmass && mp != 1 {
-				p.records.UpdateCell(id, p.mcol, "1")
-			} else if score <= 1 - p.minmass && mp != 0 {
-				p.records.UpdateCell(id, p.mcol, "0")
-			}
-		}
-	}
-}
-
-func (p *predictor) predictMass() {
-	// Calls nlp model to predict mass
-	p.logger.Println("Predicting neoplasia diagnoses...")
-	p.writeInfile(false)
-	p.callScript(false)
-	p.compareNeopasia()
-}
-
-func (p *predictor) compareDiagnoses() {
-	// Compares type and location results to parse output
-	p.logger.Println("Comparing type and location results...")
-	reader, header := iotools.YieldFile(path.Join(p.dir, p.outfile), true)
-	for i := range reader {
-		id := i[header["ID"]]
-		typ, _ := p.records.GetCell(id, "Type")
-		loc, _ := p.records.GetCell(id, "Location")
-		if score, err := strconv.ParseFloat(i[header["Lscore"]], 64); err == nil {
-			if score >= p.mindiag && strings.ToLower(loc) != i[header["Location"]] {
-				p.records.UpdateCell(id, p.lcol, i[header["Location"]])
-			}
-		}
-		if score, err := strconv.ParseFloat(i[header["Tscore"]], 64); err == nil {
-			if score >= p.mindiag && strings.ToLower(typ) != i[header["Type"]] {
-				p.records.UpdateCell(id, p.tcol, i[header["Type"]])
-			}
-		}
-	}
-}
-
-func (p *predictor) predictDiagnoses() {
-	// Calls nlp model to predict type and location
-	p.logger.Println("Predicting type and location diagnoses...")
-	p.writeInfile(true)
-	p.callScript(true)
-	p.compareDiagnoses()
-}
-
-func (p *predictor) removePasses() {
-	// Removes rows which don't need to be  updated
-	p.logger.Println("Removing approved records...")
-	var rm []string
-	var count int
-	for i := range p.records.Iterate() {
-		var mp, t, l string
-		if p.neoplasia {
-			mp, _ = i.GetCell("MassVerified")
-		}
-		if p.diagnosis {
-			t, _ = i.GetCell("TypeVerified")
-			l, _ = i.GetCell("LocationVerified")
-		}
-		if p.neoplasia && !p.diagnosis && mp == "" {
-			rm = append(rm, i.Name)
-		} else if !p.neoplasia && t == "" && l == "" {
-			rm = append(rm, i.Name)
-		} else if mp == "" && t == "" && l == "" {
-			rm = append(rm, i.Name)
-		}
-	}
-	if len(rm) == p.records.Length() {
-		p.records, _ = dataframe.NewDataFrame(0)
-	} else {
-		for _, i := range rm {
-			p.records.DeleteRow(i)
-			fmt.Printf("\tRemoved %d of %d verified records.\r", count, len(rm))
-			count++
-		}
-	}
-	fmt.Println()
-	p.logger.Printf("Identified %d records to review...", p.records.Length())
-}
-
 func (p *predictor) cleanup() {
-	// Removes infiile and outfile after use
+	// Removes infile and outfile after use
 	for _, i := range []string{p.infile, p.outfile} {
 		f := path.Join(p.dir, i)
 		if iotools.Exists(f) {
 			os.Remove(f)
 		}
 	}
-}
-
-func ComparePredictions(infile string, neoplasia, diagnosis bool) *dataframe.Dataframe {
-	// Compares parse output with nlp predictions
-	fmt.Println()
-	p := newPredictor(infile, neoplasia, diagnosis)
-	defer p.cleanup()
-	if p.neoplasia {
-		p.predictMass()
-	}
-	if p.diagnosis {
-		p.predictDiagnoses()
-	}
-	p.removePasses()
-	return p.records
 }
