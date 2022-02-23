@@ -39,10 +39,15 @@ func newMerger(infile, parsefile string) *merger {
 func (m *merger) mergeRecords() {
 	// Updates records with masspresent, types, and locations from verification file
 	m.logger.Println("Merging files...")
-	for row := range m.records.Iterate() {
+	for row := range m.verified.Iterate() {
 		for _, i := range m.col {
 			val, _ := row.GetCell(i)
 			m.records.UpdateCell(row.Name, i, val)
+			if i == "Type" && val != "" && val != "NA" {
+				if mp, _ := m.records.GetCellInt(row.Name, "Masspresent"); mp != 1 {
+					m.records.UpdateCell(row.Name, "Masspresent", "1")
+				}
+			}
 		}
 	}
 }
