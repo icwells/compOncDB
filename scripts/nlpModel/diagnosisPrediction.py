@@ -77,7 +77,7 @@ class Predictor():
 					if ldx == 0:
 						val = [self.types[ind], str(i[ind])]
 					elif ldx == 1:
-						val = [self.locations[np.argmax(i)], str(i[ind])]
+						val = [self.locations[ind], str(i[ind])]
 				except IndexError:
 					val = ["NA", "-1"]
 				self.res[pid].extend(val)

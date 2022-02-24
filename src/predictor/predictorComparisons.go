@@ -36,6 +36,22 @@ func (p *predictor) predictMass() {
 	p.compareNeopasia()
 }
 
+func (p *predictor) diagnosisContains(diag, val string) bool {
+	// Returns true if diagnosis value has already been identified
+	d := ";"
+	val = strings.ToLower(val)
+	if strings.Contains(diag, d) {
+		for _, i := range strings.Split(diag, d) {
+			if i == val {
+				return true
+			}
+		}
+	} else if diag == val {
+		return true
+	}
+	return false
+}
+
 func (p *predictor) compareDiagnoses() {
 	// Compares type and location results to parse output
 	p.logger.Println("Comparing type and location results...")
@@ -45,12 +61,12 @@ func (p *predictor) compareDiagnoses() {
 		typ, _ := p.records.GetCell(id, "Type")
 		loc, _ := p.records.GetCell(id, "Location")
 		if score, err := strconv.ParseFloat(i[header["Tscore"]], 64); err == nil {
-			if score >= p.mindiag && strings.ToLower(typ) != i[header["Type"]] {
+			if score >= p.mindiag && !p.diagnosisContains(typ, i[header["Type"]]) {
 				p.records.UpdateCell(id, p.tcol, i[header["Type"]])
 			}
 		}
 		if score, err := strconv.ParseFloat(i[header["Lscore"]], 64); err == nil {
-			if score >= p.mindiag && strings.ToLower(loc) != i[header["Location"]] {
+			if score >= p.mindiag && !p.diagnosisContains(loc, i[header["Location"]]) {
 				p.records.UpdateCell(id, p.lcol, i[header["Location"]])
 			}
 		}
