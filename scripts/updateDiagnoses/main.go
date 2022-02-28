@@ -1,0 +1,154 @@
+// Double checks London Zoo diagnoses
+
+package main
+
+import (
+	"fmt"
+	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/diagnoses"
+	"github.com/icwells/compOncDB/src/search"
+	"github.com/icwells/dbIO"
+	"github.com/icwells/go-tools/dataframe"
+	"gopkg.in/alecthomas/kingpin.v2"
+	"log"
+	"strconv"
+	"strings"
+	"time"
+)
+
+var user = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
+
+type columns struct {
+	comments    string
+	hyperplasia string
+	id          string
+	location    string
+	malignant   string
+	masspresent string
+	sex         string
+	tissue      string
+	typ         string
+}
+
+func newColumns() *columns {
+	// Returns initialized struct
+	c := new(columns)
+	c.comments = "Comments"
+	c.hyperplasia = "Hyperplasia"
+	c.id = "ID"
+	c.location = "Location"
+	c.malignant = "Malignant"
+	c.masspresent = "Masspresent"
+	c.sex = "Sex"
+	c.tissue = "Tissue"
+	c.typ = "Type"
+	return c
+}
+
+type lzDiagnosis struct {
+	col    *columns
+	db     *dbIO.DBIO
+	diag   *dataframe.Dataframe
+	logger *log.Logger
+	match  diagnoses.Matcher
+	tables map[string]string
+}
+
+func newLZDiagnosis() *lzDiagnosis {
+	// Return new struct
+	var msg string
+	diag := "Diagnosis"
+	tumor := "Tumor"
+	l := new(lzDiagnosis)
+	l.logger = codbutils.GetLogger()
+	l.db = codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
+	l.logger.Println("Initializing struct...")
+	l.col = newColumns()
+	l.diag, msg = search.SearchRecords(l.db, l.logger, "Comments!=NA", true, false)
+	l.logger.Println(msg)
+	l.match = diagnoses.NewMatcher(l.logger)
+	l.tables = map[string]string{
+		l.col.hyperplasia: diag,
+		l.col.location:    tumor,
+		l.col.masspresent: diag,
+		l.col.tissue:      tumor,
+		l.col.typ:         tumor,
+	}
+	return l
+}
+
+func (l *lzDiagnosis) updateCell(column, id, val string) {
+	// Updates individual attribute of record
+	l.db.UpdateRow(l.tables[column], column, val, l.col.id, "=", id)
+}
+
+func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
+	// Checks individual record and updates if needed
+	var ret bool
+	var hyperplasia int
+	neoplasia := 1
+	if typ, _ := i.GetCell(l.col.typ); !strings.Contains(typ, ";") {
+		comments, _ := i.GetCell("Comments")
+		hyp, _ := i.GetCellInt(l.col.hyperplasia)
+		loc, _ := i.GetCell(l.col.location)
+		mal, _ := i.GetCell(l.col.malignant)
+		mp, _ := i.GetCellInt(l.col.masspresent)
+		sex, _ := i.GetCell(l.col.sex)
+		tis, _ := i.GetCell(l.col.tissue)
+		tumor, tissue, location, malignant := l.match.GetTumor(comments, sex, true)
+		if tumor != "NA" && !strings.Contains(tumor, ";") {
+			if tumor == "hyperplasia" {
+				hyperplasia = 1
+				neoplasia = 0
+			}
+			if tumor != typ {
+				l.updateCell(l.col.typ, i.Name, tumor)
+				ret = true
+			}
+			if hyp != hyperplasia {
+				l.updateCell(l.col.hyperplasia, i.Name, strconv.Itoa(hyperplasia))
+				ret = true
+			}
+			if mp != neoplasia {
+				l.updateCell(l.col.masspresent, i.Name, strconv.Itoa(neoplasia))
+				ret = true
+			}
+		}
+		if tissue != "NA" && tissue != tis {
+			l.updateCell(l.col.tissue, i.Name, tissue)
+			ret = true
+		}
+		if location != "NA" && location != loc {
+			l.updateCell(l.col.location, i.Name, location)
+			ret = true
+		}
+		if malignant != "-1" && malignant != mal {
+			l.updateCell(l.col.malignant, i.Name, malignant)
+			ret = true
+		}
+	}
+	return ret
+}
+
+func (l *lzDiagnosis) checkRecords() {
+	// Updates life history table with converted values
+	var count, updated int
+	l.logger.Println("Updating London Zoo records...")
+	for i := range l.diag.Iterate() {
+		count++
+		if l.checkRecord(i) {
+			updated++
+		}
+		fmt.Printf("\tChecked %d of %d terms.\r", count, l.diag.Length())
+	}
+	fmt.Println()
+	l.logger.Printf("Updated %d records.", updated)
+}
+
+func main() {
+	start := time.Now()
+	kingpin.Parse()
+	l := newLZDiagnosis()
+	l.checkRecords()
+	l.logger.Printf("Finished. Runtime: %s", time.Since(start))
+}
