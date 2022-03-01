@@ -9,6 +9,7 @@ import (
 	"github.com/icwells/compOncDB/src/search"
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
+	"github.com/icwells/go-tools/iotools"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"strconv"
@@ -16,7 +17,10 @@ import (
 	"time"
 )
 
-var user = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
+var (
+	outfile = kingpin.Flag("outfile", "Optional path to output file. Prints proposed changes to file instead of updating database.").Short('o').Default("").String()
+	user    = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
+)
 
 type columns struct {
 	comments    string
@@ -46,12 +50,16 @@ func newColumns() *columns {
 }
 
 type lzDiagnosis struct {
-	col    *columns
-	db     *dbIO.DBIO
-	diag   *dataframe.Dataframe
-	logger *log.Logger
-	match  diagnoses.Matcher
-	tables map[string]string
+	col         *columns
+	db          *dbIO.DBIO
+	diag        *dataframe.Dataframe
+	hyperplasia int
+	logger      *log.Logger
+	match       diagnoses.Matcher
+	neoplasia   int
+	summary     [][]string
+	tables      map[string]string
+	update      bool
 }
 
 func newLZDiagnosis() *lzDiagnosis {
@@ -74,12 +82,17 @@ func newLZDiagnosis() *lzDiagnosis {
 		l.col.tissue:      tumor,
 		l.col.typ:         tumor,
 	}
+	if *outfile == "" {
+		l.update = true
+	}
 	return l
 }
 
 func (l *lzDiagnosis) updateCell(column, id, val string) {
 	// Updates individual attribute of record
-	l.db.UpdateRow(l.tables[column], column, val, l.col.id, "=", id)
+	if l.update {
+		l.db.UpdateRow(l.tables[column], column, val, l.col.id, "=", id)
+	}
 }
 
 func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
@@ -100,6 +113,7 @@ func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
 			if tumor == "hyperplasia" {
 				hyperplasia = 1
 				neoplasia = 0
+				l.hyperplasia++
 			}
 			if tumor != typ {
 				l.updateCell(l.col.typ, i.Name, tumor)
@@ -112,6 +126,9 @@ func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
 			if mp != neoplasia {
 				l.updateCell(l.col.masspresent, i.Name, strconv.Itoa(neoplasia))
 				ret = true
+				if mp == 0 {
+					l.neoplasia++
+				}
 			}
 		}
 		if tissue != "NA" && tissue != tis {
@@ -125,6 +142,10 @@ func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
 		if malignant != "-1" && malignant != mal {
 			l.updateCell(l.col.malignant, i.Name, malignant)
 			ret = true
+		}
+		if ret {
+			row := []string{comments, strconv.Itoa(mp), strconv.Itoa(neoplasia), strconv.Itoa(hyp), strconv.Itoa(hyperplasia), typ, tumor, tis, tissue, loc, location}
+			l.summary = append(l.summary, row)
 		}
 	}
 	return ret
@@ -143,6 +164,16 @@ func (l *lzDiagnosis) checkRecords() {
 	}
 	fmt.Println()
 	l.logger.Printf("Updated %d records.", updated)
+	l.logger.Printf("Found %d new neoplasia records and %d new hyperplasia records.", l.neoplasia, l.hyperplasia)
+	l.logger.Printf("Updated %d existing neoplasia records.", updated-l.neoplasia-l.hyperplasia)
+}
+
+func (l *lzDiagnosis) write() {
+	// Writes summary to file if outfile is given
+	if !l.update {
+		header := "Comments,Masspresent,ProposedMP,Hyperplasia,ProposedHyp,Type,ProposedType,Tissue,ProposedTissue,Location,ProposedLoc"
+		iotools.WriteToCSV(*outfile, header, l.summary)
+	}
 }
 
 func main() {
@@ -150,5 +181,6 @@ func main() {
 	kingpin.Parse()
 	l := newLZDiagnosis()
 	l.checkRecords()
+	l.write()
 	l.logger.Printf("Finished. Runtime: %s", time.Since(start))
 }
