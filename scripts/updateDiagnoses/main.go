@@ -101,7 +101,7 @@ func (l *lzDiagnosis) updateCell(column, id, val string) {
 func (l *lzDiagnosis) getComments(i *dataframe.Series) string {
 	// Returns relevant comments for parsing
 	ret, _ := i.GetCell(l.col.Comments)
-	/*if service, _ := i.GetCell(l.col.service); service == "NWZP" {
+	if service, _ := i.GetCell(l.col.service); service == "NWZP" {
 		for idx, i := range ret {
 			if unicode.IsLetter(i) && !unicode.IsUpper(i) {
 				if idx >= 4 {
@@ -111,7 +111,7 @@ func (l *lzDiagnosis) getComments(i *dataframe.Series) string {
 				}
 			}
 		}
-	}*/
+	}
 	return ret
 }
 
