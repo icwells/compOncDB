@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 var (
@@ -29,6 +30,7 @@ type columns struct {
 	location    string
 	malignant   string
 	masspresent string
+	service		string
 	sex         string
 	tissue      string
 	typ         string
@@ -43,6 +45,7 @@ func newColumns() *columns {
 	c.location = "Location"
 	c.malignant = "Malignant"
 	c.masspresent = "Masspresent"
+	c.service = "service_name"
 	c.sex = "Sex"
 	c.tissue = "Tissue"
 	c.typ = "Type"
@@ -95,13 +98,30 @@ func (l *lzDiagnosis) updateCell(column, id, val string) {
 	}
 }
 
+func (l *lzDiagnosis) getComments(i *dataframe.Series) string {
+	// Returns relevant comments for parsing
+	ret, _ := i.GetCell(l.col.Comments)
+	/*if service, _ := i.GetCell(l.col.service); service == "NWZP" {
+		for idx, i := range ret {
+			if unicode.IsLetter(i) && !unicode.IsUpper(i) {
+				if idx >= 4 {
+					return ret[:idx]
+				} else {
+					break
+				}
+			}
+		}
+	}*/
+	return ret
+}
+
 func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
 	// Checks individual record and updates if needed
 	var ret bool
 	var hyperplasia int
 	neoplasia := 1
 	if typ, _ := i.GetCell(l.col.typ); !strings.Contains(typ, ";") {
-		comments, _ := i.GetCell("Comments")
+		comments := l.getComments(i)
 		hyp, _ := i.GetCellInt(l.col.hyperplasia)
 		loc, _ := i.GetCell(l.col.location)
 		mal, _ := i.GetCell(l.col.malignant)
