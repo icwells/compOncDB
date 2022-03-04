@@ -23,35 +23,6 @@ var (
 	user    = kingpin.Flag("user", "MySQL username.").Short('u').Required().String()
 )
 
-type columns struct {
-	comments    string
-	hyperplasia string
-	id          string
-	location    string
-	malignant   string
-	masspresent string
-	service		string
-	sex         string
-	tissue      string
-	typ         string
-}
-
-func newColumns() *columns {
-	// Returns initialized struct
-	c := new(columns)
-	c.comments = "Comments"
-	c.hyperplasia = "Hyperplasia"
-	c.id = "ID"
-	c.location = "Location"
-	c.malignant = "Malignant"
-	c.masspresent = "Masspresent"
-	c.service = "service_name"
-	c.sex = "Sex"
-	c.tissue = "Tissue"
-	c.typ = "Type"
-	return c
-}
-
 type lzDiagnosis struct {
 	col         *columns
 	db          *dbIO.DBIO
@@ -62,6 +33,7 @@ type lzDiagnosis struct {
 	neoplasia   int
 	summary     [][]string
 	tables      map[string]string
+	taxa        map[string]*species
 	update      bool
 }
 
@@ -85,6 +57,7 @@ func newLZDiagnosis() *lzDiagnosis {
 		l.col.tissue:      tumor,
 		l.col.typ:         tumor,
 	}
+	l.taxa = make(map[string]*species)
 	if *outfile == "" {
 		l.update = true
 	}
@@ -105,12 +78,23 @@ func (l *lzDiagnosis) getComments(i *dataframe.Series) string {
 		for idx, i := range ret {
 			if unicode.IsLetter(i) && !unicode.IsUpper(i) {
 				if idx >= 4 {
-					return ret[:idx - 1]
+					return ret[:idx-1]
 				} else {
 					break
 				}
 			}
 		}
+	}
+	return ret
+}
+
+func (l *lzDiagnosis) getTaxaID(i *dataframe.Series) string {
+	// Returns taxa_id and initializes new species struct if needed
+	ret, _ := i.GetCell(l.col.tid)
+	if _, ex := l.taxa[ret]; !ex {
+		com, _ := i.GetCell(l.col.common)
+		sp, _ := i.GetCell(l.col.species)
+		l.taxa[ret] = newSpecies(ret, sp, com)
 	}
 	return ret
 }
@@ -124,6 +108,7 @@ func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
 		comments := l.getComments(i)
 		sex, _ := i.GetCell(l.col.sex)
 		if tumor, tissue, location, malignant := l.match.GetTumor(comments, sex, true); !strings.Contains(tumor, ";") {
+			tid := l.getTaxaID(i)
 			hyp, _ := i.GetCellInt(l.col.hyperplasia)
 			loc, _ := i.GetCell(l.col.location)
 			mal, _ := i.GetCell(l.col.malignant)
@@ -164,8 +149,13 @@ func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
 				ret = true
 			}
 			if ret {
-				row := []string{comments, strconv.Itoa(mp), strconv.Itoa(neoplasia), strconv.Itoa(hyp), strconv.Itoa(hyperplasia), typ, tumor, tis, tissue, loc, location}
+				row := []string{l.taxa[tid].name, comments, strconv.Itoa(mp), strconv.Itoa(neoplasia), strconv.Itoa(hyp), strconv.Itoa(hyperplasia), typ, tumor, tis, tissue, loc, location}
 				l.summary = append(l.summary, row)
+				if mp == 0 && neoplasia != 0 {
+					l.taxa[tid].addNovel()
+				} else {
+					l.taxa[tid].addUpdated()
+				}
 			}
 		}
 	}
@@ -194,6 +184,8 @@ func (l *lzDiagnosis) write() {
 	if !l.update {
 		header := "Comments,Masspresent,ProposedMP,Hyperplasia,ProposedHyp,Type,ProposedType,Tissue,ProposedTissue,Location,ProposedLoc"
 		iotools.WriteToCSV(*outfile, header, l.summary)
+		spfile := strings.Replace(*outfile, ".csv", ".Species.csv", 1)
+		iotools.WriteToCSV(spfile, "taxa_id,Species,Common,Updated,New", l.speciesSlice())
 	}
 }
 
