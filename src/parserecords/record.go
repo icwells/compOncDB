@@ -165,11 +165,30 @@ func (r *record) setLocation(val string) {
 	r.location = checkString(val)
 }
 
-func (r *record) setType(val string) {
+func (r *record) setType(typ, tissue, loc, mal, primary string) {
 	// Store type/NA and hyperplasia
-	r.tumorType = checkString(val)
-	if r.tumorType == "hyperplasia" || r.tumorType == "neoplasia" {
-		r.hyperplasia = "1"
+	r.tumorType = checkString(typ)
+	r.tissue = checkString(tissue)
+	r.location = checkString(loc)
+	r.malignant = mal
+	if r.tumorType != "NA" {
+		// Only check for primary tumor if a tumor was found
+		if r.metastasis == "1" {
+			r.primary = "0"
+		} else if !strings.Contains(r.tumorType, ";") {
+			// Store yes for primary if a tumor was found but no metastasis
+			r.primary = "1"
+		} else if primary != "NA" {
+			r.primary = "1"
+		}
+
+		for _, i := range strings.Split(r.tumorType, ";") {
+			if i == "hyperplasia" {
+				r.hyperplasia = "1"
+			} else if i != "NA" {
+				r.massPresent = "1"
+			}
+		}
 	}
 }
 
