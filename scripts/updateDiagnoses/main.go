@@ -10,6 +10,7 @@ import (
 	"github.com/icwells/dbIO"
 	"github.com/icwells/go-tools/dataframe"
 	"github.com/icwells/go-tools/iotools"
+	"github.com/icwells/simpleset"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"strconv"
@@ -28,6 +29,7 @@ type lzDiagnosis struct {
 	db          *dbIO.DBIO
 	diag        *dataframe.Dataframe
 	hyperplasia int
+	locations   *simpleset.Set
 	logger      *log.Logger
 	match       diagnoses.Matcher
 	neoplasia   int
@@ -53,6 +55,7 @@ func newLZDiagnosis() *lzDiagnosis {
 	l.tables = map[string]string{
 		l.col.hyperplasia: diag,
 		l.col.location:    tumor,
+		l.col.malignant:   tumor,
 		l.col.masspresent: diag,
 		l.col.tissue:      tumor,
 		l.col.typ:         tumor,
@@ -61,6 +64,7 @@ func newLZDiagnosis() *lzDiagnosis {
 	if *outfile == "" {
 		l.update = true
 	}
+	l.setLocations()
 	return l
 }
 
@@ -136,12 +140,16 @@ func (l *lzDiagnosis) checkRecord(i *dataframe.Series) bool {
 					}
 				}
 			}
+			if location != "NA" && location != loc {
+				if ex, _ := l.locations.InSet(location); ex {
+					l.updateCell(l.col.location, i.Name, location)
+					ret = true
+				} else {
+					tissue = "NA"
+				}
+			}
 			if tissue != "NA" && tissue != tis {
 				l.updateCell(l.col.tissue, i.Name, tissue)
-				ret = true
-			}
-			if location != "NA" && location != loc {
-				l.updateCell(l.col.location, i.Name, location)
 				ret = true
 			}
 			if malignant != "-1" && malignant != mal {
@@ -182,7 +190,7 @@ func (l *lzDiagnosis) checkRecords() {
 func (l *lzDiagnosis) write() {
 	// Writes summary to file if outfile is given
 	if !l.update {
-		header := "Comments,Masspresent,ProposedMP,Hyperplasia,ProposedHyp,Type,ProposedType,Tissue,ProposedTissue,Location,ProposedLoc"
+		header := "Species,Comments,Masspresent,ProposedMP,Hyperplasia,ProposedHyp,Type,ProposedType,Tissue,ProposedTissue,Location,ProposedLoc"
 		iotools.WriteToCSV(*outfile, header, l.summary)
 		spfile := strings.Replace(*outfile, ".csv", ".Species.csv", 1)
 		iotools.WriteToCSV(spfile, "taxa_id,Species,Common,Updated,New", l.speciesSlice())

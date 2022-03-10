@@ -3,8 +3,11 @@
 package main
 
 import (
+	"github.com/icwells/simpleset"
 	"strconv"
 )
+
+var LOCATIONS = []string{"abdomen","adrenal cortex","adrenal medulla","bile duct","bladder","blood","bone","bone marrow","brain","carotid body","cartilage","colon","dendritic cell","duodenum","esophagus","fat","fibrous","gall bladder","gland","glial cell","hair follicle","heart","iris","kidney","larynx","liver","lung","lymph nodes","mammary","mast cell","meninges","mesothelium","myxomatous tissue","NA","nerve cell","neuroendocrine","neuroepithelial","nose","notochord","oral","ovary","oviduct","pancreas","parathyroid gland","peripheral nerve sheath","pigment cell","pituitary gland","pnet","prostate","pupil","skin","small intestine","smooth muscle","spinal cord","spleen","stomach","striated muscle","synovium","testis","thyroid","trachea","transitional epithelium","uterus","vulva","widespread"}
 
 type columns struct {
 	comments    string
@@ -85,4 +88,12 @@ func (l *lzDiagnosis) speciesSlice() [][]string {
 		}
 	}
 	return ret
+}
+
+func (l *lzDiagnosis) setLocations() {
+	// Stores locations in set
+	l.locations = simpleset.NewStringSet()
+	for _, i := range LOCATIONS {
+		l.locations.Add(i)
+	}
 }
