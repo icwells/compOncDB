@@ -115,11 +115,11 @@ func newGImerger() *gimerger {
 func (g *gimerger) setTissues() {
 	// Gets cancer rates for every tissue
 	fmt.Println("\n\tCalculating cancer rates...")
-	c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, false, g.approved, "")
+	c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, false, g.approved, "", "")
 	c.SetSearch(*eval)
 	for idx, list := range [][]string{g.gi, g.tissues} {
 		for _, i := range list {
-			c.ChangeLocation(i)
+			c.ChangeLocation(i, false)
 			fmt.Printf("\tCalculating rates for %s...\n", i)
 			c.CountRecords()
 			for k, v := range c.Records {
