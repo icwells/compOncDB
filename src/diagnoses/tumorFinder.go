@@ -75,20 +75,30 @@ func (t *tumorFinder) SplitStrings(line string) [][]string {
 	// Splits line so that each piece contains one tumor diagnosis
 	var ret [][]string
 	if len(t.types) == 0 {
-		ret = append(ret, []string{line, "0", "NA", "NA"})
+		ret = append(ret, []string{line, "0", "0", "NA", "NA"})
 	} else {
 		var start int
 		t.sortHits()
 		for _, i := range t.hits[:len(t.hits)-1] {
 			if s := t.subsetLine(line, start, i.end); s != "" {
-				row := []string{s, "1", i.match, i.location}
+				neoplasia, hyperplasia := "1", "0"
+				if i.location == "hyperplasia" {
+					neoplasia = "0"
+					hyperplasia = "1"
+				}
+				row := []string{s, neoplasia, hyperplasia, i.match, i.location}
 				ret = append(ret, row)
 				start = i.end
 			}
 		}
 		i := t.hits[len(t.hits)-1]
 		if s := t.subsetLine(line, start, len(line)-1); s != "" {
-			ret = append(ret, []string{s, "1", i.match, i.location})
+			neoplasia, hyperplasia := "1", "0"
+			if i.location == "hyperplasia" {
+				neoplasia = "0"
+				hyperplasia = "1"
+			}
+			ret = append(ret, []string{s, neoplasia, hyperplasia, i.match, i.location})
 		}
 	}
 	return ret

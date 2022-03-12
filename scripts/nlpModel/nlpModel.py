@@ -85,6 +85,7 @@ class Classifier():
 			# Remove non-cancer records and previously modeled fields
 			df.drop(df[df["Masspresent"] != 1].index, inplace = True)
 			df.pop("Masspresent")
+			df.pop("Hyperplasia")
 		else:
 			# Remove cancer specific values
 			df.pop("Type")
@@ -114,6 +115,7 @@ class Classifier():
 		else:
 			# Get single masspresent output layer
 			outputs.append(self.__outputLayer__("Masspresent", flattened))
+			outputs.append(self.__outputLayer__("Hyperplasia", flattened))
 		# Define the model with the input layer and a list of output layers
 		return tf.keras.Model(inputs = input_layer, outputs = outputs, name = self.outdir)
 

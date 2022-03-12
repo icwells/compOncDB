@@ -48,7 +48,7 @@ type tumorHit struct {
 func newTumorHit(m string, i, l int) *tumorHit {
 	// Initializes new struct
 	var t tumorHit
-	t.match = m
+	t.match = strings.ToLower(m)
 	t.index = i
 	t.indeces = make(map[string]int)
 	t.length = l
@@ -60,6 +60,7 @@ func newTumorHit(m string, i, l int) *tumorHit {
 func (t *tumorHit) setDistance(k, m, line string) {
 	// Stores location hit and distance from type
 	var dist int
+	k = strings.ToLower(k)
 	idx := strings.Index(line, m)
 	if idx == t.index {
 		dist = 0

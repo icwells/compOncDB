@@ -35,7 +35,7 @@ func newFormatter() *formatter {
 	var msg string
 	f := new(formatter)
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), "")
-	f.columns = []string{"Sex", "Comments", "Masspresent", "Type", "Location"}
+	f.columns = []string{"Sex", "Comments", "Masspresent", "Hyperplasia", "Type", "Location"}
 	f.logger = codbutils.GetLogger()
 	f.match = diagnoses.NewMatcher(f.logger)
 	f.logger.Println("Extracting records from database...")
