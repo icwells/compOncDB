@@ -19,6 +19,7 @@ type predictor struct {
 	columns   []string
 	diagnosis bool
 	dir		  string
+	hyperplasia string
 	infile	  string
 	lcol      string
 	logger	  *log.Logger
@@ -41,6 +42,7 @@ func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 	p.setMode(neoplasia, diagnosis)
 	p.col = "Comments"
 	p.dir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/scripts/nlpModel/")
+	p.hyperplasia = "Hyperplasia"
 	p.infile = "nlpInput.csv"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"

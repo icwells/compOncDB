@@ -71,6 +71,16 @@ func (t *tumorFinder) subsetLine(line string, start, end int) string {
 	return ret
 }
 
+func (t *tumorFinder) getGrowthType(i *tumorHit) (string, string) {
+	// Returns neoplasia and hyperplasia values
+	neoplasia, hyperplasia := "1", "0"
+	if i.match == "hyperplasia" {
+		neoplasia = "0"
+		hyperplasia = "1"
+	}
+	return neoplasia, hyperplasia
+}
+
 func (t *tumorFinder) SplitStrings(line string) [][]string {
 	// Splits line so that each piece contains one tumor diagnosis
 	var ret [][]string
@@ -81,11 +91,7 @@ func (t *tumorFinder) SplitStrings(line string) [][]string {
 		t.sortHits()
 		for _, i := range t.hits[:len(t.hits)-1] {
 			if s := t.subsetLine(line, start, i.end); s != "" {
-				neoplasia, hyperplasia := "1", "0"
-				if i.location == "hyperplasia" {
-					neoplasia = "0"
-					hyperplasia = "1"
-				}
+				neoplasia, hyperplasia := t.getGrowthType(i)
 				row := []string{s, neoplasia, hyperplasia, i.match, i.location}
 				ret = append(ret, row)
 				start = i.end
@@ -93,11 +99,7 @@ func (t *tumorFinder) SplitStrings(line string) [][]string {
 		}
 		i := t.hits[len(t.hits)-1]
 		if s := t.subsetLine(line, start, len(line)-1); s != "" {
-			neoplasia, hyperplasia := "1", "0"
-			if i.location == "hyperplasia" {
-				neoplasia = "0"
-				hyperplasia = "1"
-			}
+			neoplasia, hyperplasia := t.getGrowthType(i)
 			ret = append(ret, []string{s, neoplasia, hyperplasia, i.match, i.location})
 		}
 	}

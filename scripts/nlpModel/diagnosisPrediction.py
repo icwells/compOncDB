@@ -40,6 +40,7 @@ class Predictor():
 			self.types, self.locations = loadDiagnoses(encoding)
 			self.__predictDiagnoses__()
 		else:
+			self.header = "ID,Comments,Neoplasia,Hyperplasia"
 			self.model = tf.keras.models.load_model(neoplasia)
 			self.__predictNeoplasia__()
 		self.__write__()
@@ -87,4 +88,4 @@ class Predictor():
 		print("\tClassifying neoplasia records...")
 		for idx, i in enumerate(self.model.predict(self.comments)):
 			pid = self.ids[idx]
-			self.res[pid] = [pid, self.comments[idx], str(i[0])]
+			self.res[pid] = [pid, self.comments[idx], str(i[0]), str(i[1])]

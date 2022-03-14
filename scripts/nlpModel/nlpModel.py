@@ -126,20 +126,20 @@ class Classifier():
 		labels = []
 		plt.xlabel("Epochs")
 		plt.ylabel(metric)
-		if self.diag:
-			for i in self.columns:
-				name = "{}_{}".format(i, metric)
-				val = "val_" + name
-				plt.plot(history.history[name], label = name)
-				plt.plot(history.history[val], label = val)
-				labels.extend([name, val])
-			# Reduce plot size so legend is not covering it
-			plt.tight_layout(rect=[0, 0, 0.65, 0.65])
-			plt.legend(labels, loc = "center left", bbox_to_anchor = (1, 0.5))
-		else:
+		#if self.diag:
+		for i in self.columns:
+			name = "{}_{}".format(i, metric)
+			val = "val_" + name
+			plt.plot(history.history[name], label = name)
+			plt.plot(history.history[val], label = val)
+			labels.extend([name, val])
+		# Reduce plot size so legend is not covering it
+		plt.tight_layout(rect=[0, 0, 0.65, 0.65])
+		plt.legend(labels, loc = "center left", bbox_to_anchor = (1, 0.5))
+		'''else:
 			plt.plot(history.history[metric])
 			plt.plot(history.history['val_'+metric])
-			plt.legend([metric, 'val_'+metric])
+			plt.legend([metric, 'val_'+metric])'''
 		plt.savefig("{}/{}.svg".format(self.outdir, metric), format = "svg")
 		# Clear plot
 		plt.clf()
