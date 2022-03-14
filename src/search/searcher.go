@@ -33,12 +33,12 @@ func TumorMap(db *dbIO.DBIO) map[string][]string {
 }
 
 type searcher struct {
-	db      *dbIO.DBIO
-	header  []string
-	logger  *log.Logger
+	db       *dbIO.DBIO
+	header   []string
+	logger   *log.Logger
 	metadata string
-	msg     string
-	res     map[string][]string
+	msg      string
+	res      map[string][]string
 }
 
 func newSearcher(db *dbIO.DBIO, logger *log.Logger) *searcher {
@@ -106,7 +106,7 @@ func (s *searcher) setMetaData(eval []codbutils.Evaluation) {
 		m = append(m, codbutils.GetTimeStamp())
 	} else {
 		// Store metadata for multiple searches
-		m = append(m, s.metadata + ", ,")
+		m = append(m, s.metadata+", ,")
 	}
 	if len(eval) > 0 {
 		for _, i := range eval {

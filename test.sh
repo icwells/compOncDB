@@ -25,6 +25,7 @@ DIAG="$WD/src/diagnoses/*.go"
 PRSRC="$WD/src/parserecords/*.go"
 SEARCH="$WD/src/search/*.go"
 TSTDIR="$WD/test/*.go"
+VER="$WD/src/predictor/*.go"
 
 getUser () {
 	# Reads mysql user name and password from command line
@@ -114,7 +115,9 @@ checkSource () {
 	go $1 $DUSRC
 	go $1 $DESRC
 	go $1 $PRSRC
+	go $1 $SEARCH
 	go $1 $TSTDIR
+	go $1 $VER
 }
 
 helpText () {

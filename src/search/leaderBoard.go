@@ -20,13 +20,13 @@ type species struct {
 }
 
 type leaderboard struct {
-	df			*dataframe.Dataframe
-	list        []*species
-	logger  	*log.Logger
-	table		*dataframe.Dataframe
-	taxa        map[string]*species
-	top			[]string
-	typ         string
+	df     *dataframe.Dataframe
+	list   []*species
+	logger *log.Logger
+	table  *dataframe.Dataframe
+	taxa   map[string]*species
+	top    []string
+	typ    string
 }
 
 func newLeaderBoard(db *dbIO.DBIO, typ string) *leaderboard {

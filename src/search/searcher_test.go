@@ -34,7 +34,7 @@ func TestLocations(t *testing.T) {
 		eval := codbutils.SetOperations(db.Columns, i)
 		act, _ := SearchRecords(db, codbutils.GetLogger(), i, false, false)
 		for key := range act.Rows {
-			e := eval[0] 
+			e := eval[0]
 			if a, _ := act.GetCell(key, e[0].Column); strings.Contains(a, e[0].Value) {
 				count++
 			} else if a, _ := act.GetCell(key, e[1].Column); a != e[1].Value {
@@ -46,7 +46,7 @@ func TestLocations(t *testing.T) {
 			t.Errorf("Found %d records where %s does not equal %s or %s does not equal %s.", count, e[0].Column, e[0].Value, e[1].Column, e[1].Value)
 			break
 		}
-	}	
+	}
 }
 
 /*func setIDs(ids [][]string) *simpleset.Set {

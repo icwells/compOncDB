@@ -15,24 +15,25 @@ import (
 )
 
 type predictor struct {
-	col		  string
-	columns   []string
-	diagnosis bool
-	dir		  string
+	col         string
+	columns     []string
+	diagnosis   bool
+	dir         string
+	hcol		string
 	hyperplasia string
-	infile	  string
-	lcol      string
-	logger	  *log.Logger
-	mass	  string
-	mcol      string
-	mindiag	  float64
-	minmass   float64
-	neoplasia bool
-	outfile	  string
-	records	  *dataframe.Dataframe
-	results   *dataframe.Dataframe
-	script	  string
-	tcol      string
+	infile      string
+	lcol        string
+	logger      *log.Logger
+	mass        string
+	mcol        string
+	mindiag     float64
+	minmass     float64
+	neoplasia   bool
+	outfile     string
+	records     *dataframe.Dataframe
+	results     *dataframe.Dataframe
+	script      string
+	tcol        string
 }
 
 func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
@@ -42,12 +43,13 @@ func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 	p.setMode(neoplasia, diagnosis)
 	p.col = "Comments"
 	p.dir = path.Join(iotools.GetGOPATH(), "src/github.com/icwells/compOncDB/scripts/nlpModel/")
+
 	p.hyperplasia = "Hyperplasia"
 	p.infile = "nlpInput.csv"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
 	p.mindiag = 0.99
-	p.minmass = 0.95
+	p.minmass = 0.99
 	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
@@ -60,19 +62,20 @@ func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 
 func (p *predictor) setMode(neoplasia, diagnosis bool) {
 	// Determines whether to run neoplasia comparison, diagnosis comparison, or both
+	p.hcol = "HyperplasiaVerified"
 	p.lcol = "LocationVerified"
 	p.mcol = "MassVerified"
 	p.tcol = "TypeVerified"
-	p.columns = []string{p.mcol, p.tcol, p.lcol}
+	p.columns = []string{p.mcol, p.hcol, p.tcol, p.lcol}
 	p.neoplasia = neoplasia
 	p.diagnosis = diagnosis
 	if !p.neoplasia && !p.diagnosis {
 		p.neoplasia = true
 		p.diagnosis = true
 	} else if p.neoplasia && !p.diagnosis {
-		p.columns = p.columns[:1]
+		p.columns = p.columns[:2]
 	} else if !p.neoplasia && p.diagnosis {
-		p.columns = p.columns[1:]
+		p.columns = p.columns[2:]
 	}
 }
 
@@ -92,9 +95,9 @@ func (p *predictor) removeNA() {
 
 func (p *predictor) alterColumns() {
 	// Removes extra columns and adds columns for verifications
-	columns := []string{"ID", "Comments", "Masspresent", "Type", "Location"}
+	columns := []string{"ID", "Comments", p.mass, p.hyperplasia, "Type", "Location"}
 	if !p.diagnosis {
-		columns = columns[:3]
+		columns = columns[:4]
 	}
 	for k := range p.records.Header {
 		if !strarray.InSliceStr(columns, k) {
@@ -128,24 +131,25 @@ func (p *predictor) callScript(diagnosis bool) {
 
 func (p *predictor) writeInfile(diagnosis bool) {
 	// Writes records to input file for script
+	var count int
 	p.logger.Println("Writing input file for prediction script...")
 	out := iotools.CreateFile(path.Join(p.dir, p.infile))
 	defer out.Close()
 	for i := range p.records.Iterate() {
-		mp, err := i.GetCellInt(p.mass)
-		if err != nil {
-			p.logger.Fatal(err)
-		}
-		if !diagnosis || mp == 1 {
+		mp, _ := i.GetCellInt(p.mass)
+		hyp, _ := i.GetCellInt(p.hyperplasia)
+		if !diagnosis || mp == 1 || hyp == 1 {
 			// Only examine cancer records if diagnosis is true
 			v, err := i.GetCell(p.col)
 			if err == nil {
 				out.WriteString(fmt.Sprintf("%s,%s\n", i.Name, v))
+				count++
 			} else {
 				p.logger.Fatal(err)
 			}
 		}
 	}
+	p.logger.Printf("Identified %d records for verification.", count)
 }
 
 func (p *predictor) cleanup() {

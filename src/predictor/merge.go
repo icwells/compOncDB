@@ -10,8 +10,8 @@ import (
 
 type merger struct {
 	col      []string
-	logger	 *log.Logger
-	records	 *dataframe.Dataframe
+	logger   *log.Logger
+	records  *dataframe.Dataframe
 	verified *dataframe.Dataframe
 }
 

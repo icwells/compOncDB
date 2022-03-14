@@ -51,9 +51,9 @@ func (t *taxaTypes) toSlice(types []string) []string {
 	ret = append(ret, t.taxonomy...)
 	ret = append(ret, strconv.Itoa(t.total))
 	ret = append(ret, strconv.Itoa(t.cancer))
-	ret = append(ret, strconv.FormatFloat(float64(t.cancer) / float64(t.total), 'f', 3, 64))
+	ret = append(ret, strconv.FormatFloat(float64(t.cancer)/float64(t.total), 'f', 3, 64))
 	for _, i := range types {
-		ret = append(ret, strconv.FormatFloat(float64(t.types[i]) / float64(t.tumors), 'f', 3, 64))
+		ret = append(ret, strconv.FormatFloat(float64(t.types[i])/float64(t.tumors), 'f', 3, 64))
 	}
 	return ret
 }
@@ -122,7 +122,6 @@ func (s *speciesBoard) sort() {
 	sort.Sort(s)
 }
 
-
 func (s *speciesBoard) countSpeciesTypes() {
 	// Counts tumor types per species
 	s.logger.Println("Determining neoplasia type frequencies...")
@@ -143,7 +142,7 @@ func (s *speciesBoard) countSpeciesTypes() {
 func (s *speciesBoard) setHeader() {
 	// Sets header for output file
 	h := codbutils.NewHeaders()
-	s.header = h.Taxonomy[:len(h.Taxonomy) - 1]
+	s.header = h.Taxonomy[:len(h.Taxonomy)-1]
 	s.header = append(s.header, []string{"TotalRecords", "NeoplasiaRecords", "NeoplasiaPrevalence"}...)
 	for k := range s.types {
 		s.sorted = append(s.sorted, k)
@@ -152,10 +151,10 @@ func (s *speciesBoard) setHeader() {
 	sort := true
 	for sort {
 		sort = false
-		for idx, i := range s.sorted[:len(s.sorted) - 1] {
-			v := s.sorted[idx + 1]
+		for idx, i := range s.sorted[:len(s.sorted)-1] {
+			v := s.sorted[idx+1]
 			if s.types[i] < s.types[v] {
-				s.sorted[idx], s.sorted[idx + 1] = v, i
+				s.sorted[idx], s.sorted[idx+1] = v, i
 			}
 		}
 	}

@@ -74,7 +74,7 @@ func SearchSpeciesNames(db *dbIO.DBIO, names []string) *dataframe.Dataframe {
 		if len(row) > 0 {
 			ret.AddRow(row)
 		}
-		fmt.Printf("\tDispatched %d of %d terms.\r", idx + 1, len(names))
+		fmt.Printf("\tDispatched %d of %d terms.\r", idx+1, len(names))
 	}
 	s.logger.Printf("Found taxonomy matches for %d of %d queries.\n", s.found, len(names))
 	return ret

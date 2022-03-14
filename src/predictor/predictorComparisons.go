@@ -21,8 +21,16 @@ func (p *predictor) compareNeopasia() {
 			mp, _ := p.records.GetCellInt(id, p.mass)
 			if score >= p.minmass && mp != 1 {
 				p.records.UpdateCell(id, p.mcol, "1")
-			} else if score <= 1 - p.minmass && mp != 0 {
+			} else if score <= 1-p.minmass && mp != 0 {
 				p.records.UpdateCell(id, p.mcol, "0")
+			}
+		}
+		if score, err := strconv.ParseFloat(i[3], 64); err == nil {
+			hyp, _ := p.records.GetCellInt(id, p.hyperplasia)
+			if score >= p.minmass && hyp != 1 {
+				p.records.UpdateCell(id, p.hcol, "1")
+			} else if score <= 1-p.minmass && hyp != 0 {
+				p.records.UpdateCell(id, p.hcol, "0")
 			}
 		}
 	}

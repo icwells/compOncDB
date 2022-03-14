@@ -40,7 +40,6 @@ class Predictor():
 			self.types, self.locations = loadDiagnoses(encoding)
 			self.__predictDiagnoses__()
 		else:
-			self.header = "ID,Comments,Neoplasia,Hyperplasia"
 			self.model = tf.keras.models.load_model(neoplasia)
 			self.__predictNeoplasia__()
 		self.__write__()
@@ -86,6 +85,9 @@ class Predictor():
 	def __predictNeoplasia__(self):
 		# Predicts whether name is common/scientific
 		print("\tClassifying neoplasia records...")
-		for idx, i in enumerate(self.model.predict(self.comments)):
-			pid = self.ids[idx]
-			self.res[pid] = [pid, self.comments[idx], str(i[0]), str(i[1])]
+		for label in self.model.predict(self.comments):
+			for idx, i in enumerate(label):
+				pid = self.ids[idx]
+				if pid not in self.res.keys():
+					self.res[pid] = [pid, self.comments[idx]]
+				self.res[pid].append(str(i[0]))
