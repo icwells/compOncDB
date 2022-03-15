@@ -95,21 +95,24 @@ func (p *predictor) subsetUnverified() {
 	p.results = p.records.Clone()
 	for i := range p.records.Iterate() {
 		var save bool
-		var mp, t, l string
+		var mp, hyp, t, l string
 		if p.neoplasia {
 			mp, _ = i.GetCell(p.mcol)
+			hyp, _ = i.GetCell(p.hcol)
 		}
 		if p.diagnosis {
 			t, _ = i.GetCell(p.tcol)
 			l, _ = i.GetCell(p.lcol)
 		}
-		if p.neoplasia && !p.diagnosis && mp != "" {
-			save = true
+		if p.neoplasia && !p.diagnosis {
+			if mp != "" || hyp != "" {
+				save = true
+			}
 		} else if !p.neoplasia && p.diagnosis {
 			if t != "" || l != "" {
 				save = true
 			}
-		} else if mp != "" || t != "" || l != "" {
+		} else if mp != "" || hyp != "" || t != "" || l != "" {
 			save = true
 		}
 		if save {
