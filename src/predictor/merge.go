@@ -27,7 +27,7 @@ func newMerger(infile, parsefile string) *merger {
 	if m.verified, err = dataframe.FromFile(infile, 0); err != nil {
 		m.logger.Fatal(err)
 	}
-	for _, i := range []string{"Masspresent", "Type", "Location"} {
+	for _, i := range []string{"Masspresent", "Hyperplasia", "Type", "Location"} {
 		// Only add columns present in verification file
 		if _, ex := m.verified.Header[i]; ex {
 			m.col = append(m.col, i)
