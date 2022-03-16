@@ -19,7 +19,7 @@ type predictor struct {
 	columns     []string
 	diagnosis   bool
 	dir         string
-	hcol		string
+	hcol        string
 	hyperplasia string
 	infile      string
 	lcol        string

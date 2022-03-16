@@ -4,6 +4,7 @@ package predictor
 
 import (
 	"github.com/icwells/compOncDB/src/codbutils"
+	"github.com/icwells/compOncDB/src/diagnoses"
 	"github.com/icwells/go-tools/dataframe"
 	"log"
 )
@@ -12,6 +13,7 @@ type merger struct {
 	col      []string
 	logger   *log.Logger
 	records  *dataframe.Dataframe
+	tissues  map[string]string
 	verified *dataframe.Dataframe
 }
 
@@ -24,6 +26,8 @@ func newMerger(infile, parsefile string) *merger {
 	if m.records, err = dataframe.FromFile(parsefile, 0); err != nil {
 		m.logger.Fatal(err)
 	}
+	matcher := diagnoses.NewMatcher(m.logger)
+	m.tissues = matcher.GetTissues()
 	if m.verified, err = dataframe.FromFile(infile, 0); err != nil {
 		m.logger.Fatal(err)
 	}
@@ -46,6 +50,14 @@ func (m *merger) mergeRecords() {
 			if i == "Type" && val != "" && val != "NA" {
 				if mp, _ := m.records.GetCellInt(row.Name, "Masspresent"); mp != 1 {
 					m.records.UpdateCell(row.Name, "Masspresent", "1")
+				}
+			} else if i == "Location" {
+				if val == "" || val == "NA" {
+					m.records.UpdateCell(row.Name, "Tissue", "NA")
+				} else if tis, ex := m.tissues[val]; ex {
+					if tissue, _ := m.records.GetCell(row.Name, "Tissue"); tissue != tis {
+						m.records.UpdateCell(row.Name, "Tissue", tis)
+					}
 				}
 			}
 		}
