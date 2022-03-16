@@ -88,11 +88,14 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 	backup			Backs up database to local machine.  
 	new			Initializes new tables in new database.
 	parse			Parse and organize records for upload to the comparative oncology database.  
+	verify			Compares parse output with NLP model predictions. Provide parse records output and new output file with -i and -o.  
 	upload			Upload data to the database.  
 	update			Update or delete existing records from the database.  
 	extract			Extract data from the database.
 	search			Search database for matches to queries.
 	cancerrates		Calculate neoplasia prevalence for species.
+	newuser			Adds new user to database. Must performed on the server using root password.  
+
 
 ### Commands  
 
@@ -145,6 +148,33 @@ Input files for parsing should have columns with the following names (in no part
 	Account			Account number or code.
 	Client			Name of record submitter.
 
+#### Verify  
+	componcdb verify {--merge} -i infile -o outfile  
+
+	-i, --infile	Path to input file (required).  
+	--diagnosis		Verifies type and location diagnoses only.  
+	--merge			Merges currated verification results with parse output. Give path to nlp output with -i and path to parse output with -o (it will be overwritten).  
+	-o, --outfile	Path to output file (required).  
+	--neoplasia		Verifies masspresent diagnosis only.
+
+Calls NLP pipeline on parse output to flag diagnosis data that may not be accurate. If the --neoplasia flag is given, mass present and hyperplasia will be examined. If the --diangosis flag is given, only tumor type annd location will be examined. Otherwise, all four columns will be examined. Records will be printed to file if any inconsistency is found. These records can be manually currated by changing the column value (Masspresent, Hyperplasia, Type, or Location) in place. You can then rerun with the --merge flag, which will write the corrected values into the parse output file. You may then proceed with uploading the file.  
+
+##### Train NLP Model  
+Prior to verifying parse output, you must train the natural language processing model. To do this, first change into the nlpModel directory and pull trainign data from the website:
+
+	cd Scripts/nlpModel/
+	go run main -u {username} -o outfile
+
+Then format the trianing data for use with the model:
+
+	python nlpModel.py -i path_to_training_data
+
+Lastly, call the script to trian the neoplasia and diagnosis models. Each step will take around 30 minutes.  
+
+	python nlpModel.py
+	python nlpModel.py --diagnosis
+
+
 #### Upload  
 	componcdb upload -u username --{type_from_list_below} -i infile
 
@@ -170,6 +200,7 @@ are all the same file which must in the format of uploadTemplate.csv.
 	--delete		Delete records from given table if column = value. 
 	-e, --eval	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks).
 	-i infile		Path to input file (see below for formatting).  
+	-o	outdir		Backs up database to given directory before performing update.  
 	--table		Perform operations on this table only.   
 	-u, --user	MySQL username.  
 	-v, --value		Value to write to column if --eval column == value (only supply one evaluation statement).
