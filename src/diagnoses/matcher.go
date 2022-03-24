@@ -41,7 +41,7 @@ func NewMatcher(logger *log.Logger) Matcher {
 	m.castrated = regexp.MustCompile(`(?i)(not )?(castrat(ed)?|neuter(ed)?|spay(ed)?)`)
 	m.malignant = regexp.MustCompile(`(?i)(not )?(malignan(t|cy)|invasive)`)
 	m.benign = regexp.MustCompile(`(?i)(not )?(benign|encapsulated)`)
-	m.Metastasis = regexp.MustCompile(`(?i)(no )?(metastati(s|c)|mets)`)
+	m.Metastasis = regexp.MustCompile(`(?i)(no )?(metastati(s|c)|mets|disseminated|distant|stage(\s)?(three|3|four|4))`)
 	m.Primary = regexp.MustCompile(`(?i)primary|single|solitary|source`)
 	m.necropsy = regexp.MustCompile(`(?i)(autopsy|necropsy|deceased|cause(-|\s)of(-|\s)death|dissect*|euthan.*)`)
 	m.biopsy = regexp.MustCompile(`(?i)biopsy`)
