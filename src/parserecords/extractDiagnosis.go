@@ -45,25 +45,13 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 	rec.castrated = e.match.GetCastrated(line)
 	tumor, tissue, loc, mal := e.match.GetTumor(line, rec.sex, cancer)
 	rec.setType(tumor, tissue, loc, mal, e.match.GetMatch(e.match.Primary, line))
-	rec.metastasis = e.match.BinaryMatch(e.match.Metastasis, line)
-	if rec.metastasis == "1" {
-		// Assume malignancy if metastasis is detected
-		rec.malignant = "1"
-	} else if rec.malignant == "0" {
-		// Assume no metastasis if tumor is benign
-		rec.metastasis = "0"
-	}
-	if rec.tumorType != "NA" {
-		rec.massPresent = "1"
-		// Only check for primary tumor if a tumor was found
-		if rec.metastasis == "1" {
-			rec.primary = "0"
-		} else if strings.Count(rec.tumorType, ";") == 0 && strings.Count(rec.location, ";") == 0 {
-			// Store yes for primary if a tumor was found but no metastasis
-			rec.primary = "1"
-		} else if e.match.GetMatch(e.match.Primary, line) != "NA" {
-			rec.primary = "1"
+	if rec.metastasis != "1" {
+		if met := e.match.BinaryMatch(e.match.Metastasis, line); met == "1" {
+			rec.metastasis = met
 		}
+	}
+	if rec.tumorType != "NA" && e.match.GetMatch(e.match.Primary, line) != "NA" {
+		rec.primary = "1"	
 	}
 	if necropsy == true {
 		rec.necropsy = "1"

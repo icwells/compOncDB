@@ -8,7 +8,10 @@ import (
 	"strings"
 )
 
-var DIGIT = regexp.MustCompile(`([0-9]*[.])?[0-9]+`)
+var (
+	D     = ";"
+	DIGIT = regexp.MustCompile(`([0-9]*[.])?[0-9]+`)
+)
 
 func checkString(val string) string {
 	// Returns NA if string is malformed
@@ -165,6 +168,20 @@ func (r *record) setLocation(val string) {
 	r.location = checkString(val)
 }
 
+func (r *record) checkLocations() {
+	// Sets malignant to 1 if locations contains unique entries
+	if r.metastasis != "1" && strings.Contains(r.location, D) {
+		locs := strings.Split(r.location, D)
+		for _, i := range locs[:len(locs)-2] {
+			for _, j := range locs[:len(locs)-1] {
+				if i != j {
+					r.metastasis = "1"
+				}
+			}
+		}
+	}
+}
+
 func (r *record) setType(typ, tissue, loc, mal, primary string) {
 	// Store type/NA and hyperplasia
 	r.tumorType = checkString(typ)
@@ -173,16 +190,17 @@ func (r *record) setType(typ, tissue, loc, mal, primary string) {
 	r.malignant = mal
 	if r.tumorType != "NA" {
 		// Only check for primary tumor if a tumor was found
+		r.checkLocations()
 		if r.metastasis == "1" {
 			r.primary = "0"
-		} else if !strings.Contains(r.tumorType, ";") {
+		} else if !strings.Contains(r.tumorType, D) {
 			// Store yes for primary if a tumor was found but no metastasis
 			r.primary = "1"
+			r.metastasis = "0"
 		} else if primary != "NA" {
 			r.primary = "1"
 		}
-
-		for _, i := range strings.Split(r.tumorType, ";") {
+		for _, i := range strings.Split(r.tumorType, D) {
 			if i == "hyperplasia" {
 				r.hyperplasia = "1"
 			} else if i != "NA" {

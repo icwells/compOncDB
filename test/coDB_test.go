@@ -47,9 +47,9 @@ func compareTables(t *testing.T, name string, exp, act *dataframe.Dataframe) {
 					af, ef, err := toFloat(a, e)
 					if err != nil || af != ef {
 						t.Errorf("%s-%s: Actual %s value %s does not equal expected: %s", name, key, k, a, e)
-						t.Error(act.GetHeader())
+						/*t.Error(act.GetHeader())
 						t.Error(act.GetRow(key))
-						t.Error(exp.GetRow(key))
+						t.Error(exp.GetRow(key))*/
 						break
 					}
 				}
