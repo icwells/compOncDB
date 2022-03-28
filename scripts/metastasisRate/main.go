@@ -31,6 +31,8 @@ type metastasisRate struct {
 	rate       string
 	rates      *dataframe.Dataframe
 	records    *dataframe.Dataframe
+	services   *codbutils.Services
+	source     string
 	tid        string
 }
 
@@ -48,6 +50,8 @@ func newMetastasisRate() *metastasisRate {
 	m.tid = "taxa_id"
 	m.rates.AddColumn(m.met, "")
 	m.rates.AddColumn(m.rate, "")
+	m.services = codbutils.NewServices()
+	m.source = "service_name"
 	m.setMetastasis()
 	return m
 }
@@ -60,10 +64,12 @@ func (m *metastasisRate) setMetastasis() {
 		if _, ex := m.metastasis[tid]; !ex {
 			m.metastasis[tid] = 0
 		}
-		mal, _ := i.GetCellInt(m.mal)
-		met, _ := i.GetCellInt(m.met)
-		if met == 1 && mal == 1 {
-			m.metastasis[tid]++
+		if source, _ := i.GetCell(m.source); m.services.AllRecords(source) {
+			mal, _ := i.GetCellInt(m.mal)
+			met, _ := i.GetCellInt(m.met)
+			if met == 1 && mal == 1 {
+				m.metastasis[tid]++
+			}
 		}
 	}
 }
