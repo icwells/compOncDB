@@ -193,6 +193,7 @@ func (r *record) setType(typ, tissue, loc, mal, primary string) {
 		r.checkLocations()
 		if r.metastasis == "1" {
 			r.primary = "0"
+			r.malignant = "1"
 		} else if !strings.Contains(r.tumorType, D) {
 			// Store yes for primary if a tumor was found but no metastasis
 			r.primary = "1"

@@ -104,14 +104,14 @@ func TestParseDiagnosis(t *testing.T) {
 		} else if rec.malignant != i.Malignant {
 			t.Errorf("Actual malignant value %s does not equal expected: %s", rec.malignant, i.Malignant)
 		} else if rec.primary != i.Primary {
-			if rec.tumorType != "NA" && rec.metastasis == "0" {
+			/*if rec.tumorType != "NA" && rec.metastasis == "0" {
 				// Skip if function determined a single tumor to be primary
 				if rec.primary != "1" {
 					t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.Primary)
 				}
-			} else {
+			} else {*/
 				t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.Primary)
-			}
+			//}
 		} else if rec.metastasis != i.Metastasis {
 			t.Errorf("Actual metastasis value %s does not equal expected: %s", rec.metastasis, i.Metastasis)
 		} else if rec.necropsy != i.Necropsy {
