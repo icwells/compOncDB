@@ -138,11 +138,11 @@ CREATE OR REPLACE VIEW Records AS
 		Diagnosis.Hyperplasia,
 		Diagnosis.Necropsy,
 		Diagnosis.Metastasis,
-		Tumor.primary_tumor,
-		Tumor.Malignant,
-		Tumor.Type,
-		Tumor.Tissue,
-		Tumor.Location,
+		IFNULL(Tumor.primary_tumor, -1) as primary_tumor,
+		IFNULL(Tumor.Malignant, -1) as Malignant,
+		IFNULL(Tumor.Type, 'NA') as Type,
+		IFNULL(Tumor.Tissue, 'NA') as Tissue,
+		IFNULL(Tumor.Location, 'NA') as Location,
 		Taxonomy.Kingdom,
 		Taxonomy.Phylum,
 		Taxonomy.Class,
@@ -157,25 +157,25 @@ CREATE OR REPLACE VIEW Records AS
 		Source.Institute,
 		Source.Approved,
 		Source.account_id,
-		Life_history.female_maturity,
-		Life_history.male_maturity,
-		Life_history.Gestation,
-		Life_history.Weaning,
-		Life_history.Infancy,
-		Life_history.litter_size,
-		Life_history.litters_year,
-		Life_history.interbirth_interval,
-		Life_history.birth_weight,
-		Life_history.weaning_weight,
-		Life_history.adult_weight,
-		Life_history.growth_rate,
-		Life_history.max_longevity,
-		Life_history.metabolic_rate
+		IFNULL(Life_history.female_maturity, -1) as female_maturity,
+		IFNULL(Life_history.male_maturity, -1) as male_maturity,
+		IFNULL(Life_history.Gestation, -1) as Gestation,
+		IFNULL(Life_history.Weaning, -1) as Weaning,
+		IFNULL(Life_history.Infancy, -1) as Infancy,
+		IFNULL(Life_history.litter_size, -1) as litter_size,
+		IFNULL(Life_history.litters_year, -1) as litter_year,
+		IFNULL(Life_history.interbirth_interval, -1) as interbirth_interval,
+		IFNULL(Life_history.birth_weight, -1) as birth_weight,
+		IFNULL(Life_history.weaning_weight, -1) as weaning_weight,
+		IFNULL(Life_history.adult_weight, -1) as adult_weight,
+		IFNULL(Life_history.growth_rate, -1) as growth_rate,
+		IFNULL(Life_history.max_longevity, -1) as max_longevity,
+		IFNULL(Life_history.metabolic_rate, -1) as metabolic_rate
 	FROM Patient
 		INNER JOIN Diagnosis on Diagnosis.ID = Patient.ID
 		LEFT JOIN Tumor on Tumor.ID = Patient.ID
 		INNER JOIN Taxonomy on Taxonomy.taxa_id = Patient.taxa_id
 		INNER JOIN Source on Source.ID = Patient.ID
 		LEFT JOIN Life_history on Life_history.taxa_id = Patient.taxa_id
-	ORDER BY taxa_id
+	ORDER BY taxa_id, ID
 ;

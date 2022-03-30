@@ -211,9 +211,6 @@ func (c *cancerRates) getSpecies(k, tid string) *Species {
 					i = i[:strings.Index(i, "(")]
 				}
 				v, _ := c.search.GetCell(k, i)
-				if v[0] == '%' {
-					v = "-1"
-				}
 				c.Records[tid].lifehistory = append(c.Records[tid].lifehistory, v)
 			}
 		}
