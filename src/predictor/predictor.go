@@ -48,8 +48,8 @@ func newPredictor(infile string, neoplasia, diagnosis bool) *predictor {
 	p.infile = "nlpInput.csv"
 	p.logger = codbutils.GetLogger()
 	p.mass = "Masspresent"
-	p.mindiag = 0.99
-	p.minmass = 0.99
+	p.mindiag = 0.999
+	p.minmass = 0.999
 	p.outfile = "nlpOutput.csv"
 	if p.records, err = dataframe.FromFile(infile, 0); err != nil {
 		p.logger.Fatal(err)
