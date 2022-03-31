@@ -16,20 +16,21 @@ import (
 )
 
 var (
-	infant   = kingpin.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
-	min      = kingpin.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
-	nec      = kingpin.Flag("necropsy", "2: Extract only necropsy records, 1: extract all records by default, 0: extract non-necropsy records.").Default("2").Int()
-	outfile  = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Required().String()
-	source   = kingpin.Flag("source", "Zoo/institute records to calculate prevalence with; all: use all records, approved: used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.").Short('z').Default("approved").String()
-	user     = kingpin.Flag("user", "MySQL username.").Short('u').Default("").String()
-	wild     = kingpin.Flag("wild", "Return results for wild records only (returns non-wild only by default).").Default("false").Bool()
+	infant  = kingpin.Flag("infant", "Include infant records in results (excluded by default).").Default("false").Bool()
+	infile  = kingpin.Flag("infile", "Path to optional input file.").Short('i').Default("").String()
+	min     = kingpin.Flag("min", "Minimum number of entries required for calculations.").Short('m').Default("1").Int()
+	nec     = kingpin.Flag("necropsy", "2: Extract only necropsy records, 1: extract all records by default, 0: extract non-necropsy records.").Default("2").Int()
+	outfile = kingpin.Flag("outfile", "Name of output file (writes to stdout if not given).").Short('o').Required().String()
+	source  = kingpin.Flag("source", "Zoo/institute records to calculate prevalence with; all: use all records, approved: used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.").Short('z').Default("approved").String()
+	user    = kingpin.Flag("user", "MySQL username.").Short('u').Default("").String()
+	wild    = kingpin.Flag("wild", "Return results for wild records only (returns non-wild only by default).").Default("false").Bool()
 )
 
 type ageProportion struct {
-	db			*dbIO.DBIO
-	logger		*log.Logger
-	longevity	map[string]float64
-	records		*dataframe.Dataframe
+	db        *dbIO.DBIO
+	logger    *log.Logger
+	longevity map[string]float64
+	records   *dataframe.Dataframe
 }
 
 func newAgeProportion() *ageProportion {
@@ -105,7 +106,7 @@ func (a *ageProportion) filterMinSpecies() {
 	for _, i := range rm {
 		a.records.DeleteRow(i)
 	}
-	a.logger.Printf("Removed %d records from species with fewer than %d records.", l - a.records.Length(), *min)
+	a.logger.Printf("Removed %d records from species with fewer than %d records.", l-a.records.Length(), *min)
 }
 
 func (a *ageProportion) getSearchResults() {
@@ -150,7 +151,14 @@ func main() {
 	start := time.Now()
 	kingpin.Parse()
 	a := newAgeProportion()
-	a.getSearchResults()
+	if *infile == "" {
+		a.getSearchResults()
+	} else {
+		var err error
+		if a.records, err = dataframe.FromFile(*infile, 0); err != nil {
+			panic(err)
+		}
+	}
 	a.addProportion()
 	a.records.ToCSV(*outfile)
 	fmt.Printf("\tFinished. Runtime: %s\n\n", time.Since(start))
