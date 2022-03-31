@@ -204,7 +204,7 @@ func (r *record) setType(typ, tissue, loc, mal, primary string) {
 		for _, i := range strings.Split(r.tumorType, D) {
 			if i == "hyperplasia" {
 				r.hyperplasia = "1"
-			} else if i != "NA" {
+			} else if i != "NA" && i != "cyst" {
 				r.massPresent = "1"
 			}
 		}
