@@ -69,13 +69,17 @@ func (a *ageProportion) getProportion(tid string, age float64) string {
 func (a *ageProportion) addProportion() {
 	// Calculates age of diagnosis to max longevity proportion for all records
 	var count int
+	p := "proportion_longevity"
+	a.records.AddColumn(p, "NA")
 	a.logger.Println("Calculating proportion of age of diagnosis over max longevity...")
 	for i := range a.records.Iterate() {
 		if age, err := i.GetCellFloat("age_months"); err == nil {
 			tid, _ := i.GetCell("taxa_id")
 			prop := a.getProportion(tid, age)
 			if prop != "NA" {
-				i.UpdateCell("proportion_longevity", prop)
+				if err := i.UpdateCell(p, prop); err != nil {
+					panic(err)
+				}
 				count++
 			}
 		} else {
@@ -144,7 +148,6 @@ func (a *ageProportion) getSearchResults() {
 	a.records, msg = search.SearchRecords(a.db, a.logger, eval, *infant, false)
 	a.logger.Println(strings.TrimSpace(msg))
 	a.filterMinSpecies()
-	a.records.AddColumn("proportion_longevity", "NA")
 }
 
 func main() {
