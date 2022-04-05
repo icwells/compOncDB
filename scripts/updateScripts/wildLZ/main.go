@@ -152,7 +152,9 @@ func (w *wild) update() {
 	w.logger.Println("Updating target records....")
 	for _, i := range w.pids.ToStringSlice() {
 		count++
-		w.db.UpdateRow("Patient", "Wild", "1", "source_id", "=", i)
+		if !w.db.UpdateRow("Patient", "Wild", "1", "ID", "=", i) {
+			panic(i)
+		}
 		fmt.Printf("\tUpdated %d of %d records.\r", count, w.pids.Length())
 	}
 	fmt.Println()
