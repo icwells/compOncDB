@@ -28,7 +28,7 @@ func TestGetTable(t *testing.T) {
 	col := getTableColumns()
 	matches := []struct {
 		column string
-		table string
+		table  string
 	}{
 		{"sex", "Patient"},
 		{"taxa_id", "Taxonomy"},

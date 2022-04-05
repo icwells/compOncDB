@@ -107,8 +107,8 @@ checkSource () {
 	echo "Running go $1..."
 	go $1 $APP
 	go $1 $CNRT
-	go $1 $CNRT
 	go $1 $CLSRC
+	go $1 $CUSRC
 	go $1 $DIAG
 	go $1 $PRSRC
 	go $1 $DBSRC

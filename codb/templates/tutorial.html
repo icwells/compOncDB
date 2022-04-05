@@ -40,11 +40,9 @@
   <hr>
   <table>
     <tr><th>Column Name</th><th>Explanation</th></tr>
-    <tr><td>Location</td><td>User specified tissue. "all" includes all tissues for that species.</td></tr>
-    <tr><td>TotalRecords</td><td>Total number of records for that species (and optionally species records for the given tissue). This will vary if the necropsy or infant records options are checked.</td></tr>
-    <tr><td>RecordsWithDenominators</td><td>Same as above but excludes records from databases which do not include non-neoplasia records.</td></tr>
-    <tr><td>TotalNeoplasia</td><td>Total number of neoplasia records for that species (and optionally species records for the given tissue). This will vary if the necropsy or infant records options are checked.</td></tr>
-    <tr><td>NeoplasiaWithDenominators</td><td>Same as above but excludes records from databases which do not include non-neoplasia records.</td></tr>
+    <tr><td>Location</td><td>User specified tissue. "all" includes all tissues for that species. Only included if a specific location or tissue is examined.</td></tr>
+    <tr><td>RecordsWithDenominators</td><td>Total number of records for that species (and optionally species records for the given tissue) excluding records from databases which do not include non-neoplasia records. This will vary if the necropsy or infant records options are checked.</td></tr>
+    <tr><td>NeoplasiaWithDenominators</td><td>Total number of neoplasia records for that species (and optionally species records for the given tissue) excluding records from databases which do not include non-neoplasia records. This will vary if the necropsy or infant records options are checked.</td></tr>
     <tr><td>NeoplasiaPrevalence</td><td>NeoplasiaWithDenominators divded by RecordsWithDenominators (tissue level results are divided by RecordsWithDenominators for all tissues).</td></tr>
     <tr><td>MalignancyKnown</td><td>Total number of records for a malignant or benign determination could be made.</td></tr>
     <tr><td>Malignant</td><td>Total number of malignant records from databases which include non-neoplasia records.</td></tr>
@@ -59,8 +57,11 @@
     <tr><td>Female</td><td>Number of female records from databases which include non-neoplasia records.</td></tr>
     <tr><td>MaleNeoplasia</td><td>Number of male neoplasia records from databases which include non-neoplasia records.</td></tr>
     <tr><td>FemaleNeoplasia</td><td>Number of female neoplasia records from databases which include non-neoplasia records.</td></tr>
+    <tr><td>RecordsFromAllSources</td><td>Total number of records for that species (and optionally species records for the given tissue). This will vary if the necropsy or infant records options are checked.</td></tr>
+    <tr><td>NeoplasiaFromAllSources</td><td>Total number of neoplasia records for that species (and optionally species records for the given tissue). This will vary if the necropsy or infant records options are checked.</td></tr>
     <tr><td>Necropsies</td><td>Number of necrpsied records from databases which include non-neoplasia records.</td></tr>
     <tr><td>#Sources</td><td>Number of unique sources from all databases for that species.</td></tr>
+    <tr><td>NoTissueInfo</td><td>Number of neoplasia records without tumor location information.</td></tr>
   </table>
 </div>
 </section>

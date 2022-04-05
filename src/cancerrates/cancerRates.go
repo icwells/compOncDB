@@ -36,6 +36,7 @@ type cancerRates struct {
 	Records  map[string]*Species
 	search   *dataframe.Dataframe
 	species  int
+	taxa     bool
 	tids     []string
 	total    string
 	wild     bool
@@ -68,6 +69,7 @@ func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zo
 	c.rates, _ = dataframe.NewDataFrame(idx)
 	c.rates.SetHeader(c.header)
 	c.Records = make(map[string]*Species)
+	c.taxa = true
 	c.total = "total"
 	c.wild = wild
 	c.zoo = zoo
@@ -76,14 +78,11 @@ func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zo
 
 func (c *cancerRates) setHeader() {
 	// Stores target column name
-	c.header = codbutils.CancerRateHeader()
-	tail := strings.Split(c.db.Columns["Life_history"], ",")[1:]
-	for i := 0; i < len(tail); i++ {
-		c.nas = append(c.nas, "NA")
+	var loc bool
+	if c.location != "" {
+		loc = true
 	}
-	if c.lh {
-		c.header = append(c.header, tail...)
-	}
+	c.header = codbutils.CancerRateHeader(c.taxa, loc, c.lh)
 }
 
 func (c *cancerRates) ChangeLocation(loc string, typ bool) {
@@ -196,9 +195,15 @@ func (c *cancerRates) formatRates() {
 func (c *cancerRates) getSpecies(k, tid string) *Species {
 	// Initializes records entry, stores taxonomy and life history, and returns species entry
 	if _, ex := c.Records[tid]; !ex {
-		var taxa []string
-		// Store taxonomy
-		for _, i := range H.Taxonomy[1 : len(H.Taxonomy)-1] {
+		var cols, taxa []string
+		if c.taxa {
+			// Store complete taxonomy
+			cols = H.Taxonomy[1 : len(H.Taxonomy)-1]
+		} else {
+			// Store species and common name
+			cols = H.Taxonomy[7 : len(H.Taxonomy)-1]
+		}
+		for _, i := range cols {
 			v, _ := c.search.GetCell(k, i)
 			taxa = append(taxa, v)
 		}

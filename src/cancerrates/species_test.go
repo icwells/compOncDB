@@ -256,7 +256,7 @@ func getTestSpecies() []*Species {
 }
 
 func TestToSlice(t *testing.T) {
-	head := codbutils.CancerRateHeader()
+	head := codbutils.CancerRateHeader(true, true, false)
 	expected := getExpectedSpecies()
 	for ind, s := range getTestSpecies() {
 		s.denominator = s.total.total

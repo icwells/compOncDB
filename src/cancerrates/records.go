@@ -74,10 +74,11 @@ func (r *Record) calculateRates(d, notissue int) []string {
 		nt = strconv.Itoa(notissue)
 	}
 	malknown := r.maltotal + r.bentotal
-	ret = append(ret, strconv.Itoa(r.grandtotal))         //TotalRecords
-	ret = append(ret, strconv.Itoa(r.total))              //RecordsWithDenominators
-	ret = append(ret, strconv.Itoa(d))                    //NeoplasiaDenominators
-	ret = append(ret, strconv.Itoa(r.allcancer))          //TotalNeoplasia
+
+	ret = append(ret, strconv.Itoa(r.total)) //RecordsWithDenominators
+	if d > 0 {
+		ret = append(ret, strconv.Itoa(d)) //NeoplasiaDenominators
+	}
 	ret = append(ret, strconv.Itoa(r.cancer))             //NeoplasiaWithDenominators
 	ret = append(ret, r.formatRate(r.cancer, d))          //NeoplasiaPrevalence
 	ret = append(ret, strconv.Itoa(malknown))             //MalignancyKnown
@@ -95,6 +96,8 @@ func (r *Record) calculateRates(d, notissue int) []string {
 	ret = append(ret, strconv.Itoa(r.female))             //Female
 	ret = append(ret, strconv.Itoa(r.femalecancer))       //FemaleNeoplasia
 	ret = append(ret, strconv.Itoa(r.femalemal))          //FemaleMalignant
+	ret = append(ret, strconv.Itoa(r.grandtotal))         //RecordsFromAllSources
+	ret = append(ret, strconv.Itoa(r.allcancer))          //NeoplasiaFromAllSources
 	ret = append(ret, strconv.Itoa(r.necropsy))           //Necropsies
 	ret = append(ret, r.setsources())                     //Sources
 	ret = append(ret, nt)                                 //NoTissueInfo

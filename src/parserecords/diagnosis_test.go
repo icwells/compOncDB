@@ -110,7 +110,7 @@ func TestParseDiagnosis(t *testing.T) {
 					t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.Primary)
 				}
 			} else {*/
-				t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.Primary)
+			t.Errorf("Actual primary %s does not equal expected: %s", rec.primary, i.Primary)
 			//}
 		} else if rec.metastasis != i.Metastasis {
 			t.Errorf("Actual metastasis value %s does not equal expected: %s", rec.metastasis, i.Metastasis)

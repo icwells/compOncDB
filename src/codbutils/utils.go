@@ -191,7 +191,7 @@ func GetMinAges(db *dbIO.DBIO, taxaids []string) map[string]float64 {
 func GetUpdateTime(d *dbIO.DBIO) string {
 	// Returns most recent update time
 	ret := d.GetColumnText("Update_time", "Time")
-	return ret[len(ret) - 1]
+	return ret[len(ret)-1]
 }
 
 func UpdateTimeStamp(d *dbIO.DBIO) {

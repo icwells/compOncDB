@@ -66,8 +66,13 @@ func (s *Species) ToSlice(keepall bool) [][]string {
 		// Keep records with target tissue or at least 5% of records have locations
 		s.denominator = s.total.total - s.notissue
 		total := append([]string{s.id}, s.taxonomy...)
-		total = append(total, "all")
-		total = append(total, s.total.calculateRates(-1, s.notissue)...)
+		if s.Location != "" {
+			total = append(total, "all")
+			total = append(total, s.total.calculateRates(s.total.total, s.notissue)...)
+		} else {
+			// Omit location column
+			total = append(total, s.total.calculateRates(-1, s.notissue)...)
+		}
 		if len(s.lifehistory) > 0 {
 			total = append(total, s.lifehistory...)
 		}

@@ -51,7 +51,7 @@ func (e *entries) parseDiagnosis(rec *record, line string, cancer, necropsy bool
 		}
 	}
 	if rec.tumorType != "NA" && e.match.GetMatch(e.match.Primary, line) != "NA" {
-		rec.primary = "1"	
+		rec.primary = "1"
 	}
 	if necropsy == true {
 		rec.necropsy = "1"

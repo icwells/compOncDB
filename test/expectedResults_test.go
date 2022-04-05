@@ -62,7 +62,7 @@ func getExpectedRates() *dataframe.Dataframe {
 	var s [][]string
 	coyote := []string{"1", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis latrans", "Coyote", "all", "7", "7", "7", "1", "1", "0.14285714285714285", "1", "1", "0.14285714285714285", "1.00", "0", "0.00", "0.00", "24", "24", "2", "1", "1", "0", "0", "0", "2", "1", "0"}
 	wolf := []string{"2", "Animalia", "Chordata", "Mammalia", "Carnivora", "Canidae", "Canis", "Canis lupus", "Wolf", "all", "10", "10", "10", "3", "3", "0.30", "3", "2", "0.20", "0.6666666666666666", "1", "0.10", "0.3333333333333333", "135", "144", "4", "0", "0", "3", "2", "2", "0", "1", "0"}
-	s = append(s, codbutils.CancerRateHeader())
+	s = append(s, codbutils.CancerRateHeader(true, false, false))
 	s = append(s, wolf)
 	s = append(s, coyote)
 	//s = append(s, fox)

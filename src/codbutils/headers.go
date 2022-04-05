@@ -1,4 +1,4 @@
-// Stores headers for output files
+// Stores headers for output files and service names by denominator status
 
 package codbutils
 
@@ -8,9 +8,8 @@ import (
 )
 
 type Services struct {
-	allrecords		*simpleset.Set
-	//denominators	*simpleset.Set
-	nodenominators  *simpleset.Set	
+	allrecords     *simpleset.Set
+	nodenominators *simpleset.Set
 }
 
 func (s *Services) setServices(l []string) *simpleset.Set {
@@ -37,15 +36,6 @@ func (s *Services) AllRecords(name string) bool {
 	return ret
 }
 
-/*func (s *Services) HasDenominators(name string) bool {
-	// Returns true is name is in allrecords or denominators
-	ret, _ := s.allrecords.InSet(name)
-	if !ret {
-		ret, _ = s.denominators.InSet(name)
-	}
-	return ret
-}*/
-
 func (s *Services) NoDenominators(name string) bool {
 	// Returns true if name is in nodenominators
 	ret, _ := s.nodenominators.InSet(name)
@@ -55,16 +45,20 @@ func (s *Services) NoDenominators(name string) bool {
 //----------------------------------------------------------------------------
 
 type Headers struct {
-	Accounts []string
-	Common []string
+	AgeSex       []string
+	Accounts     []string
+	Common       []string
 	Denominators []string
-	Diagnosis []string
+	Diagnosis    []string
 	Life_history []string
-	Patient []string
-	Rates []string
-	Source []string
-	Taxonomy []string
-	Tumor []string
+	Location     string
+	Malignancy   []string
+	Neoplasia    []string
+	Patient      []string
+	RatesTail    []string
+	Source       []string
+	Taxonomy     []string
+	Tumor        []string
 }
 
 func NewHeaders() *Headers {
@@ -74,15 +68,18 @@ func NewHeaders() *Headers {
 	h.Common = []string{"taxa_id", "Name", "Curator"}
 	h.Denominators = []string{"taxa_id", "Noncancer"}
 	h.Diagnosis = []string{"ID", "Masspresent", "Hyperplasia", "Necropsy", "Metastasis"}
-	h.Life_history = []string{"taxa_id", "female_maturity(months)", "male_maturity(months)", "Gestation(months)", "Weaning(months)", "Infancy(months)", "litter_size", "litters_year", 
-"interbirth_interval", "birth_weight(g)", "weaning_weight(g)", "adult_weight(g)", "growth_rate(1/days)", "max_longevity(months)", "metabolic_rate(mLO2/hr)"}
+	h.Life_history = []string{"taxa_id", "female_maturity(months)", "male_maturity(months)", "Gestation(months)", "Weaning(months)", "Infancy(months)", "litter_size", "litters_year",
+		"interbirth_interval", "birth_weight(g)", "weaning_weight(g)", "adult_weight(g)", "growth_rate(1/days)", "max_longevity(months)", "metabolic_rate(mLO2/hr)"}
 	h.Patient = []string{"ID", "Sex", "Age", "Infant", "Castrated", "Wild", "taxa_id", "source_id", "source_name", "Date", "Year", "Comments"}
-	h.Rates = []string{"Location", "TotalRecords", "RecordsWithDenominators", "NeoplasiaDenominators", "TotalNeoplasia", "NeoplasiaWithDenominators", "NeoplasiaPrevalence", 
-"MalignancyKnown", "Malignant", "MalignancyPrevalence", "PropMalignant", "Benign", "BenignPrevalence", "PropBenign", "AverageAge(months)", "AvgAgeNeoplasia(months)", 
-"Male", "MaleNeoplasia", "MaleMalignant", "Female", "FemaleNeoplasia", "FemaleMalignant", "Necropsies", "#Sources", "NoTissueInfo"}
 	h.Source = []string{"ID", "service_name", "Zoo", "Aza", "Institute", "Approved", "account_id"}
 	h.Taxonomy = []string{"taxa_id", "Kingdom", "Phylum", "Class", "Orders", "Family", "Genus", "Species", "common_name", "Source"}
 	h.Tumor = []string{"ID", "primary_tumor", "Malignant", "Type", "Tissue", "Location"}
+	// Neoplasia Prevalence
+	h.Location = "Location"
+	h.Neoplasia = []string{"RecordsWithDenominators", "NeoplasiaDenominators", "NeoplasiaWithDenominators", "NeoplasiaPrevalence"}
+	h.Malignancy = []string{"MalignancyKnown", "Malignant", "MalignancyPrevalence", "PropMalignant", "Benign", "BenignPrevalence", "PropBenign"}
+	h.AgeSex = []string{"AverageAge(months)", "AvgAgeNeoplasia(months)", "Male", "MaleNeoplasia", "MaleMalignant", "Female", "FemaleNeoplasia", "FemaleMalignant"}
+	h.RatesTail = []string{"RecordsFromAllSources", "NeoplasiaFromAllSources", "Necropsies", "#Sources", "NoTissueInfo"}
 	return h
 }
 
@@ -118,14 +115,31 @@ func RecordsHeader() []string {
 	ret[2] = "age_months"
 	ret = append(ret, h.Diagnosis[1:]...)
 	ret = append(ret, h.Tumor[1:]...)
-	ret = append(ret, h.Taxonomy[1:len(h.Taxonomy) - 1]...)
+	ret = append(ret, h.Taxonomy[1:len(h.Taxonomy)-1]...)
 	return append(ret, h.Source[1:]...)
 }
 
-func CancerRateHeader() []string {
+func CancerRateHeader(taxonomy, location, lifehistory bool) []string {
 	// Returns header for cancer rate output
+	var ret []string
 	h := NewHeaders()
-	return append(h.Taxonomy[:len(h.Taxonomy) - 1], h.Rates...)
+	if taxonomy {
+		ret = h.Taxonomy[:len(h.Taxonomy)-1]
+	} else {
+		// Store taxa_id, species, and common name
+		ret = []string{h.Taxonomy[0], h.Taxonomy[7], h.Taxonomy[8]}
+	}
+	if location {
+		ret = append(ret, h.Location)
+	}
+	ret = append(ret, h.Neoplasia...)
+	ret = append(ret, h.Malignancy...)
+	ret = append(ret, h.AgeSex...)
+	ret = append(ret, h.RatesTail...)
+	if lifehistory {
+		ret = append(ret, h.Life_history[1:]...)
+	}
+	return ret
 }
 
 func ParseHeader(debug bool) string {

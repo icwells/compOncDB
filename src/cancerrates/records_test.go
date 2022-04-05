@@ -72,7 +72,9 @@ func getExpectedRecords() [][]string {
 func TestCalculateRates(t *testing.T) {
 	// Tests calculateRates method
 	h := codbutils.NewHeaders()
-	head := h.Rates[1:]
+	head := append(h.Neoplasia, h.Malignancy...)
+	head = append(head, h.AgeSex...)
+	head = append(head, h.RatesTail...)
 	expected := getExpectedRecords()
 	for ind, r := range testRecords() {
 		actual := r.calculateRates(-1, 0)

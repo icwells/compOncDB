@@ -123,7 +123,6 @@ func RecordsEvaluations(columns map[string]string, eval string) []Evaluation {
 	return ret
 }
 
-
 func OperationsFromFile(columns map[string]string, infile string) [][]Evaluation {
 	// Reads evaluations from input file
 	var ret [][]Evaluation
