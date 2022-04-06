@@ -205,8 +205,9 @@ func TestAddMeasures(t *testing.T) {
 func locationSlice() [][]string {
 	// Return slice of expected location values
 	var ret [][]string
-	ret = append(ret, []string{"100", "5", "50", "10", "5", "0.1", "10", "2", "0.04", "0.4", "3", "0.06", "0.6", "10.00", "10.00", "2", "2", "0", "3", "3", "0", "1", "0", ""})
-	ret = append(ret, []string{"110", "5", "100", "10", "5", "0.05", "10", "2", "0.02", "0.4", "3", "0.03", "0.6", "10.00", "10.00", "2", "2", "0", "3", "3", "0", "1", "0", ""})
+	//"RecordsWithDenominators", "NeoplasiaDenominator", "NeoplasiaWithDenominators", "NeoplasiaPrevalence"
+	ret = append(ret, []string{"5", "50", "5", "0.1", "-", "10", "2", "0.04", "0.4", "3", "0.06", "0.6", "-", "10.00", "10.00", "2", "2", "0", "3", "3", "0", "-", "100", "10", "1", "0", ""})
+	ret = append(ret, []string{"5", "100", "5", "0.05", "-", "10", "2", "0.02", "0.4", "3", "0.03", "0.6", "-", "10.00", "10.00", "2", "2", "0", "3", "3", "0", "-", "110", "10", "1", "0", ""})
 	return ret
 }
 
@@ -225,7 +226,10 @@ func getExpectedSpecies() [][][]string {
 	loc := locationSlice()
 	for idx, i := range getExpectedRecords() {
 		var sp [][]string
-		r := append(taxa[idx], "all")
+		r := taxa[idx]
+		if idx < 2 {
+			r = append(r, "all")
+		}
 		sp = append(sp, append(r, i...))
 		if idx < 2 {
 			r = append([]string{taxa[idx][0], "", "", "", "", "", "", ""})
@@ -272,6 +276,7 @@ func TestToSlice(t *testing.T) {
 		for row, a := range act {
 			if len(a) != len(exp[row]) {
 				t.Errorf("%d: Actual length %d does not equal expected: %d", ind, len(a), len(exp[row]))
+				t.Error(exp[row])
 				break
 			}
 			for idx, i := range a {

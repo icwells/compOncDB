@@ -163,7 +163,7 @@ CREATE OR REPLACE VIEW Records AS
 		IFNULL(Life_history.Weaning, -1) as Weaning,
 		IFNULL(Life_history.Infancy, -1) as Infancy,
 		IFNULL(Life_history.litter_size, -1) as litter_size,
-		IFNULL(Life_history.litters_year, -1) as litter_year,
+		IFNULL(Life_history.litters_year, -1) as litters_year,
 		IFNULL(Life_history.interbirth_interval, -1) as interbirth_interval,
 		IFNULL(Life_history.birth_weight, -1) as birth_weight,
 		IFNULL(Life_history.weaning_weight, -1) as weaning_weight,

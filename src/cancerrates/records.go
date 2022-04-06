@@ -79,8 +79,9 @@ func (r *Record) calculateRates(d, notissue int) []string {
 	if d > 0 {
 		ret = append(ret, strconv.Itoa(d)) //NeoplasiaDenominators
 	}
-	ret = append(ret, strconv.Itoa(r.cancer))             //NeoplasiaWithDenominators
-	ret = append(ret, r.formatRate(r.cancer, d))          //NeoplasiaPrevalence
+	ret = append(ret, strconv.Itoa(r.cancer))    //NeoplasiaWithDenominators
+	ret = append(ret, r.formatRate(r.cancer, d)) //NeoplasiaPrevalence
+	ret = append(ret, DASH)
 	ret = append(ret, strconv.Itoa(malknown))             //MalignancyKnown
 	ret = append(ret, strconv.Itoa(r.malignant))          //Malignant
 	ret = append(ret, r.formatRate(r.malignant, d))       //MalignancyPrevalence
@@ -88,19 +89,21 @@ func (r *Record) calculateRates(d, notissue int) []string {
 	ret = append(ret, strconv.Itoa(r.benign))             //benign
 	ret = append(ret, r.formatRate(r.benign, d))          //benignPrevalence
 	ret = append(ret, r.formatRate(r.bentotal, malknown)) //Propbenign
-	ret = append(ret, avgAge(r.age, r.agetotal))          //AverageAge(months)
-	ret = append(ret, avgAge(r.cancerage, r.catotal))     //AvgAgeNeoplasia(months)
-	ret = append(ret, strconv.Itoa(r.male))               //Male
-	ret = append(ret, strconv.Itoa(r.malecancer))         //MaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.malemal))            //MaleMalignant
-	ret = append(ret, strconv.Itoa(r.female))             //Female
-	ret = append(ret, strconv.Itoa(r.femalecancer))       //FemaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.femalemal))          //FemaleMalignant
-	ret = append(ret, strconv.Itoa(r.grandtotal))         //RecordsFromAllSources
-	ret = append(ret, strconv.Itoa(r.allcancer))          //NeoplasiaFromAllSources
-	ret = append(ret, strconv.Itoa(r.necropsy))           //Necropsies
-	ret = append(ret, r.setsources())                     //Sources
-	ret = append(ret, nt)                                 //NoTissueInfo
+	ret = append(ret, DASH)
+	ret = append(ret, avgAge(r.age, r.agetotal))      //AverageAge(months)
+	ret = append(ret, avgAge(r.cancerage, r.catotal)) //AvgAgeNeoplasia(months)
+	ret = append(ret, strconv.Itoa(r.male))           //Male
+	ret = append(ret, strconv.Itoa(r.malecancer))     //MaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.malemal))        //MaleMalignant
+	ret = append(ret, strconv.Itoa(r.female))         //Female
+	ret = append(ret, strconv.Itoa(r.femalecancer))   //FemaleNeoplasia
+	ret = append(ret, strconv.Itoa(r.femalemal))      //FemaleMalignant
+	ret = append(ret, DASH)
+	ret = append(ret, strconv.Itoa(r.grandtotal)) //RecordsFromAllSources
+	ret = append(ret, strconv.Itoa(r.allcancer))  //NeoplasiaFromAllSources
+	ret = append(ret, strconv.Itoa(r.necropsy))   //Necropsies
+	ret = append(ret, r.setsources())             //Sources
+	ret = append(ret, nt)                         //NoTissueInfo
 	return ret
 }
 

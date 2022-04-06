@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	DASH     = "-"
 	H        = codbutils.NewHeaders()
 	SERVICES = codbutils.NewServices()
 	TID      = "taxa_id"
@@ -211,6 +212,7 @@ func (c *cancerRates) getSpecies(k, tid string) *Species {
 		c.Records[tid] = newSpecies(tid, c.location, taxa)
 		if c.lh {
 			// Store life history
+			c.Records[tid].lifehistory = append(c.Records[tid].lifehistory, DASH)
 			for _, i := range H.Life_history[1:] {
 				if strings.Contains(i, "(") {
 					i = i[:strings.Index(i, "(")]

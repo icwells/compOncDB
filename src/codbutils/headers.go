@@ -76,7 +76,7 @@ func NewHeaders() *Headers {
 	h.Tumor = []string{"ID", "primary_tumor", "Malignant", "Type", "Tissue", "Location"}
 	// Neoplasia Prevalence
 	h.Location = "Location"
-	h.Neoplasia = []string{"RecordsWithDenominators", "NeoplasiaDenominators", "NeoplasiaWithDenominators", "NeoplasiaPrevalence"}
+	h.Neoplasia = []string{"RecordsWithDenominators", "NeoplasiaDenominator", "NeoplasiaWithDenominators", "NeoplasiaPrevalence"}
 	h.Malignancy = []string{"MalignancyKnown", "Malignant", "MalignancyPrevalence", "PropMalignant", "Benign", "BenignPrevalence", "PropBenign"}
 	h.AgeSex = []string{"AverageAge(months)", "AvgAgeNeoplasia(months)", "Male", "MaleNeoplasia", "MaleMalignant", "Female", "FemaleNeoplasia", "FemaleMalignant"}
 	h.RatesTail = []string{"RecordsFromAllSources", "NeoplasiaFromAllSources", "Necropsies", "#Sources", "NoTissueInfo"}
@@ -121,7 +121,8 @@ func RecordsHeader() []string {
 
 func CancerRateHeader(taxonomy, location, lifehistory bool) []string {
 	// Returns header for cancer rate output
-	var ret []string
+	var neoplasia, ret []string
+	dash := "-"
 	h := NewHeaders()
 	if taxonomy {
 		ret = h.Taxonomy[:len(h.Taxonomy)-1]
@@ -131,12 +132,18 @@ func CancerRateHeader(taxonomy, location, lifehistory bool) []string {
 	}
 	if location {
 		ret = append(ret, h.Location)
+		neoplasia = h.Neoplasia
+	} else {
+		// Remove neoplasia denominator column
+		neoplasia = append([]string{h.Neoplasia[0]}, h.Neoplasia[2:]...)
 	}
-	ret = append(ret, h.Neoplasia...)
-	ret = append(ret, h.Malignancy...)
-	ret = append(ret, h.AgeSex...)
+	for _, i := range [][]string{neoplasia, h.Malignancy, h.AgeSex} {
+		ret = append(ret, i...)
+		ret = append(ret, dash)
+	}
 	ret = append(ret, h.RatesTail...)
 	if lifehistory {
+		ret = append(ret, dash)
 		ret = append(ret, h.Life_history[1:]...)
 	}
 	return ret
