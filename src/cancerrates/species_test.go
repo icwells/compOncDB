@@ -229,13 +229,15 @@ func getExpectedSpecies() [][][]string {
 		r := taxa[idx]
 		if idx < 2 {
 			r = append(r, "all")
-		}
-		sp = append(sp, append(r, i...))
-		if idx < 2 {
+			sp = append(sp, append(r, i...))
+			// Append location slice
 			r = append([]string{taxa[idx][0], "", "", "", "", "", "", ""})
 			r = append(r, "liver")
 			r = append(r, loc[idx]...)
 			sp = append(sp, r)
+		} else {
+			// Skip location, denominator, and notissue column
+			sp = append(sp, append(r, i[1:len(i) - 1]...))
 		}
 		ret = append(ret, sp)
 	}
@@ -276,7 +278,6 @@ func TestToSlice(t *testing.T) {
 		for row, a := range act {
 			if len(a) != len(exp[row]) {
 				t.Errorf("%d: Actual length %d does not equal expected: %d", ind, len(a), len(exp[row]))
-				t.Error(exp[row])
 				break
 			}
 			for idx, i := range a {

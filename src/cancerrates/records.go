@@ -67,16 +67,17 @@ func (r *Record) calculateRates(d, notissue int) []string {
 	// Returns string slice of rates
 	var ret []string
 	var nt string
+	den := true
 	if d < 0 {
+		// Remove tissue-specific columns
+		den = false
 		d = r.total
-	}
-	if notissue >= 0 {
+	} else if notissue >= 0 {
 		nt = strconv.Itoa(notissue)
 	}
 	malknown := r.maltotal + r.bentotal
-
 	ret = append(ret, strconv.Itoa(r.total)) //RecordsWithDenominators
-	if d > 0 {
+	if den {
 		ret = append(ret, strconv.Itoa(d)) //NeoplasiaDenominators
 	}
 	ret = append(ret, strconv.Itoa(r.cancer))    //NeoplasiaWithDenominators
@@ -103,7 +104,9 @@ func (r *Record) calculateRates(d, notissue int) []string {
 	ret = append(ret, strconv.Itoa(r.allcancer))  //NeoplasiaFromAllSources
 	ret = append(ret, strconv.Itoa(r.necropsy))   //Necropsies
 	ret = append(ret, r.setsources())             //Sources
-	ret = append(ret, nt)                         //NoTissueInfo
+	if den {
+		ret = append(ret, nt) //NoTissueInfo
+	}
 	return ret
 }
 

@@ -51,6 +51,7 @@ func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zo
 	c.db = db
 	c.infant = inf
 	c.keep = keepall
+	c.taxa = true
 	if tissue != "" {
 		c.lcol = "Tissue"
 		c.location = tissue
@@ -70,7 +71,6 @@ func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zo
 	c.rates, _ = dataframe.NewDataFrame(idx)
 	c.rates.SetHeader(c.header)
 	c.Records = make(map[string]*Species)
-	c.taxa = true
 	c.total = "total"
 	c.wild = wild
 	c.zoo = zoo
@@ -111,7 +111,9 @@ func (c *cancerRates) setMetaData(eval string) {
 	if eval != "" && eval != "nil" {
 		m = append(m, eval)
 	}
-	m = append(m, fmt.Sprintf("%s=%s", c.lcol, c.location))
+	if c.location != "" {
+		m = append(m, fmt.Sprintf("%s=%s", c.lcol, c.location))
+	}
 	m = append(m, fmt.Sprintf("min=%d", c.min))
 	m = append(m, fmt.Sprintf("necropsyStatus=%s", nec))
 	m = append(m, fmt.Sprintf("SourceType=%s", c.zoo))
@@ -175,9 +177,10 @@ func (c *cancerRates) formatRates() {
 			for _, i := range v.ToSlice(c.keep) {
 				if len(i) > 0 {
 					// Add to dataframe
-					err := c.rates.AddRow(i)
-					if err != nil {
-						c.logger.Printf("Adding row to dataframe: %v\n", err)
+					if err := c.rates.AddRow(i); err != nil {
+						fmt.Println(c.header)
+						fmt.Println(i)
+						c.logger.Fatalf("Adding row to dataframe: %v\n", err)
 						break
 					} else {
 						c.species++
