@@ -45,7 +45,7 @@ func (s *Services) NoDenominators(name string) bool {
 //----------------------------------------------------------------------------
 
 type Headers struct {
-	AgeSex       []string
+	Age          []string
 	Accounts     []string
 	Common       []string
 	Denominators []string
@@ -56,6 +56,7 @@ type Headers struct {
 	Neoplasia    []string
 	Patient      []string
 	RatesTail    []string
+	Sex          []string
 	Source       []string
 	Taxonomy     []string
 	Tumor        []string
@@ -78,7 +79,8 @@ func NewHeaders() *Headers {
 	h.Location = "Location"
 	h.Neoplasia = []string{"RecordsWithDenominators", "NeoplasiaDenominator", "NeoplasiaWithDenominators", "NeoplasiaPrevalence"}
 	h.Malignancy = []string{"MalignancyKnown", "Malignant", "MalignancyPrevalence", "PropMalignant", "Benign", "BenignPrevalence", "PropBenign"}
-	h.AgeSex = []string{"AverageAge(months)", "AvgAgeNeoplasia(months)", "Male", "MaleNeoplasia", "MaleMalignant", "Female", "FemaleNeoplasia", "FemaleMalignant"}
+	h.Age = []string{"AverageAge(months)", "AvgAgeNeoplasia(months)"}
+	h.Sex = []string{ "Male", "MaleNeoplasia", "MaleMalignant", "Female", "FemaleNeoplasia", "FemaleMalignant"}
 	h.RatesTail = []string{"RecordsFromAllSources", "NeoplasiaFromAllSources", "Necropsies", "#Sources", "NoTissueInfo"}
 	return h
 }
@@ -119,7 +121,7 @@ func RecordsHeader() []string {
 	return append(ret, h.Source[1:]...)
 }
 
-func CancerRateHeader(taxonomy, location, lifehistory bool) []string {
+func CancerRateHeader(age, lifehistory, location, sex, taxonomy bool) []string {
 	// Returns header for cancer rate output
 	var neoplasia, ret, tail []string
 	dash := "-"
@@ -139,7 +141,14 @@ func CancerRateHeader(taxonomy, location, lifehistory bool) []string {
 		neoplasia = append([]string{h.Neoplasia[0]}, h.Neoplasia[2:]...)
 		tail = h.RatesTail[:len(h.RatesTail)-1]
 	}
-	for idx, i := range [][]string{neoplasia, h.Malignancy, h.AgeSex} {
+	blocks := [][]string{neoplasia, h.Malignancy}
+	if age {
+		blocks = append(blocks, h.Age...)
+	}
+	if sex {
+		blocks = append(blocks, h.Age...)
+	}
+	for idx, i := range blocks {
 		ret = append(ret, i...)
 		// Add a dash each time to keep entry unique
 		ret = append(ret, strings.Repeat(dash, idx+1))
