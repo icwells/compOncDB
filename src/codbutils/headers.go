@@ -141,22 +141,22 @@ func CancerRateHeader(age, lifehistory, location, sex, taxonomy bool) []string {
 		neoplasia = append([]string{h.Neoplasia[0]}, h.Neoplasia[2:]...)
 		tail = h.RatesTail[:len(h.RatesTail)-1]
 	}
-	blocks := [][]string{neoplasia, h.Malignancy}
+	ret = append(ret, neoplasia...)
+	blocks := [][]string{h.Malignancy}
 	if age {
 		blocks = append(blocks, h.Age)
 	}
 	if sex {
 		blocks = append(blocks, h.Sex)
 	}
+	blocks = append(blocks, tail)
+	if lifehistory {
+		blocks = append(blocks, h.Life_history[1:])
+	}
 	for idx, i := range blocks {
-		ret = append(ret, i...)
 		// Add a dash each time to keep entry unique
 		ret = append(ret, strings.Repeat(dash, idx+1))
-	}
-	ret = append(ret, tail...)
-	if lifehistory {
-		ret = append(ret, dash)
-		ret = append(ret, h.Life_history[1:]...)
+		ret = append(ret, i...)
 	}
 	return ret
 }

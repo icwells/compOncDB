@@ -66,10 +66,26 @@
       <label for="Keepall">Keep species without records for specified tissue.</label>
     </div>
 	<hr>
-    <div>
-      <input type="checkbox" name="Lifehistory">
-      <label for="Lifehistory">Append life history information to results.</label>
+    <p>Output file column options:</p>
+    <div class="tab">
+      <div>
+        <input type="checkbox" name="Taxacol" checked="checked">
+        <label for="Taxacol" title="Will include Kingdom, Phylum, Class, Orders, Family, Genus. Taxa_id, Species, and common_name will always be included.">Include complete taxonomy for each species.</label>
+      </div>
+      <div>
+        <input type="checkbox" name="Agecol">
+        <label for="Agecol" title="Will include AverageAge, AvgAgeNeoplasia.">Include average age columns in results.</label>
+      </div>
+      <div>
+        <input type="checkbox" name="Sexcol">
+        <label for="Sexcol" title="Will include Male, MaleNeoplasia, MaleMalignant, Female, FemaleNeoplasia, FemaleMalignant.">Include sex specific columns in results.</label>
+      </div>
+      <div>
+        <input type="checkbox" name="Lifehistory">
+        <label for="Lifehistory">Append life history information to results.</label>
+      </div>
     </div>
+	<hr>
     <div>
       <input type="checkbox" name="Pathology">
       <label for="Pathology">Additionally extract pathology records for target species.</label>

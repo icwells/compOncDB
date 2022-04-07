@@ -97,12 +97,12 @@ func (r *Record) calculateRates(d, notissue int, age, sex bool) []string {
 	}
 	if sex {
 		ret = append(ret, DASH)
-		ret = append(ret, strconv.Itoa(r.male))           //Male
-		ret = append(ret, strconv.Itoa(r.malecancer))     //MaleNeoplasia
-		ret = append(ret, strconv.Itoa(r.malemal))        //MaleMalignant
-		ret = append(ret, strconv.Itoa(r.female))         //Female
-		ret = append(ret, strconv.Itoa(r.femalecancer))   //FemaleNeoplasia
-		ret = append(ret, strconv.Itoa(r.femalemal))      //FemaleMalignant
+		ret = append(ret, strconv.Itoa(r.male))         //Male
+		ret = append(ret, strconv.Itoa(r.malecancer))   //MaleNeoplasia
+		ret = append(ret, strconv.Itoa(r.malemal))      //MaleMalignant
+		ret = append(ret, strconv.Itoa(r.female))       //Female
+		ret = append(ret, strconv.Itoa(r.femalecancer)) //FemaleNeoplasia
+		ret = append(ret, strconv.Itoa(r.femalemal))    //FemaleMalignant
 	}
 	ret = append(ret, DASH)
 	ret = append(ret, strconv.Itoa(r.grandtotal)) //RecordsFromAllSources
