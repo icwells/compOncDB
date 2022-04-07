@@ -206,8 +206,8 @@ func locationSlice() [][]string {
 	// Return slice of expected location values
 	var ret [][]string
 	//"RecordsWithDenominators", "NeoplasiaDenominator", "NeoplasiaWithDenominators", "NeoplasiaPrevalence"
-	ret = append(ret, []string{"5", "50", "5", "0.1", "-", "10", "2", "0.04", "0.4", "3", "0.06", "0.6", "-", "10.00", "10.00", "2", "2", "0", "3", "3", "0", "-", "100", "10", "1", "0", ""})
-	ret = append(ret, []string{"5", "100", "5", "0.05", "-", "10", "2", "0.02", "0.4", "3", "0.03", "0.6", "-", "10.00", "10.00", "2", "2", "0", "3", "3", "0", "-", "110", "10", "1", "0", ""})
+	ret = append(ret, []string{"5", "50", "5", "0.1", "-", "10", "2", "0.04", "0.4", "3", "0.06", "0.6", "-", "10.00", "10.00", "-", "2", "2", "0", "3", "3", "0", "-", "100", "10", "1", "0", ""})
+	ret = append(ret, []string{"5", "100", "5", "0.05", "-", "10", "2", "0.02", "0.4", "3", "0.03", "0.6", "-", "10.00", "10.00", "-", "2", "2", "0", "3", "3", "0", "-", "110", "10", "1", "0", ""})
 	return ret
 }
 
@@ -237,7 +237,7 @@ func getExpectedSpecies() [][][]string {
 			sp = append(sp, r)
 		} else {
 			// Skip location, denominator, and notissue column
-			sp = append(sp, append(r, i[1:len(i) - 1]...))
+			sp = append(sp, append(r, i[1:len(i)-1]...))
 		}
 		ret = append(ret, sp)
 	}
@@ -262,11 +262,11 @@ func getTestSpecies() []*Species {
 }
 
 func TestToSlice(t *testing.T) {
-	head := codbutils.CancerRateHeader(true, true, false)
+	head := codbutils.CancerRateHeader(true, false, true, true, true)
 	expected := getExpectedSpecies()
 	for ind, s := range getTestSpecies() {
 		s.denominator = s.total.total
-		act := s.ToSlice(false)
+		act := s.ToSlice(false, true, true)
 		if len(act) == 3 {
 			act = act[:2]
 		}

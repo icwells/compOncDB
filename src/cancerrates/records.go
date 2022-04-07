@@ -63,7 +63,7 @@ func (r *Record) setsources() string {
 	return "0"
 }
 
-func (r *Record) calculateRates(d, notissue int) []string {
+func (r *Record) calculateRates(d, notissue int, age, sex bool) []string {
 	// Returns string slice of rates
 	var ret []string
 	var nt string
@@ -90,15 +90,20 @@ func (r *Record) calculateRates(d, notissue int) []string {
 	ret = append(ret, strconv.Itoa(r.benign))             //benign
 	ret = append(ret, r.formatRate(r.benign, d))          //benignPrevalence
 	ret = append(ret, r.formatRate(r.bentotal, malknown)) //Propbenign
-	ret = append(ret, DASH)
-	ret = append(ret, avgAge(r.age, r.agetotal))      //AverageAge(months)
-	ret = append(ret, avgAge(r.cancerage, r.catotal)) //AvgAgeNeoplasia(months)
-	ret = append(ret, strconv.Itoa(r.male))           //Male
-	ret = append(ret, strconv.Itoa(r.malecancer))     //MaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.malemal))        //MaleMalignant
-	ret = append(ret, strconv.Itoa(r.female))         //Female
-	ret = append(ret, strconv.Itoa(r.femalecancer))   //FemaleNeoplasia
-	ret = append(ret, strconv.Itoa(r.femalemal))      //FemaleMalignant
+	if age {
+		ret = append(ret, DASH)
+		ret = append(ret, avgAge(r.age, r.agetotal))      //AverageAge(months)
+		ret = append(ret, avgAge(r.cancerage, r.catotal)) //AvgAgeNeoplasia(months)
+	}
+	if sex {
+		ret = append(ret, DASH)
+		ret = append(ret, strconv.Itoa(r.male))           //Male
+		ret = append(ret, strconv.Itoa(r.malecancer))     //MaleNeoplasia
+		ret = append(ret, strconv.Itoa(r.malemal))        //MaleMalignant
+		ret = append(ret, strconv.Itoa(r.female))         //Female
+		ret = append(ret, strconv.Itoa(r.femalecancer))   //FemaleNeoplasia
+		ret = append(ret, strconv.Itoa(r.femalemal))      //FemaleMalignant
+	}
 	ret = append(ret, DASH)
 	ret = append(ret, strconv.Itoa(r.grandtotal)) //RecordsFromAllSources
 	ret = append(ret, strconv.Itoa(r.allcancer))  //NeoplasiaFromAllSources

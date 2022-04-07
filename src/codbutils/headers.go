@@ -80,7 +80,7 @@ func NewHeaders() *Headers {
 	h.Neoplasia = []string{"RecordsWithDenominators", "NeoplasiaDenominator", "NeoplasiaWithDenominators", "NeoplasiaPrevalence"}
 	h.Malignancy = []string{"MalignancyKnown", "Malignant", "MalignancyPrevalence", "PropMalignant", "Benign", "BenignPrevalence", "PropBenign"}
 	h.Age = []string{"AverageAge(months)", "AvgAgeNeoplasia(months)"}
-	h.Sex = []string{ "Male", "MaleNeoplasia", "MaleMalignant", "Female", "FemaleNeoplasia", "FemaleMalignant"}
+	h.Sex = []string{"Male", "MaleNeoplasia", "MaleMalignant", "Female", "FemaleNeoplasia", "FemaleMalignant"}
 	h.RatesTail = []string{"RecordsFromAllSources", "NeoplasiaFromAllSources", "Necropsies", "#Sources", "NoTissueInfo"}
 	return h
 }
@@ -143,10 +143,10 @@ func CancerRateHeader(age, lifehistory, location, sex, taxonomy bool) []string {
 	}
 	blocks := [][]string{neoplasia, h.Malignancy}
 	if age {
-		blocks = append(blocks, h.Age...)
+		blocks = append(blocks, h.Age)
 	}
 	if sex {
-		blocks = append(blocks, h.Age...)
+		blocks = append(blocks, h.Sex)
 	}
 	for idx, i := range blocks {
 		ret = append(ret, i...)

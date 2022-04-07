@@ -1,4 +1,4 @@
-// This script will calculate cancer rates for species with  at least a given number of entries
+// Defines cnacer rate struct and getting/setting methods
 
 package cancerrates
 
@@ -21,6 +21,7 @@ var (
 )
 
 type cancerRates struct {
+	age      bool
 	approval *simpleset.Set
 	db       *dbIO.DBIO
 	header   []string
@@ -36,6 +37,7 @@ type cancerRates struct {
 	rates    *dataframe.Dataframe
 	Records  map[string]*Species
 	search   *dataframe.Dataframe
+	sex      bool
 	species  int
 	taxa     bool
 	tids     []string
@@ -44,12 +46,10 @@ type cancerRates struct {
 	zoo      string
 }
 
-func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zoo, tissue, location string) *cancerRates {
+func NewCancerRates(db *dbIO.DBIO, min int, keepall bool, tissue, location string) *cancerRates {
 	// Returns initialized cancerRates struct
-	idx := 0
 	c := new(cancerRates)
 	c.db = db
-	c.infant = inf
 	c.keep = keepall
 	c.taxa = true
 	if tissue != "" {
@@ -59,22 +59,27 @@ func NewCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zo
 		c.lcol = "Location"
 		c.location = location
 	}
-	c.lh = lh
 	c.logger = codbutils.GetLogger()
 	c.min = min
-	c.nec = nec
-	c.setHeader()
-	if c.location != "" {
-		// Don't store by index when repeated taxa_ids are present
-		idx = -1
-	}
-	c.rates, _ = dataframe.NewDataFrame(idx)
-	c.rates.SetHeader(c.header)
 	c.Records = make(map[string]*Species)
 	c.total = "total"
+	return c
+}
+
+func (c *cancerRates) SearchSettings(nec int, inf, wild bool, zoo string) {
+	// Stores settings for searching database
+	c.nec = nec
+	c.infant = inf
 	c.wild = wild
 	c.zoo = zoo
-	return c
+}
+
+func (c *cancerRates) OutputSettings(age, lifehistory, sex, taxonomy bool) {
+	// Stores output file settings
+	c.age = age
+	c.lh = lifehistory
+	c.sex = sex
+	c.taxa = taxonomy
 }
 
 func (c *cancerRates) setHeader() {
@@ -83,8 +88,22 @@ func (c *cancerRates) setHeader() {
 	if c.location != "" {
 		loc = true
 	}
-	c.header = codbutils.CancerRateHeader(c.taxa, loc, c.lh)
+	c.header = codbutils.CancerRateHeader(c.age, c.lh, loc, c.sex, c.taxa)
 }
+
+func (c *cancerRates) setDataFrame() {
+	// Initializes header and dataframe
+	idx := 0
+	if c.location != "" {
+		// Don't store by index when repeated taxa_ids are present
+		idx = -1
+	}
+	c.setHeader()
+	c.rates, _ = dataframe.NewDataFrame(idx)
+	c.rates.SetHeader(c.header)
+}
+
+//----------------------------------------------------------------------------
 
 func (c *cancerRates) ChangeLocation(loc string, typ bool) {
 	// Prepares struct to analyze a new location
@@ -122,17 +141,6 @@ func (c *cancerRates) setMetaData(eval string) {
 	c.rates.SetMetaData(strings.Join(m, ","))
 }
 
-func (c *cancerRates) checkService(service, masspresent string) bool {
-	// Returns true if record should be counted (skips non-cancer msu, national zoo, and zeps records)
-	var ret bool
-	if masspresent == "1" {
-		ret = true
-	} else if SERVICES.AllRecords(service) {
-		ret = true
-	}
-	return ret
-}
-
 func (c *cancerRates) SetSearch(eval string) {
 	// Sets dataframe using filtering options
 	var msg string
@@ -168,101 +176,4 @@ func (c *cancerRates) SetSearch(eval string) {
 	}
 	c.search, msg = search.SearchRecords(c.db, c.logger, eval, c.infant, c.lh)
 	c.logger.Println(strings.TrimSpace(msg))
-}
-
-func (c *cancerRates) formatRates() {
-	// Calculates rates, and formats for printing
-	for _, v := range c.Records {
-		if v.total.total >= c.min {
-			for _, i := range v.ToSlice(c.keep) {
-				if len(i) > 0 {
-					// Add to dataframe
-					if err := c.rates.AddRow(i); err != nil {
-						fmt.Println(c.header)
-						fmt.Println(i)
-						c.logger.Fatalf("Adding row to dataframe: %v\n", err)
-						break
-					} else {
-						c.species++
-					}
-				}
-			}
-		} else {
-			// Remove records from search results that don't meet the minimum
-			for _, i := range v.ids.ToStringSlice() {
-				c.search.DeleteRow(i)
-			}
-		}
-	}
-}
-
-func (c *cancerRates) getSpecies(k, tid string) *Species {
-	// Initializes records entry, stores taxonomy and life history, and returns species entry
-	if _, ex := c.Records[tid]; !ex {
-		var cols, taxa []string
-		if c.taxa {
-			// Store complete taxonomy
-			cols = H.Taxonomy[1 : len(H.Taxonomy)-1]
-		} else {
-			// Store species and common name
-			cols = H.Taxonomy[7 : len(H.Taxonomy)-1]
-		}
-		for _, i := range cols {
-			v, _ := c.search.GetCell(k, i)
-			taxa = append(taxa, v)
-		}
-		// Initialize new species entry
-		c.Records[tid] = newSpecies(tid, c.location, taxa)
-		if c.lh {
-			// Store life history
-			c.Records[tid].lifehistory = append(c.Records[tid].lifehistory, DASH)
-			for _, i := range H.Life_history[1:] {
-				if strings.Contains(i, "(") {
-					i = i[:strings.Index(i, "(")]
-				}
-				v, _ := c.search.GetCell(k, i)
-				c.Records[tid].lifehistory = append(c.Records[tid].lifehistory, v)
-			}
-		}
-	}
-	return c.Records[tid]
-}
-
-func (c *cancerRates) CountRecords() {
-	// Counts Patient records
-	for k := range c.search.Index {
-		sex, _ := c.search.GetCell(k, "Sex")
-		age, _ := c.search.GetCell(k, "age_months")
-		tid, _ := c.search.GetCell(k, TID)
-		service, _ := c.search.GetCell(k, "service_name")
-		aid, _ := c.search.GetCell(k, "account_id")
-		mass, _ := c.search.GetCell(k, "Masspresent")
-		nec, _ := c.search.GetCell(k, "Necropsy")
-		mal, _ := c.search.GetCell(k, "Malignant")
-		loc, _ := c.search.GetCell(k, c.lcol)
-		s := c.getSpecies(k, tid)
-		allrecords := c.checkService(service, "")
-		if c.checkService(service, mass) {
-			// Add non-cancer values (skips records from services without denominators)
-			s.addNonCancer(allrecords, age, sex, nec, service, aid, k)
-		}
-		if mass == "1" {
-			// Add tumor values and add tissue denominator
-			s.addCancer(allrecords, age, sex, nec, mal, loc, service, aid)
-		}
-		if allrecords {
-			s.addDenominator(service, loc)
-		}
-	}
-}
-
-func GetCancerRates(db *dbIO.DBIO, min, nec int, inf, lh, wild, keepall bool, zoo, eval, tissue, location string) (*dataframe.Dataframe, *dataframe.Dataframe) {
-	// Returns dataframe of cancer rates
-	c := NewCancerRates(db, min, nec, inf, lh, wild, keepall, zoo, tissue, location)
-	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
-	c.SetSearch(eval)
-	c.CountRecords()
-	c.formatRates()
-	c.logger.Printf("Found %d species with at least %d entries.\n", c.species, c.min)
-	return c.rates, c.search
 }

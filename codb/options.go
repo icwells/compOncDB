@@ -11,6 +11,7 @@ import (
 )
 
 type Options struct {
+	Agecol      bool
 	AllTaxa     bool
 	Cancerrate  bool
 	Infant      bool
@@ -22,8 +23,10 @@ type Options struct {
 	Operation   string
 	Pathology   bool
 	Print       bool
+	Sexcol      bool
 	Source      string
 	Taxa        string
+	Taxacol     bool
 	Tissue      string
 	TumorType   string
 	Value       string

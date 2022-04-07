@@ -124,7 +124,10 @@ func (o *Output) neoplasiaPrevalence() {
 	case "nonnecropsy":
 		necropsy = -1
 	}
-	res, pathology = cancerrates.GetCancerRates(o.db, opt.Min, necropsy, opt.Infant, opt.Lifehistory, opt.Wild, opt.Keepall, opt.Source, eval, opt.Tissue, opt.Location)
+	c := cancerrates.NewCancerRates(o.db, opt.Min, opt.Keepall, opt.Tissue, opt.Location)
+	c.SearchSettings(necropsy, opt.Infant, opt.Wild, opt.Source)
+	c.OutputSettings(opt.Agecol, opt.Lifehistory, opt.Sexcol, opt.Taxacol)
+	res, pathology = c.GetCancerRates(eval)
 	if opt.Pathology {
 		o.Pathfile = fmt.Sprintf("pathologyRecords.min%d.%s.csv", opt.Min, codbutils.GetTimeStamp())
 		o.Pathology = fmt.Sprintf("/tmp/%s", o.Pathfile)

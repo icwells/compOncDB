@@ -155,7 +155,12 @@ func calculateCancerRates() time.Time {
 	// Calculate cancer rates
 	*nec--
 	db := codbutils.ConnectToDatabase(codbutils.SetConfiguration(*user, false), *password)
-	prevalence, reports := cancerrates.GetCancerRates(db, *min, *nec, *infant, *lifehist, *wild, *keepall, *source, *eval, *tissue, *location)
+
+	c := cancerrates.NewCancerRates(db, *min, *keepall, *tissue, *location)
+	c.SearchSettings(*nec, *infant, *wild, *source)
+	c.OutputSettings(!*noavgage, *lifehist, !*nosexcol, !*notaxacol)
+	prevalence, reports := c.GetCancerRates(*eval)
+
 	writeDF(prevalence, *outfile)
 	if *pathology {
 		writeDF(reports, strings.Replace(*outfile, ".csv", ".Pathology.csv", 1))

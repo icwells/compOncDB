@@ -47,19 +47,19 @@ func newSpecies(id, location string, taxonomy []string) *Species {
 	return s
 }
 
-func (s *Species) tissueSlice(name string, r *Record) []string {
+func (s *Species) tissueSlice(name string, r *Record, age, sex bool) []string {
 	// Formats rows for specific tissues
 	ret := []string{s.id}
 	ret = append(ret, emptySlice(len(s.taxonomy))...)
 	ret = append(ret, name)
-	ret = append(ret, r.calculateRates(s.denominator, -1)...)
+	ret = append(ret, r.calculateRates(s.denominator, -1, age, sex)...)
 	if len(s.lifehistory) > 0 {
 		ret = append(ret, emptySlice(len(s.lifehistory))...)
 	}
 	return ret
 }
 
-func (s *Species) ToSlice(keepall bool) [][]string {
+func (s *Species) ToSlice(keepall, age, sex bool) [][]string {
 	// Formats cancer rates and returns row for tissue and total
 	var ret [][]string
 	if keepall || s.Location == "" || s.tissue.total > 0 {
@@ -68,18 +68,18 @@ func (s *Species) ToSlice(keepall bool) [][]string {
 		total := append([]string{s.id}, s.taxonomy...)
 		if s.Location != "" {
 			total = append(total, "all")
-			total = append(total, s.total.calculateRates(s.total.total, s.notissue)...)
+			total = append(total, s.total.calculateRates(s.total.total, s.notissue, age, sex)...)
 		} else {
 			// Omit location column
-			total = append(total, s.total.calculateRates(-1, s.notissue)...)
+			total = append(total, s.total.calculateRates(-1, s.notissue, age, sex)...)
 		}
 		if len(s.lifehistory) > 0 {
 			total = append(total, s.lifehistory...)
 		}
 		ret = append(ret, total)
 		if s.Location != "" {
-			ret = append(ret, s.tissueSlice(s.Location, s.tissue))
-			ret = append(ret, s.tissueSlice("Other", s.other))
+			ret = append(ret, s.tissueSlice(s.Location, s.tissue, age, sex))
+			ret = append(ret, s.tissueSlice("Other", s.other, age, sex))
 		}
 	}
 	return ret
