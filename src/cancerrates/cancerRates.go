@@ -91,7 +91,7 @@ func (c *cancerRates) setHeader() {
 	c.header = codbutils.CancerRateHeader(c.age, c.lh, loc, c.sex, c.taxa)
 }
 
-func (c *cancerRates) setDataFrame() {
+func (c *cancerRates) SetDataFrame() {
 	// Initializes header and dataframe
 	idx := 0
 	if c.location != "" {

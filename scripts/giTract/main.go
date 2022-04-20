@@ -66,14 +66,14 @@ func (r *record) addOther(s *cancerrates.Species) {
 func (r *record) format() [][]string {
 	// Returns records as string slice
 	var ret [][]string
-	if gi := r.gi.ToSlice(false); len(gi) > 0 {
+	if gi := r.gi.ToSlice(false, true, true); len(gi) > 0 {
 		ret = append(ret, gi[0])
 		if r.giset && len(gi) > 1 {
 			ret = append(ret, gi[1])
 		}
 	}
 	if r.otherset {
-		other := r.other.ToSlice(false)
+		other := r.other.ToSlice(false, true, true)
 		if len(ret) == 0 && len(other) > 0 {
 			ret = append(ret, other[0])
 		}
@@ -115,7 +115,10 @@ func newGImerger() *gimerger {
 func (g *gimerger) setTissues() {
 	// Gets cancer rates for every tissue
 	fmt.Println("\n\tCalculating cancer rates...")
-	c := cancerrates.NewCancerRates(g.db, *min, *necropsy, false, true, false, false, g.approved, "", "")
+	c := cancerrates.NewCancerRates(g.db, *min, false, "", "")
+	c.SearchSettings(*necropsy, false, false, g.approved)
+	c.OutputSettings(true, true, true, true)
+	c.SetDataFrame()
 	c.SetSearch(*eval)
 	for idx, list := range [][]string{g.gi, g.tissues} {
 		for _, i := range list {
@@ -165,7 +168,7 @@ func (g *gimerger) printRecords() {
 	// Writes records to file
 	var res [][]string
 	fmt.Println("\tFormatting results...")
-	header := append(codbutils.CancerRateHeader(), strings.Split(g.db.Columns["Life_history"], ",")[1:]...)
+	header := codbutils.CancerRateHeader(true, true, true, true, true)
 	for _, v := range g.records {
 		if row := v.format(); len(row) > 0 {
 			res = append(res, row...)

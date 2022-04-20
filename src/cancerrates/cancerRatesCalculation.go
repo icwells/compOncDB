@@ -107,7 +107,7 @@ func (c *cancerRates) CountRecords() {
 
 func (c *cancerRates) GetCancerRates(eval string) (*dataframe.Dataframe, *dataframe.Dataframe) {
 	// Returns dataframe of cancer rates
-	c.setDataFrame()
+	c.SetDataFrame()
 	c.logger.Printf("Calculating rates for species with at least %d entries...\n", c.min)
 	c.SetSearch(eval)
 	c.CountRecords()
