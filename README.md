@@ -3,7 +3,7 @@
 This program is meant specifically for managing the comparative oncology database for the Maley lab at Arizona State University.  
 It is currently being developed, so many features are not yet available.   
 
-Copyright 2019 by Shawn Rupp
+Copyright 2022 by Shawn Rupp
 
 1. [Description](#Description)
 2. [Installation](#Installation)  
@@ -105,7 +105,7 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 #### Backup  
 	componcdb backup -u username -o outfile  
 
-	-o, --outfile	Path to output directory (Prints to current directory by default).  
+	-o, --outfile		Path to output directory (Prints to current directory by default).  
 	-u, --user		MySQL username.  
 
 Backs up database to local machine. Must use root password. Output is written to current directory.  
@@ -125,7 +125,7 @@ to make a csv file ready to upload to the MySQL database.
 
 	componcdb parse -s service_name -t taxa_file -i infile -o outfile
 
-	-d, --debug				Adds cancer and code column (if present) for hand checking.  
+	-d, --debug			Adds cancer and code column (if present) for hand checking.  
 	-i, --infile			Path to input file (required).  
 	-o, --outfile			Path to output file (required).  
 	-s, --service			Database/service name (required).  
@@ -133,11 +133,11 @@ to make a csv file ready to upload to the MySQL database.
 
 Input files for parsing should have columns with the following names (in no particular order):
 
-	ID				Unique patient ID.
+	ID			Unique patient ID.
 	CommonName		Common species name of patient.
 	ScientificName	Binomial scientific species name.
-	Age				Patient age in months.
-	Sex				Patient sex (male/female).
+	Age			Patient age in months.
+	Sex			Patient sex (male/female).
 	Castrated		Whether patient was neutered/spayed.
 	Location		Tissue tumor occured in.
 	Type			Type of tumor (e.g. carcinoma).
@@ -155,10 +155,10 @@ Input files for parsing should have columns with the following names (in no part
 	componcdb verify {--merge} -i infile -o outfile  
 
 	-i, --infile	Path to input file (required).  
-	--diagnosis		Verifies type and location diagnoses only.  
-	--merge			Merges currated verification results with parse output. Give path to nlp output with -i and path to parse output with -o (it will be overwritten).  
+	--diagnosis	Verifies type and location diagnoses only.  
+	--merge		Merges currated verification results with parse output. Give path to nlp output with -i and path to parse output with -o (it will be overwritten).  
 	-o, --outfile	Path to output file (required).  
-	--neoplasia		Verifies masspresent diagnosis only.
+	--neoplasia	Verifies masspresent diagnosis only.
 
 Calls NLP pipeline on parse output to flag diagnosis data that may not be accurate. If the --neoplasia flag is given, mass present and hyperplasia will be examined. If the --diangosis flag is given, only tumor type annd location will be examined. Otherwise, all four columns will be examined. Records will be printed to file if any inconsistency is found. These records can be manually currated by changing the column value (Masspresent, Hyperplasia, Type, or Location) in place. You can then rerun with the --merge flag, which will write the corrected values into the parse output file. You may then proceed with uploading the file.  
 
@@ -181,12 +181,12 @@ Lastly, call the script to trian the neoplasia and diagnosis models. Each step w
 #### Upload  
 	componcdb upload -u username --{type_from_list_below} -i infile
 
-	--common			Additionally extract common names from Kestrel output to update common name tables.  
-	--den				Uploads file to denominator table for databases where only cancer records were extracted.  
-	-i infile			Path to appropriate input file (Required).  
-	--lh				Upload life history info from merged life history table to the database.   
-	--patient			Upload patient info from input table to database.
-	--taxa				Load taxonomy tables from Kestrel output to update taxonomy table.    
+	--common		Additionally extract common names from Kestrel output to update common name tables.  
+	--den			Uploads file to denominator table for databases where only cancer records were extracted.  
+	-i infile		Path to appropriate input file (Required).  
+	--lh			Upload life history info from merged life history table to the database.   
+	--patient		Upload patient info from input table to database.
+	--taxa			Load taxonomy tables from Kestrel output to update taxonomy table.    
 	-u, --user		MySQL username.  
 
 Uploads data from input files to appropriate tables. Only one flag may be given to indicate the type of 
@@ -200,13 +200,13 @@ are all the same file which must in the format of uploadTemplate.csv.
 
 	-c, --column	Column to be updated with given value if --eval column == value.
 	--clean		Remove extraneous records from the database.  
-	--delete		Delete records from given table if column = value. 
+	--delete	Delete records from given table if column = value. 
 	-e, --eval	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > <; wrap statement in quotation marks).
-	-i infile		Path to input file (see below for formatting).  
-	-o	outdir		Backs up database to given directory before performing update.  
+	-i infile	Path to input file (see below for formatting).  
+	-o	outdir	Backs up database to given directory before performing update.  
 	--table		Perform operations on this table only.   
 	-u, --user	MySQL username.  
-	-v, --value		Value to write to column if --eval column == value (only supply one evaluation statement).
+	-v, --value	Value to write to column if --eval column == value (only supply one evaluation statement).
 
 Update or delete existing records from the database. Command line updates (given with the -c, -v, and -e flags) will only perform a single 
 update operation; however, multiple updates can be run at once using an input file.  
@@ -228,15 +228,15 @@ a matching taxonomic level would be updated.
 #### Extract  
 	componcdb extract -u username {--flags...} {-o outfile}
 
-	--alltaxa	Summarizes life history table for all species (performs summary for species with records in patient table by default).  
-	-d, --dump	Name of table to dump (writes all data from table to output file).  
-	--dump_db	Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).  
-	-i infile		Path to input file (see below for formatting).  
+	--alltaxa			Summarizes life history table for all species (performs summary for species with records in patient table by default).  
+	-d, --dump			Name of table to dump (writes all data from table to output file).  
+	--dump_db			Extracts entire database into a gzipped tarball of csv files (specify output directory with -o).  
+	-i infile			Path to input file (see below for formatting).  
 	--lhsummary			Summarizes life history table.  
-	-o outfile		Name of output file (writes to stdout if not given).  
+	-o outfile			Name of output file (writes to stdout if not given).  
 	-r, --reference_taxonomy	Returns merged common and taxonomy tables.  
-	--summarize		Compiles basic summary statistics of the database.  
-	-u, --user	MySQL username.  
+	--summarize			Compiles basic summary statistics of the database.  
+	-u, --user			MySQL username.  
 
 Extract data from the database.  
 
@@ -245,9 +245,9 @@ Extract data from the database.
 	componcdb search -u username {--flags...} {-o outfile}
 
 	-e, --eval	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
-	--infant		Include infant records in results (excluded by default).  
-	-o outfile		Name of output file (writes to stdout if not given).  
-	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
+	--infant	Include infant records in results (excluded by default).  
+	-o outfile	Name of output file (writes to stdout if not given).  
+	--taxonomies	Searches for taxonomy matches given column of common/scientific names in a file.  
 	-u, --user	MySQL username.  
 
 For searching most tables, the only valid operators for the eval flag are = (or ==), !=, or ^. For searching the Totals or Life_history tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.   
@@ -258,10 +258,10 @@ This will search for matches in the "-n" column of an input file (the first colu
 #### Cancer Rates
 	componcdb cancerrates -u username {--flags...} {-o outfile}
 
-	-e, --eval	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
+	-e, --eval	 	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
 	--infant		Include infant records in results (excluded by default).  
 	--keepall		Keep records without specified tissue when calculating by tissue.  
-	--lifehistory	Append life history values to cancer rate data.  
+	--lifehistory		Append life history values to cancer rate data.  
 	--location		Include tumor location summary for each species for given location.  
 	-m, --min		Minimum number of entries required for calculations (default = 1).  
 	--necropsy		2: Extract only necropsy records, 1: extract all records by default, 0: extract non-necropsy records.  
@@ -271,9 +271,9 @@ This will search for matches in the "-n" column of an input file (the first colu
 	-o outfile		Name of output file (writes to stdout if not given).  
 	--pathology		Additionally extract pathology records for target species.  
 	--tissue		Include tumor tissue type summary for each species (supercedes location analysis).  
-	-u, --user	MySQL username.  
-	--wild		Return results for wild records only (returns non-wild only by default).  
-	-z, --source	Zoo/institute records to calculate prevalence with; all: use all records, approved (default): used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.  
+	-u, --user		MySQL username.  
+	--wild			Return results for wild records only (returns non-wild only by default).  
+	-z, --source		Zoo/institute records to calculate prevalence with; all: use all records, approved (default): used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.  
 
 Returns the cancer rates by species for records matching given search criteria. The "--min" flag specifies the minimum number of species required to report cancer rates.  
 
@@ -291,22 +291,22 @@ Creates new MySQL user. Must performed on the server using root password.
 ### run.sh  
 Runs hosting server for the comparative oncology database. Since the nginx server redirects to localHost, this is used for local testing and hosting on the server.  
 
-start	Kills running processes and starts new server on port 8080.  
-stop	Kills process running on port 8080.  
-help	Prints help text and exits.  
+	start	Kills running processes and starts new server on port 8080.  
+	stop	Kills process running on port 8080.  
+	help	Prints help text and exits.  
 
 ### test.sh  
 Runs test scripts and functions for compOncDB.  
 Usage: ./test.sh {all/fmt/vet/...}  
 
-all			Runs all tests.
-whitebox		Runs white box tests on all files in the src directory (except search directory, which requires mysql credentials).  
-blackbox		Runs all black box tests (parse, upload, search, cancerrate, and update).  
-parse		Runs parseRecords black box tests.  
-cancerrate	Runs cancer rate calculation black box tests (also runs upload test to ensure original test data is present).  
-necropsy	Runs necropsy filtering black box tests.  
-search		Runs white box tests on database search.  
-db			Runs upload, search, update, and delete black box tests.  
-fmt			Runs go fmt on all files in src and codb directories.  
-vet			Runs go vet on all files in src and codb directories.  
-help		Prints help text.  
+	all			Runs all tests.
+	whitebox		Runs white box tests on all files in the src directory (except search directory, which requires mysql credentials).  
+	blackbox		Runs all black box tests (parse, upload, search, cancerrate, and update).  
+	parse		Runs parseRecords black box tests.  
+	cancerrate	Runs cancer rate calculation black box tests (also runs upload test to ensure original test data is present).  
+	necropsy	Runs necropsy filtering black box tests.  
+	search		Runs white box tests on database search.  
+	db			Runs upload, search, update, and delete black box tests.  
+	fmt			Runs go fmt on all files in src and codb directories.  
+	vet			Runs go vet on all files in src and codb directories.  
+	help		Prints help text.  
