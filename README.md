@@ -9,8 +9,10 @@ Copyright 2019 by Shawn Rupp
 2. [Installation](#Installation)  
 3. [Usage](#Usage)  
 4. [Commands](#Commands)  
-5. [Search](#Search)
-5. [Cancer Rates](#Cancer Rates)
+5. [Search](#Search)  
+6. [Cancer Rates](#Cancer Rates)  
+7. [run.sh](#run.sh)  
+8. [test.sh](#test.sh)
 
 ## Description  
 componcdb is a program written to manage veterinary pathology data and identify cancer records using a MySQL database. 
@@ -272,3 +274,28 @@ This will search for matches in the "-n" column of an input file (the first colu
 	-z, --source	Zoo/institute records to calculate prevalence with; all: use all records, approved (default): used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.  
 
 Returns the cancer rates by species for records matching given search criteria. The "--min" flag specifies the minimum number of species required to report cancer rates.  
+
+## Bash Scripts  
+
+### run.sh  
+Runs hosting server for the comparative oncology database. Since the nginx server redirects to localHost, this is used for local testing and hosting on the server.  
+
+start	Kills running processes and starts new server on port 8080.  
+stop	Kills process running on port 8080.  
+help	Prints help text and exits.  
+
+### test.sh  
+Runs test scripts and functions for compOncDB.  
+Usage: ./test.sh {all/fmt/vet/...}  
+
+all			Runs all tests.
+whitebox		Runs white box tests on all files in the src directory (except search directory, which requires mysql credentials).  
+blackbox		Runs all black box tests (parse, upload, search, cancerrate, and update).  
+parse		Runs parseRecords black box tests.  
+cancerrate	Runs cancer rate calculation black box tests (also runs upload test to ensure original test data is present).  
+necropsy	Runs necropsy filtering black box tests.  
+search		Runs white box tests on database search.  
+db			Runs upload, search, update, and delete black box tests.  
+fmt			Runs go fmt on all files in src and codb directories.  
+vet			Runs go vet on all files in src and codb directories.  
+help		Prints help text.  

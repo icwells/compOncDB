@@ -25,8 +25,8 @@ runHost () {
 helpText () {
 	echo "Runs hosting server for the comparative oncology database."
 	echo ""
-	echo "start	Kills running processes and starts new server"
-	echo "stop	Kills process using pid in $PID."
+	echo "start	Kills running processes and starts new server on port 8080."
+	echo "stop	Kills process running on port 8080."
 	echo "help	Prints help text and exits."
 	echo ""
 }

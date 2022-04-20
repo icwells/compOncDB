@@ -39,13 +39,13 @@ getUser () {
 whiteBoxTests () {
 	echo ""
 	echo "Running white box tests..."
-	go test $CNRT
 	go test $CLSRC
-	go test $DIAG
-	go test $PRSRC
+	go test $CNRT
 	go test $CUSRC
+	go test $DIAG
 	go test $DUSRC
 	go test $DESRC
+	go test $PRSRC
 }
 
 testParseRecords () {
@@ -122,8 +122,8 @@ checkSource () {
 
 helpText () {
 	echo ""
-	echo "Runs test scripts for compOncDB."
-	echo "Usage: ./test.sh {all/whitebox/blackbox/parse/db/fmt/vet}"
+	echo "Runs test scripts and functions for compOncDB."
+	echo "Usage: ./test.sh {all/fmt/vet/...}"
 	echo ""
 	echo "all		Runs all tests."
 	echo "whitebox		Runs white box tests."
