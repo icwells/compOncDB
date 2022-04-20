@@ -88,13 +88,14 @@ Make sure the "comparativeOncology" database has been created in MySQL before ru
 	--help {command}	Show help {for given command}.  
 	version			Prints version info and exits.  
 	backup			Backs up database to local machine.  
-	new			Initializes new tables in new database.
+	new			Initializes new tables in new database.  
 	parse			Parse and organize records for upload to the comparative oncology database.  
 	verify			Compares parse output with NLP model predictions. Provide parse records output and new output file with -i and -o.  
 	upload			Upload data to the database.  
 	update			Update or delete existing records from the database.  
-	extract			Extract data from the database.
-	search			Search database for matches to queries.
+	extract			Extract data from the database.  
+	search			Search database for matches to queries.  
+	leader			Calculate neoplasia prevalence leaderboards.  
 	cancerrates		Calculate neoplasia prevalence for species.
 	newuser			Adds new user to database. Must performed on the server using root password.  
 
@@ -162,7 +163,7 @@ Input files for parsing should have columns with the following names (in no part
 Calls NLP pipeline on parse output to flag diagnosis data that may not be accurate. If the --neoplasia flag is given, mass present and hyperplasia will be examined. If the --diangosis flag is given, only tumor type annd location will be examined. Otherwise, all four columns will be examined. Records will be printed to file if any inconsistency is found. These records can be manually currated by changing the column value (Masspresent, Hyperplasia, Type, or Location) in place. You can then rerun with the --merge flag, which will write the corrected values into the parse output file. You may then proceed with uploading the file.  
 
 ##### Train NLP Model  
-Prior to verifying parse output, you must train the natural language processing model. To do this, first change into the nlpModel directory and pull trainign data from the website:
+Prior to verifying parse output, you must train the natural language processing model. To do this, first change into the nlpModel directory and pull training data from the website:
 
 	cd Scripts/nlpModel/
 	go run main -u {username} -o outfile
@@ -247,7 +248,6 @@ Extract data from the database.
 	--infant		Include infant records in results (excluded by default).  
 	-o outfile		Name of output file (writes to stdout if not given).  
 	--taxonomies		Searches for taxonomy matches given column of common/scientific names in a file.  
-	--topcancer		Returns top 5 cancer locations with most common type and species for each.  
 	-u, --user	MySQL username.  
 
 For searching most tables, the only valid operators for the eval flag are = (or ==), !=, or ^. For searching the Totals or Life_history tables, valid operations also include less than (or equal to) (</<=) and greater than (or equal to) (>/>=). Options given with -e should wrapped in single or double quotes to avoid errors.   
@@ -258,7 +258,6 @@ This will search for matches in the "-n" column of an input file (the first colu
 #### Cancer Rates
 	componcdb cancerrates -u username {--flags...} {-o outfile}
 
-	--approved		Calculate neoplasia prevalence using only records from approved zoos.  
 	-e, --eval	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
 	--infant		Include infant records in results (excluded by default).  
 	--keepall		Keep records without specified tissue when calculating by tissue.  
@@ -266,6 +265,9 @@ This will search for matches in the "-n" column of an input file (the first colu
 	--location		Include tumor location summary for each species for given location.  
 	-m, --min		Minimum number of entries required for calculations (default = 1).  
 	--necropsy		2: Extract only necropsy records, 1: extract all records by default, 0: extract non-necropsy records.  
+	--noavgage		Will not return average age columns in output file (AverageAge(months), AverageAgeNeoplasia(months)).  
+	--nosexcol		Will not return male/female specific columns in output file (Male, MaleNeoplasia, MaleMalignant, Female, FemaleNeoplasia, FemaleMalignant).  
+	--notaxacol		Will not return Kingdom-Genus columns in output file.  
 	-o outfile		Name of output file (writes to stdout if not given).  
 	--pathology		Additionally extract pathology records for target species.  
 	--tissue		Include tumor tissue type summary for each species (supercedes location analysis).  
@@ -274,6 +276,15 @@ This will search for matches in the "-n" column of an input file (the first colu
 	-z, --source	Zoo/institute records to calculate prevalence with; all: use all records, approved (default): used zoos approved for publication, aza: use only AZA member zoos, zoo: use only zoos.  
 
 Returns the cancer rates by species for records matching given search criteria. The "--min" flag specifies the minimum number of species required to report cancer rates.  
+
+### New User  
+	componcdb newuser -u root {--admin} --username  
+
+	--admin		Grant all privileges to user. Also allows remote MySQL access.  
+	-u, --user	MySQL username. Must be "root" to create new users in MySQL.  
+	--username	MySQL username for new user. Password will be be set to this name until it is updated.  
+
+Creates new MySQL user. Must performed on the server using root password.  
 
 ## Bash Scripts  
 

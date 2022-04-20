@@ -60,7 +60,6 @@ var (
 	searchdb   = kingpin.Command("search", "Search database for matches to queries.")
 	col        = searchdb.Flag("names", "Column of input file containing scientific/common species names to search.").Short('n').Default("0").Int()
 	taxonomies = searchdb.Flag("taxonomies", "Searches for taxonomy matches given column of common/scientific names in a file.").Default("false").Bool()
-	//top        = searchdb.Flag("topcancer", "Returns top 5 cancer locations with most common type and species for each.").Default("false").Bool()
 
 	leader = kingpin.Command("leader", "Calculate neoplasia prevalence leaderboards.")
 	typ    = leader.Flag("type", "Returns top 10 species with this tumor type.").Default("").String()
