@@ -135,13 +135,13 @@ Input files for parsing should have columns with the following names (in no part
 
 	ID			Unique patient ID.
 	CommonName		Common species name of patient.
-	ScientificName	Binomial scientific species name.
+	ScientificName		Binomial scientific species name.
 	Age			Patient age in months.
 	Sex			Patient sex (male/female).
 	Castrated		Whether patient was neutered/spayed.
 	Location		Tissue tumor occured in.
 	Type			Type of tumor (e.g. carcinoma).
-	PrimaryTumor	Whether tumor was the original tumor (if multiple found).
+	PrimaryTumor		Whether tumor was the original tumor (if multiple found).
 	Metastasis		Whether tumor metastasized.
 	Malignant		Whether tumor was malignant.
 	Necropsy		Whether a necropsy was performed.
@@ -241,7 +241,7 @@ a matching taxonomic level would be updated.
 Extract data from the database.  
 
 
-#### Search
+#### Search  
 	componcdb search -u username {--flags...} {-o outfile}
 
 	-e, --eval	 Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
@@ -255,7 +255,7 @@ For searching most tables, the only valid operators for the eval flag are = (or 
 Taxonomy information can be extracted for target species in a given input file by specifying the "--taxonomies" flag. 
 This will search for matches in the "-n" column of an input file (the first column by default). The species names can be either common or scientific names.  
 
-#### Cancer Rates
+#### Cancer Rates  
 	componcdb cancerrates -u username {--flags...} {-o outfile}
 
 	-e, --eval	 	Searches tables for matches (table is automatically determined) ('column operator value'; valid operators: != = <= >= > < ^; wrap statement in quotation marks and seperate multiple statements with commas; '^' will return match if the column contains the value).  
@@ -299,14 +299,14 @@ Runs hosting server for the comparative oncology database. Since the nginx serve
 Runs test scripts and functions for compOncDB.  
 Usage: ./test.sh {all/fmt/vet/...}  
 
-	all			Runs all tests.
-	whitebox		Runs white box tests on all files in the src directory (except search directory, which requires mysql credentials).  
-	blackbox		Runs all black box tests (parse, upload, search, cancerrate, and update).  
+	all		Runs all tests.
+	whitebox	Runs white box tests on all files in the src directory (except search directory, which requires mysql credentials).  
+	blackbox	Runs all black box tests (parse, upload, search, cancerrate, and update).  
 	parse		Runs parseRecords black box tests.  
 	cancerrate	Runs cancer rate calculation black box tests (also runs upload test to ensure original test data is present).  
 	necropsy	Runs necropsy filtering black box tests.  
 	search		Runs white box tests on database search.  
-	db			Runs upload, search, update, and delete black box tests.  
-	fmt			Runs go fmt on all files in src and codb directories.  
-	vet			Runs go vet on all files in src and codb directories.  
+	db		Runs upload, search, update, and delete black box tests.  
+	fmt		Runs go fmt on all files in src and codb directories.  
+	vet		Runs go vet on all files in src and codb directories.  
 	help		Prints help text.  
