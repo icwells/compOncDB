@@ -79,7 +79,7 @@ func (r *record) setSex(sex string) {
 
 func (r *record) equals(common, date, sex, species string) bool {
 	// Returns true if records are equal
-	if r.sex == sex && r.date == date {
+	if r.date == date {
 		if r.common == common || r.species == species {
 			return true
 		}
@@ -162,12 +162,19 @@ func (w *wild) update() {
 
 func (w *wild) setPatientIDs() {
 	// Stores id for target LZ records
+	var count int
 	w.logger.Println("Getting target patient IDs....")
-	for _, i := range w.db.GetRows("Records", "service_name", "LZ", "ID,source_id,common_name") {
+	for _, i := range w.db.GetRows("Records", "service_name", "LZ", "ID,source_id,Wild,common_name") {
 		if ex, _ := w.sids.InSet(i[1]); ex {
-			w.pids.Add(i[0])
+			if i[3] == "Grey Squirrel" {
+				count++
+			}
+			if i[2] != "1" {
+				w.pids.Add(i[0])
+			}
 		}
 	}
+	w.logger.Printf("Found %d squirrel records.", count)
 	w.logger.Printf("Found %d wild patient IDs.", w.pids.Length())
 }
 
